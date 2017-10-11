@@ -19,6 +19,14 @@ class TestCurveBuild(TestBaseCurve):
     def test_partial_input(self):
         nt.Curve.build()
 
+    def test_point_input(self):
+        curve = nt.Curve.build(point = [[0,0,0], [0,1,0], [0,2,0], [0,3,0]])
+        print('numCVs!', curve.numCVs())
+
+    def test_shape_input(self):
+        curve = nt.Curve.build(shape = 'arrow')
+        print('numCVs!', curve.numCVs())
+
     def test_with_parent(self):
         nt.Curve.build(parent=self.null_transform)
 

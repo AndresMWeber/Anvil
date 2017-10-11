@@ -11,15 +11,13 @@ import yaml
 class Curve(dag_node.DagNode):
     dcc_type = 'curve'
     SHAPE_CACHE = None
-
-    def __init__(self, name, parent=None, flags=None, meta_data=None):
-        super(Curve, self).__init__(name, flags=flags, meta_data=meta_data)
+    DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
     @classmethod
     def build(cls, meta_data=None, name_tokens=None, **flags):
-        flags['point'] = cls._get_shape_constructor(flags.get('shape') or 'cube', return_positions=True)
-        instance = super(Curve, cls).build(meta_data=meta_data, name_tokens=name_tokens, **flags)
-        return instance
+        if flags.get('point') is None:
+            flags.update(cls._get_shape_constructor(flags.get('shape') or 'cube', return_positions=True))
+        return super(Curve, cls).build(meta_data=meta_data, name_tokens=name_tokens, **flags)
 
     @classmethod
     def _get_shape_constructor(cls, shape_name, return_positions=False):
@@ -27,7 +25,8 @@ class Curve(dag_node.DagNode):
         shape_entry = cls.SHAPE_CACHE.get(shape_name or '', {})
 
         if return_positions:
-            return shape_entry.get('point', None) or [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
+            return {key: shape_entry.get(key) for key in ['point', 'degree'] if
+                    shape_entry.get(key)} or {'point': cls.DEFAULT_SHAPE, 'degree': 1}
 
         shape_constructor = shape_entry.pop('constructor')
         api_function = getattr(runtime.dcc.ENGINE_API, shape_constructor, None)

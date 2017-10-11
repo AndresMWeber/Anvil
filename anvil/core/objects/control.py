@@ -14,8 +14,8 @@ class Control(curve.Curve):
         },
     }
 
-    def __init__(self, node_unicode_proxy, flags=None, meta_data=None):
-        super(Control, self).__init__(node_unicode_proxy, flags=flags, meta_data=meta_data)
+    def __init__(self, node_unicode_proxy, meta_data=None, name_tokens=None, **flags):
+        super(Control, self).__init__(node_unicode_proxy, meta_data=meta_data, name_tokens=name_tokens, **flags)
         validate(flags, self.schema)
         flags = flags or {}
         self.offset_group = flags.get('offset_group')

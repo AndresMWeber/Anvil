@@ -1,5 +1,6 @@
 from six import iteritems
 import node_types as node_types
+import nomenclate
 import anvil
 import anvil.runtime as runtime
 
@@ -8,10 +9,21 @@ import anvil.runtime as runtime
 class UnicodeDelegate(object):
     dcc_type = None
 
-    def __init__(self, node_unicode_proxy, flags=None, meta_data=None):
+    def __init__(self, node_unicode_proxy, meta_data=None, name_tokens=None, **flags):
+        """ All nodes must be initialized with a string representation that the encompassing platform
+            uses as DAG path representation for the object.
+
+        :param node_unicode_proxy: str, DAG path to the object we want to encapsulate
+        :param flags: dict, creation flags specific for the platform environment node creation function
+        :param meta_data: dict, any object specific meta data we want to record
+        :param name_tokens: dict, optional naming flags to be used be used by a nomenclate object when renaming.
+        """
         anvil.LOG.info('Initializing node with ID %s' % node_unicode_proxy)
         self._dcc_id = runtime.dcc.scene.get_persistent_id(node_unicode_proxy)
         self._api_class_instance = None
+        self._nomenclate = nomenclate.Nom()
+
+        self.name_tokens = name_tokens or {}
         self.flags = flags or {}
         self.meta_data = meta_data or {}
 
@@ -22,14 +34,11 @@ class UnicodeDelegate(object):
     def build(cls, meta_data=None, name_tokens=None, **flags):
         cls.convert_subclass_kwargs(flags)
         dcc_instance = runtime.dcc.create.create(cls.dcc_type, flags=flags)
+        instance = cls(str(dcc_instance), meta_data=meta_data, **flags)
 
-        try:
-            dcc_dag_path = dcc_instance.name()
-        except AttributeError:
-            dcc_dag_path = dcc_instance
-        print(flags, meta_data, dcc_dag_path)
-        instance = cls(dcc_dag_path, meta_data=meta_data)  # , flags=flags)
-        instance._api_class_instance = dcc_instance
+        # If the instance isn't a string we can assume it's some API class instance we can use later.
+        if not isinstance(dcc_instance, str):
+            instance._api_class_instance = dcc_instance
 
         return instance
 
