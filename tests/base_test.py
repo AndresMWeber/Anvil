@@ -42,7 +42,6 @@ class TestBase(unittest.TestCase):
 
     def tearDown(self):
         global tearDown_count
-        anvil.LOG.info('Tearing down!! Deleting all nodes...')
         try:
             import maya.cmds as mc
             if self.fixtures:
