@@ -2,7 +2,7 @@ import logging
 from anvil.plugins.dcc_plugin import get_log_handler
 
 
-def getLogger(name):
+def obtainLogger(name):
     """Get's a logger and attaches the correct DCC compatible Handler.
     Args:
         name (str): Name of the logger to get / create.

@@ -1,5 +1,6 @@
 from anvil.plugins.maya.dependencies import *
 import anvil.plugins.abstract.scene as scene
+from jsonschema import validate
 
 
 class Scene(scene.Scene):
@@ -68,3 +69,21 @@ class Scene(scene.Scene):
     def duplicate(self, node_dag, parent_only=True, **kwargs):
         duplicate_node = mc.duplicate(node_dag, parentOnly=parent_only, **kwargs)[0]
         return duplicate_node
+
+    def list_relatives(self, node_dag, **flags):
+        schema = {
+            "type": ["object", "null"],
+            "properties": {
+                "allDescendents": "boolean",
+                "allParents": "boolean",
+                "children": "boolean",
+                "fullPath": "boolean",
+                "noIntermediate": "boolean",
+                "parent": "boolean",
+                "path": "boolean",
+                "shapes": "boolean",
+                "type": "string"
+            },
+        }
+        validate(flags, schema)
+        return mc.listRelatives(node_dag, **flags)

@@ -27,3 +27,6 @@ class Scene(object):
 
     def duplicate(self, node_dag, parent_only=True, **kwargs):
         return node_dag + '_duplicate'
+
+    def list_relatives(self, node_dag, **flags):
+        return node_dag

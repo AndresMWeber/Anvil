@@ -8,7 +8,7 @@ class DCCPlugin(object):
     ENGINE = None
 
     def __init__(self, dcc_module):
-        dcc_module.lazy_import()
+        self.ENGINE_API = dcc_module.lazy_import() or {}
         self.scene = dcc_module.scene.Scene()
         self.create = dcc_module.create.Create()
         self.ENGINE = dcc_module.__name__
@@ -49,5 +49,3 @@ def get_current_dcc(return_module=False):
             handler = mod if return_module else plugin
 
     return handler
-
-

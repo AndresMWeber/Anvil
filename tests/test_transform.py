@@ -3,9 +3,9 @@ import anvil
 import anvil.core.objects.node_types as nt
 
 
-class TestBaseRig(TestBase):
+class TestBaseTransform(TestBase):
     def setUp(self):
-        super(TestBaseRig, self).setUp()
+        super(TestBaseTransform, self).setUp()
 
     @staticmethod
     def encapsulation_node_creation():
@@ -14,11 +14,16 @@ class TestBaseRig(TestBase):
                 'control_con_grp': anvil.core.objects.transform.Transform.build()
                 }
 
-class TestRigBuild(TestBaseRig):
-    def test_default(self):
-        test_rig = anvil.core.collections.rig.Rig([])
 
-    def test_curve(self):
-        point = {'point': [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]}
-        nt.Curve.build(flags=point)
+class TestTransformBuild(TestBaseTransform):
+    def test_empty_input(self):
+        nt.Transform.build()
 
+    def test_full_input(self):
+        nt.Transform.build()
+
+    def test_partial_input(self):
+        nt.Transform.build()
+
+class TestTransformRename(TestBaseTransform):
+    pass

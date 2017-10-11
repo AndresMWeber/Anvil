@@ -1,7 +1,6 @@
+import anvil
 import anvil.core.objects.node_types as nt
-import anvil.plugins as plugins
 
-dcc = plugins.current_dcc
 
 class Rig(object):
     """ A fully functional and self-contained rig with all requirements implemented that
@@ -11,7 +10,7 @@ class Rig(object):
     NODE_TYPES = {}
 
     def __init__(self, layout_positions):
-        self.hierarchy = self.process_layout(layout_positions)
+        self.hierarchy = {}
 
     def build_root_hierarchy(self):
         self.add_node(nt.Transform, 'group_root')
@@ -27,13 +26,14 @@ class Rig(object):
             sub_rig_member.build_layout()
 
     def add_node(self, node_class, node_key, flags=None, name_tokens=None):
-        self.hierarchy[node_key] = self.DCC.node_type
+        flags = {} if flags is None else flags
+        anvil.LOG.info('rig add %s.%s = %s(flags=%s, name_tokens=%s)' % (self, node_key, node_class, flags, name_tokens))
+        node = node_class.build(name_tokens=name_tokens, **flags)
+        self.hierarchy[node_key] = node
+        return node
 
     def find_node(self, node_key):
         return self.hierarchy.get(node_key, None)
-
-    def register_node(self, node_class):
-        pass
 
     def __getattr__(self, item):
         try:

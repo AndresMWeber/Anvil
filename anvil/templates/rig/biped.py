@@ -1,6 +1,8 @@
-import anvil.templates.sub_rig as sub_rig_template
-import anvil.core.collections.rig as rig
 import anvil.core.collections.hierarchy as hierarchy
+
+import anvil.templates.sub_rig as sub_rig_template
+import core.collections.rig as rig
+
 
 class Biped(rig.Rig):
 

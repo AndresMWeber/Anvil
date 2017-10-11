@@ -1,11 +1,11 @@
 import unittest
-import maya.cmds as mc
+from pprint import pformat
+
+from six import iteritems, string_types
+
 import anvil
 from collections import Iterable
-from six import iteritems, string_types
-from pprint import pformat
 from collections import OrderedDict
-
 
 setUp_count = 0
 tearDown_count = 0
@@ -18,32 +18,42 @@ class TestBase(unittest.TestCase):
         global setUp_count
         anvil.LOG.info('setup has run %d times.' % setUp_count)
         anvil.LOG.info('setUp-Start state of scene: ')
-        anvil.LOG.info(pformat(anvil.plugins.maya.scene.get_scene_tree()))
+        anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
 
         self.fixtures = []
         test_parent_grp = 'test_parent'
         test_grp = '%s|test_GRP' % test_parent_grp
 
-        self.test_group = test_grp if mc.objExists(test_grp) else anvil.core.objects.transform.Transform.build(n='test', em=True)
-        self.test_group_parent = test_parent_grp if mc.objExists(
-            test_parent_grp) else anvil.core.objects.transform.Transform.build(n='test_parent')
+        try:
+            import maya.cmds as mc
+            self.test_group = test_grp if mc.objExists(test_grp) else anvil.core.objects.transform.Transform.build()
+            self.test_group_parent = test_parent_grp if mc.objExists(
+                test_parent_grp) else anvil.core.objects.transform.Transform.build()
 
-        self.fixtures.append(self.test_group)
-        self.fixtures.append(self.test_group_parent)
+            self.fixtures.append(self.test_group)
+            self.fixtures.append(self.test_group_parent)
+        except ImportError:
+            pass
+
         anvil.LOG.info('state of scene after initial node creation: ')
-        anvil.LOG.info(pformat(anvil.plugins.maya.scene.get_scene_tree()))
+        anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
         anvil.LOG.info('Registered nodes %s' % self.fixtures)
         setUp_count += 1
 
     def tearDown(self):
         global tearDown_count
         anvil.LOG.info('Tearing down!! Deleting all nodes...')
-        if self.fixtures:
-            self.fixtures = [fixture for fixture in self.fixtures if mc.objExists(fixture)]
-            for fixture in self.fixtures:
-                if mc.objExists(fixture):
-                    for fix in mc.ls(fixture):
-                        mc.delete(fix)
+        try:
+            import maya.cmds as mc
+            if self.fixtures:
+                self.fixtures = [fixture for fixture in self.fixtures if mc.objExists(fixture)]
+                for fixture in self.fixtures:
+                    if mc.objExists(fixture):
+                        for fix in mc.ls(fixture):
+                            mc.delete(fix)
+        except ImportError:
+            pass
+
         tearDown_count += 1
 
     @classmethod

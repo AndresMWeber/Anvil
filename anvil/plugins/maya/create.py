@@ -2,31 +2,54 @@ import anvil.plugins.abstract.create as create
 from anvil.plugins.maya.dependencies import *
 from jsonschema import validate
 
+m_api = pm
+
 
 class Create(create.Create):
-    def initialize_flags(self, flags):
-        if flags is None:
-            flags = {}
-        return flags
-
     def create_node(self, dcc_node_type, flags=None):
-        function_name_query = 'create_%s' % dcc_node_type
-        if hasattr(self, function_name_query):
-            getattr(self, function_name_query)(flags)
-        else:
-            schema = {
-                "type": ["object", "null"],
-                "properties": {
-                    "name": {"type": "string"},
-                    "parent": {"type": "string"},
-                    "shared": {"type": "boolean"},
-                    "skipSelect": {"type": "boolean"},
-                },
-            }
-            validate(flags, schema)
-            flags = self.initialize_flags(flags)
+        if dcc_node_type is None:
+            raise KeyError('Node type %s is unsupported at this time' % dcc_node_type)
+        schema = {
+            "type": ["object", "null"],
+            "properties": {
+                "name": {"type": "string"},
+                "parent": {"type": "string"},
+                "shared": {"type": "boolean"},
+                "skipSelect": {"type": "boolean"},
+            },
+        }
+        validate(flags, schema)
+        flags = self.initialize_and_filter_flags(flags, schema)
 
-            return pm.createNode(dcc_node_type, **flags)
+        return m_api.createNode(dcc_node_type, **flags)
+
+    def create_curve(self, flags=None):
+        schema = {
+            "type": ["object", "null"],
+            "required": ["point"],
+            "properties": {
+                "name": {"type": "string"},
+                "append": {"type": "boolean"},
+                "bezier": {"type": "boolean"},
+                "degree": {"type": "number"},
+                "editPoint": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                "knot": {"type": "number"},
+                "objectSpace": {"type": "boolean"},
+                "periodic": {"type": "boolean"},
+                "point": {"type": "array",
+                          "items": {"type": "array",
+                                    "items": {"type": "number"},
+                                    "minItems": 3,
+                                    "maxItems": 3}
+                          },
+                "pointWeight": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+                "replace": {"type": "boolean"},
+                "worldSpace": {"type": "boolean"},
+            },
+        }
+        validate(flags, schema)
+        flags = self.initialize_and_filter_flags(flags, schema)
+        return m_api.curve(**flags)
 
     def create_transform(self, flags=None):
         schema = {
@@ -34,16 +57,16 @@ class Create(create.Create):
             "properties": {
                 "name": {"type": "string"},
                 "world": {"type": "boolean"},
-                "parent": {"type": "string"},
+                "parent": {},
                 "empty": {"type": "boolean"},
                 "relative": {"type": "boolean"},
                 "absolute": {"type": "boolean"},
             },
         }
         validate(flags, schema)
-        flags = self.initialize_flags(flags)
+        flags = self.initialize_and_filter_flags(flags, schema)
         flags['empty'] = flags.get('empty', True)
-        return pm.group(**flags)
+        return m_api.group(**flags)
 
     def create_joint(self, flags=None):
         schema = {
@@ -65,18 +88,18 @@ class Create(create.Create):
                 "orientJoint": {"type": "string"},
                 "orientation": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
                 "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-                "radius": {"type": "float"},
+                "radius": {"type": "number"},
                 "relative": {"type": "boolean"},
                 "rotationOrder": {"type": "string"},
                 "scale": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
                 "scaleOrientation": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-                "stiffnessX": {"type": "float"},
-                "stiffnessY": {"type": "float"},
-                "stiffnessZ": {"type": "float"},
+                "stiffnessX": {"type": "number"},
+                "stiffnessY": {"type": "number"},
+                "stiffnessZ": {"type": "number"},
                 "symmetry": {"type": "boolean"},
                 "symmetryAxis": {"type": "string"},
             },
         }
         validate(flags, schema)
-        flags = self.initialize_flags(flags)
-        return pm.joint(**flags)
+        flags = self.initialize_and_filter_flags(flags, schema)
+        return m_api.joint(**flags)

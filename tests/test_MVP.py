@@ -14,11 +14,15 @@ class TestBaseRig(TestBase):
                 'control_con_grp': anvil.core.objects.transform.Transform.build()
                 }
 
-class TestRigBuild(TestBaseRig):
+
+class TestRigEyeBuild(TestBaseRig):
     def test_default(self):
         test_rig = anvil.core.collections.rig.Rig([])
-
-    def test_curve(self):
-        point = {'point': [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]}
-        nt.Curve.build(flags=point)
+        test_rig.build_root_hierarchy()
+        anvil.LOG.debug('test_rig.hierarchy = %s' % test_rig.hierarchy)
+        anvil.LOG.debug('test_rig.control_universal = %s' % test_rig.find_node('control_universal'))
+        try:
+            test_rig.find_node('control_universal')._pymel_node.name()
+        except:
+            pass
 

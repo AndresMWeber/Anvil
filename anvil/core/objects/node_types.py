@@ -14,3 +14,4 @@ from transform import Transform
 from unicode_delegate import UnicodeDelegate
 from dag_node import DagNode
 from curve import Curve
+from control import Control

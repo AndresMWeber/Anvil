@@ -1,73 +1,31 @@
-from anvil.plugins.abstract.dependencies import *
-from jsonschema import validate
-
+import anvil
 
 class Create(object):
-    def create_node(self, dcc_node_type, flags=None):
-        function_name_query = 'create_%s' % dcc_node_type
-        if hasattr(self, function_name_query):
-            getattr(self, function_name_query)(flags)
+    def initialize_and_filter_flags(self, flags, schema):
+        if flags is None or flags == {}:
+            return {}
         else:
-            schema = {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "parent": {"type": "string"},
-                    "shared": {"type": "boolean"},
-                    "skipSelect": {"type": "boolean"},
-                },
-            }
-            validate(flags, schema)
+            schema_properties = [key for key in list(schema.get('properties'))]
+            anvil.LOG.info('Attempting to filter flags %s for the schema properties %s' % (flags, schema_properties))
+            for flag_key in list(flags):
+                if flag_key not in schema_properties:
+                    anvil.LOG.info('flag %s not in schema...removing from flags' % (flag_key))
+                    flags.pop(flag_key)
+            return flags
 
-            return dcc_node_type
+    def create(self, dcc_node_type, flags=None):
+        anvil.LOG.info('Attempting to create node type %s with flags %s' % (dcc_node_type, flags))
+        function_name_query = 'create_%s' % dcc_node_type
+        node = dcc_node_type
+        try:
+            node = getattr(self, function_name_query)(flags=flags)
+        except AttributeError:
+            anvil.LOG.warning('No custom method for node type %s found...defaulting...' % dcc_node_type)
+        anvil.LOG.info('Created node %s from function %s with flags %s' % (node, function_name_query, flags))
+        return node
 
     def create_transform(self, flags=None):
-        schema = {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string"},
-                "world": {"type": "boolean"},
-                "parent": {"type": "string"},
-                "empty": {"type": "boolean"},
-                "relative": {"type": "boolean"},
-                "absolute": {"type": "boolean"},
-            },
-        }
-        validate(flags, schema)
-        flags['empty'] = flags.get('empty', True)
         return 'group'
 
     def create_joint(self, flags=None):
-        schema = {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string"},
-                "world": {"type": "boolean"},
-                "absolute": {"type": "boolean"},
-                "angleX": {"type": "number"},
-                "angleY": {"type": "number"},
-                "angleZ": {"type": "number"},
-                "degreeOfFreedom": {"type": "string"},
-                "limitSwitchX": {"type": "boolean"},
-                "limitSwitchY": {"type": "boolean"},
-                "limitSwitchZ": {"type": "boolean"},
-                "limitX": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
-                "limitY": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
-                "limitZ": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
-                "orientJoint": {"type": "string"},
-                "orientation": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-                "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-                "radius": {"type": "float"},
-                "relative": {"type": "boolean"},
-                "rotationOrder": {"type": "string"},
-                "scale": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-                "scaleOrientation": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-                "stiffnessX": {"type": "float"},
-                "stiffnessY": {"type": "float"},
-                "stiffnessZ": {"type": "float"},
-                "symmetry": {"type": "boolean"},
-                "symmetryAxis": {"type": "string"},
-            },
-        }
-        validate(flags, schema)
         return 'joint'
