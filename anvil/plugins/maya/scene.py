@@ -6,7 +6,7 @@ from jsonschema import validate
 class Scene(scene.Scene):
     def get_persistent_id(self, node_unicode_proxy):
         selection_list = om.MSelectionList()
-        selection_list.add(node_unicode_proxy)
+        selection_list.add(str(node_unicode_proxy))
         return selection_list.getDagPath(0)
 
     def get_type(self, node, **kwargs):
@@ -63,8 +63,9 @@ class Scene(scene.Scene):
                 pass
 
     def rename(self, node_dag, name, **kwargs):
-        mc.rename(node_dag, name, **kwargs)
-        return str(node_dag)
+        if not name:
+            return node_dag
+        return mc.rename(node_dag, name, **kwargs)
 
     def duplicate(self, node_dag, parent_only=True, **kwargs):
         duplicate_node = mc.duplicate(node_dag, parentOnly=parent_only, **kwargs)[0]

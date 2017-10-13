@@ -1,3 +1,4 @@
+import nomenclate
 import anvil
 import anvil.core.objects.node_types as nt
 
@@ -11,29 +12,25 @@ class Rig(object):
 
     def __init__(self, layout_positions, name_tokens=None):
         self.hierarchy = {}
-        self.name_tokens = name_tokens or {}
+        self._nomenclate = nomenclate.Nom(name_tokens or {})
 
     def build_root_hierarchy(self):
-        self.name_tokens['type'] = 'transform'
-        self.add_node(nt.Transform, 'group_root', name_tokens=self.name_tokens)
-        self.add_node(nt.Transform, 'group_model', flags={'parent': self.find_node('group_root')},
-                      name_tokens=self.merge_naming_kwargs(childtype='model', type='group'))
-        self.add_node(nt.Transform, 'group_joint', flags={'parent': self.find_node('group_root')},
-                      name_tokens=self.merge_naming_kwargs(childtype='joint'))
-        self.add_node(nt.Transform, 'group_controls', flags={'parent': self.find_node('group_root')},
-                      name_tokens=self.merge_naming_kwargs(childtype='controls'))
-        self.add_node(nt.Transform, 'group_nodes', flags={'parent': self.find_node('group_root')},
-                      name_tokens=self.merge_naming_kwargs(childtype='nodes'))
-        self.add_node(nt.Transform, 'group_world', flags={'parent': self.find_node('group_root')},
-                      name_tokens=self.merge_naming_kwargs(childtype='world'))
-        self.add_node(nt.Control, 'control_universal', flags={'parent': self.find_node('group_controls')},
-                      name_tokens=self.merge_naming_kwargs(childtype='universal'))
+        root = self.add_node(nt.Transform, 'group_root')
+        parent_kwarg = {'parent': root}
+        self.add_node(nt.Transform, 'group_model', flags=parent_kwarg)
+        self.add_node(nt.Transform, 'group_joint', flags=parent_kwarg)
+        self.add_node(nt.Transform, 'group_controls', flags=parent_kwarg)
+        self.add_node(nt.Transform, 'group_nodes', flags=parent_kwarg)
+        self.add_node(nt.Transform, 'group_world', flags=parent_kwarg)
+        self.add_node(nt.Control, 'control_universal', flags={'parent': self.find_node('group_controls')})
 
     def rename(self, **name_tokens):
+        self._nomenclate.merge_dict(name_tokens)
+        self._nomenclate.type = 'group'
+        for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
+            self.find_node('group_%s' % main_group_type).rename(self._nomenclate.get(childtype=main_group_type))
 
-    def merge_naming_kwargs(self, **naming_kwargs):
-        self.name_tokens.update(naming_kwargs)
-        return self.name_tokens
+        self.find_node('control_universal').rename(self._nomenclate.get(childtype='universal', type='control'))
 
     def build_layout(self):
         for sub_rig_member in self.hierarchy:
@@ -43,9 +40,8 @@ class Rig(object):
         flags = {} if flags is None else flags
         anvil.LOG.info('rig add %s.%s = %s(flags=%s, name_tokens=%s)' %
                        (self, node_key, node_class, flags, name_tokens))
-        node = lambda: node_class.build(meta_data=meta_data, name_tokens=name_tokens, **flags)
-        self.hierarchy[node_key] = node
-        return node
+        self.hierarchy[node_key] = node_class.build(meta_data=meta_data, name_tokens=name_tokens, **flags)
+        return self.hierarchy[node_key]
 
     def find_node(self, node_key):
         try:

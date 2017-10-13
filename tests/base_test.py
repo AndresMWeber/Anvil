@@ -7,14 +7,19 @@ import anvil
 from anvil import node_types
 from collections import Iterable
 from collections import OrderedDict
+import nomenclate
 
+NOMENCLATE = nomenclate.Nom()
 
 class TestBase(unittest.TestCase):
     def safe_create(self, dag_path, object_type, name_tokens=None, **flags):
+        name_tokens = name_tokens or {}
         if anvil.runtime.dcc.scene.exists(dag_path):
             return dag_path
         else:
-            return node_types.Transform.build(name_tokens=name_tokens, **flags)
+            node = node_types.Transform.build(**flags)
+            node.rename(NOMENCLATE.get(**name_tokens))
+            return node
 
     def setUp(self):
         anvil.LOG.info('Initializing maya_utils standalone...')
@@ -28,14 +33,10 @@ class TestBase(unittest.TestCase):
         test_grp = '%s|test_GRP' % test_parent_grp
 
         try:
-            self.test_group = self.safe_create(test_grp,
-                                               node_types.Transform,
-                                               name_tokens={'name': 'test'})
-
-            self.test_group_parent = self.safe_create(test_parent_grp,
-                                                      node_types.Transform,
-                                                      name_tokens={'name': 'test_parent'})
-
+            self.test_group = self.safe_create(test_grp, node_types.Transform)
+            self.test_group_parent = self.safe_create(test_parent_grp, node_types.Transform)
+            self.test_group.rename('test_GRP')
+            self.test_group_parent.rename('test_group_parent_GRP')
             self.fixtures.append(self.test_group)
             self.fixtures.append(self.test_group_parent)
         except ImportError:

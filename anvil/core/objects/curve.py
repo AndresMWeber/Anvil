@@ -14,10 +14,10 @@ class Curve(dag_node.DagNode):
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
     @classmethod
-    def build(cls, meta_data=None, name_tokens=None, **flags):
+    def build(cls, meta_data=None, **flags):
         if flags.get('point') is None:
             flags.update(cls._get_shape_constructor(flags.get('shape') or 'cube', return_positions=True))
-        return super(Curve, cls).build(meta_data=meta_data, name_tokens=name_tokens, **flags)
+        return super(Curve, cls).build(meta_data=meta_data, **flags)
 
     @classmethod
     def _get_shape_constructor(cls, shape_name, return_positions=False):
