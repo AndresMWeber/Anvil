@@ -1,6 +1,6 @@
 import os
 import node_types as node_types
-import dag_node as dag_node
+import transform
 import anvil
 import anvil.config as config
 import anvil.runtime as runtime
@@ -8,15 +8,16 @@ import yaml
 
 
 @node_types.register_node
-class Curve(dag_node.DagNode):
+class Curve(transform.Transform):
     dcc_type = 'curve'
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
     @classmethod
-    def build(cls, meta_data=None, **flags):
+    def build(cls, meta_data=None, shape='cube', **flags):
         if flags.get('point') is None:
-            flags.update(cls._get_shape_constructor(flags.get('shape') or 'cube', return_positions=True))
+            flags.update(cls._get_shape_constructor(shape, return_positions=True))
+
         return super(Curve, cls).build(meta_data=meta_data, **flags)
 
     @classmethod
@@ -36,11 +37,14 @@ class Curve(dag_node.DagNode):
             return lambda: api_function(**shape_entry)
 
     @classmethod
-    def _populate_shape_file_data(cls):
+    def _populate_shape_file_data(cls, shape_file=None):
+        if shape_file is None:
+            shape_file = config.SHAPES_FILE
+
         if not cls.SHAPE_CACHE:
             anvil.LOG.info('Initializing shapes lookup from yml file')
             try:
-                cls.SHAPE_CACHE = yaml.load(open(config.SHAPES_FILE, "r"))
+                cls.SHAPE_CACHE = yaml.load(open(shape_file, "r"))
             except IOError:
-                anvil.LOG.error('Missing file %s, please reinstall or locate' % config.SHAPES_FILE)
+                anvil.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
                 cls.SHAPE_CACHE = {}

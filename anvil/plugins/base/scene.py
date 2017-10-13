@@ -1,5 +1,3 @@
-
-
 class Scene(object):
     def get_persistent_id(self, node_unicode_proxy):
         raise NotImplementedError
@@ -33,4 +31,6 @@ class Scene(object):
 
     def list_relatives(self, node_dag, **flags):
         raise NotImplementedError
-    
+
+    def parent(self, node, new_parent, **flags):
+        raise NotImplementedError

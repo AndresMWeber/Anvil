@@ -1,6 +1,7 @@
 import node_types as node_types
 import dag_node
 import anvil.runtime as runtime
+import anvil
 
 
 @node_types.register_node
@@ -8,7 +9,18 @@ class Transform(dag_node.DagNode):
     dcc_type = 'transform'
 
     def get_parent(self):
-        try:
-            self.getParent()
-        except TypeError:
-            runtime.dcc.scene.list_relatives(self._dcc_id, parent=True)
+        parents = runtime.dcc.scene.list_relatives(self._dcc_id, parent=True)
+        if isinstance(parents, list):
+            return parents[0]
+        return parents
+
+    def parent(self, new_parent):
+        anvil.LOG.info('Parenting %s to %s' % (str(self), str(new_parent)))
+        return runtime.dcc.scene.parent(str(self), str(new_parent))
+
+    @classmethod
+    def build(cls, meta_data=None, parent=None, **flags):
+        node = super(Transform, cls).build(meta_data=meta_data, **flags)
+        if parent:
+            node.parent(parent)
+        return node

@@ -75,16 +75,33 @@ class Scene(scene.Scene):
         schema = {
             "type": ["object", "null"],
             "properties": {
-                "allDescendents": "boolean",
-                "allParents": "boolean",
-                "children": "boolean",
-                "fullPath": "boolean",
-                "noIntermediate": "boolean",
-                "parent": "boolean",
-                "path": "boolean",
-                "shapes": "boolean",
-                "type": "string"
+                "allDescendents": {"type": "boolean"},
+                "allParents": {"type": "boolean"},
+                "children": {"type": "boolean"},
+                "fullPath": {"type": "boolean"},
+                "noIntermediate": {"type": "boolean"},
+                "parent": {"type": "boolean"},
+                "path": {"type": "boolean"},
+                "shapes": {"type": "boolean"},
+                "type": {"type": "string"},
             },
         }
         validate(flags, schema)
         return mc.listRelatives(node_dag, **flags)
+
+    def parent(self, node_dags, new_parent_dag, **flags):
+        schema = {
+            "type": ["object", "null"],
+            "properties": {
+                "absolute": {"type": "boolean"},
+                "addObject": {"type": "boolean"},
+                "noConnections": {"type": "boolean"},
+                "noInvScale": {"type": "boolean"},
+                "relative": {"type": "boolean"},
+                "removeObject": {"type": "boolean"},
+                "shape": {"type": "boolean"},
+                "world": {"type": "boolean"},
+            }
+        }
+        validate(flags, schema)
+        return mc.parent(node_dags, new_parent_dag, **flags)

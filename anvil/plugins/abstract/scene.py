@@ -34,3 +34,6 @@ class Scene(scene.Scene):
 
     def list_relatives(self, node_dag, **flags):
         return node_dag
+
+    def parent(self, node, new_parent, **flags):
+        return new_parent

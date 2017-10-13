@@ -25,7 +25,7 @@ class UnicodeDelegate(object):
         self.meta_data = meta_data or {}
 
     @classmethod
-    def build(cls, meta_data=None, name_tokens=None, **flags):
+    def build(cls, meta_data=None, **flags):
         cls.convert_subclass_kwargs(flags)
         dcc_instance = runtime.dcc.create.create(cls.dcc_type, flags=flags)
         instance = cls(dcc_instance, meta_data=meta_data, **flags)
@@ -40,8 +40,9 @@ class UnicodeDelegate(object):
         if isinstance(flags, dict):
             for k, v in iteritems(flags):
                 try:
-                    if issubclass(type(v), cls):
-                        flags[k] = v.name()
+                    flags[k] = str(v.name())
+                    anvil.LOG.info(
+                        'Converted internal class %s from kwarg %s from %r to %r' % (type(v), k, v, v.name()))
                 except (AttributeError, TypeError):
                     pass
 

@@ -19,3 +19,6 @@ class DagNode(unicode_delegate.UnicodeDelegate):
 
     def __str__(self):
         return str(self.name())
+
+    def __eq__(self, other):
+        return str(self) == str(other)
