@@ -1,4 +1,4 @@
-import anvil.plugins.abstract.create as create
+import anvil.plugins.base.create as create
 from anvil.plugins.maya.dependencies import *
 from jsonschema import validate
 

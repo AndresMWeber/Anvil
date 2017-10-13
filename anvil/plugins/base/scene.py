@@ -1,36 +1,36 @@
-import anvil.plugins.base.scene as scene
 
 
-class Scene(scene.Scene):
+class Scene(object):
     def get_persistent_id(self, node_unicode_proxy):
-        return node_unicode_proxy
+        raise NotImplementedError
 
     def get_type(self, node, **kwargs):
-        return type(node)
+        raise NotImplementedError
 
     def is_exact_type(self, node, typename):
-        return type(node) == typename
+        raise NotImplementedError
 
     def is_type(self, node, typename):
-        return typename in ['Transform', 'Curve', 'Joint', 'Shape', 'UnicodeDelegate', 'DagNode']
+        raise NotImplementedError
 
     def get_scene_tree(self):
-        return {'abstract': None}
+        raise NotImplementedError
 
     def list_scene_nodes(self, object_type='transform', has_shape=False):
-        return ['abstract']
+        raise NotImplementedError
 
     def exists(self, node, *args, **kwargs):
-        return True
+        raise NotImplementedError
 
     def safe_delete(self, node_or_nodes):
-        return True
+        raise NotImplementedError
 
     def rename(self, node_dag, name, **kwargs):
-        return name
+        raise NotImplementedError
 
     def duplicate(self, node_dag, parent_only=True, **kwargs):
-        return node_dag + '_duplicate'
+        raise NotImplementedError
 
     def list_relatives(self, node_dag, **flags):
-        return node_dag
+        raise NotImplementedError
+    

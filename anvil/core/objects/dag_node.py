@@ -1,7 +1,22 @@
 import node_types as node_types
 import unicode_delegate as unicode_delegate
+import anvil.runtime as runtime
 
 
 @node_types.register_node
 class DagNode(unicode_delegate.UnicodeDelegate):
-    pass
+    def rename(self, **name_tokens):
+        self.name_tokens.update(name_tokens)
+        return runtime.dcc.scene.rename(self._dcc_id, self._nomenclate.get(**self.name_tokens))
+
+    def name(self):
+        return str(self._dcc_id)
+
+    def __repr__(self):
+        if hasattr(self, '__str__'):
+            return '<%s @ 0x%x (%s)>' % (self.__class__.__name__, id(self), str(self))
+        else:
+            return '<%s @ 0x%x>' % (self.__class__.__name__, id(self))
+
+    def __str__(self):
+        return self.name()

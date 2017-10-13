@@ -4,19 +4,22 @@ from pprint import pformat
 from six import iteritems, string_types
 
 import anvil
+from anvil import node_types
 from collections import Iterable
 from collections import OrderedDict
 
-setUp_count = 0
-tearDown_count = 0
-
 
 class TestBase(unittest.TestCase):
+    def safe_create(self, dag_path, object_type, name_tokens=None, **flags):
+        if anvil.runtime.dcc.scene.exists(dag_path):
+            return dag_path
+        else:
+            return node_types.Transform.build(name_tokens=name_tokens, **flags)
+
     def setUp(self):
         anvil.LOG.info('Initializing maya_utils standalone...')
 
         global setUp_count
-        anvil.LOG.info('setup has run %d times.' % setUp_count)
         anvil.LOG.info('setUp-Start state of scene: ')
         anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
 
@@ -25,10 +28,13 @@ class TestBase(unittest.TestCase):
         test_grp = '%s|test_GRP' % test_parent_grp
 
         try:
-            import maya.cmds as mc
-            self.test_group = test_grp if mc.objExists(test_grp) else anvil.core.objects.transform.Transform.build()
-            self.test_group_parent = test_parent_grp if mc.objExists(
-                test_parent_grp) else anvil.core.objects.transform.Transform.build()
+            self.test_group = self.safe_create(test_grp,
+                                               node_types.Transform,
+                                               name_tokens={'name': 'test'})
+
+            self.test_group_parent = self.safe_create(test_parent_grp,
+                                                      node_types.Transform,
+                                                      name_tokens={'name': 'test_parent'})
 
             self.fixtures.append(self.test_group)
             self.fixtures.append(self.test_group_parent)
@@ -37,7 +43,6 @@ class TestBase(unittest.TestCase):
 
         anvil.LOG.info('State of scene after initial node creation: ')
         anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
-        setUp_count += 1
 
     def tearDown(self):
         global tearDown_count
@@ -51,8 +56,6 @@ class TestBase(unittest.TestCase):
                             mc.delete(fix)
         except ImportError:
             pass
-
-        tearDown_count += 1
 
     @classmethod
     def deep_sort(cls, obj):

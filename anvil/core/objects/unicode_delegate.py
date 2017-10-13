@@ -18,17 +18,15 @@ class UnicodeDelegate(object):
         :param meta_data: dict, any object specific meta data we want to record
         :param name_tokens: dict, optional naming flags to be used be used by a nomenclate object when renaming.
         """
-        anvil.LOG.info('Initializing node with ID %s' % node_unicode_proxy)
+        anvil.LOG.info('Initializing node %s with ID %s' % (self.__class__, node_unicode_proxy))
         self._dcc_id = runtime.dcc.scene.get_persistent_id(node_unicode_proxy)
         self._api_class_instance = None
         self._nomenclate = nomenclate.Nom()
 
-        self.name_tokens = name_tokens or {}
+        self.name_tokens = name_tokens or {'name': 'untitled'}
+        self.name_tokens['type'] = runtime.dcc.scene.get_type(node_unicode_proxy)
         self.flags = flags or {}
         self.meta_data = meta_data or {}
-
-    def name(self):
-        return self._dcc_id
 
     @classmethod
     def build(cls, meta_data=None, name_tokens=None, **flags):
@@ -39,7 +37,7 @@ class UnicodeDelegate(object):
         # If the instance isn't a string we can assume it's some API class instance we can use later.
         if not isinstance(dcc_instance, str):
             instance._api_class_instance = dcc_instance
-
+        instance.rename()
         return instance
 
     @classmethod

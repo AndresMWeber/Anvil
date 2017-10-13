@@ -1,4 +1,10 @@
-import anvil.plugins.abstract.attribute as attribute
-from anvil.plugins.maya.dependencies import *
-from jsonschema import validate
+import anvil.plugins.base.attribute as attribute
+from dependencies import *
 
+
+class Attribute(attribute.Attribute):
+    def get(self, object, attr):
+        return mc.getAttr(object, attr)
+
+    def set(self, object, attr, value, **flags):
+        return mc.setAttr(object, attr, value, **flags)

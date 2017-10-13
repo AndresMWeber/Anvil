@@ -1,4 +1,7 @@
-class Attribute(object):
+import anvil.plugins.base.attribute as attribute
+
+
+class Attribute(attribute.Attribute):
     def get(self, object, attr):
         return getattr(object, attr)
 

@@ -1,5 +1,5 @@
 from anvil.plugins.maya.dependencies import *
-import anvil.plugins.abstract.scene as scene
+import anvil.plugins.base.scene as scene
 from jsonschema import validate
 
 
@@ -9,13 +9,13 @@ class Scene(scene.Scene):
         selection_list.add(node_unicode_proxy)
         return selection_list.getDagPath(0)
 
+    def get_type(self, node, **kwargs):
+        return str(mc.objectType(node, **kwargs))
+
     def is_exact_type(self, node, typename):
-        """node.type() == typename"""
         return type(node) == typename
 
     def is_type(self, node, typename):
-        """Return True if node.type() is typename or
-        any subclass of typename."""
         return typename in mc.nodeType(node, inherited=True)
 
     def get_scene_tree(self):
@@ -64,7 +64,7 @@ class Scene(scene.Scene):
 
     def rename(self, node_dag, name, **kwargs):
         mc.rename(node_dag, name, **kwargs)
-        return node_dag
+        return str(node_dag)
 
     def duplicate(self, node_dag, parent_only=True, **kwargs):
         duplicate_node = mc.duplicate(node_dag, parentOnly=parent_only, **kwargs)[0]
