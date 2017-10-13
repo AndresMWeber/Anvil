@@ -16,17 +16,17 @@ class Rig(object):
 
     def build_root_hierarchy(self):
         root = self.add_node(nt.Transform, 'group_root')
-        parent_kwarg = {'parent': root}
-        self.add_node(nt.Transform, 'group_model', flags=parent_kwarg)
-        self.add_node(nt.Transform, 'group_joint', flags=parent_kwarg)
-        self.add_node(nt.Transform, 'group_controls', flags=parent_kwarg)
-        self.add_node(nt.Transform, 'group_nodes', flags=parent_kwarg)
-        self.add_node(nt.Transform, 'group_world', flags=parent_kwarg)
-        self.add_node(nt.Control, 'control_universal', flags={'parent': self.find_node('group_controls')})
+        for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
+            self.add_node(nt.Transform, 'group_%s' % main_group_type, parent=root)
+        self.add_node(nt.Control, 'control_universal', parent = self.find_node('group_controls'))
 
-    def rename(self, **name_tokens):
+    def rename(self, *input_dicts, **name_tokens):
+        for input_dict in input_dicts:
+            name_tokens.update(input_dict)
         self._nomenclate.merge_dict(name_tokens)
+
         self._nomenclate.type = 'group'
+        self.find_node('group_root').rename(self._nomenclate.get(childtype='rig'))
         for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
             self.find_node('group_%s' % main_group_type).rename(self._nomenclate.get(childtype=main_group_type))
 
