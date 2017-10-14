@@ -1,11 +1,12 @@
 from jsonschema import validate
 
 import anvil
-import anvil.runtime as runtime
-import rig
+import anvil.objects as objects
+import anvil.runtime as rt
+import base
 
 
-class Control(rig.Rig):
+class Control(base.AbstractGrouping):
     schema = {
         "type": ["object", "null"],
         "properties": {
@@ -24,13 +25,13 @@ class Control(rig.Rig):
     @classmethod
     def build(cls, meta_data=None, **flags):
         validate(flags, cls.schema)
-        flags['offset_group'] = runtime.dcc.create.create_node('transform')
-        flags['connection_group'] = runtime.dcc.create.create_node('transform')
-        return cls(runtime.dcc.create.create_node('curve'), **flags)
+        flags['offset_group'] = objects.Transform.build()
+        flags['connection_group'] = objects.Transform.build()
+        return cls(objects.Curve.build(), **flags)
 
     def build_layout(self):
-        runtime.dcc.scene.parent(str(self), str(self.offset_group))
-        runtime.dcc.scene.parent(str(self.connection_group), str(self))
+        rt.dcc.scene.parent(str(self), str(self.offset_group))
+        rt.dcc.scene.parent(str(self.connection_group), str(self))
 
     def rename(self, *input_dicts, **name_tokens):
         for input_dict in input_dicts:
@@ -43,6 +44,6 @@ class Control(rig.Rig):
     def parent(self, new_parent):
         if self.offset_group:
             anvil.LOG.info('Parenting control offset group %s to %s' % (str(self), str(new_parent)))
-            return runtime.dcc.scene.parent(str(self.offset_group), str(new_parent))
+            return rt.dcc.scene.parent(str(self.offset_group), str(new_parent))
         else:
             return super(Control, self).parent(new_parent)

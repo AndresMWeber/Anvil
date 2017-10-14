@@ -2,7 +2,7 @@ import nomenclate
 import anvil
 
 
-class AbstractRig(object):
+class AbstractGrouping(object):
     """ A fully functional and self-contained rig with all requirements implemented that
         require it to give a performance.
 
@@ -40,6 +40,6 @@ class AbstractRig(object):
 
     def __getattr__(self, item):
         try:
-            return super(AbstractRig, self).__getattribute__('hierarchy').find_member(item)
+            return super(AbstractGrouping, self).__getattribute__('hierarchy').find_member(item)
         except AttributeError:
-            return super(AbstractRig, self).__getattribute__(item)
+            return super(AbstractGrouping, self).__getattribute__(item)

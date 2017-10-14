@@ -5,7 +5,7 @@ import control
 from six import iteritems
 
 
-class Rig(base.AbstractRig):
+class Rig(base.AbstractGrouping):
     """ A fully functional and self-contained rig with all requirements implemented that
         require it to give a performance.  A collection of SubRig(s)
 
@@ -25,7 +25,7 @@ class Rig(base.AbstractRig):
         for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
             self.find_node('group_%s' % main_group_type).rename(self._nomenclate.get(childtype=main_group_type))
 
-        self.find_node('control_universal').rename(self._nomenclate.get(childtype='universal', type='control'))
+        self.find_node('control_universal').rename(self._nomenclate.token_dict, childtype='universal', type='control')
 
     def build(self):
         self.build_layout()
