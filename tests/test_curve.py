@@ -47,8 +47,7 @@ class TestCurveBuild(TestBaseCurve):
     def test_with_parent(self):
         curve = nt.Curve.build(parent=self.null_transform)
         if 'abstract' in rt.dcc.ENGINE:
-            print(curve.p)
-            self.assertFalse(curve.get_parent() == 'curve')
+            self.assertTrue(curve.get_parent() == 'curve')
         else:
             self.assertTrue(self.null_transform == curve.get_parent())
 

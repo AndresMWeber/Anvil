@@ -25,7 +25,7 @@ class Rig(base.AbstractGrouping):
         for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
             self.find_node('group_%s' % main_group_type).rename(self._nomenclate.get(childtype=main_group_type))
 
-        self.find_node('control_universal').rename(self._nomenclate.token_dict, childtype='universal', type='control')
+        self.find_node('control_universal').rename(name_tokens, childtype='universal', type='control')
 
     def build(self):
         self.build_layout()

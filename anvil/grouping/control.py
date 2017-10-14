@@ -15,28 +15,35 @@ class Control(base.AbstractGrouping):
         },
     }
 
-    def __init__(self, control, layout=None, meta_data=None, offset_group=None, connection_group=None, name_tokens=None, **flags):
+    def __init__(self, control, layout=None, meta_data=None, offset_group=None, connection_group=None, name_tokens=None,
+                 **flags):
         super(Control, self).__init__(name_tokens=name_tokens)
         self.flags = flags or {}
-        self.control = control
-        self.offset_group = offset_group
-        self.connection_group = connection_group
+        self.hierarchy['control'] = control
 
     @classmethod
     def build(cls, meta_data=None, **flags):
         validate(flags, cls.schema)
-        flags['offset_group'] = objects.Transform.build()
-        flags['connection_group'] = objects.Transform.build()
-        return cls(objects.Curve.build(), **flags)
+        instance = cls(objects.Curve.build(), **flags)
+        instance.add_node(objects.Transform, 'offset_group')
+        instance.add_node(objects.Transform, 'connection_group')
+        instance.build_layout()
+        return instance
 
     def build_layout(self):
-        rt.dcc.scene.parent(str(self), str(self.offset_group))
-        rt.dcc.scene.parent(str(self.connection_group), str(self))
+        if self.flags.get('parent'):
+            self.parent(self.flags.get('parent'))
+        rt.dcc.scene.parent(str(self.control), str(self.offset_group))
+        rt.dcc.scene.parent(str(self.connection_group), str(self.control))
 
     def rename(self, *input_dicts, **name_tokens):
+        merged_dicts = {}
         for input_dict in input_dicts:
-            name_tokens.update(input_dict)
-        self._nomenclate.merge_dict(name_tokens)
+            merged_dicts.update(input_dict)
+        merged_dicts.update(name_tokens)
+
+        self._nomenclate.merge_dict(merged_dicts)
+
         self.offset_group.rename(self._nomenclate.get(type='offset_group'))
         self.connection_group.rename(self._nomenclate.get(type='connection_group'))
         self.control.rename(self._nomenclate.get(type='control'))

@@ -40,6 +40,6 @@ class AbstractGrouping(object):
 
     def __getattr__(self, item):
         try:
-            return super(AbstractGrouping, self).__getattribute__('hierarchy').find_member(item)
+            return super(AbstractGrouping, self).__getattribute__('hierarchy').get(item)
         except AttributeError:
             return super(AbstractGrouping, self).__getattribute__(item)

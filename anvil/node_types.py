@@ -3,7 +3,7 @@ from objects import *
 anvil.LOG.info('Imported objects')
 from grouping import *
 anvil.LOG.info('Imported groupings')
-anvil.LOG.info('Imported all nodes %s' % list(locals()))
+anvil.LOG.info('Imported all nodes %s' % [local for local in list(locals()) if local[0].isupper()])
 REGISTERED_NODES = {}
 
 
