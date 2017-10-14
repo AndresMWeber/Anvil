@@ -42,6 +42,7 @@ class Control(base.AbstractGrouping):
             merged_dicts.update(input_dict)
         merged_dicts.update(name_tokens)
 
+        anvil.LOG.info('Renaming control %s with dict %s' % (self, merged_dicts))
         self._nomenclate.merge_dict(merged_dicts)
 
         self.offset_group.rename(self._nomenclate.get(type='offset_group'))
