@@ -1,14 +1,14 @@
+import  anvil.node_types as nt
+
 from base_test import TestBase
-import anvil
-import anvil.core.objects.node_types as nt
 
 
 class TestBaseControl(TestBase):
     def setUp(self):
         super(TestBaseControl, self).setUp()
-        self.node_dag = anvil.core.objects.curve.Curve.build()
-        self.control_offset_grp = anvil.core.objects.transform.Transform.build()
-        self.control_con_grp = anvil.core.objects.transform.Transform.build()
+        self.node_dag = nt.Curve.build()
+        self.control_offset_grp = nt.Transform.build()
+        self.control_con_grp = nt.Transform.build()
 
 
 class TestControlInit(TestBaseControl):

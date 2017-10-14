@@ -42,8 +42,8 @@ class TestBase(unittest.TestCase):
         except ImportError:
             pass
 
-        anvil.LOG.info('State of scene after initial node creation: ')
-        anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
+        #anvil.LOG.info('State of scene after initial node creation: ')
+        #anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
 
     def tearDown(self):
         global tearDown_count

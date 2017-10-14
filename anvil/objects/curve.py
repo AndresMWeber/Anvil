@@ -1,13 +1,11 @@
-import os
-import node_types as node_types
-import transform
+import yaml
+
 import anvil
 import anvil.config as config
 import anvil.runtime as runtime
-import yaml
+import transform
 
 
-@node_types.register_node
 class Curve(transform.Transform):
     dcc_type = 'curve'
     SHAPE_CACHE = None
@@ -22,7 +20,6 @@ class Curve(transform.Transform):
 
     @classmethod
     def _get_shape_constructor(cls, shape_name, return_positions=False):
-        cls._populate_shape_file_data()
         shape_entry = cls.SHAPE_CACHE.get(shape_name or '', {})
 
         if return_positions:
@@ -48,3 +45,5 @@ class Curve(transform.Transform):
             except IOError:
                 anvil.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
                 cls.SHAPE_CACHE = {}
+
+Curve._populate_shape_file_data()

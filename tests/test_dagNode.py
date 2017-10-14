@@ -1,18 +1,11 @@
+import anvil.node_types as nt
+
 from base_test import TestBase
-import anvil
-import anvil.core.objects.node_types as nt
 
 
 class TestBaseDagNode(TestBase):
     def setUp(self):
         super(TestBaseDagNode, self).setUp()
-
-    @staticmethod
-    def encapsulation_node_creation():
-        return {'node_dag': anvil.core.objects.curve.Curve.build(),
-                'control_offset_grp': anvil.core.objects.transform.Transform.build(),
-                'control_con_grp': anvil.core.objects.transform.Transform.build()
-                }
 
 
 class TestDagNodeBuild(TestBaseDagNode):

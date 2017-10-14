@@ -1,10 +1,8 @@
-import node_types as node_types
-import dag_node
-import anvil.runtime as runtime
 import anvil
+import anvil.runtime as runtime
+import dag_node
 
 
-@node_types.register_node
 class Transform(dag_node.DagNode):
     dcc_type = 'transform'
 

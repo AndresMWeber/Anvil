@@ -1,19 +1,11 @@
+import anvil.node_types as nt
+
 from base_test import TestBase
-import anvil
-import anvil.runtime as runtime
-import anvil.core.objects.node_types as nt
 
 
 class TestBaseUnicodeDelegate(TestBase):
     def setUp(self):
         super(TestBaseUnicodeDelegate, self).setUp()
-
-    @staticmethod
-    def encapsulation_node_creation():
-        return {'node_dag': anvil.core.objects.curve.Curve.build(),
-                'control_offset_grp': anvil.core.objects.transform.Transform.build(),
-                'control_con_grp': anvil.core.objects.transform.Transform.build()
-                }
 
 
 class TestUnicodeDelegateBuild(TestBaseUnicodeDelegate):

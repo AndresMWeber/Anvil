@@ -1,11 +1,9 @@
 from six import iteritems
-import node_types as node_types
-import nomenclate
+
 import anvil
 import anvil.runtime as runtime
 
 
-@node_types.register_node
 class UnicodeDelegate(object):
     dcc_type = None
 

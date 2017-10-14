@@ -1,30 +1,30 @@
-import biped_arm
-import quadruped_arm
-import biped_leg
-import quadruped_leg
-import digit
-import hand
-import head
-import neck
-import spine
-import mouth
-import facial_feature
-import eye
-import eyelid
-import center_of_mass
+from biped_arm import BipedArm
+from quadruped_arm import QuadrupedArm
+from biped_leg import BipedLeg
+from quadruped_leg import QuadrupedLeg
+from digit import Digit
+from hand import Hand
+from head import Head
+from neck import Neck
+from spine import Spine
+from mouth import Mouth
+from facial_feature import FacialFeature
+from eye import Eye
+from eyelid import Eyelid
+from center_of_mass import CenterOfMass
+from tentacle import Tentacle
 
-__all__ = ['center_of_mass',
-           'biped_arm',
-           'quadruped_arm',
-           'biped_leg',
-           'quadruped_leg',
-           'digit',
-           'hand',
-           'spine',
-           'neck',
-           'head',
-           'mouth',
-           'facial_feature',
-           'eye',
-           'eyelid',
-           'augmentors']
+__all__ = ['CenterOfMass',
+           'BipedArm',
+           'QuadrupedArm',
+           'BipedLeg',
+           'QuadrupedLeg',
+           'Digit',
+           'Hand',
+           'Spine',
+           'Neck',
+           'Head',
+           'Mouth',
+           'FacialFeature',
+           'Eye',
+           'Eyelid']

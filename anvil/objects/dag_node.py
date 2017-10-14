@@ -1,9 +1,7 @@
-import node_types as node_types
-import unicode_delegate as unicode_delegate
 import anvil.runtime as runtime
+import unicode_delegate as unicode_delegate
 
 
-@node_types.register_node
 class DagNode(unicode_delegate.UnicodeDelegate):
     def rename(self, new_name):
         return runtime.dcc.scene.rename(self._dcc_id, new_name)
