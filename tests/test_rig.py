@@ -9,10 +9,9 @@ class TestBaseRig(TestBase):
 
 
 class TestRigBuild(TestBaseRig):
+    @TestBase.delete_created_nodes
     def test_default(self):
         test_rig = nt.Rig([])
+        test_rig.build()
 
-    def test_curve(self):
-        point = {'point': [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]}
-        nt.Curve.build(flags=point)
 

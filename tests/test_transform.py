@@ -12,6 +12,7 @@ class TestTransformBuild(TestBaseTransform):
     def test_empty_input(self):
         nt.Transform.build()
 
+    @TestBase.delete_created_nodes
     def test_full_input(self):
         nt.Transform.build()
 

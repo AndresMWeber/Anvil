@@ -105,3 +105,25 @@ class Scene(scene.Scene):
         }
         validate(flags, schema)
         return mc.parent(node_dags, new_parent_dag, **flags)
+
+    def delete(self, node_dags, **flags):
+        schema = {
+            "type": ["object", "null"],
+            "properties": {
+                "all": {"type": "boolean"},
+                "attribute": {"type": "string"},
+                "channels": {"type": "boolean"},
+                "constraints": {"type": "boolean"},
+                "constructionHistory": {"type": "boolean"},
+                "controlPoints": {"type": "boolean"},
+                "expressions": {"type": "boolean"},
+                "hierarchy": {"type": "boolean"},
+                "inputConnectionsAndNodes": {"type": "boolean"},
+                "shape": {"type": "boolean"},
+                "staticChannels": {"type": "boolean"},
+                "timeAnimationCurves": {"type": "boolean"},
+                "unitlessAnimationCurves": {"type": "boolean"},
+            }
+        }
+        validate(flags, schema)
+        return mc.delete(node_dags, **flags)

@@ -34,3 +34,6 @@ class Scene(object):
 
     def parent(self, node, new_parent, **flags):
         raise NotImplementedError
+
+    def delete(self, nodes):
+        raise NotImplementedError

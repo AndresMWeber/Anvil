@@ -37,3 +37,6 @@ class Scene(scene.Scene):
 
     def parent(self, node, new_parent, **flags):
         return new_parent
+
+    def delete(self, nodes):
+        del(nodes)

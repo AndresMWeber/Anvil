@@ -1,6 +1,6 @@
 import unittest
-from pprint import pformat
-
+from pprint import pformat, pprint
+from deepdiff import DeepDiff
 from six import iteritems, string_types
 
 import anvil
@@ -10,6 +10,7 @@ from collections import OrderedDict
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
+
 
 class TestBase(unittest.TestCase):
     def safe_create(self, dag_path, object_type, name_tokens=None, **flags):
@@ -22,41 +23,18 @@ class TestBase(unittest.TestCase):
             return node
 
     def setUp(self):
-        anvil.LOG.info('Initializing maya_utils standalone...')
-
-        global setUp_count
-        anvil.LOG.info('setUp-Start state of scene: ')
+        anvil.LOG.info('Test(%s).setUp-Start state of scene: ' % self.__class__)
         anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
-
         self.fixtures = []
-        test_parent_grp = 'test_parent'
-        test_grp = '%s|test_GRP' % test_parent_grp
-
-        try:
-            self.test_group = self.safe_create(test_grp, nt.Transform)
-            self.test_group_parent = self.safe_create(test_parent_grp, nt.Transform)
-            self.test_group.rename('test_GRP')
-            self.test_group_parent.rename('test_group_parent_GRP')
-            self.fixtures.append(self.test_group)
-            self.fixtures.append(self.test_group_parent)
-        except ImportError:
-            pass
-
-        #anvil.LOG.info('State of scene after initial node creation: ')
-        #anvil.LOG.info(pformat(anvil.runtime.dcc.scene.get_scene_tree()))
 
     def tearDown(self):
-        global tearDown_count
-        try:
-            import maya.cmds as mc
-            if self.fixtures:
-                self.fixtures = [fixture for fixture in self.fixtures if mc.objExists(fixture)]
-                for fixture in self.fixtures:
-                    if mc.objExists(fixture):
-                        for fix in mc.ls(fixture):
-                            mc.delete(fix)
-        except ImportError:
-            pass
+        pass
+
+    @classmethod
+    def delete_objects(cls, objects):
+        for object in objects:
+            if anvil.runtime.dcc.scene.exists(object):
+                anvil.runtime.dcc.scene.delete(object)
 
     @classmethod
     def deep_sort(cls, obj):
@@ -95,3 +73,23 @@ class TestBase(unittest.TestCase):
             else:
                 self.assertEqual(v1, v2, msg)
         return True
+
+    @staticmethod
+    def delete_created_nodes(func):
+        def wrapped(*args, **kwargs):
+            initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+            anvil.LOG.info('Scene state before running function %s:' % func)
+            anvil.LOG.info(str(pformat(initial_scene_tree, indent=2)))
+            func_return = func(*args, **kwargs)
+
+            created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+            anvil.LOG.info('Scene state after running function %s:' % func)
+            anvil.LOG.info(str(pformat(created_scene_tree, indent=2)))
+
+            diff = DeepDiff(initial_scene_tree, created_scene_tree)
+            anvil.LOG.info('New or deleted nodes: %s' % pformat(diff))
+            # TestBase.delete_objects(diff)
+
+            return func_return
+        wrapped.__name__ = func.__name__
+        return wrapped
