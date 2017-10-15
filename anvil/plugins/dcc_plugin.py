@@ -19,8 +19,7 @@ def get_log_handler():
     Returns:
         class: Instance of the log handler or None if not found.
     """
-    plugin = get_current_dcc()
-
+    plugin = get_current_dcc(return_module=False)
     loaded_mod = __import__("anvil.plugins.{PLUGIN}.log_handler".format(PLUGIN=plugin), fromlist=['handler'])
     reload(loaded_mod)
     loaded_class = getattr(loaded_mod, 'DCCHandler')
@@ -39,13 +38,16 @@ def get_log_handler():
     return handler
 
 
-def get_current_dcc(return_module=False):
+def get_current_dcc(return_module=True):
     handler = None
-
     for plugin in DCCPlugin.SUPPORTED:
-        mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=plugin))
-        reload(mod)
-        if mod.is_dcc_loaded():
-            handler = mod if return_module else plugin
-
+        handler = get_dcc(plugin, return_module=return_module)
     return handler
+
+
+def get_dcc(dcc_name_query, return_module=False):
+    mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=dcc_name_query))
+    reload(mod)
+    reload
+    if mod.is_dcc_loaded():
+        return mod if return_module else dcc_name_query
