@@ -18,5 +18,5 @@ def obtainLogger(name):
         dccHandler = get_log_handler()
         if dccHandler is not None:
             logger.addHandler(dccHandler)
-
+    logger.propagate = False
     return logger

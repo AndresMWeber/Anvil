@@ -4,19 +4,18 @@ from base_test import TestBase
 
 
 class TestBaseUnicodeDelegate(TestBase):
-    def setUp(self):
-        super(TestBaseUnicodeDelegate, self).setUp()
+    pass
 
 
 class TestUnicodeDelegateBuild(TestBaseUnicodeDelegate):
+    @TestBase.delete_created_nodes
     def test_empty_input(self):
         self.assertRaises(nt.DagNode.build, None, KeyError)
 
+    @TestBase.delete_created_nodes
     def test_full_input(self):
         self.assertRaises(nt.DagNode.build, None, KeyError)
 
+    @TestBase.delete_created_nodes
     def test_partial_input(self):
         self.assertRaises(nt.DagNode.build, None, KeyError)
-
-class TestUnicodeDelegateRename(TestBaseUnicodeDelegate):
-    pass

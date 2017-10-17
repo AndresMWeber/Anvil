@@ -4,8 +4,7 @@ from base_test import TestBase
 
 
 class TestBaseRig(TestBase):
-    def setUp(self):
-        super(TestBaseRig, self).setUp()
+    pass
 
 
 class TestRigBuild(TestBaseRig):

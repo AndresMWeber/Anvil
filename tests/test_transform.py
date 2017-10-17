@@ -4,11 +4,11 @@ from base_test import TestBase
 
 
 class TestBaseTransform(TestBase):
-    def setUp(self):
-        super(TestBaseTransform, self).setUp()
+    pass
 
 
 class TestTransformBuild(TestBaseTransform):
+    @TestBase.delete_created_nodes
     def test_empty_input(self):
         nt.Transform.build()
 
@@ -16,8 +16,6 @@ class TestTransformBuild(TestBaseTransform):
     def test_full_input(self):
         nt.Transform.build()
 
+    @TestBase.delete_created_nodes
     def test_partial_input(self):
         nt.Transform.build()
-
-class TestTransformRename(TestBaseTransform):
-    pass

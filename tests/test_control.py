@@ -5,11 +5,7 @@ from base_test import TestBase
 
 
 class TestBaseControl(TestBase):
-    def setUp(self):
-        super(TestBaseControl, self).setUp()
-        self.node_dag = nt.Curve.build()
-        self.control_offset_grp = nt.Transform.build()
-        self.control_con_grp = nt.Transform.build()
+    pass
 
 
 class TestControlInit(TestBaseControl):
@@ -17,20 +13,25 @@ class TestControlInit(TestBaseControl):
 
 
 class TestControlBuild(TestBaseControl):
+    @TestBase.delete_created_nodes
     def test_empty_input(self):
         nt.Control.build()
 
+    @TestBase.delete_created_nodes
     def test_full_input(self):
         nt.Control.build()
 
+    @TestBase.delete_created_nodes
     def test_partial_input(self):
         nt.Control.build()
 
+    @TestBase.delete_created_nodes
     def test_shape_input(self):
         nt.Control.build(shape='cube')
 
 
 class TestControlRename(TestBaseControl):
+    @TestBase.delete_created_nodes
     def rename_runner(self, desired_output, *input_dicts, **input_kwargs):
         control = nt.Control.build()
         control.rename(*input_dicts, **input_kwargs)

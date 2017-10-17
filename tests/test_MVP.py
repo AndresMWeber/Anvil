@@ -4,11 +4,11 @@ from base_test import TestBase
 
 
 class TestBaseRig(TestBase):
-    def setUp(self):
-        super(TestBaseRig, self).setUp()
+    pass
 
 
 class TestRigEyeBuild(TestBaseRig):
+    @TestBase.delete_created_nodes
     def test_default(self):
         test_rig = nt.Rig([])
         test_rig.build()

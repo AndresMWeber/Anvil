@@ -13,6 +13,9 @@ class DCCPlugin(object):
         self.create = dcc_module.create.Create()
         self.ENGINE = dcc_module.__name__
 
+    def __str__(self):
+        return '%s(%s, API=%s)' % (self.__class__.__name__, self.ENGINE, self.ENGINE_API)
+
 
 def get_log_handler():
     """Returns the appropriate logging handler for the DCC.
@@ -48,6 +51,5 @@ def get_current_dcc(return_module=True):
 def get_dcc(dcc_name_query, return_module=False):
     mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=dcc_name_query))
     reload(mod)
-    reload
     if mod.is_dcc_loaded():
         return mod if return_module else dcc_name_query

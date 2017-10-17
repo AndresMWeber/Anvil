@@ -39,7 +39,6 @@ class Curve(transform.Transform):
             shape_file = config.SHAPES_FILE
 
         if not cls.SHAPE_CACHE:
-            anvil.LOG.info('Initializing shapes lookup from yml file')
             try:
                 cls.SHAPE_CACHE = yaml.load(open(shape_file, "r"))
             except IOError:

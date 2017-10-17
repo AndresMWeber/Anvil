@@ -4,22 +4,25 @@ from base_test import TestBase
 
 
 class TestBaseDagNode(TestBase):
-    def setUp(self):
-        super(TestBaseDagNode, self).setUp()
+    pass
 
 
 class TestDagNodeBuild(TestBaseDagNode):
+    @TestBase.delete_created_nodes
     def test_empty_input(self):
         self.assertRaises(nt.DagNode.build, None, KeyError)
 
+    @TestBase.delete_created_nodes
     def test_full_input(self):
         self.assertRaises(nt.DagNode.build, None, KeyError)
 
+    @TestBase.delete_created_nodes
     def test_partial_input(self):
         self.assertRaises(nt.DagNode.build, None, KeyError)
 
 
 class TestDagNodeRename(TestBaseDagNode):
+    @TestBase.delete_created_nodes
     def rename_runner(self, desired_output, input_name):
         dag_node = nt.DagNode(str(nt.Transform.build()))
         dag_node.rename(input_name)

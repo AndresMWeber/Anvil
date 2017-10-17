@@ -4,20 +4,18 @@ from base_test import TestBase
 
 
 class TestBaseJoint(TestBase):
-    def setUp(self):
-        super(TestBaseJoint, self).setUp()
-
+    pass
 
 
 class TestJointBuild(TestBaseJoint):
+    @TestBase.delete_created_nodes
     def test_empty_input(self):
         nt.Joint.build()
 
+    @TestBase.delete_created_nodes
     def test_full_input(self):
         nt.Joint.build()
 
+    @TestBase.delete_created_nodes
     def test_partial_input(self):
         nt.Joint.build()
-
-class TestJointRename(TestBaseJoint):
-    pass
