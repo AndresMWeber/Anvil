@@ -7,24 +7,24 @@ import base
 
 
 class Control(base.AbstractGrouping):
-    schema = {
-        "type": ["object", "null"],
-        "properties": {
-            "offset_group": {"type": "string"},
-            "connection_group": {"type": "string"}
-        },
-    }
 
-    def __init__(self, control, layout=None, meta_data=None, offset_group=None, connection_group=None, name_tokens=None,
+    def __init__(self,
+                 control=None,
+                 offset_group=None,
+                 connection_group=None,
+                 layout=None,
+                 meta_data=None,
+                 name_tokens=None,
                  **flags):
-        super(Control, self).__init__(name_tokens=name_tokens)
-        self.flags = flags or {}
+        super(Control, self).__init__(layout=layout, meta_data=meta_data, name_tokens=name_tokens, **flags)
         self.hierarchy['control'] = control
+        self.hierarchy['offset_group'] = offset_group
+        self.hierarchy['connection_group'] = connection_group
 
     @classmethod
     def build(cls, meta_data=None, **flags):
-        validate(flags, cls.schema)
-        instance = cls(objects.Curve.build(), **flags)
+        instance = cls(meta_data=meta_data, **flags)
+        instance.add_node(objects.Curve, 'control', **flags)
         instance.add_node(objects.Transform, 'offset_group')
         instance.add_node(objects.Transform, 'connection_group')
         instance.build_layout()

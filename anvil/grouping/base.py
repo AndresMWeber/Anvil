@@ -8,10 +8,12 @@ class AbstractGrouping(object):
 
     """
 
-    def __init__(self, layout=None, name_tokens=None):
-        self.hierarchy = {}
-        self._nomenclate = nomenclate.Nom(name_tokens or {})
+    def __init__(self, layout=None, name_tokens=None, meta_data=None, **flags):
         self.layout = layout
+        self.hierarchy = {}
+        self.flags = flags or {}
+        self.meta_data = meta_data or {}
+        self._nomenclate = nomenclate.Nom(name_tokens or {})
 
     def parent(self, new_parent):
         raise NotImplementedError
