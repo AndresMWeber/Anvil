@@ -1,4 +1,7 @@
-class Scene(object):
+from api_proxy import APIProxy
+
+
+class Scene(APIProxy):
     def get_persistent_id(self, node_unicode_proxy):
         raise NotImplementedError
 

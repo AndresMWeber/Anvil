@@ -1,3 +1,6 @@
+import api_proxy
+
+
 def is_dcc_loaded():
     return True
 

@@ -132,6 +132,7 @@ class TestBase(unittest.TestCase):
             created_scene_tree = post_hook()
             created_nodes = process(initial_scene_tree, created_scene_tree)
             TestBase.LOG.info('Function %s created nodes: %s' % (func.__name__, created_nodes))
+            TestBase.LOG.info('Scene state is:\n%s' % pformat(created_scene_tree, indent=2))
             TestBase.delete_objects(created_nodes)
             return func_return
 
