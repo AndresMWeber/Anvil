@@ -1,9 +1,7 @@
 import anvil
 from objects import *
-anvil.LOG.info('Imported objects')
 from grouping import *
-anvil.LOG.info('Imported groupings')
-anvil.LOG.info('Imported all nodes %s' % [local for local in list(locals()) if local[0].isupper()])
+anvil.LOG.info('Registered all object classes in anvil.node_types')
 REGISTERED_NODES = {}
 
 

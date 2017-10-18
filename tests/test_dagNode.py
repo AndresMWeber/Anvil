@@ -27,7 +27,7 @@ class TestDagNodeRename(TestBaseDagNode):
         dag_node = nt.DagNode(str(nt.Transform.build()))
         dag_node.rename(input_name)
         desired_output = desired_output or str(dag_node)
-        if 'abstract' in anvil.runtime.dcc.ENGINE:
+        if 'standalone' in anvil.runtime.dcc.ENGINE:
             self.assertTrue(True)
         else:
             self.assertEqual(str(dag_node), desired_output)
