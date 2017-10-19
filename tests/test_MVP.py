@@ -13,12 +13,13 @@ class TestBaseRig(TestBase):
         super(TestBaseRig, self).setUp()
 
     def build_rig(self):
-        self.test_rig = nt.Rig([])
-        self.test_rig.add_node(nt.Joint, 'joint_eye', meta_data=self.name_tokens)
-        self.test_rig.add_node(nt.Control, 'control_eye', meta_data=self.name_tokens, shape='sphere')
-        self.test_rig.control_eye.meta_data['name'] = 'eyeball'
-        self.test_rig.build()
-        self.test_rig.rename(**self.name_tokens)
+        if not anvil.runtime.dcc.scene.exists('eye_rig_mvp_GRP'):
+            self.test_rig = nt.Rig(meta_data=self.name_tokens)
+            self.test_rig.add_node(nt.Joint, 'joint_eye', meta_data=self.name_tokens)
+            self.test_rig.add_node(nt.Control, 'control_eye', meta_data=self.name_tokens, shape='sphere')
+            self.test_rig.control_eye.meta_data['name'] = 'eyeball'
+            self.test_rig.build()
+            TestBase.LOG.info('Created Test Rig')
 
     def tearDown(self):
         TestBase.LOG.info('Cleaning up/Deleting rig top node %s' % self.test_rig.group_root)
@@ -37,42 +38,37 @@ class TestRigEyeBuild(TestBaseRig):
         self.assertEqual(self.test_rig.find_node('joint_eye'), self.test_rig.joint_eye)
 
     def test_constraint(self):
-        pass
+        anvil.runtime.dcc.constrain.parent(str(self.test_rig.control_eye), str(self.test_rig.joint_eye))
+        print(anvil.runtime.dcc.scene.list_scene(type='parentConstraint'))
 
     def test_hierarchy_exists(self):
-        """
-        'control_universal': <anvil.grouping.control.Control object at 0x000001B010ECBE48>,
-        'group_joint': <Transform @ 0x1b010bf0e10 (eye_joint_mvp_GRP)>,
-        'group_controls': <Transform @ 0x1b010bf0be0 (eye_controls_mvp_GRP)>,
-        'control_eye': <anvil.grouping.control.Control object at 0x000001B010ECF630>,
-        'group_nodes': <Transform @ 0x1b010ecbc18 (eye_nodes_mvp_GRP)>,
-        'group_world': <Transform @ 0x1b010bf0d68 (eye_world_mvp_GRP)>,
-        'group_model': <Transform @ 0x1b010bdadd8 (eye_model_mvp_GRP)>,
-        'group_root': <Transform @ 0x1b010ecb550 (eye_rig_mvp_GRP)>,
-        'joint_eye': <Joint @ 0x1b010ecf908 (joint5)>
-        """
-        hierarchy_nodes = [str(node) for key, node in iteritems(self.test_rig.hierarchy)]
-        self.assertListEqual(hierarchy_nodes, [])
+        self.assertTrue(
+            all([anvil.runtime.dcc.scene.exists(str(node)) for key, node in iteritems(self.test_rig.hierarchy)]))
+
+    def test_hierarchy_count(self):
+        self.assertEquals(len([node for key, node in iteritems(self.test_rig.hierarchy)]), 9)
 
 
 class TestRigRename(TestBaseRig):
     def test_universal_control_name(self):
+        self.test_rig.rename()
         self.assertEqual(str(self.test_rig.control_universal.control), 'eye_universal_mvp_CTR')
 
     def test_root_name(self):
+        self.test_rig.rename()
         self.assertEqual(str(self.test_rig.group_root), 'eye_rig_mvp_GRP')
 
     def test_sub_groups(self):
-        """
-        {'control_universal': <anvil.grouping.control.Control object at 0x000001B010ECBE48>,
-        'group_joint': <Transform @ 0x1b010bf0e10 (eye_joint_mvp_GRP)>,
-        'group_controls': <Transform @ 0x1b010bf0be0 (eye_controls_mvp_GRP)>,
-        'control_eye': <anvil.grouping.control.Control object at 0x000001B010ECF630>,
-        'group_nodes': <Transform @ 0x1b010ecbc18 (eye_nodes_mvp_GRP)>,
-        'group_world': <Transform @ 0x1b010bf0d68 (eye_world_mvp_GRP)>,
-        'group_model': <Transform @ 0x1b010bdadd8 (eye_model_mvp_GRP)>,
-        'group_root': <Transform @ 0x1b010ecb550 (eye_rig_mvp_GRP)>,
-        'joint_eye': <Joint @ 0x1b010ecf908 (joint5)>}
-        :return:
-        """
-        self.assertListEqual([], [])
+        print(anvil.runtime.dcc.scene.list_scene_nodes())
+        self.test_rig.rename()
+        self.assertListSame(['eye_rig_mvp_GRP',
+                             'eye_universal_mvp_CTR',
+                             'eyeball_mvp_CTR',
+                             'eye_nodes_mvp_GRP',
+                             'eye_model_mvp_GRP',
+                             'eye_joints_mvp_GRP',
+                             'eye_controls_mvp_GRP',
+                             'eye_world_mvp_GRP',
+                             'eye_rig_mvp_JNT'
+                             ],
+                            [str(self.test_rig.hierarchy[node]) for node in self.test_rig.hierarchy])

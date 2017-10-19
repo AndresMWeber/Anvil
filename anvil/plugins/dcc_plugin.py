@@ -11,6 +11,7 @@ class DCCPlugin(object):
         self.ENGINE_API = dcc_module.lazy_import() or {}
         self.scene = dcc_module.scene.Scene()
         self.create = dcc_module.create.Create()
+        self.constrain = dcc_module.connections.Constraint()
         self.ENGINE = dcc_module.__name__
 
     def __str__(self):

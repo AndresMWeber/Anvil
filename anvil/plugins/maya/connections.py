@@ -94,7 +94,8 @@ class Constraint(connections.Constraint):
         schema.update(self.default_schema)
         schema.update(self.offset_schema)
         schema.update(self.cacheable_schema)
-        schema['properties'].pop('skip')
+        if schema['properties'].get('skip'):
+            schema['properties'].pop('skip')
         validate(flags, schema)
         flags = self.initialize_and_filter_flags(flags, schema)
         return m_api.parentConstraint(targets, source, **flags)

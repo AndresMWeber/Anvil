@@ -25,7 +25,7 @@ class TestBase(unittest.TestCase):
             return node
 
     def setUp(self):
-        anvil.LOG.setLevel(anvil.log.logging.CRITICAL)
+        #anvil.LOG.setLevel(anvil.log.logging.CRITICAL)
         self.fixtures = []
 
     def tearDown(self):
@@ -64,6 +64,13 @@ class TestBase(unittest.TestCase):
     @staticmethod
     def checkEqual(list_a, list_b):
         return len(list_a) == len(list_b) and sorted(list_a) == sorted(list_b)
+
+    def assertListSame(self, list1, list2):
+        print(sorted(list1))
+        print(sorted(list2))
+        for x, y in zip(sorted(list1), sorted(list2)):
+            self.assertEqual(x, y)
+        return True
 
     def assertDictEqual(self, d1, d2, msg=None):  # assertEqual uses for dicts
         for k, v1 in iteritems(d1):

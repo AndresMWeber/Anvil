@@ -46,6 +46,74 @@ class Scene(scene.Scene):
         return [transform for transform in mc.ls(type=object_type) if
                 not mc.listRelatives(transform, s=has_shape, c=True)]
 
+    def list_scene(self, node_dags=None, **flags):
+        schema = {"type": ["object", "null"],
+                  "properties": {
+                      "absoluteName": {"type": "boolean"},
+                      "allPaths": {"type": "boolean"},
+                      "assemblies": {"type": "boolean"},
+                      "cameras": {"type": "boolean"},
+                      "containerType": {"type": "string"},
+                      "containers": {"type": "boolean"},
+                      "dagObjects": {"type": "boolean"},
+                      "defaultNodes": {"type": "boolean"},
+                      "dependencyNodes": {"type": "boolean"},
+                      "exactType": {"type": "string"},
+                      "excludeType": {"type": "string"},
+                      "flatten": {"type": "boolean"},
+                      "geometry": {"type": "boolean"},
+                      "ghost": {"type": "boolean"},
+                      "head": {"type": "number"},
+                      "hilite": {"type": "boolean"},
+                      "intermediateObjects": {"type": "boolean"},
+                      "invisible": {"type": "boolean"},
+                      "leaf": {"type": "boolean"},
+                      "lights": {"type": "boolean"},
+                      "live": {"type": "boolean"},
+                      "lockedNodes": {"type": "boolean"},
+                      "long": {"type": "boolean"},
+                      "materials": {"type": "boolean"},
+                      "modified": {"type": "boolean"},
+                      "noIntermediate": {"type": "boolean"},
+                      "nodeTypes": {"type": "boolean"},
+                      "objectsOnly": {"type": "boolean"},
+                      "orderedSelection": {"type": "boolean"},
+                      "partitions": {"type": "boolean"},
+                      "persistentNodes": {"type": "boolean"},
+                      "planes": {"type": "boolean"},
+                      "preSelectHilite": {"type": "boolean"},
+                      "readOnly": {"type": "boolean"},
+                      "recursive": {"type": "boolean"},
+                      "referencedNodes": {"type": "boolean"},
+                      "references": {"type": "boolean"},
+                      "renderGlobals": {"type": "boolean"},
+                      "renderQualities": {"type": "boolean"},
+                      "renderResolutions": {"type": "boolean"},
+                      "renderSetups": {"type": "boolean"},
+                      "selection": {"type": "boolean"},
+                      "sets": {"type": "boolean"},
+                      "shapes": {"type": "boolean"},
+                      "shortNames": {"type": "boolean"},
+                      "showNamespace": {"type": "boolean"},
+                      "showType": {"type": "boolean"},
+                      "tail": {"type": "number"},
+                      "templated": {"type": "boolean"},
+                      "textures": {"type": "boolean"},
+                      "transforms": {"type": "boolean"},
+                      "type": {"type": "string"},
+                      "undeletable": {"type": "boolean"},
+                      "untemplated": {"type": "boolean"},
+                      "uuid": {"type": "boolean"},
+                      "visible": {"type": "boolean"}
+                  }
+                  }
+
+        validate(flags, schema)
+        if node_dags:
+            return mc.ls(node_dags, **flags)
+        else:
+            return mc.ls(**flags)
+
     def exists(self, node, *args, **kwargs):
         return mc.objExists(node, *args, **kwargs)
 

@@ -1,4 +1,6 @@
 import nomenclate
+import anvil.objects as ot
+from six import iteritems
 import anvil
 
 
@@ -9,15 +11,20 @@ class AbstractGrouping(object):
     """
     ANVIL_TYPE = 'group'
 
-    def __init__(self, layout=None, name_tokens=None, meta_data=None, **flags):
+    def __init__(self, layout=None, meta_data=None, **flags):
         self.layout = layout
         self.hierarchy = {}
         self.flags = flags or {}
-        self._nomenclate = nomenclate.Nom(name_tokens or {})
+        self.meta_data = self.merge_dicts({'type': self.ANVIL_TYPE}, meta_data)
+        self._nomenclate = nomenclate.Nom(self.meta_data)
 
-        default_meta_data = {'type': self.ANVIL_TYPE}
-        default_meta_data.update(meta_data or {})
-        self.meta_data = default_meta_data
+    def merge_dicts(self, *input_dicts):
+        result = {}
+        if input_dicts:
+            for input_dict in input_dicts:
+                if isinstance(input_dict, dict):
+                    result.update(input_dict)
+        return result
 
     def parent(self, new_parent):
         raise NotImplementedError
@@ -29,7 +36,21 @@ class AbstractGrouping(object):
         raise NotImplementedError
 
     def rename(self, *input_dicts, **name_tokens):
-        raise NotImplementedError
+        anvil.LOG.info('Renaming %r...' % (self))
+        self.meta_data.update(self.merge_dicts(input_dicts + (name_tokens,)))
+        self._nomenclate.merge_dict(**self.meta_data)
+
+        # Sub node is going to be either subtype of grouping or objects.
+        for sub_node_key, sub_node in iteritems(self.hierarchy):
+            if issubclass(type(sub_node), AbstractGrouping):
+                sub_node.rename(self.merge_dicts(self.meta_data, sub_node.meta_data))
+                anvil.LOG.info('Renamed grouping to %r...' % (sub_node))
+
+            elif issubclass(type(sub_node), ot.UnicodeDelegate):
+                sub_node.rename(self._nomenclate.get(**sub_node.meta_data))
+                print(self.meta_data, sub_node.meta_data, self._nomenclate.get(**sub_node.meta_data))
+                anvil.LOG.info('Renamed sub_node to %r...' % (sub_node))
+
 
     def add_node(self, node_class, node_key, meta_data=None, **flags):
         flags = {} if flags is None else flags
