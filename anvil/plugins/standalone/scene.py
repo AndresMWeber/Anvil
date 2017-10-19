@@ -15,10 +15,10 @@ class Scene(scene.Scene):
         return typename in ['Transform', 'Curve', 'Joint', 'Shape', 'UnicodeDelegate', 'DagNode']
 
     def get_scene_tree(self):
-        return {'abstract': None}
+        return {'standalone': None}
 
     def list_scene_nodes(self, object_type='transform', has_shape=False):
-        return ['abstract']
+        return ['standalone']
 
     def exists(self, node, *args, **kwargs):
         return True

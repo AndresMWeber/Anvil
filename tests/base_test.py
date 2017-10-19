@@ -87,19 +87,19 @@ class TestBase(unittest.TestCase):
     def delete_created_nodes(func):
         def pre_hook():
             initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            #TestBase.LOG.info('Scene state before running function %s:' % (func.__name__))
-            #TestBase.LOG.info(str(pformat(initial_scene_tree, indent=2)))
+            # TestBase.LOG.info('Scene state before running function %s:' % (func.__name__))
+            # TestBase.LOG.info(str(pformat(initial_scene_tree, indent=2)))
             return initial_scene_tree
 
         def post_hook():
             created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            #TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
-            #TestBase.LOG.info(str(pformat(created_scene_tree, indent=2)))
+            # TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
+            # TestBase.LOG.info(str(pformat(created_scene_tree, indent=2)))
             return created_scene_tree
 
         def process(initial_scene_tree, post_scene_tree):
             diff = DeepDiff(initial_scene_tree, post_scene_tree)
-            #TestBase.LOG.info('Unprocessed DeepDiff:\n%s' % pformat(diff, indent=2))
+            # TestBase.LOG.info('Unprocessed DeepDiff:\n%s' % pformat(diff, indent=2))
             created_nodes = []
             deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
 
@@ -133,12 +133,12 @@ class TestBase(unittest.TestCase):
                     deep_path.append(str(item))
             return deep_path
 
-        def wrapped(*args, **kwargs):
+        def wrapped(self, *args, **kwargs):
             initial_scene_tree = pre_hook()
-            func_return = func(*args, **kwargs)
+            func_return = func(self, *args, **kwargs)
             created_scene_tree = post_hook()
             created_nodes = process(initial_scene_tree, created_scene_tree)
-            TestBase.LOG.info('Function %s created nodes: %s' % (func.__name__, created_nodes))
+            TestBase.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
             TestBase.LOG.info('Scene state is:\n%s' % pformat(created_scene_tree, indent=2))
             TestBase.delete_objects(created_nodes)
             return func_return

@@ -7,7 +7,7 @@ CONTROL_TYPE = 'control'
 HIERARCHY_TYPE = 'hierarchy'
 meta_data_TYPE = 'meta_data'
 
-BASE = 'abstract'
+BASE = 'standalone'
 MAYA = 'maya'
 NUKE = 'nuke'
 HOUDINI = 'houdini'

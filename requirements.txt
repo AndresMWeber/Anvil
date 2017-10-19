@@ -8,3 +8,4 @@ functools32==3.2.3.post2
 jsonschema==2.6.0
 nomenclate==2.0.2
 python-dateutil==2.6.1
+deepdiff==3.3.0

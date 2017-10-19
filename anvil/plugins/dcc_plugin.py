@@ -4,7 +4,7 @@ from importlib import import_module
 
 
 class DCCPlugin(object):
-    SUPPORTED = ['abstract', 'maya']
+    SUPPORTED = ['standalone', 'maya']
     ENGINE = None
 
     def __init__(self, dcc_module):
@@ -24,6 +24,7 @@ def get_log_handler():
         class: Instance of the log handler or None if not found.
     """
     plugin = get_current_dcc(return_module=False)
+
     loaded_mod = __import__("anvil.plugins.{PLUGIN}.log_handler".format(PLUGIN=plugin), fromlist=['handler'])
     reload(loaded_mod)
     loaded_class = getattr(loaded_mod, 'DCCHandler')
@@ -45,7 +46,7 @@ def get_log_handler():
 def get_current_dcc(return_module=True):
     handler = None
     for plugin in DCCPlugin.SUPPORTED:
-        handler = get_dcc(plugin, return_module=return_module)
+        handler = get_dcc(plugin, return_module=return_module) or handler
     return handler
 
 
