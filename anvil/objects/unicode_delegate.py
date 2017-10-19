@@ -20,8 +20,9 @@ class UnicodeDelegate(object):
         self._api_class_instance = None
 
         self.flags = flags or {}
-        self.meta_data = meta_data or {}
-
+        default_meta_data = {'type': self.dcc_type}
+        default_meta_data.update(meta_data or {})
+        self.meta_data = default_meta_data
     @classmethod
     def build(cls, meta_data=None, **flags):
         cls.convert_subclass_kwargs(flags)

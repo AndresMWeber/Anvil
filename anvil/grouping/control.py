@@ -7,6 +7,7 @@ import base
 
 
 class Control(base.AbstractGrouping):
+    ANVIL_TYPE = 'control'
 
     def __init__(self,
                  control=None,
@@ -55,3 +56,9 @@ class Control(base.AbstractGrouping):
             return rt.dcc.scene.parent(str(self.offset_group), str(new_parent))
         else:
             return super(Control, self).parent(new_parent)
+
+    def __str__(self):
+        try:
+            return str(self.find_node('control'))
+        except (TypeError, AttributeError):
+            return super(Control, self).__str__()

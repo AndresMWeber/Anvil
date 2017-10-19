@@ -1,6 +1,6 @@
 import base
 import anvil
-import anvil.objects as objects
+import anvil.objects as ot
 import control
 from six import iteritems
 
@@ -18,14 +18,18 @@ class Rig(base.AbstractGrouping):
     def rename(self, *input_dicts, **name_tokens):
         for input_dict in input_dicts:
             name_tokens.update(input_dict)
-        self._nomenclate.merge_dict(name_tokens)
 
-        self._nomenclate.type = 'group'
-        self.find_node('group_root').rename(self._nomenclate.get(childtype='rig'))
-        for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
-            self.find_node('group_%s' % main_group_type).rename(self._nomenclate.get(childtype=main_group_type))
+        for sub_node_key, sub_node in iteritems(self.hierarchy):
+            anvil.LOG.info('Rig %r renaming sub_node %r...' % (self, sub_node))
+            self._nomenclate.merge_dict(sub_node.meta_data)
+            #sub_node.meta_data.update(name_tokens)
 
-        self.find_node('control_universal').rename(name_tokens, childtype='universal', type='control')
+            # Sub node is going to be either subtype of grouping or objects.
+            if issubclass(type(sub_node), base.AbstractGrouping):
+                sub_node.rename(sub_node.meta_data)
+            else:
+                sub_node.rename(self._nomenclate.get())
+            anvil.LOG.info('Renamed sub_node to %r...' % (sub_node))
 
     def build(self):
         self.build_layout()
@@ -34,7 +38,11 @@ class Rig(base.AbstractGrouping):
             sub_rig_member.build_layout()
 
     def build_layout(self):
-        root = self.add_node(objects.Transform, 'group_root')
+        self.add_node(ot.Transform, 'group_root', meta_data={'childtype': 'rig'})
+
         for main_group_type in ['model', 'joint', 'controls', 'nodes', 'world']:
-            self.add_node(objects.Transform, 'group_%s' % main_group_type, parent=root)
-        self.add_node(control.Control, 'control_universal', parent=self.find_node('group_controls'))
+            group_name = 'group_%s' % main_group_type
+            self.add_node(ot.Transform, group_name, parent=self.group_root, meta_data={'child_type': main_group_type})
+
+        self.add_node(control.Control, 'control_universal', parent=self.find_node('group_controls'),
+                      meta_data={'childtype': 'universal'})
