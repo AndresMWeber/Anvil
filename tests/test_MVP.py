@@ -2,28 +2,38 @@ from six import iteritems
 import anvil
 import anvil.node_types as nt
 from base_test import TestBase
+from pprint import pprint
+
+global build_count
+build_count = 0
 
 
 class TestBaseRig(TestBase):
     name_tokens = {'name': 'eye', 'purpose': 'mvp'}
 
     def setUp(self):
+        self.test_rig = None
         self.build_rig()
         anvil.LOG.setLevel(anvil.log.logging.INFO)
         super(TestBaseRig, self).setUp()
 
     def build_rig(self):
+        global build_count
+        print(anvil.runtime.dcc.scene.list_scene_nodes())
+
         if not anvil.runtime.dcc.scene.exists('eye_rig_mvp_GRP'):
             self.test_rig = nt.Rig(meta_data=self.name_tokens)
-            self.test_rig.add_node(nt.Joint, 'joint_eye', meta_data=self.name_tokens)
-            self.test_rig.add_node(nt.Control, 'control_eye', meta_data=self.name_tokens, shape='sphere')
+            self.test_rig.add_node(nt.Joint, 'joint_eye', parent=self.test_rig.group_joints, meta_data=self.name_tokens)
+            self.test_rig.add_node(nt.Control, 'control_eye', parent=self.test_rig.group_controls, meta_data=self.name_tokens, shape='sphere')
             self.test_rig.control_eye.meta_data['name'] = 'eyeball'
             self.test_rig.build()
-            TestBase.LOG.info('Created Test Rig')
+            self.test_rig.rename()
+            TestBase.LOG.info('Created Test Rig %d times'% build_count)
+            build_count += 1
 
     def tearDown(self):
-        TestBase.LOG.info('Cleaning up/Deleting rig top node %s' % self.test_rig.group_root)
-        anvil.runtime.dcc.scene.delete(str(self.test_rig.group_root))
+        TestBase.LOG.info('Cleaning up/Deleting rig top node %s' % self.test_rig.top_node)
+        anvil.runtime.dcc.scene.delete([str(node) for key, node in iteritems(self.test_rig.hierarchy)])
         super(TestBaseRig, self).tearDown()
 
 
@@ -38,7 +48,7 @@ class TestRigEyeBuild(TestBaseRig):
         self.assertEqual(self.test_rig.find_node('joint_eye'), self.test_rig.joint_eye)
 
     def test_constraint(self):
-        anvil.runtime.dcc.constrain.parent(str(self.test_rig.control_eye), str(self.test_rig.joint_eye))
+        anvil.runtime.dcc.constrain.parent(str(self.test_rig.control_eye.top_node), str(self.test_rig.joint_eye))
         print(anvil.runtime.dcc.scene.list_scene(type='parentConstraint'))
 
     def test_hierarchy_exists(self):
@@ -51,16 +61,13 @@ class TestRigEyeBuild(TestBaseRig):
 
 class TestRigRename(TestBaseRig):
     def test_universal_control_name(self):
-        self.test_rig.rename()
         self.assertEqual(str(self.test_rig.control_universal.control), 'eye_universal_mvp_CTR')
 
     def test_root_name(self):
-        self.test_rig.rename()
-        self.assertEqual(str(self.test_rig.group_root), 'eye_rig_mvp_GRP')
+        self.assertEqual(str(self.test_rig.top_node), 'eye_rig_mvp_GRP')
 
     def test_sub_groups(self):
-        print(anvil.runtime.dcc.scene.list_scene_nodes())
-        self.test_rig.rename()
+        pprint(anvil.runtime.dcc.scene.list_scene_nodes(), indent=2)
         self.assertListSame(['eye_rig_mvp_GRP',
                              'eye_universal_mvp_CTR',
                              'eyeball_mvp_CTR',
@@ -69,6 +76,5 @@ class TestRigRename(TestBaseRig):
                              'eye_joints_mvp_GRP',
                              'eye_controls_mvp_GRP',
                              'eye_world_mvp_GRP',
-                             'eye_rig_mvp_JNT'
-                             ],
+                             'eye_rig_mvp_JNT'],
                             [str(self.test_rig.hierarchy[node]) for node in self.test_rig.hierarchy])

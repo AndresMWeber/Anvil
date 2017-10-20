@@ -115,6 +115,8 @@ class Scene(scene.Scene):
             return mc.ls(**flags)
 
     def exists(self, node, *args, **kwargs):
+        if not node:
+            return False
         return mc.objExists(node, *args, **kwargs)
 
     def safe_delete(self, node_or_nodes):
