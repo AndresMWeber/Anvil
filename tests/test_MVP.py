@@ -64,6 +64,7 @@ class TestRigRename(TestBaseRig):
         self.assertEqual(str(self.test_rig.control_universal.control), 'eye_universal_mvp_CTR')
 
     def test_root_name(self):
+        print(self.test_rig.hierarchy)
         self.assertEqual(str(self.test_rig.top_node), 'eye_rig_mvp_GRP')
 
     def test_sub_groups(self):

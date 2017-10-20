@@ -42,7 +42,7 @@ class AbstractGrouping(object):
             anvil.LOG.info('Parenting control offset group %s to %s' % (str(self), new_parent))
             rt.dcc.scene.parent(str(self.top_node), new_parent)
         else:
-            anvil.LOG.warning('Parent(%s) -> %s does not exist.' % (new_parent, self))
+            anvil.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, self))
 
     def rename(self, *input_dicts, **name_tokens):
         anvil.LOG.info('Renaming %r...' % (self))
@@ -62,7 +62,7 @@ class AbstractGrouping(object):
 
     def add_node(self, node_class, node_key, meta_data=None, **flags):
         flags = {} if flags is None else flags
-        anvil.LOG.info('rig add %s.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
+        anvil.LOG.info('rig add %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
         self.hierarchy[node_key] = node_class.build(meta_data=meta_data, **flags)
         return self.hierarchy[node_key]
 

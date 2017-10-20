@@ -2,7 +2,7 @@ import log
 import config
 import version
 
-LOG = log.obtainLogger('anvil')
+LOG = log.obtainLogger(__name__)
 
 import plugins
 import objects

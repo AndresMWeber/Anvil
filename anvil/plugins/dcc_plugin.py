@@ -18,31 +18,6 @@ class DCCPlugin(object):
         return '%s(%s, API=%s)' % (self.__class__.__name__, self.ENGINE, self.ENGINE_API)
 
 
-def get_log_handler():
-    """Returns the appropriate logging handler for the DCC.
-    Returns:
-        class: Instance of the log handler or None if not found.
-    """
-    plugin = get_current_dcc(return_module=False)
-
-    loaded_mod = __import__("anvil.plugins.{PLUGIN}.log_handler".format(PLUGIN=plugin), fromlist=['handler'])
-    reload(loaded_mod)
-    loaded_class = getattr(loaded_mod, 'DCCHandler')
-
-    handler = loaded_class()
-
-    if handler is None:
-        class DCCHandler(logging.StreamHandler):
-            """Generic DCC Handler instance"""
-
-            def __init__(self, stream=None):
-                super(DCCHandler, self).__init__(stream)
-
-        handler = DCCHandler(sys.stdout)
-
-    return handler
-
-
 def get_current_dcc(return_module=True):
     handler = None
     for plugin in DCCPlugin.SUPPORTED:

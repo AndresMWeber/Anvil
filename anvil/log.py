@@ -1,5 +1,25 @@
 import logging
-from anvil.plugins.dcc_plugin import get_log_handler
+import logging.config
+import yaml
+import os
+
+
+def setup_logging(default_path='.log.yml', default_level=logging.INFO, env_key='LOG_CFG'):
+    """Setup logging configuration
+
+    """
+    path = default_path
+    value = os.getenv(env_key, None)
+    if value:
+        path = value
+
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+
+    else:
+        logging.basicConfig(level=default_level)
 
 
 def obtainLogger(name):
@@ -9,14 +29,7 @@ def obtainLogger(name):
     Returns:
         Logger: Logger.
     """
-
     logger = logging.getLogger(name)
-
-    handlerNames = [type(x).__name__ for x in logger.handlers]
-
-    if 'DCCHandler' not in handlerNames:
-        dccHandler = get_log_handler()
-        if dccHandler is not None:
-            logger.addHandler(dccHandler)
-    logger.propagate = False
     return logger
+
+setup_logging()
