@@ -4,14 +4,14 @@ from api_proxy import APIProxy
 
 class Create(APIProxy):
     def create(self, dcc_node_type, flags=None):
-        anvil.LOG.info('Attempting to create node type %s with flags %s' % (dcc_node_type, flags))
+        self.LOG.debug('Attempting to create node type %s with flags %s' % (dcc_node_type, flags))
         function_name_query = 'create_%s' % dcc_node_type
         node = dcc_node_type
         try:
             node = getattr(self, function_name_query)(flags=flags)
         except AttributeError:
-            anvil.LOG.warning('No custom method for node type %s found...defaulting...' % dcc_node_type)
-        anvil.LOG.info('Created node %s from function %s with flags %s' % (node, function_name_query, flags))
+            self.LOG.warning('No custom method for node type %s found...defaulting...' % dcc_node_type)
+        self.LOG.info('Created node %s from function %s with flags %s' % (node, function_name_query, flags))
         return node
 
     def create_transform(self, *dcc_nodes, **flags):

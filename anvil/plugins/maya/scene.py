@@ -2,6 +2,9 @@ from anvil.plugins.maya.dependencies import *
 import anvil.plugins.base.scene as scene
 from jsonschema import validate
 
+m_api = pm
+
+
 
 class Scene(scene.Scene):
     def get_persistent_id(self, node_unicode_proxy):
@@ -10,19 +13,19 @@ class Scene(scene.Scene):
         return selection_list.getDagPath(0)
 
     def get_type(self, node, **kwargs):
-        return str(mc.objectType(node, **kwargs))
+        return str(m_api.objectType(node, **kwargs))
 
     def is_exact_type(self, node, typename):
         return type(node) == typename
 
     def is_type(self, node, typename):
-        return typename in mc.nodeType(node, inherited=True)
+        return typename in m_api.nodeType(node, inherited=True)
 
     def get_scene_tree(self):
-        startup_cams = [mc.listRelatives(c, p=True)[0] for c in mc.ls(cameras=True)
-                        if mc.camera(c, q=True, startupCamera=True)]
+        startup_cams = [m_api.listRelatives(c, p=True)[0] for c in mc.ls(cameras=True)
+                        if m_api.camera(c, q=True, startupCamera=True)]
 
-        top_level_transforms = [node for node in mc.ls(assemblies=True)
+        top_level_transforms = [node for node in m_api.ls(assemblies=True)
                                 if node not in startup_cams]
 
         def recurse_scene_nodes(nodes, tree=None):
@@ -34,7 +37,7 @@ class Scene(scene.Scene):
 
             for tree_child in nodes:
                 relative_tree = tree[tree_child.split('|')[-1]]
-                children = mc.listRelatives(tree_child, fullPath=True, children=True, type='transform')
+                children = m_api.listRelatives(tree_child, fullPath=True, children=True, type='transform')
                 if children:
                     recurse_scene_nodes(children, relative_tree)
 
@@ -43,8 +46,18 @@ class Scene(scene.Scene):
         return recurse_scene_nodes(top_level_transforms)
 
     def list_scene_nodes(self, object_type='transform', has_shape=False):
-        return [transform for transform in mc.ls(type=object_type) if
-                not mc.listRelatives(transform, s=has_shape, c=True)]
+        nodes = []
+        for node in m_api.ls(type=object_type):
+            if not node.getShape():
+                nodes.append(node)
+            else:
+                if not node.getShape().type() == 'camera':
+                    nodes.append(node)
+                else:
+                    if not m_api.camera(node.getShape(), startupCamera=True, q=True):
+                        nodes.append(node)
+
+        return nodes
 
     def list_scene(self, node_dags=None, **flags):
         schema = {"type": ["object", "null"],
@@ -110,35 +123,33 @@ class Scene(scene.Scene):
 
         validate(flags, schema)
         if node_dags:
-            return mc.ls(node_dags, **flags)
+            return m_api.ls(node_dags, **flags)
         else:
-            return mc.ls(**flags)
+            return m_api.ls(**flags)
 
-    def exists(self, node, *args, **kwargs):
-        if not node:
-            return False
-        return mc.objExists(node, *args, **kwargs)
+    def exists(self, *nodes):
+        return all([m_api.objExists(node) if node else False for node in nodes])
 
     def safe_delete(self, node_or_nodes):
         if isinstance(node_or_nodes, list):
             for node in node_or_nodes:
                 try:
-                    mc.delete(node)
+                    m_api.delete(node)
                 except ValueError:
                     pass
         else:
             try:
-                mc.delete(node_or_nodes)
+                m_api.delete(node_or_nodes)
             except ValueError:
                 pass
 
     def rename(self, node_dag, name, **kwargs):
         if not name:
             return node_dag
-        return mc.rename(node_dag, name, **kwargs)
+        return m_api.rename(node_dag, name, **kwargs)
 
     def duplicate(self, node_dag, parent_only=True, **kwargs):
-        duplicate_node = mc.duplicate(node_dag, parentOnly=parent_only, **kwargs)[0]
+        duplicate_node = m_api.duplicate(node_dag, parentOnly=parent_only, **kwargs)[0]
         return duplicate_node
 
     def list_relatives(self, node_dag, **flags):
@@ -157,7 +168,7 @@ class Scene(scene.Scene):
             },
         }
         validate(flags, schema)
-        return mc.listRelatives(node_dag, **flags)
+        return m_api.listRelatives(node_dag, **flags)
 
     def parent(self, node_dags, new_parent_dag, **flags):
         schema = {
@@ -174,7 +185,10 @@ class Scene(scene.Scene):
             }
         }
         validate(flags, schema)
-        return mc.parent(node_dags, new_parent_dag, **flags)
+        try:
+            return m_api.parent(node_dags, new_parent_dag, **flags)
+        except RuntimeError as e:
+            self.LOG.exception('Child was already parented to that dag node.')
 
     def delete(self, node_dags, **flags):
         schema = {
@@ -196,4 +210,4 @@ class Scene(scene.Scene):
             }
         }
         validate(flags, schema)
-        return mc.delete(node_dags, **flags)
+        return m_api.delete(node_dags, **flags)

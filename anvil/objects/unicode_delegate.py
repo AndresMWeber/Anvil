@@ -15,7 +15,7 @@ class UnicodeDelegate(object):
         :param flags: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
-        anvil.LOG.info('Initializing node %s with ID %s' % (self.__class__, node_unicode_proxy))
+        anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_unicode_proxy))
         self._dcc_id = runtime.dcc.scene.get_persistent_id(node_unicode_proxy)
         self._api_class_instance = None
 
@@ -23,6 +23,7 @@ class UnicodeDelegate(object):
         default_meta_data = {'type': self.dcc_type}
         default_meta_data.update(meta_data or {})
         self.meta_data = default_meta_data
+
     @classmethod
     def build(cls, meta_data=None, **flags):
         cls.convert_subclass_kwargs(flags)

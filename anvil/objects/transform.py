@@ -13,7 +13,7 @@ class Transform(dag_node.DagNode):
         return parents
 
     def parent(self, new_parent):
-        anvil.LOG.info('Parenting %s to %s' % (str(self), str(new_parent)))
+        anvil.LOG.debug('Parenting %s to %s' % (str(self), str(new_parent)))
         return runtime.dcc.scene.parent(str(self), str(new_parent))
 
     @classmethod

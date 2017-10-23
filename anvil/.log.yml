@@ -3,11 +3,13 @@ disable_existing_loggers: False
 formatters:
     simple:
         format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    api:
+        format: "%(message)s"
 
 handlers:
     console:
         class: logging.StreamHandler
-        level: DEBUG
+        level: INFO
         formatter: simple
         stream: ext://sys.stdout
 
@@ -15,36 +17,59 @@ handlers:
         class: logging.handlers.RotatingFileHandler
         level: INFO
         formatter: simple
-        filename: info.log
+        filename: anvil_info.log
         maxBytes: 10485760 # 10MB
         backupCount: 20
         encoding: utf8
 
-    error_file_handler:
+    dcc_file_handler:
         class: logging.handlers.RotatingFileHandler
-        level: ERROR
+        level: INFO
         formatter: simple
-        filename: errors.log
+        filename: anvil_dcc.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    testing_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: simple
+        filename: anvil_testing.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    api_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: api
+        filename: anvil_api_calls.log
         maxBytes: 10485760 # 10MB
         backupCount: 20
         encoding: utf8
 
 loggers:
     anvil:
-        level: ERROR
-        handlers: [console]
-        propagate: no
+        level: INFO
+        handlers: [info_file_handler]
+        propagate: yes
 
     anvil.plugins.base.api_proxy:
-        level: DEBUG
-        handlers: [console]
+        level: INFO
+        handlers: [dcc_file_handler]
+        propagate: no
+
+    api_calls:
+        level: INFO
+        handlers: [api_file_handler]
         propagate: no
 
     testing:
         level: INFO
-        handlers: [console]
-        propagate: no
+        handlers: [testing_file_handler]
+        propagate: yes
 
 root:
     level: INFO
-    handlers: [console, info_file_handler, error_file_handler]
+    handlers: [console]

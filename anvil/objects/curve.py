@@ -30,7 +30,7 @@ class Curve(transform.Transform):
         api_function = getattr(runtime.dcc.ENGINE_API, shape_constructor, None)
 
         if callable(api_function):
-            anvil.LOG.info('Obtained shape constructor from yml: %s(%s)' % (api_function, shape_entry))
+            anvil.LOG.debug('Obtained shape constructor from yml: %s(%s)' % (api_function, shape_entry))
             return lambda: api_function(**shape_entry)
 
     @classmethod

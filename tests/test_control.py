@@ -37,6 +37,7 @@ class TestControlRename(TestBaseControl):
         control.rename(*input_dicts, **input_kwargs)
         control_hierarchy = {key: str(node) for key, node in iteritems(control.hierarchy)}
         desired_output = desired_output or control_hierarchy
+
         if 'standalone' in anvil.runtime.dcc.ENGINE:
             self.assertTrue(True)
         else:

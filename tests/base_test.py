@@ -15,6 +15,12 @@ NOMENCLATE = nomenclate.Nom()
 class TestBase(unittest.TestCase):
     LOG = obtainLogger('testing')
 
+    def tearDown(self):
+        super(TestBase, self).tearDown()
+
+    def setUp(self):
+        super(TestBase, self).setUp()
+
     def safe_create(self, dag_path, object_type, name_tokens=None, **flags):
         name_tokens = name_tokens or {}
         if anvil.runtime.dcc.scene.exists(dag_path):
@@ -23,13 +29,6 @@ class TestBase(unittest.TestCase):
             node = object_type.build(**flags)
             node.rename(NOMENCLATE.get(**name_tokens))
             return node
-
-    def setUp(self):
-        #anvil.LOG.setLevel(anvil.log.logging.CRITICAL)
-        self.fixtures = []
-
-    def tearDown(self):
-        pass
 
     @classmethod
     def delete_objects(cls, objects):
@@ -66,8 +65,6 @@ class TestBase(unittest.TestCase):
         return len(list_a) == len(list_b) and sorted(list_a) == sorted(list_b)
 
     def assertListSame(self, list1, list2):
-        print(sorted(list1))
-        print(sorted(list2))
         for x, y in zip(sorted(list1), sorted(list2)):
             self.assertEqual(x, y)
         return True
@@ -83,8 +80,14 @@ class TestBase(unittest.TestCase):
                 self.assertEqual(v1, v2, msg)
         return True
 
-    @staticmethod
-    def delete_created_nodes(func):
+    @classmethod
+    def sanitize_scene(cls):
+        preexisting_nodes = anvil.runtime.dcc.scene.list_scene_nodes()
+        cls.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
+        cls.delete_objects(preexisting_nodes)
+
+    @classmethod
+    def delete_created_nodes(cls, func):
         def pre_hook():
             initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
             # TestBase.LOG.info('Scene state before running function %s:' % (func.__name__))
@@ -102,10 +105,10 @@ class TestBase(unittest.TestCase):
             # TestBase.LOG.info('Unprocessed DeepDiff:\n%s' % pformat(diff, indent=2))
             created_nodes = []
             deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
-
             for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
                 deep_path = tokenize_deep_diff_string(dict_item)
                 created_nodes.append(dict_item_from_path(post_scene_tree, deep_path))
+
             return created_nodes
 
         def dict_item_from_path(dict_to_query, query_path):
@@ -133,14 +136,22 @@ class TestBase(unittest.TestCase):
                     deep_path.append(str(item))
             return deep_path
 
+
         def wrapped(self, *args, **kwargs):
+            TestBase.LOG.info('Preparing to run function %s' % func.__name__)
+            self.sanitize_scene()
+            if getattr(self, 'build_test_deps', None):
+                self.build_test_deps()
             initial_scene_tree = pre_hook()
+            TestBase.LOG.info('Initial scene state is:\n%s' % pformat(initial_scene_tree, indent=2))
             func_return = func(self, *args, **kwargs)
             created_scene_tree = post_hook()
             created_nodes = process(initial_scene_tree, created_scene_tree)
             TestBase.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
             TestBase.LOG.info('Scene state is:\n%s' % pformat(created_scene_tree, indent=2))
             TestBase.delete_objects(created_nodes)
+            TestBase.LOG.info('After deletion scene state is:\n%s' % pformat(created_scene_tree, indent=2))
+            TestBase.sanitize_scene()
             return func_return
 
         wrapped.__name__ = func.__name__

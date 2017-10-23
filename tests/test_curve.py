@@ -51,7 +51,7 @@ class TestCurveBuild(TestBaseCurve):
 
     @TestBase.delete_created_nodes
     def test_with_parent(self):
-        curve = nt.Curve.build(parent=self.null_transform)
+        curve = nt.Curve.build(parent=nt.Transform.build())
         if 'standalone' in rt.dcc.ENGINE:
             self.assertTrue(curve.get_parent() == 'curve')
         else:
