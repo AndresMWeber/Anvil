@@ -36,7 +36,7 @@ class TestRigEyeBuild(TestBaseRig):
     @TestBase.delete_created_nodes
     def test_constraint(self):
         anvil.runtime.dcc.constrain.parent(str(self.test_rig.control_eye.top_node), str(self.test_rig.joint_eye))
-        print(anvil.runtime.dcc.scene.list_scene(type='parentConstraint'))
+        self.assertTrue(anvil.runtime.dcc.scene.list_scene(type='parentConstraint'))
 
     @TestBase.delete_created_nodes
     def test_hierarchy_exists(self):
