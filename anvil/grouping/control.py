@@ -6,11 +6,7 @@ import base
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = 'control'
 
-    def __init__(self,
-                 control=None,
-                 offset_group=None,
-                 connection_group=None,
-                 **flags):
+    def __init__(self, control=None, offset_group=None, connection_group=None, **flags):
         super(Control, self).__init__(top_node=offset_group or control, **flags)
         self.register_node('control', control)
         self.register_node('offset_group', offset_group)

@@ -20,10 +20,7 @@ class AbstractGrouping(object):
         self.meta_data = self.merge_dicts({'type': self.ANVIL_TYPE}, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.parent(parent)
-        anvil.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self,
-                                                                              top_node,
-                                                                              parent,
-                                                                              meta_data))
+        anvil.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
 
     def merge_dicts(self, *input_dicts):
         result = {}

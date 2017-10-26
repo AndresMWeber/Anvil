@@ -5,15 +5,21 @@ from six import iteritems, string_types
 
 import anvil
 from anvil.log import obtainLogger
+import logging
 from collections import Iterable
 from collections import OrderedDict
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
-
+anvil.LOG.setLevel(logging.CRITICAL)
+logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
 class TestBase(unittest.TestCase):
     LOG = obtainLogger('testing')
+
+    @classmethod
+    def build_test_deps(cls):
+        pass
 
     def tearDown(self):
         super(TestBase, self).tearDown()
@@ -135,7 +141,6 @@ class TestBase(unittest.TestCase):
                 except ValueError:
                     deep_path.append(str(item))
             return deep_path
-
 
         def wrapped(self, *args, **kwargs):
             TestBase.LOG.info('Preparing to run function %s' % func.__name__)

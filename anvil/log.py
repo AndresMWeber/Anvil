@@ -17,6 +17,9 @@ def setup_logging(log_path=DEFAULT_CONFIG_PATH, default_level=logging.INFO, env_
 
     config_dict = read_yml_file(env_path if env_path else log_path)
     if config_dict:
+        if not os.path.exists(log_directory):
+            os.makedirs(log_directory)
+
         prepend_log_filename(config_dict, log_directory)
         logging.config.dictConfig(config_dict)
         return log_path, config_dict
@@ -27,12 +30,15 @@ def setup_logging(log_path=DEFAULT_CONFIG_PATH, default_level=logging.INFO, env_
 
 def prepend_log_filename(config_dict, log_directory):
     for handler in config_dict['handlers']:
+
         filename = config_dict['handlers'][handler].get('filename', None)
         if filename:
             config_dict['handlers'][handler]['filename'] = os.path.join(log_directory, filename)
             LOG.info('Handler %s writing to %s' % (handler, config_dict['handlers'][handler]['filename']))
 
+
 def read_yml_file(file_path):
+    LOG.info('TESTING')
     if os.path.exists(file_path):
         with open(file_path, 'rt') as f:
             LOG.info('Loading log config file %s.' % (file_path))
@@ -60,4 +66,8 @@ def obtainLogger(name, json_output=False):
     return logger
 
 
-LOG = obtainLogger(__file__)
+LOG = obtainLogger(__name__)
+setup_info = setup_logging(log_directory=DEFAULT_LOG_DIR)
+
+if setup_info:
+    LOG.info('Loaded logger config file %s successfully, writing to: %s' % (setup_info[0], DEFAULT_LOG_DIR))

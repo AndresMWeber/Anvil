@@ -55,6 +55,11 @@ loggers:
         handlers: [info_file_handler]
         propagate: yes
 
+    anvil.log:
+        level: INFO
+        handlers: [console]
+        propagate: no
+
     anvil.plugins.base.api_proxy:
         level: INFO
         handlers: [dcc_file_handler]
