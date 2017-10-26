@@ -50,7 +50,7 @@ class Constraint(connections.Constraint):
         schema.update(self.offset_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.pointConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'pointConstraint', targets, source, **flags)
 
     def rotate(self, source, targets, **flags):
         schema = {}
@@ -59,7 +59,7 @@ class Constraint(connections.Constraint):
         schema.update(self.cacheable_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.orientConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'orientConstraint', targets, source, **flags)
 
     def aim(self, source, targets, **flags):
         schema = {}
@@ -68,7 +68,7 @@ class Constraint(connections.Constraint):
         schema.update(self.aim_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.aimConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'aimConstraint', targets, source, **flags)
 
     def scale(self, source, targets, **flags):
         schema = {
@@ -81,7 +81,7 @@ class Constraint(connections.Constraint):
         schema.update(self.offset_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.scaleConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'scaleConstraint', targets, source, **flags)
 
     def parent(self, source, targets, **flags):
         schema = {
@@ -98,7 +98,7 @@ class Constraint(connections.Constraint):
             schema['properties'].pop('skip')
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.parentConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'parentConstraint', targets, source, **flags)
 
     def tangent(self, source, targets, **flags):
         schema = {}
@@ -106,14 +106,14 @@ class Constraint(connections.Constraint):
         schema.update(self.aim_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.tangentConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'tangentConstraint', targets, source, **flags)
 
     def geometry_point(self, source, targets, **flags):
         schema = {}
         schema.update(self.default_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.geometryConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'geometryConstraint', targets, source, **flags)
 
     def geometry_normal(self, source, targets, **flags):
         schema = {}
@@ -121,11 +121,11 @@ class Constraint(connections.Constraint):
         schema.update(self.aim_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.normalConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'normalConstraint', targets, source, **flags)
 
     def pole_vector(self, source, targets, **flags):
         schema = {}
         schema.update(self.default_schema)
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.poleVectorConstraint(targets, source, **flags)
+        return self._log_and_run_api_call(API, 'poleVectorConstraint', targets, source, **flags)

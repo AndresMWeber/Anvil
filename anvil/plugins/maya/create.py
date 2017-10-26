@@ -21,7 +21,7 @@ class Create(create.Create):
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
 
-        return m_api.createNode(dcc_node_type, **flags)
+        return self._log_and_run_api_call(API, 'createNode', dcc_node_type, **flags)
 
     def create_curve(self, flags=None):
         schema = {
@@ -49,7 +49,7 @@ class Create(create.Create):
         }
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.curve(**flags)
+        return self._log_and_run_api_call(API, 'curve', **flags)
 
     def create_transform(self, flags=None):
         schema = {
@@ -66,7 +66,7 @@ class Create(create.Create):
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
         flags['empty'] = flags.get('empty', True)
-        return m_api.group(**flags)
+        return self._log_and_run_api_call(API, 'group', **flags)
 
     def create_joint(self, flags=None):
         schema = {
@@ -102,4 +102,4 @@ class Create(create.Create):
         }
         validate(flags, schema)
         flags = self._initialize_and_filter_flags(flags, schema)
-        return m_api.joint(**flags)
+        return self._log_and_run_api_call(API, 'joint', **flags)

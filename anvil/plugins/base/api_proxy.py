@@ -42,10 +42,10 @@ class APIProxy(object):
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):
-        formatted_args = ', '.join([str(arg) for arg in args]) if args else ''
-        formatted_kwargs = ', '.join('%s=%s' % (key, str(node)) for key, node in iteritems(kwargs)) if kwargs else ''
+        formatted_args = ', '.join([repr(str(arg)) for arg in args]) if args else ''
+        formatted_kwargs = ', '.join('%s=%r' % (key, str(node)) for key, node in iteritems(kwargs)) if kwargs else ''
         formatted_flags = ', '.join(
-            '%s=%s' % (key, str(node)) for key, node in iteritems(kwargs.get('flags', {}))) if kwargs else ''
+            '%s=%r' % (key, str(node)) for key, node in iteritems(kwargs.get('flags', {}))) if kwargs else ''
         formatted_parameters = ', '.join([arg for arg in [formatted_args, formatted_kwargs, formatted_flags] if arg])
         return '%s.%s(%s)' % (api.__name__, function_name, formatted_parameters)
 
