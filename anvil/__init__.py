@@ -2,11 +2,12 @@ import log
 import config
 import version
 
-setup_info = log.setup_logging()
+setup_info = log.setup_logging(log.DEFAULT_LOG_DIR)
 
 LOG = log.obtainLogger(__name__)
 if setup_info:
-    LOG.info('Loaded logger config file %s successfully' % setup_info[0])
+    LOG.info('Loaded logger config file %s successfully, log files writing to directory:\n\t%s' % (setup_info[0],
+                                                                                                   log.DEFAULT_LOG_DIR))
 
 import plugins
 import objects

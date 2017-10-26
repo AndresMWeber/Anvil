@@ -56,13 +56,10 @@ class TestRigRename(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_root_name(self):
-        print(self.test_rig.hierarchy)
-        print(anvil.runtime.dcc.scene.list_scene_nodes())
         self.assertEqual(str(self.test_rig.top_node), 'eye_rig_mvp_GRP')
 
     @TestBase.delete_created_nodes
     def test_sub_groups(self):
-        pprint(anvil.runtime.dcc.scene.list_scene_nodes(), indent=2)
         self.assertListSame(['eye_rig_mvp_GRP',
                              'eye_universal_mvp_OGP',
                              'eyeball_mvp_OGP',

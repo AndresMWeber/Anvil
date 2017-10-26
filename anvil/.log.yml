@@ -60,7 +60,7 @@ loggers:
         handlers: [dcc_file_handler]
         propagate: no
 
-    api_calls:
+    anvil.plugins.base.api_proxy.api_calls:
         level: INFO
         handlers: [api_file_handler]
         propagate: no

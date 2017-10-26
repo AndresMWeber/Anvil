@@ -4,7 +4,7 @@ import anvil
 
 class APIProxy(object):
     LOG = anvil.log.obtainLogger(__name__)
-    API_LOG = anvil.log.obtainLogger('api_calls')
+    API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
     API_LOG.info('import pymel.core as pm')
 
     def initialize_and_filter_flags(self, flags, schema):
