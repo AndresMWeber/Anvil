@@ -38,7 +38,6 @@ def prepend_log_filename(config_dict, log_directory):
 
 
 def read_yml_file(file_path):
-    LOG.info('TESTING')
     if os.path.exists(file_path):
         with open(file_path, 'rt') as f:
             LOG.info('Loading log config file %s.' % (file_path))

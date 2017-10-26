@@ -11,7 +11,7 @@ from collections import OrderedDict
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
-anvil.LOG.setLevel(logging.CRITICAL)
+#anvil.LOG.setLevel(logging.CRITICAL)
 logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
 class TestBase(unittest.TestCase):

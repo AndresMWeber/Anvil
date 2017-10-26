@@ -11,16 +11,14 @@ class TestBaseRig(TestBase):
     @classmethod
     def build_test_deps(cls):
         test_rig = nt.Rig(meta_data=cls.name_tokens)
-        sub_rig = nt.SubRig()
+        sub_rig = test_rig.register_sub_rig(nt.SubRig, 'eyeball', name='eyeball')
         test_rig.build()
-        test_rig.register_sub_rig(sub_rig, 'eyeball')
 
         sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints, meta_data=cls.name_tokens)
         sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, meta_data=cls.name_tokens,
                             shape='sphere')
         sub_rig.control_eye.meta_data['name'] = 'eyeball'
-        test_rig.register_sub_rig(sub_rig, 'eyeball')
-        anvil.runtime.dcc.constrain.parent(str(sub_rig.joint_eye), str(sub_rig.control_eye.top_node))
+        anvil.runtime.dcc.constrain.parent(sub_rig.joint_eye, sub_rig.control_eye.connection_group)
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig
@@ -52,8 +50,15 @@ class TestRigEyeBuild(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_hierarchy_count(self):
-        self.assertEquals(len([node for key, node in iteritems(self.test_rig.hierarchy)]), 5)
+        self.assertEquals(len(list(self.test_rig.hierarchy)), 5)
 
+    @TestBase.delete_created_nodes
+    def test_sub_rig_hierarchy_count(self):
+        self.assertEquals(len(list(self.test_rig.sub_rigs['eyeball'].hierarchy)), 5)
+
+    @TestBase.delete_created_nodes
+    def test_sub_rig_count(self):
+        self.assertEquals(len(list(self.test_rig.sub_rigs)), 1)
 
 class TestRigRename(TestBaseRig):
     @TestBase.delete_created_nodes
@@ -62,6 +67,7 @@ class TestRigRename(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_root_name(self):
+        print(self.test_rig.top_node)
         self.assertEqual(str(self.test_rig.top_node), 'eye_rig_mvp_GRP')
 
     @TestBase.delete_created_nodes

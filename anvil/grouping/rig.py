@@ -22,45 +22,37 @@ class Rig(base.AbstractGrouping):
         for sub_rig_key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.rename(**self.meta_data)
 
-    def build_sub_rig(self, sub_rig_type, sub_rig_key, meta_data=None, **flags):
-        sub_rig_instance = sub_rig_type.build(meta_data=None, **flags)
-        self.register_sub_rig(sub_rig_instance, sub_rig_key)
-        return sub_rig_instance
-
-    def register_sub_rig(self, sub_rig, sub_rig_key, meta_data=None, **flags):
-        if inspect.isclass(sub_rig) and issubclass(sub_rig, sub_rig.SubRig):
-            sub_rig = self.build_sub_rig(sub_rig, sub_rig_key, meta_data=meta_data, **flags)
-
-        if isinstance(sub_rig, sub_rig.SubRig):
-            anvil.LOG.info('Registering sub-rig %s with rig %s.%s' % (sub_rig, self, sub_rig_key))
-            self.sub_rigs[sub_rig_key] = sub_rig
-            anvil.runtime.dcc.scene.parent(sub_rig.top_node, self.top_node)
+    def register_sub_rig(self, sub_rig_candidate, sub_rig_key, meta_data=None, **flags):
+        if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
+            anvil.LOG.info('Registering sub-rig %s with rig %s.%s' % (sub_rig_candidate, self, sub_rig_key))
+            self.sub_rigs[sub_rig_key] = sub_rig_candidate(meta_data=meta_data, **flags)
+            return self.sub_rigs[sub_rig_key]
 
     def build_sub_rigs(self):
         for sub_rig_key, sub_rig_member in iteritems(self.sub_rigs):
             anvil.LOG.info('Creating sub-rig %s on rig %s' % (sub_rig_member, self))
+            if not isinstance(sub_rig_member, sub_rig.SubRig):
+                anvil.LOG.info('Building sub-rig %s on rig %s' % (sub_rig_member, self))
+                sub_rig_member.build()
+            anvil.runtime.dcc.scene.parent(sub_rig_member.top_node, self.top_node)
 
-            self.register_sub_rig(sub_rig_member.build(), sub_rig_key)
-
-    @classmethod
-    def build(cls, meta_data=None, **flags):
-        instance = cls(meta_data=meta_data, **flags)
-        instance.build_node(ot.Transform,
+    def build(self, meta_data=None, **flags):
+        self.build_node(ot.Transform,
                             'group_top',
                             meta_data={'childtype': 'rig', 'type': 'group'}, **flags)
 
-        instance.build_node(control.Control,
+        self.build_node(control.Control,
                             'control_universal',
-                            parent=instance.group_top,
+                            parent=self.group_top,
                             meta_data={'childtype': 'universal'})
 
         for main_group_type in ['extras', 'model', 'sub_rigs']:
             group_name = 'group_%s' % main_group_type
-            instance.build_node(ot.Transform,
+            self.build_node(ot.Transform,
                                 group_name,
-                                parent=instance.control_universal.connection_group,
+                                parent=self.control_universal.connection_group,
                                 meta_data={'childtype': main_group_type, 'type': 'group'})
-            getattr(instance, group_name).inheritsTransform.set(False)
-        instance.top_node = instance.group_top
-        instance.build_sub_rigs()
-        return instance
+            getattr(self, group_name).inheritsTransform.set(False)
+        self.top_node = self.group_top
+        self.build_sub_rigs()
+        return self

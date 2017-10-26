@@ -19,7 +19,7 @@ class Create(create.Create):
             },
         }
         validate(flags, schema)
-        flags = self.initialize_and_filter_flags(flags, schema)
+        flags = self._initialize_and_filter_flags(flags, schema)
 
         return m_api.createNode(dcc_node_type, **flags)
 
@@ -48,7 +48,7 @@ class Create(create.Create):
             },
         }
         validate(flags, schema)
-        flags = self.initialize_and_filter_flags(flags, schema)
+        flags = self._initialize_and_filter_flags(flags, schema)
         return m_api.curve(**flags)
 
     def create_transform(self, flags=None):
@@ -64,7 +64,7 @@ class Create(create.Create):
             },
         }
         validate(flags, schema)
-        flags = self.initialize_and_filter_flags(flags, schema)
+        flags = self._initialize_and_filter_flags(flags, schema)
         flags['empty'] = flags.get('empty', True)
         return m_api.group(**flags)
 
@@ -101,5 +101,5 @@ class Create(create.Create):
             },
         }
         validate(flags, schema)
-        flags = self.initialize_and_filter_flags(flags, schema)
+        flags = self._initialize_and_filter_flags(flags, schema)
         return m_api.joint(**flags)
