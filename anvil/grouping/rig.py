@@ -34,9 +34,10 @@ class Rig(base.AbstractGrouping):
             if not isinstance(sub_rig_member, sub_rig.SubRig):
                 anvil.LOG.info('Building sub-rig %s on rig %s' % (sub_rig_member, self))
                 sub_rig_member.build()
-            anvil.runtime.dcc.scene.parent(sub_rig_member.top_node, self.top_node)
+            anvil.runtime.dcc.scene.parent(sub_rig_member.top_node, self.group_sub_rigs)
 
     def build(self, meta_data=None, **flags):
+        anvil.LOG.info('Building rig %s' % self)
         self.build_node(ot.Transform,
                             'group_top',
                             meta_data={'childtype': 'rig', 'type': 'group'}, **flags)
@@ -54,5 +55,14 @@ class Rig(base.AbstractGrouping):
                                 meta_data={'childtype': main_group_type, 'type': 'group'})
             getattr(self, group_name).inheritsTransform.set(False)
         self.top_node = self.group_top
+        anvil.LOG.info('Building sub rigs...' % self)
         self.build_sub_rigs()
         return self
+
+    def __getattr__(self, item):
+        try:
+            return super(Rig, self).__getattribute__('sub_rigs')[item]
+        except KeyError:
+            print Rig.__mro__
+            print(super(Rig, self).__getattribute__('hierarchy'))
+            return super(Rig, self).__getattribute__(item)

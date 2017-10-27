@@ -1,5 +1,7 @@
+import os
+os.environ['ANVIL_MODE'] = 'TEST'
 import unittest
-from pprint import pformat, pprint
+from pprint import pformat
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 
@@ -11,7 +13,7 @@ from collections import OrderedDict
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
-#anvil.LOG.setLevel(logging.CRITICAL)
+
 logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
 class TestBase(unittest.TestCase):
@@ -96,7 +98,6 @@ class TestBase(unittest.TestCase):
     def delete_created_nodes(cls, func):
         def pre_hook():
             initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            # TestBase.LOG.info('Scene state before running function %s:' % (func.__name__))
             # TestBase.LOG.info(str(pformat(initial_scene_tree, indent=2)))
             return initial_scene_tree
 
@@ -143,20 +144,25 @@ class TestBase(unittest.TestCase):
             return deep_path
 
         def wrapped(self, *args, **kwargs):
-            TestBase.LOG.info('Preparing to run function %s' % func.__name__)
+            TestBase.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
             self.sanitize_scene()
+
             if getattr(self, 'build_test_deps', None):
                 self.build_test_deps()
+
             initial_scene_tree = pre_hook()
-            TestBase.LOG.info('Initial scene state is:\n%s' % pformat(initial_scene_tree, indent=2))
+
+            TestBase.LOG.info('Initial scene state is:\n%s' % initial_scene_tree)
             func_return = func(self, *args, **kwargs)
+
             created_scene_tree = post_hook()
             created_nodes = process(initial_scene_tree, created_scene_tree)
+
             TestBase.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
-            TestBase.LOG.info('Scene state is:\n%s' % pformat(created_scene_tree, indent=2))
-            TestBase.delete_objects(created_nodes)
-            TestBase.LOG.info('After deletion scene state is:\n%s' % pformat(created_scene_tree, indent=2))
+            TestBase.LOG.info('Scene state is:\n%s' % created_scene_tree)
+            TestBase.LOG.info('After deletion scene state is:\n%s' % created_scene_tree)
             TestBase.sanitize_scene()
+
             return func_return
 
         wrapped.__name__ = func.__name__

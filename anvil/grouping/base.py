@@ -20,7 +20,7 @@ class AbstractGrouping(object):
         self.meta_data = self.merge_dicts({'type': self.ANVIL_TYPE}, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.parent(parent)
-        anvil.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
+        anvil.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
 
     def merge_dicts(self, *input_dicts):
         result = {}
@@ -74,6 +74,7 @@ class AbstractGrouping(object):
 
     def register_node(self, node_key, dag_node, overwrite=True):
         if dag_node is None:
+            anvil.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
             return
         if issubclass(type(dag_node), AbstractGrouping) or issubclass(type(dag_node), ot.UnicodeDelegate):
             if self.hierarchy.get(node_key) is not None and not overwrite:
@@ -90,14 +91,16 @@ class AbstractGrouping(object):
 
     def __getattr__(self, item):
         try:
-            return super(AbstractGrouping, self).__getattribute__('hierarchy').get(item)
-        except AttributeError:
+            return super(AbstractGrouping, self).__getattribute__('hierarchy')[item]
+        except KeyError:
             return super(AbstractGrouping, self).__getattribute__(item)
 
     def __str__(self):
         try:
+            if self.top_node is None:
+                raise KeyError
             return str(self.top_node)
-        except:
+        except (KeyError, AttributeError):
             anvil.LOG.warning('Could not find top node on %r' % self)
             return super(AbstractGrouping, self).__str__()
 

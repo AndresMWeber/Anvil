@@ -6,6 +6,6 @@ jsonschema==2.6.0
 nomenclate==2.0.2
 nose==1.3.7
 python-dateutil==2.6.1
-python-json-logger==0.1.8
 PyYAML==3.12
 six==1.11.0
+structlog==17.2.0

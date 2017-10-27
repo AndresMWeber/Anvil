@@ -1,18 +1,15 @@
-import log
 import config
+import log
 import version
-
 
 LOG = log.obtainLogger(__name__)
 
 import plugins
 import objects
 import grouping
-
-LOG.info('Populating node types...')
-
 import node_types
 
+LOG.info('Anvil environment has been set to %s' % config.ENV)
 LOG.info('Successfully initiated Anvil %s.' % version.__version__)
 
 __all__ = ['config',

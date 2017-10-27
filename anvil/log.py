@@ -1,15 +1,16 @@
 import logging
+import structlog
 import logging.config
 import yaml
 import os
-import pythonjsonlogger.jsonlogger as jslog
-
-DEFAULT_CONFIG_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '.log.yml')
-DEFAULT_ENV_KEY = 'ANVIL_LOG_CFG'
-DEFAULT_LOG_DIR = os.path.join(os.path.expanduser('~'), 'anvil')
+import datetime
+import config
 
 
-def setup_logging(log_path=DEFAULT_CONFIG_PATH, default_level=logging.INFO, env_key=DEFAULT_ENV_KEY, log_directory=''):
+def setup_logging(log_path=config.DEFAULT_CONFIG_PATH,
+                  default_level=logging.INFO,
+                  env_key=config.LOG_ENV_KEY,
+                  log_directory=''):
     """Setup logging configuration
 
     """
@@ -30,9 +31,14 @@ def setup_logging(log_path=DEFAULT_CONFIG_PATH, default_level=logging.INFO, env_
 
 def prepend_log_filename(config_dict, log_directory):
     for handler in config_dict['handlers']:
-
         filename = config_dict['handlers'][handler].get('filename', None)
         if filename:
+            base, extension = os.path.splitext(filename)
+            today = datetime.datetime.today()
+            filename = '{NAME}_{MODE}{DATE_TIME}{EXT}'.format(NAME=base,
+                                                              MODE=os.getenv(config.MODE_ENV_KEY),
+                                                              DATE_TIME=today.strftime('_%Y%m%d_%H%M%S'),
+                                                              EXT=extension)
             config_dict['handlers'][handler]['filename'] = os.path.join(log_directory, filename)
             LOG.info('Handler %s writing to %s' % (handler, config_dict['handlers'][handler]['filename']))
 
@@ -54,19 +60,38 @@ def obtainLogger(name, json_output=False):
     Returns:
         Logger: Logger.
     """
-    logger = logging.getLogger(name)
+    logger = structlog.get_logger(name)
 
     if json_output:
         format_str = '%(message)%(levelname)%(name)%(asctime)'
-        formatter = jslog.JsonFormatter(format_str)
-        for handler in logger.handlers:
-            handler.setFormatter(formatter)
+        # formatter = jslog.JsonFormatter(format_str)
+        # for handler in logger.handlers:
+        #    handler.setFormatter(formatter)
+        pass
 
     return logger
 
 
 LOG = obtainLogger(__name__)
-setup_info = setup_logging(log_directory=DEFAULT_LOG_DIR)
+setup_info = setup_logging(log_directory=config.DEFAULT_LOG_DIR)
 
 if setup_info:
-    LOG.info('Loaded logger config file %s successfully, writing to: %s' % (setup_info[0], DEFAULT_LOG_DIR))
+    LOG.info('Loaded logger config file %s successfully, writing to: %s' % (setup_info[0], config.DEFAULT_LOG_DIR))
+
+structlog.configure(
+    processors=[
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
