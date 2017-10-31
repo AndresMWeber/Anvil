@@ -1,10 +1,9 @@
 import os
-os.environ['ANVIL_MODE'] = 'TEST'
 import unittest
-from pprint import pformat
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 
+os.environ['ANVIL_MODE'] = 'TEST'
 import anvil
 from anvil.log import obtainLogger
 import logging
@@ -14,10 +13,11 @@ import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
 
-logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
+
 
 class TestBase(unittest.TestCase):
     LOG = obtainLogger('testing')
+    logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
     @classmethod
     def build_test_deps(cls):
@@ -98,13 +98,13 @@ class TestBase(unittest.TestCase):
     def delete_created_nodes(cls, func):
         def pre_hook():
             initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            # TestBase.LOG.info(str(pformat(initial_scene_tree, indent=2)))
+            TestBase.LOG.info(initial_scene_tree)
             return initial_scene_tree
 
         def post_hook():
             created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            # TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
-            # TestBase.LOG.info(str(pformat(created_scene_tree, indent=2)))
+            TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
+            TestBase.LOG.info(created_scene_tree)
             return created_scene_tree
 
         def process(initial_scene_tree, post_scene_tree):

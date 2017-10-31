@@ -1,4 +1,5 @@
 from six import iteritems
+from pprint import pprint
 import anvil
 import anvil.node_types as nt
 from base_test import TestBase
@@ -13,7 +14,7 @@ class TestBaseRig(TestBase):
         test_rig = nt.Rig(meta_data=cls.name_tokens)
         sub_rig = test_rig.register_sub_rig(nt.SubRig, 'eyeball', name='eyeball')
         test_rig.build()
-
+        print(sub_rig.hierarchy)
         sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints, meta_data=cls.name_tokens)
         sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, meta_data=cls.name_tokens,
                             shape='sphere')
@@ -55,7 +56,7 @@ class TestRigEyeBuild(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_sub_rig_hierarchy_count(self):
-        self.assertEquals(len(list(self.test_rig.sub_rigs['eyeball'].hierarchy)), 5)
+        self.assertEquals(len(list(self.test_rig.sub_rigs['eyeball'].hierarchy)), 8)
 
     @TestBase.delete_created_nodes
     def test_sub_rig_count(self):
@@ -68,11 +69,12 @@ class TestRigRename(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_root_name(self):
-        print(self.test_rig.top_node)
         self.assertEqual(str(self.test_rig.top_node), 'eye_rig_mvp_GRP')
 
     @TestBase.delete_created_nodes
     def test_sub_groups(self):
+        pprint(self.test_rig.hierarchy, indent=2)
+        pprint(self.test_rig.eyeball.hierarchy, indent=2)
         self.assertListSame(['eye_rig_mvp_GRP',
                              'eye_sub_rigs_mvp_GRP',
                              'eye_universal_mvp_OGP',

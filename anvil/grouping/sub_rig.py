@@ -5,7 +5,7 @@ import anvil.objects as ot
 class SubRig(base.AbstractGrouping):
     def __init__(self, *args, **kwargs):
         super(SubRig, self).__init__(*args, **kwargs)
-        self.meta_data['purpose'] = 'subRig'
+        self.meta_data['rig'] = 'subrig'
 
     def build(self, meta_data=None, **flags):
         self.build_node(ot.Transform,
