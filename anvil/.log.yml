@@ -53,6 +53,11 @@ loggers:
         handlers: [console]
         propagate: no
 
+    anvil.grouping.base:
+        level: INFO
+        handlers: [info_file_handler]
+        propagate: yes
+
     anvil.plugins.base.api_proxy:
         level: INFO
         handlers: [info_file_handler]
