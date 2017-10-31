@@ -11,6 +11,7 @@ class AbstractGrouping(object):
 
     """
     ANVIL_TYPE = 'group'
+    LOG = anvil.log.obtainLogger(__name__)
 
     def __init__(self, layout=None, meta_data=None, parent=None, top_node=None, **flags):
         self.top_node = top_node
@@ -20,7 +21,11 @@ class AbstractGrouping(object):
         self.meta_data = self.merge_dicts({'type': self.ANVIL_TYPE}, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.parent(parent)
-        anvil.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
+        self.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
+
+    @property
+    def is_built(self):
+        return all([self.top_node])
 
     def merge_dicts(self, *input_dicts):
         result = {}
@@ -40,13 +45,13 @@ class AbstractGrouping(object):
     def parent(self, new_parent):
         top_node, new_parent = str(self.top_node), str(new_parent)
         if rt.dcc.scene.exists(new_parent, top_node) or new_parent is None or top_node is None:
-            anvil.LOG.debug('Parenting control offset group %s to %s' % (top_node, new_parent))
+            self.LOG.debug('Parenting control offset group %s to %s' % (top_node, new_parent))
             rt.dcc.scene.parent(top_node, new_parent)
         else:
-            anvil.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, top_node))
+            self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, top_node))
 
     def rename(self, *input_dicts, **name_tokens):
-        anvil.LOG.debug('Renaming %r...' % (self))
+        self.LOG.debug('Renaming %r...' % (self))
         self.meta_data.update(self.merge_dicts(*(input_dicts + (name_tokens,))))
         self._nomenclate.merge_dict(**self.meta_data)
 
@@ -58,7 +63,7 @@ class AbstractGrouping(object):
             elif self.node_is_object(sub_node):
                 sub_node.rename(self._nomenclate.get(**sub_node.meta_data))
 
-            anvil.LOG.debug('Renamed to %r' % (sub_node))
+            self.LOG.debug('Renamed to %r' % (sub_node))
 
     def node_is_grouping(self, node):
         return issubclass(type(node), AbstractGrouping)
@@ -67,14 +72,14 @@ class AbstractGrouping(object):
         return issubclass(type(node), ot.UnicodeDelegate)
 
     def build_node(self, node_class, node_key, meta_data=None, **flags):
-        anvil.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
+        self.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
         dag_node = node_class.build(meta_data=meta_data, **flags)
         self.register_node(node_key, dag_node)
         return dag_node
 
     def register_node(self, node_key, dag_node, overwrite=True):
         if dag_node is None:
-            anvil.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
+            self.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
             return
         if issubclass(type(dag_node), AbstractGrouping) or issubclass(type(dag_node), ot.UnicodeDelegate):
             if self.hierarchy.get(node_key) is not None and not overwrite:
@@ -101,7 +106,7 @@ class AbstractGrouping(object):
                 raise KeyError
             return str(self.top_node)
         except (KeyError, AttributeError):
-            anvil.LOG.warning('Could not find top node on %r' % self)
+            self.LOG.warning('Could not find top node on %r' % self)
             return super(AbstractGrouping, self).__str__()
 
     def __repr__(self):

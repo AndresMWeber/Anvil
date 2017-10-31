@@ -5,12 +5,12 @@ import anvil.objects as ot
 class SubRig(base.AbstractGrouping):
     def __init__(self, *args, **kwargs):
         super(SubRig, self).__init__(*args, **kwargs)
-        self.meta_data['rig'] = 'subrig'
 
     def build(self, meta_data=None, **flags):
+        self.LOG.info('Building sub-rig %s' % self)
         self.build_node(ot.Transform,
                         'group_top',
-                        meta_data={'childtype': 'rig', 'type': 'group'},
+                        meta_data={'rig': 'subrig', 'type': 'group'},
                         **flags)
 
         for main_group_type in ['surfaces', 'joints', 'controls', 'nodes', 'world']:
