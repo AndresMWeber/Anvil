@@ -10,7 +10,7 @@ class TestBaseRig(TestBase):
     test_rig = None
 
     @classmethod
-    def build_test_deps(cls):
+    def build_test_dependencies(cls):
         test_rig = nt.Rig(meta_data=cls.name_tokens)
         sub_rig = test_rig.register_sub_rig('eyeball', meta_data={'name': 'eyeball'})
         test_rig.build()
@@ -22,7 +22,7 @@ class TestBaseRig(TestBase):
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig
-        cls.LOG.info('Built rig for testing %r' % test_rig)
+        cls.LOG.info('Built rig for testing %s' % test_rig)
         return test_rig
 
 
@@ -41,10 +41,14 @@ class TestRigEyeBuild(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_constraint(self):
+        self.build_test_dependencies()
+        print(anvil.runtime.dcc.scene.list_scene())
         self.assertTrue(anvil.runtime.dcc.scene.list_scene(type='parentConstraint'))
 
     @TestBase.delete_created_nodes
     def test_hierarchy_exists(self):
+        print(self.__dict__)
+        self.build_test_dependencies()
         for key, node in iteritems(self.test_rig.hierarchy):
             self.LOG.info('Checking to see if node %r at key %s exists...' % (node, key))
             self.assertTrue(anvil.runtime.dcc.scene.exists(str(node)))

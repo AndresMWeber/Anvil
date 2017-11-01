@@ -42,8 +42,8 @@ class AbstractGrouping(object):
                     result.update(input_dict)
         return result
 
-    def build(self):
-        raise NotImplementedError
+    def build(self, parent=None):
+        self.parent(parent)
 
     def build_layout(self):
         raise NotImplementedError

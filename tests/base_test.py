@@ -20,7 +20,7 @@ class TestBase(unittest.TestCase):
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
     @classmethod
-    def build_test_deps(cls):
+    def build_test_dependencies(cls):
         pass
 
     def tearDown(self):
@@ -148,7 +148,7 @@ class TestBase(unittest.TestCase):
             self.sanitize_scene()
 
             if getattr(self, 'build_test_deps', None):
-                self.build_test_deps()
+                self.build_test_dependencies()
 
             initial_scene_tree = pre_hook()
 

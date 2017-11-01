@@ -4,14 +4,14 @@ from base_test import TestBase
 
 
 class TestBaseRig(TestBase):
-    def build_test_deps(cls):
+    def build_test_dependencies(cls):
         cls.test_rig = nt.Rig([])
         cls.test_rig.build()
+        print('built rig')
 
 
 class TestRigBuild(TestBaseRig):
     @TestBase.delete_created_nodes
     def test_default(self):
-        print(self.test_rig.hierarchy)
-
-
+        # self.test_rig.hierarchy)
+        pass

@@ -38,10 +38,11 @@ class Rig(base.AbstractGrouping):
 
     def build(self, meta_data=None, **flags):
         self.LOG.info('Building rig %s' % self)
-        self.build_node(ot.Transform,
-                        'group_top',
-                        meta_data=self.merge_dicts(self.meta_data, {'rig': 'rig', 'type': 'group'}),
-                        **flags)
+        if not self.top_node:
+            self.build_node(ot.Transform,
+                            'group_top',
+                            meta_data=self.merge_dicts(self.meta_data, {'rig': 'rig', 'type': 'group'}),
+                            **flags)
 
         self.build_node(control.Control,
                         'control_universal',
