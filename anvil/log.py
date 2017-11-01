@@ -35,10 +35,10 @@ def prepend_log_filename(config_dict, log_directory):
         if filename:
             base, extension = os.path.splitext(filename)
             today = datetime.datetime.today()
-            filename = '{NAME}_{MODE}{DATE_TIME}{EXT}'.format(NAME=base,
-                                                              MODE=os.getenv(config.MODE_ENV_KEY),
-                                                              DATE_TIME=today.strftime('_%Y%m%d_%H%M%S'),
-                                                              EXT=extension)
+            filename = 'anvil_{NAME}{DATE_TIME}_{MODE}{EXT}'.format(NAME=base,
+                                                                    MODE=os.getenv(config.MODE_ENV_KEY),
+                                                                    DATE_TIME=today.strftime('_%Y%m%d_%H%M%S'),
+                                                                    EXT=extension)
             config_dict['handlers'][handler]['filename'] = os.path.join(log_directory, filename)
             LOG.info('Handler %s writing to %s' % (handler, config_dict['handlers'][handler]['filename']))
 
@@ -89,9 +89,9 @@ structlog.configure(
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
         structlog.processors.JSONRenderer(),
-        #structlog.processors.KeyValueRenderer(
+        # structlog.processors.KeyValueRenderer(
         #    key_order=["event", "logger", "level", "timestamp"],
-        #),
+        # ),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),

@@ -9,9 +9,25 @@ class TestBaseSubRig(TestBase):
         cls.test_rig.build()
 
 
+
+
 class TestSubRigBuild(TestBaseSubRig):
     @TestBase.delete_created_nodes
     def test_default(self):
-        print(self.test_rig.hierarchy)
+        nt.SubRig(meta_data=None, top_node=None, layout=None, parent=None).build()
 
+    @TestBase.delete_created_nodes
+    def test_default(self):
+        nt.SubRig(meta_data=None, top_node=None, layout=None, parent=None).build()
 
+    @TestBase.delete_created_nodes
+    def test_default(self):
+        nt.SubRig(meta_data=None, top_node=None, layout=None, parent=None).build()
+
+    @TestBase.delete_created_nodes
+    def test_default(self):
+        nt.SubRig(meta_data=None, top_node=None, layout=None, parent=None).build()
+
+    @TestBase.delete_created_nodes
+    def test_default(self):
+        nt.SubRig(meta_data=None, top_node=None, layout=None, parent=None).build()

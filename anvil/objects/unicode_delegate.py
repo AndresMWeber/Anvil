@@ -26,6 +26,7 @@ class UnicodeDelegate(object):
 
     @classmethod
     def build(cls, meta_data=None, **flags):
+        anvil.LOG.info('Building node type %s(flags = %s, meta_data = %s)' % (cls.dcc_type, flags, meta_data))
         cls.convert_subclass_kwargs(flags)
         dcc_instance = runtime.dcc.create.create(cls.dcc_type, flags=flags)
         instance = cls(dcc_instance, meta_data=meta_data, **flags)
@@ -57,6 +58,6 @@ class UnicodeDelegate(object):
 
             platform_class_instance = super(UnicodeDelegate, self).__getattribute__('_api_class_instance')
             try:
-                return platform_class_instance.__getattr__(item)
+                return getattr(platform_class_instance, item)
             except AttributeError:
-                return platform_class_instance.__getattr__(to_camel_case(item))
+                return getattr(platform_class_instance, to_camel_case(item))

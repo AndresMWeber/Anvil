@@ -12,13 +12,14 @@ class AbstractGrouping(object):
     """
     ANVIL_TYPE = 'group'
     LOG = anvil.log.obtainLogger(__name__)
+    BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
 
     def __init__(self, layout=None, meta_data=None, parent=None, top_node=None, **flags):
         self.top_node = top_node
         self.layout = layout
         self.hierarchy = {}
         self.flags = flags or {}
-        self.meta_data = self.merge_dicts({'type': self.ANVIL_TYPE}, meta_data)
+        self.meta_data = self.merge_dicts(self.BUILT_IN_META_DATA, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.parent(parent)
         self.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
@@ -27,13 +28,18 @@ class AbstractGrouping(object):
     def is_built(self):
         return all([self.top_node])
 
-    def merge_dicts(self, *input_dicts):
+    @staticmethod
+    def merge_dicts(*input_dicts):
+        """ Merge dictionaries. Rightmost dictionary overwrites all previous overlapping keys.
+
+        :param input_dicts: list(dict), list of input dictionaries
+        :return: dict, resulting dictionary.
+        """
         result = {}
         if input_dicts:
             for input_dict in input_dicts:
                 if isinstance(input_dict, dict):
                     result.update(input_dict)
-
         return result
 
     def build(self):
@@ -47,8 +53,10 @@ class AbstractGrouping(object):
         if rt.dcc.scene.exists(new_parent, top_node) or new_parent is None or top_node is None:
             self.LOG.debug('Parenting control offset group %s to %s' % (top_node, new_parent))
             rt.dcc.scene.parent(top_node, new_parent)
+            return True
         else:
             self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, top_node))
+            return False
 
     def rename(self, *input_dicts, **name_tokens):
         self.LOG.debug('Renaming %r...' % (self))
@@ -73,7 +81,7 @@ class AbstractGrouping(object):
 
     def build_node(self, node_class, node_key, meta_data=None, **flags):
         self.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
-        dag_node = node_class.build(meta_data=meta_data, **flags)
+        dag_node = node_class.build(meta_data=self.merge_dicts(self.meta_data, meta_data), **flags)
         self.register_node(node_key, dag_node)
         return dag_node
 

@@ -58,6 +58,16 @@ loggers:
         handlers: [info_file_handler]
         propagate: yes
 
+    anvil.grouping.rig:
+        level: INFO
+        handlers: [info_file_handler]
+        propagate: yes
+
+    anvil.grouping.sub_rig:
+        level: INFO
+        handlers: [info_file_handler]
+        propagate: yes
+
     anvil.plugins.base.api_proxy:
         level: INFO
         handlers: [info_file_handler]
