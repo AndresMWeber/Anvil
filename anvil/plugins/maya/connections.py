@@ -1,7 +1,7 @@
 import anvil.plugins.base.connections as connections
 from anvil.plugins.maya.dependencies import *
 from jsonschema import validate
-
+import nomenclate
 m_api = pm
 
 
@@ -14,6 +14,7 @@ class Attribute(connections.Attribute):
 
 
 class Constraint(connections.Constraint):
+
     default_schema = {
         "type": ["object", "null"],
         "properties": {

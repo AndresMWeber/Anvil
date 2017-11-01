@@ -69,14 +69,10 @@ class TestRigRename(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_root_name(self):
-        print([(key, node.meta_data) for key, node in iteritems(self.test_rig.hierarchy)])
-        pprint(self.test_rig.hierarchy, indent=2)
         self.assertEqual(str(self.test_rig.top_node), 'eye_mvp_rig_GRP')
 
     @TestBase.delete_created_nodes
     def test_sub_groups(self):
-        pprint(self.test_rig.eyeball.hierarchy, indent=2)
-        pprint(self.test_rig.hierarchy, indent=2)
         self.assertListSame(['eye_mvp_rig_GRP',
                              'eye_sub_rigs_mvp_GRP',
                              'eye_universal_mvp_OGP',

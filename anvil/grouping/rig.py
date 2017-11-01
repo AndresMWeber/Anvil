@@ -50,12 +50,11 @@ class Rig(base.AbstractGrouping):
 
         for main_group_type in ['extras', 'model', 'sub_rigs']:
             group_name = 'group_%s' % main_group_type
-            node = self.build_node(ot.Transform,
-                                   group_name,
-                                   parent=self.control_universal.connection_group,
-                                   meta_data=self.merge_dicts(self.meta_data,
-                                                              {'childtype': main_group_type, 'type': 'group'}))
-            node.inheritsTransform.set(False)
+            self.build_node(ot.Transform,
+                            group_name,
+                            parent=self.control_universal.connection_group,
+                            meta_data=self.merge_dicts(self.meta_data,
+                                                       {'childtype': main_group_type, 'type': 'group'}))
 
         self.top_node = self.group_top
         self.LOG.info('Building sub rigs...')

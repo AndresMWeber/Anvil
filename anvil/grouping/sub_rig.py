@@ -23,5 +23,6 @@ class SubRig(base.AbstractGrouping):
                             parent=self.group_top,
                             meta_data=self.merge_dicts(self.meta_data, {'childtype': main_group_type, 'type': 'group'}))
 
+        self.group_world.inheritsTransform.set(False)
         self.top_node = self.group_top
         return self
