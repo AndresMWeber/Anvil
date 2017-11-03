@@ -11,11 +11,12 @@ class SubRig(base.AbstractGrouping):
 
     def build(self, parent=None, meta_data=None, **flags):
         self.LOG.info('Building sub-rig %s' % self)
-        if not self.top_node:
+        if self.top_node is None:
             self.build_node(ot.Transform,
-                            'top_node',
+                            'group_top',
                             meta_data=self.merge_dicts(self.meta_data, {'rig': 'subrig', 'type': 'group'}),
                             **flags)
+            self.top_node = self.group_top
 
         for main_group_type in ['surfaces', 'joints', 'controls', 'nodes', 'world']:
             group_name = 'group_%s' % main_group_type

@@ -22,3 +22,9 @@ class Transform(dag_node.DagNode):
         if parent:
             node.parent(parent)
         return node
+
+    def colorize(self, color):
+        if isinstance(color, int):
+            pass
+        if isinstance(color, list) and len(color) == 3:
+            pass

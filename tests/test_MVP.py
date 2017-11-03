@@ -73,6 +73,7 @@ class TestRigRename(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_root_name(self):
+        self.build_test_dependencies()
         self.assertEqual(str(self.test_rig.top_node), 'eye_mvp_rig_GRP')
 
     @TestBase.delete_created_nodes
