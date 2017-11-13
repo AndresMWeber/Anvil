@@ -1,4 +1,3 @@
-import anvil
 from api_proxy import APIProxy
 
 

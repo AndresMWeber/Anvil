@@ -3,6 +3,8 @@ import sys
 from six import iteritems
 import anvil
 import dependencies
+from jsonschema import validate
+
 
 class APIProxy(object):
     LOG = anvil.log.obtainLogger(__name__)
@@ -17,16 +19,30 @@ class APIProxy(object):
                     self.API_LOG.info(import_call)
                     eval(import_call)
 
-    def _initialize_and_filter_flags(self, flags, schema):
+    @classmethod
+    def _validate_function(cls, schema, api, function_name):
+        def to_validate(function):
+            def validator(*args, **kwargs):
+                validate(kwargs, schema)
+                flags = cls._initialize_and_filter_flags(kwargs, schema)
+                return cls._log_and_run_api_call(api, function_name, *args, **flags)
+
+            validator.__name__ = function.__name__
+            return validator
+
+        return to_validate
+
+    @classmethod
+    def _initialize_and_filter_flags(cls, flags, schema):
         if flags is None or flags == {}:
             return {}
         else:
             new_flags = flags.copy()
             schema_properties = [key for key in list(schema.get('properties'))]
-            self.LOG.debug('Filtering flags %s for the schema properties %s' % (new_flags, schema_properties))
+            cls.LOG.debug('Filtering flags %s for the schema properties %s' % (new_flags, schema_properties))
             for flag_key in list(new_flags):
                 if flag_key not in schema_properties:
-                    self.LOG.warning('  Flag %s not in schema...removing from flags' % (flag_key))
+                    cls.LOG.warning('  Flag %s not in schema...removing from flags' % (flag_key))
                     new_flags.pop(flag_key)
             return new_flags
 
