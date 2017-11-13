@@ -1,15 +1,12 @@
-import anvil.plugins.base.create as create
 
+def create_node(dcc_node_type, **flags):
+    return dcc_node_type
 
-class Create(create.Create):
-    def create_node(self, dcc_node_type, **flags):
-        return dcc_node_type
+def create_transform(*args, **kwargs):
+    return 'group'
 
-    def create_transform(self, **flags):
-        return 'group'
+def create_joint(*args, **kwargs):
+    return 'joint'
 
-    def create_joint(self, **flags):
-        return 'joint'
-
-    def create_curve(self, **flags):
-        return 'curve'
+def create_curve(*args, **kwargs):
+    return 'curve'

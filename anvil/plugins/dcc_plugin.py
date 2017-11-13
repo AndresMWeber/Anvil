@@ -7,8 +7,8 @@ class DCCPlugin(object):
 
     def __init__(self, dcc_module):
         self.ENGINE_API = dcc_module.dependencies.API or {}
-        self.scene = dcc_module.scene.Scene()
-        self.create = dcc_module.create.Create()
+        self.scene = dcc_module.scene
+        self.create = dcc_module.create
         self.constrain = dcc_module.connections.Constraint()
         self.ENGINE = dcc_module.__name__
 
