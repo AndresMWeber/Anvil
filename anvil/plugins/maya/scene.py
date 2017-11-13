@@ -2,12 +2,6 @@ from anvil.plugins.maya.dependencies import *
 import anvil.plugins.base.api_proxy as api_proxy
 
 
-def get_persistent_id(node_unicode_proxy):
-    selection_list = om.MSelectionList()
-    selection_list.add(str(node_unicode_proxy))
-    return selection_list.getDagPath(0)
-
-
 @api_proxy.APIProxy._validate_function(
     {
         "type": ["object", "null"],
@@ -280,3 +274,9 @@ def get_scene_tree():
         return tree
 
     return recurse_scene_nodes(top_level_transforms)
+
+
+def get_persistent_id(node_unicode_proxy):
+    selection_list = om.MSelectionList()
+    selection_list.add(str(node_unicode_proxy))
+    return selection_list.getDagPath(0)
