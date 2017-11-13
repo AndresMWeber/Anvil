@@ -8,7 +8,7 @@ class DCCPlugin(object):
     ENGINE = None
 
     def __init__(self, dcc_module):
-        self.ENGINE_API = dcc_module.lazy_import() or {}
+        self.ENGINE_API = dcc_module.dependencies.API or {}
         self.scene = dcc_module.scene.Scene()
         self.create = dcc_module.create.Create()
         self.constrain = dcc_module.connections.Constraint()
@@ -26,7 +26,10 @@ def get_current_dcc(return_module=True):
 
 
 def get_dcc(dcc_name_query, return_module=False):
-    mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=dcc_name_query))
-    reload(mod)
-    if mod.is_dcc_loaded():
-        return mod if return_module else dcc_name_query
+    mod = None
+    try:
+        mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=dcc_name_query))
+    except ImportError:
+        pass
+
+    return mod if return_module else dcc_name_query
