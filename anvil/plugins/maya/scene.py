@@ -192,6 +192,7 @@ class Scene(scene.Scene):
             except API.general.MayaNodeError:
                 self.API_LOG.info('# Invalid parent(%s) or child(%s.' % (new_parent_dag, node_dags))
 
+
     def delete(self, node_dags, **flags):
         schema = {
             "type": ["object", "null"],

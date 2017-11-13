@@ -7,16 +7,16 @@ import anvil.runtime as runtime
 class UnicodeDelegate(object):
     dcc_type = None
 
-    def __init__(self, node_unicode_proxy, meta_data=None, **flags):
+    def __init__(self, node_pointer, meta_data=None, **flags):
         """ All nodes must be initialized with a string representation that the encompassing platform
             uses as DAG path representation for the object.
 
-        :param node_unicode_proxy: str, DAG path to the object we want to encapsulate
+        :param node_pointer: str, DAG path to the object we want to encapsulate
         :param flags: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
-        anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_unicode_proxy))
-        self._dcc_id = runtime.dcc.scene.get_persistent_id(node_unicode_proxy)
+        anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
+        self._dcc_id = runtime.dcc.scene.get_persistent_id(node_pointer)
         self._api_class_instance = None
 
         self.flags = flags or {}
