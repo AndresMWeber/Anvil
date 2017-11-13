@@ -63,5 +63,5 @@ def create_curve(*args, **kwargs):
     },
     API,
     'group')
-def create_transform(self, flags=None):
+def create_transform(flags=None):
     flags['empty'] = flags.get('empty', True)

@@ -242,7 +242,7 @@ def objects_exist(nodes):
     return all([exists(node) for node in nodes])
 
 
-def list_scene_nodes(self, object_type='transform', has_shape=False):
+def list_scene_nodes(object_type='transform', has_shape=False):
     nodes = []
     for node in list_scene(type=object_type):
         if not node.getShape():
@@ -257,7 +257,7 @@ def list_scene_nodes(self, object_type='transform', has_shape=False):
     return nodes
 
 
-def get_scene_tree(self):
+def get_scene_tree():
     startup_cams = [list_relatives(c, p=True)[0] for c in list_scene(cameras=True)
                     if API.camera(c, q=True, startupCamera=True)]
 
