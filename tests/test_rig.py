@@ -4,7 +4,7 @@ from base_test import TestBase
 
 
 class TestBaseRig(TestBase):
-    def build_test_dependencies(cls):
+    def build_dependencies(cls):
         cls.test_rig = nt.Rig([])
         cls.test_rig.build()
         print('built rig')

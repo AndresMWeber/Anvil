@@ -7,7 +7,7 @@ import transform
 
 
 class Curve(transform.Transform):
-    dcc_type = 'curve'
+    dcc_type = 'nurbsCurve'
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
@@ -15,8 +15,12 @@ class Curve(transform.Transform):
     def build(cls, meta_data=None, shape='cube', **flags):
         if flags.get('point') is None:
             flags.update(cls._get_shape_constructor(shape, return_positions=True))
-
-        return super(Curve, cls).build(meta_data=meta_data, **flags)
+        instance = super(Curve, cls).build(meta_data=meta_data, **flags)
+        # Just in case we are using PyMEL and it has returned the actual shape node instead of the transform.
+        if instance.exists() == cls.dcc_type and instance.get_parent():
+            print('replacing dcc id')
+            instance._dcc_id = runtime.dcc.scene.get_persistent_id(str(instance.get_parent()))
+        return instance
 
     @classmethod
     def _get_shape_constructor(cls, shape_name, return_positions=False):

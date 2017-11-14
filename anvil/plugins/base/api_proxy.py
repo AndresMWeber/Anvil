@@ -41,7 +41,10 @@ class APIProxy(object):
 
     @classmethod
     def _log_and_run_api_call(cls, api, function_name, *args, **kwargs):
+        args = [arg for arg in args if arg not in ['None', None]]
         parametrized_function_call = cls._compose_api_call(api, function_name, *args, **kwargs)
+        #if args and kwargs:
+        print('function %s with %s and %s' % (function_name, args, kwargs))
         cls.API_LOG.info(parametrized_function_call)
         return getattr(api, function_name)(*args, **kwargs)
 

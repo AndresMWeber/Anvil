@@ -12,7 +12,7 @@ from anvil.plugins.maya.dependencies import *
                                         },
                                        API,
                                        'createNode')
-def create_curve(*args, **kwargs):
+def create_node(*args, **kwargs):
     if args is None:
         raise KeyError('Node type %s is unsupported at this time' % args)
 

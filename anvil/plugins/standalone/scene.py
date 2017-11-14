@@ -11,8 +11,11 @@ def is_exact_type(node, typename):
 def is_type(node, typename):
     return typename in ['Transform', 'Curve', 'Joint', 'Shape', 'UnicodeDelegate', 'DagNode']
 
-def get_scene_tree(self):
+def get_scene_tree():
     return {'standalone': None}
+
+def list_scene(object_type='transform', *args, **kwargs):
+    return []
 
 def list_scene_nodes(object_type='transform', has_shape=False):
     return ['standalone']

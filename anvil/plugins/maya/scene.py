@@ -234,7 +234,7 @@ def list_scene_nodes(object_type='transform', has_shape=False):
 
 
 def get_scene_tree():
-    startup_cams = [list_relatives(c, p=True)[0] for c in list_scene(cameras=True)
+    startup_cams = [list_relatives(c, p=True) for c in list_scene(cameras=True)
                     if API.camera(c, q=True, startupCamera=True)]
 
     top_level_transforms = [node for node in list_scene(assemblies=True)

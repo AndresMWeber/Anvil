@@ -16,7 +16,7 @@ class UnicodeDelegate(object):
         :param meta_data: dict, any object specific meta data we want to record
         """
         anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
-        self._dcc_id = runtime.dcc.scene.get_persistent_id(node_pointer)
+        self._dcc_id = runtime.dcc.scene.get_persistent_id(str(node_pointer))
         self._api_class_instance = None
 
         self.flags = flags or {}
@@ -28,7 +28,7 @@ class UnicodeDelegate(object):
     def build(cls, meta_data=None, **flags):
         anvil.LOG.info('Building node type %s(flags = %s, meta_data = %s)' % (cls.dcc_type, flags, meta_data))
         cls.convert_subclass_kwargs(flags)
-        dcc_instance = runtime.dcc.create.create(cls.dcc_type, flags=flags)
+        dcc_instance = runtime.dcc.create.create_node(cls.dcc_type, flags=flags)
         instance = cls(dcc_instance, meta_data=meta_data, **flags)
 
         # If the instance isn't a string we can assume it's some API class instance we can use later.

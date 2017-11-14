@@ -5,7 +5,7 @@ from base_test import TestBase
 import sys
 
 class TestBaseAbstractGrouping(TestBase):
-    def build_test_dependencies(cls):
+    def build_dependencies(cls):
         pass
 
 
