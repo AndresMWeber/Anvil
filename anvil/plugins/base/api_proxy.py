@@ -1,8 +1,5 @@
-from inspect import ismodule
-import sys
 from six import iteritems
 import anvil
-import dependencies
 from jsonschema import validate
 
 
@@ -10,14 +7,6 @@ class APIProxy(object):
     LOG = anvil.log.obtainLogger(__name__)
     API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
     CURRENT_API = None
-
-    def __init__(self):
-        for dependency in dir(dependencies):
-            if ismodule(getattr(dependencies, dependency)):
-                if dependency not in sys.modules:
-                    import_call = 'import %s' % dependency.__name__
-                    self.API_LOG.info(import_call)
-                    eval(import_call)
 
     @classmethod
     def _validate_function(cls, schema, api, function_name):
@@ -94,3 +83,10 @@ class APIProxy(object):
             return APIProxy._convert_anvil_nodes_to_string(result)
         else:
             return result
+
+
+def merge_dicts(*dicts):
+    result = {}
+    for dictionary in dicts:
+        result.update(dictionary)
+    return result

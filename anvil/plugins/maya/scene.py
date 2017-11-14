@@ -2,19 +2,17 @@ from anvil.plugins.maya.dependencies import *
 import anvil.plugins.base.api_proxy as api_proxy
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "isAType": {"type": "string"},
-            "isType": {"type": "string"},
-            "tagFromType": {"type": "string"},
-            "typeFromTag": {"type": "number"},
-            "typeTag": {"type": "boolean"},
-        },
-    },
-    API,
-    'objectType')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "isAType": {"type": "string"},
+                                            "isType": {"type": "string"},
+                                            "tagFromType": {"type": "string"},
+                                            "typeFromTag": {"type": "number"},
+                                            "typeTag": {"type": "boolean"},
+                                        },
+                                        },
+                                       API,
+                                       'objectType')
 def get_type(node, **kwargs):
     pass
 
@@ -23,197 +21,181 @@ def is_exact_type(node, typename):
     return type(node) == typename
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "apiType": {"type": "boolean"},
-            "derived": {"type": "boolean"},
-            "inherited": {"type": "boolean"},
-            "isTypeName": {"type": "boolean"},
-        },
-    },
-    API,
-    'nodeType')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "apiType": {"type": "boolean"},
+                                            "derived": {"type": "boolean"},
+                                            "inherited": {"type": "boolean"},
+                                            "isTypeName": {"type": "boolean"},
+                                        },
+                                        },
+                                       API,
+                                       'nodeType')
 def is_type(node, apiType="", **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {"type": ["object", "null"],
-     "properties": {
-         "absoluteName": {"type": "boolean"},
-         "allPaths": {"type": "boolean"},
-         "assemblies": {"type": "boolean"},
-         "cameras": {"type": "boolean"},
-         "containerType": {"type": "string"},
-         "containers": {"type": "boolean"},
-         "dagObjects": {"type": "boolean"},
-         "defaultNodes": {"type": "boolean"},
-         "dependencyNodes": {"type": "boolean"},
-         "exactType": {"type": "string"},
-         "excludeType": {"type": "string"},
-         "flatten": {"type": "boolean"},
-         "geometry": {"type": "boolean"},
-         "ghost": {"type": "boolean"},
-         "head": {"type": "number"},
-         "hilite": {"type": "boolean"},
-         "intermediateObjects": {"type": "boolean"},
-         "invisible": {"type": "boolean"},
-         "leaf": {"type": "boolean"},
-         "lights": {"type": "boolean"},
-         "live": {"type": "boolean"},
-         "lockedNodes": {"type": "boolean"},
-         "long": {"type": "boolean"},
-         "materials": {"type": "boolean"},
-         "modified": {"type": "boolean"},
-         "noIntermediate": {"type": "boolean"},
-         "nodeTypes": {"type": "boolean"},
-         "objectsOnly": {"type": "boolean"},
-         "orderedSelection": {"type": "boolean"},
-         "partitions": {"type": "boolean"},
-         "persistentNodes": {"type": "boolean"},
-         "planes": {"type": "boolean"},
-         "preSelectHilite": {"type": "boolean"},
-         "readOnly": {"type": "boolean"},
-         "recursive": {"type": "boolean"},
-         "referencedNodes": {"type": "boolean"},
-         "references": {"type": "boolean"},
-         "renderGlobals": {"type": "boolean"},
-         "renderQualities": {"type": "boolean"},
-         "renderResolutions": {"type": "boolean"},
-         "renderSetups": {"type": "boolean"},
-         "selection": {"type": "boolean"},
-         "sets": {"type": "boolean"},
-         "shapes": {"type": "boolean"},
-         "shortNames": {"type": "boolean"},
-         "showNamespace": {"type": "boolean"},
-         "showType": {"type": "boolean"},
-         "tail": {"type": "number"},
-         "templated": {"type": "boolean"},
-         "textures": {"type": "boolean"},
-         "transforms": {"type": "boolean"},
-         "type": {"type": "string"},
-         "undeletable": {"type": "boolean"},
-         "untemplated": {"type": "boolean"},
-         "uuid": {"type": "boolean"},
-         "visible": {"type": "boolean"}
-     }
-     },
-    API,
-    'ls')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "absoluteName": {"type": "boolean"},
+                                            "allPaths": {"type": "boolean"},
+                                            "assemblies": {"type": "boolean"},
+                                            "cameras": {"type": "boolean"},
+                                            "containerType": {"type": "string"},
+                                            "containers": {"type": "boolean"},
+                                            "dagObjects": {"type": "boolean"},
+                                            "defaultNodes": {"type": "boolean"},
+                                            "dependencyNodes": {"type": "boolean"},
+                                            "exactType": {"type": "string"},
+                                            "excludeType": {"type": "string"},
+                                            "flatten": {"type": "boolean"},
+                                            "geometry": {"type": "boolean"},
+                                            "ghost": {"type": "boolean"},
+                                            "head": {"type": "number"},
+                                            "hilite": {"type": "boolean"},
+                                            "intermediateObjects": {"type": "boolean"},
+                                            "invisible": {"type": "boolean"},
+                                            "leaf": {"type": "boolean"},
+                                            "lights": {"type": "boolean"},
+                                            "live": {"type": "boolean"},
+                                            "lockedNodes": {"type": "boolean"},
+                                            "long": {"type": "boolean"},
+                                            "materials": {"type": "boolean"},
+                                            "modified": {"type": "boolean"},
+                                            "noIntermediate": {"type": "boolean"},
+                                            "nodeTypes": {"type": "boolean"},
+                                            "objectsOnly": {"type": "boolean"},
+                                            "orderedSelection": {"type": "boolean"},
+                                            "partitions": {"type": "boolean"},
+                                            "persistentNodes": {"type": "boolean"},
+                                            "planes": {"type": "boolean"},
+                                            "preSelectHilite": {"type": "boolean"},
+                                            "readOnly": {"type": "boolean"},
+                                            "recursive": {"type": "boolean"},
+                                            "referencedNodes": {"type": "boolean"},
+                                            "references": {"type": "boolean"},
+                                            "renderGlobals": {"type": "boolean"},
+                                            "renderQualities": {"type": "boolean"},
+                                            "renderResolutions": {"type": "boolean"},
+                                            "renderSetups": {"type": "boolean"},
+                                            "selection": {"type": "boolean"},
+                                            "sets": {"type": "boolean"},
+                                            "shapes": {"type": "boolean"},
+                                            "shortNames": {"type": "boolean"},
+                                            "showNamespace": {"type": "boolean"},
+                                            "showType": {"type": "boolean"},
+                                            "tail": {"type": "number"},
+                                            "templated": {"type": "boolean"},
+                                            "textures": {"type": "boolean"},
+                                            "transforms": {"type": "boolean"},
+                                            "type": {"type": "string"},
+                                            "undeletable": {"type": "boolean"},
+                                            "untemplated": {"type": "boolean"},
+                                            "uuid": {"type": "boolean"},
+                                            "visible": {"type": "boolean"}
+                                        }
+                                        },
+                                       API,
+                                       'ls')
 def list_scene(*args, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-        },
-    },
-    API,
-    'objExists')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {},
+                                        },
+                                       API,
+                                       'objExists')
 def exists(node):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "ignoreShape": {"type": "boolean"},
-            "uuid": {"type": "boolean"}
-        },
-    },
-    API,
-    'rename')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "ignoreShape": {"type": "boolean"},
+                                            "uuid": {"type": "boolean"}
+                                        },
+                                        },
+                                       API,
+                                       'rename')
 def rename(node_dag, name, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "inputConnections": {"type": "boolean"},
-            "instanceLeaf": {"type": "boolean"},
-            "name": {"type": "string"},
-            "parentOnly": {"type": "boolean"},
-            "renameChildren": {"type": "boolean"},
-            "returnRootsOnly": {"type": "boolean"},
-            "smartTransform": {"type": "boolean"},
-            "upstreamNodes": {"type": "boolean"}
-        },
-    },
-    API,
-    'duplicate')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "inputConnections": {"type": "boolean"},
+                                            "instanceLeaf": {"type": "boolean"},
+                                            "name": {"type": "string"},
+                                            "parentOnly": {"type": "boolean"},
+                                            "renameChildren": {"type": "boolean"},
+                                            "returnRootsOnly": {"type": "boolean"},
+                                            "smartTransform": {"type": "boolean"},
+                                            "upstreamNodes": {"type": "boolean"}
+                                        },
+                                        },
+                                       API,
+                                       'duplicate')
 def duplicate(parent_only=True, *node_dags, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "allDescendents": {"type": "boolean"},
-            "allParents": {"type": "boolean"},
-            "children": {"type": "boolean"},
-            "fullPath": {"type": "boolean"},
-            "noIntermediate": {"type": "boolean"},
-            "parent": {"type": "boolean"},
-            "path": {"type": "boolean"},
-            "shapes": {"type": "boolean"},
-            "type": {"type": "string"},
-        },
-    },
-    API,
-    'listRelatives')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "allDescendents": {"type": "boolean"},
+                                            "allParents": {"type": "boolean"},
+                                            "children": {"type": "boolean"},
+                                            "fullPath": {"type": "boolean"},
+                                            "noIntermediate": {"type": "boolean"},
+                                            "parent": {"type": "boolean"},
+                                            "path": {"type": "boolean"},
+                                            "shapes": {"type": "boolean"},
+                                            "type": {"type": "string"},
+                                        },
+                                        },
+                                       API,
+                                       'listRelatives')
 def list_relatives(node_dag, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "absolute": {"type": "boolean"},
-            "addObject": {"type": "boolean"},
-            "noConnections": {"type": "boolean"},
-            "noInvScale": {"type": "boolean"},
-            "relative": {"type": "boolean"},
-            "removeObject": {"type": "boolean"},
-            "shape": {"type": "boolean"},
-            "world": {"type": "boolean"},
-        }
-    },
-    API,
-    'delete')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "absolute": {"type": "boolean"},
+                                            "addObject": {"type": "boolean"},
+                                            "noConnections": {"type": "boolean"},
+                                            "noInvScale": {"type": "boolean"},
+                                            "relative": {"type": "boolean"},
+                                            "removeObject": {"type": "boolean"},
+                                            "shape": {"type": "boolean"},
+                                            "world": {"type": "boolean"},
+                                        }
+                                        },
+                                       API,
+                                       'delete')
 def parent(node_dags, new_parent_dag, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
-    {
-        "type": ["object", "null"],
-        "properties": {
-            "all": {"type": "boolean"},
-            "attribute": {"type": "string"},
-            "channels": {"type": "boolean"},
-            "constraints": {"type": "boolean"},
-            "constructionHistory": {"type": "boolean"},
-            "controlPoints": {"type": "boolean"},
-            "expressions": {"type": "boolean"},
-            "hierarchy": {"type": "boolean"},
-            "inputConnectionsAndNodes": {"type": "boolean"},
-            "shape": {"type": "boolean"},
-            "staticChannels": {"type": "boolean"},
-            "timeAnimationCurves": {"type": "boolean"},
-            "unitlessAnimationCurves": {"type": "boolean"},
-        }
-    },
-    API,
-    'delete')
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "all": {"type": "boolean"},
+                                            "attribute": {"type": "string"},
+                                            "channels": {"type": "boolean"},
+                                            "constraints": {"type": "boolean"},
+                                            "constructionHistory": {"type": "boolean"},
+                                            "controlPoints": {"type": "boolean"},
+                                            "expressions": {"type": "boolean"},
+                                            "hierarchy": {"type": "boolean"},
+                                            "inputConnectionsAndNodes": {"type": "boolean"},
+                                            "shape": {"type": "boolean"},
+                                            "staticChannels": {"type": "boolean"},
+                                            "timeAnimationCurves": {"type": "boolean"},
+                                            "unitlessAnimationCurves": {"type": "boolean"},
+                                        }
+                                        },
+                                       API,
+                                       'delete')
 def delete(*node_dags, **flags):
     pass
 

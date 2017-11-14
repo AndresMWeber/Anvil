@@ -1,39 +1,34 @@
-import anvil.plugins.base.connections as attribute
+def translate(source, targets, **flags):
+    return True
 
 
-class Attribute(attribute.Attribute):
-    def get(self, object, attr):
-        return getattr(object, attr)
-
-    def set(self, object, attr, value):
-        return setattr(object, attr, value)
+def rotate(source, targets, **flags):
+    return True
 
 
-class Constraint(attribute.Constraint):
-    def translate(self, source, targets, **flags):
-        return True
+def aim(source, targets, **flags):
+    return True
 
-    def rotate(self, source, targets, **flags):
-        return True
 
-    def aim(self, source, targets, **flags):
-        return True
+def scale(source, targets, **flags):
+    return True
 
-    def scale(self, source, targets, **flags):
-        return True
 
-    def parent(self, source, targets, **flags):
-        return True
+def parent(source, targets, **flags):
+    return True
 
-    def tangent(self, source, targets, **flags):
-        return True
 
-    def geometry_point(self, source, targets, **flags):
-        return True
+def tangent(source, targets, **flags):
+    return True
 
-    def geometry_normal(self, source, targets, **flags):
-        return True
 
-    def pole_vector(self, source, targets, **flags):
-        return True
+def geometry_point(source, targets, **flags):
+    return True
 
+
+def geometry_normal(source, targets, **flags):
+    return True
+
+
+def pole_vector(source, targets, **flags):
+    return True

@@ -9,7 +9,7 @@ class DCCPlugin(object):
         self.ENGINE_API = dcc_module.dependencies.API or {}
         self.scene = dcc_module.scene
         self.create = dcc_module.create
-        self.constrain = dcc_module.connections.Constraint()
+        self.constrain = dcc_module.connections
         self.ENGINE = dcc_module.__name__
 
     def __str__(self):
