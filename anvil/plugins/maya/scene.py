@@ -200,6 +200,62 @@ def delete(*node_dags, **flags):
     pass
 
 
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "absolute": {"type": "boolean"},
+                                            "boundingBox": {"type": "boolean"},
+                                            "boundingBoxInvisible": {"type": "boolean"},
+                                            "centerPivots": {"type": "boolean"},
+                                            "centerPivotsOnComponents": {"type": "boolean"},
+                                            "deletePriorHistory": {"type": "boolean"},
+                                            "euler": {"type": "boolean"},
+                                            "matrix": {"type": "array", "items": {"type": "number"}, "minItems": 16,
+                                                       "maxItems": 16},
+                                            "pivots": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                       "maxItems": 3},
+                                            "objectSpace": {"type": "boolean"},
+                                            "preserve": {"type": "boolean"},
+                                            "preserveUV": {"type": "boolean"},
+                                            "reflection": {"type": "boolean"},
+                                            "reflectionAboutBBox": {"type": "boolean"},
+                                            "reflectionAboutOrigin": {"type": "boolean"},
+                                            "reflectionAboutX": {"type": "boolean"},
+                                            "reflectionAboutY": {"type": "boolean"},
+                                            "reflectionAboutZ": {"type": "boolean"},
+                                            "reflectionTolerance": {"type": "number"},
+                                            "relative": {"type": "boolean"},
+                                            "rotateAxis": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                           "maxItems": 3},
+                                            "rotateOrder": {"type": "string"},
+                                            "rotatePivot": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                            "maxItems": 3},
+                                            "rotateTranslation": {"type": "array", "items": {"type": "number"},
+                                                                  "minItems": 3,
+                                                                  "maxItems": 3},
+                                            "rotation": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                         "maxItems": 3},
+                                            "scale": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                      "maxItems": 3},
+                                            "scalePivot": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                           "maxItems": 3},
+                                            "scaleTranslation": {"type": "array", "items": {"type": "number"},
+                                                                 "minItems": 3,
+                                                                 "maxItems": 3},
+                                            "shear": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                      "maxItems": 3},
+                                            "translation": {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                            "maxItems": 3},
+                                            "worldSpace": {"type": "boolean"},
+                                            "worldSpaceDistance": {"type": "boolean"},
+                                            "zeroTransformPivots": {"type": "boolean"},
+                                        }
+                                        },
+                                       API,
+                                       'xform')
+def position(*node_dags, **flags):
+    pass
+
+
 def safe_delete(node_or_nodes):
     if isinstance(node_or_nodes, list):
         for node in node_or_nodes:
