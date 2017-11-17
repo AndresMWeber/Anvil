@@ -1,0 +1,15 @@
+# .coveragerc
+[report]
+show_missing = True
+
+[run]
+omit =
+    *__init__*
+    anvil/version.py
+    anvil/config.py
+    anvil/log.py
+    anvil/runtime.py
+    anvil/exception.py
+    anvil/plugins/current_dcc.py
+    anvil/plugins/dcc_plugin.py
+    anvil/plugins/base/*

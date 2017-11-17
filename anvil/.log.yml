@@ -1,0 +1,70 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+    simple:
+        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    api:
+        format: "%(message)s"
+    structlog:
+        format: "%(message)s"
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: structlog
+        stream: ext://sys.stdout
+
+    info_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: structlog
+        filename: session.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+loggers:
+    anvil:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+    anvil.log:
+        level: INFO
+        handlers: [console]
+        propagate: no
+
+    anvil.grouping.base:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+    anvil.grouping.rig:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+    anvil.grouping.sub_rig:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+    anvil.plugins.base.api_proxy:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+    anvil.plugins.base.api_proxy.api_calls:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+    testing:
+        level: INFO
+        handlers: [info_file_handler, console]
+        propagate: no
+
+root:
+    level: INFO
+    handlers: [console]

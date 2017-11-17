@@ -1,50 +1,49 @@
+import os
 import unittest
-import maya.cmds as mc
-import anvil
-from collections import Iterable
+from deepdiff import DeepDiff
 from six import iteritems, string_types
-from pprint import pformat
+
+os.environ['ANVIL_MODE'] = 'TEST'
+import anvil
+from anvil.log import obtainLogger
+import logging
+from collections import Iterable
 from collections import OrderedDict
+import nomenclate
 
+NOMENCLATE = nomenclate.Nom()
 
-setUp_count = 0
-tearDown_count = 0
 
 
 class TestBase(unittest.TestCase):
-    def setUp(self):
-        anvil.LOG.info('Initializing maya_utils standalone...')
+    LOG = obtainLogger('testing')
+    logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
-        global setUp_count
-        anvil.LOG.info('setup has run %d times.' % setUp_count)
-        anvil.LOG.info('setUp-Start state of scene: ')
-        anvil.LOG.info(pformat(anvil.plugins.maya.scene.get_scene_tree()))
-
-        self.fixtures = []
-        test_parent_grp = 'test_parent'
-        test_grp = '%s|test_GRP' % test_parent_grp
-
-        self.test_group = test_grp if mc.objExists(test_grp) else anvil.core.objects.transform.Transform.build(n='test', em=True)
-        self.test_group_parent = test_parent_grp if mc.objExists(
-            test_parent_grp) else anvil.core.objects.transform.Transform.build(n='test_parent')
-
-        self.fixtures.append(self.test_group)
-        self.fixtures.append(self.test_group_parent)
-        anvil.LOG.info('state of scene after initial node creation: ')
-        anvil.LOG.info(pformat(anvil.plugins.maya.scene.get_scene_tree()))
-        anvil.LOG.info('Registered nodes %s' % self.fixtures)
-        setUp_count += 1
+    @classmethod
+    def build_dependencies(cls):
+        cls.LOG.info('Building Dependencies...')
 
     def tearDown(self):
-        global tearDown_count
-        anvil.LOG.info('Tearing down!! Deleting all nodes...')
-        if self.fixtures:
-            self.fixtures = [fixture for fixture in self.fixtures if mc.objExists(fixture)]
-            for fixture in self.fixtures:
-                if mc.objExists(fixture):
-                    for fix in mc.ls(fixture):
-                        mc.delete(fix)
-        tearDown_count += 1
+        super(TestBase, self).tearDown()
+
+    def setUp(self):
+        super(TestBase, self).setUp()
+
+    def safe_create(self, dag_path, object_type, name_tokens=None, **flags):
+        name_tokens = name_tokens or {}
+        if anvil.runtime.dcc.scene.exists(dag_path):
+            return object_type(dag_path, **flags)
+        else:
+            node = object_type.build(**flags)
+            node.rename(NOMENCLATE.get(**name_tokens))
+            return node
+
+    @classmethod
+    def delete_objects(cls, objects):
+        cls.LOG.info('Deleting objects %s' % objects)
+        for object in objects:
+            if anvil.runtime.dcc.scene.exists(object):
+                anvil.runtime.dcc.scene.delete(object, hierarchy=True)
 
     @classmethod
     def deep_sort(cls, obj):
@@ -73,6 +72,11 @@ class TestBase(unittest.TestCase):
     def checkEqual(list_a, list_b):
         return len(list_a) == len(list_b) and sorted(list_a) == sorted(list_b)
 
+    def assertListSame(self, list1, list2):
+        for x, y in zip(sorted(list1), sorted(list2)):
+            self.assertEqual(x, y)
+        return True
+
     def assertDictEqual(self, d1, d2, msg=None):  # assertEqual uses for dicts
         for k, v1 in iteritems(d1):
             self.assertIn(k, d2, msg)
@@ -83,3 +87,84 @@ class TestBase(unittest.TestCase):
             else:
                 self.assertEqual(v1, v2, msg)
         return True
+
+    @classmethod
+    def sanitize_scene(cls):
+        preexisting_nodes = anvil.runtime.dcc.scene.list_scene_nodes()
+        TestBase.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
+        cls.delete_objects(preexisting_nodes)
+
+    @classmethod
+    def delete_created_nodes(cls, func):
+        def pre_hook():
+            initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+            TestBase.LOG.info(initial_scene_tree)
+            return initial_scene_tree
+
+        def post_hook():
+            created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+            TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
+            TestBase.LOG.info(created_scene_tree)
+            return created_scene_tree
+
+        def process(initial_scene_tree, post_scene_tree):
+            diff = DeepDiff(initial_scene_tree, post_scene_tree)
+            # TestBase.LOG.info('Unprocessed DeepDiff:\n%s' % pformat(diff, indent=2))
+            created_nodes = []
+            deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
+            for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
+                deep_path = tokenize_deep_diff_string(dict_item)
+                created_nodes.append(dict_item_from_path(post_scene_tree, deep_path))
+
+            return created_nodes
+
+        def dict_item_from_path(dict_to_query, query_path):
+            """
+            item_from_path = dict_to_query
+            TestBase.LOG.info('Attempting to get item from path %s in dict %s' % (query_path, dict_to_query))
+            for path in query_path:
+                try:
+                    item_from_path = item_from_path.get(path)
+                except AttributeError:
+                    pass
+            return list(item_from_path)
+            """
+            return query_path[-1]
+
+        def tokenize_deep_diff_string(deep_diff_path_string):
+            full_path = [item.replace(']', '') for item in deep_diff_path_string.split('[')]
+            full_path.remove('root')
+            deep_path = []
+            for item in full_path:
+                try:
+                    deep_path.append(
+                        item.strip('\"').strip("\'") if '\"' in item or '\'' in item or item == 'root' else int(item))
+                except ValueError:
+                    deep_path.append(str(item))
+            return deep_path
+
+        def wrapped(self, *args, **kwargs):
+            cls.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
+            cls.LOG.info('THIS IS BULLSHIT')
+            self.sanitize_scene()
+
+            if getattr(self, 'build_dependencies', None):
+                self.build_dependencies()
+
+            initial_scene_tree = pre_hook()
+
+            cls.LOG.info('Initial scene state is:\n%s' % initial_scene_tree)
+            func_return = func(self, *args, **kwargs)
+
+            created_scene_tree = post_hook()
+            created_nodes = process(initial_scene_tree, created_scene_tree)
+
+            cls.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
+            cls.LOG.info('Scene state is:\n%s' % created_scene_tree)
+            cls.LOG.info('After deletion scene state is:\n%s' % created_scene_tree)
+            cls.sanitize_scene()
+
+            return func_return
+
+        wrapped.__name__ = func.__name__
+        return wrapped

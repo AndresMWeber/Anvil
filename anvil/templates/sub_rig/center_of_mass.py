@@ -1,1 +1,5 @@
-import anvil.core.collections.sub_rig as sub_rig
+from base import SubRigTemplate
+
+
+class CenterOfMass(SubRigTemplate):
+    pass

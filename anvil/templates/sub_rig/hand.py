@@ -1,2 +1,5 @@
+from base import SubRigTemplate
 
-import anvil.core.collections.sub_rig as sub_rig
+
+class Hand(SubRigTemplate):
+    pass
