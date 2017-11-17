@@ -12,6 +12,8 @@ class APIProxy(object):
     def _validate_function(cls, schema, api, function_name):
         def to_validate(function):
             def validator(*args, **kwargs):
+                cls.LOG.info(
+                    'Validating call for %s.%s(%s, %s) against schema %s' % (api.__name__, function_name, args, kwargs, schema))
                 validate(kwargs, schema)
                 flags = cls._initialize_and_filter_flags(kwargs, schema)
                 return cls._log_and_run_api_call(api, function_name, *args, **flags)
@@ -43,7 +45,7 @@ class APIProxy(object):
     def _log_and_run_api_call(cls, api, function_name, *args, **kwargs):
         args = [arg for arg in args if arg not in ['None', None]]
         parametrized_function_call = cls._compose_api_call(api, function_name, *args, **kwargs)
-        #if args and kwargs:
+        # if args and kwargs:
         print('function %s with %s and %s' % (function_name, args, kwargs))
         cls.API_LOG.info(parametrized_function_call)
         return getattr(api, function_name)(*args, **kwargs)

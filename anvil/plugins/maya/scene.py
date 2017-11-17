@@ -172,7 +172,7 @@ def list_relatives(node_dag, **flags):
                                         }
                                         },
                                        API,
-                                       'delete')
+                                       'parent')
 def parent(node_dags, new_parent_dag, **flags):
     pass
 

@@ -50,7 +50,9 @@ class AbstractGrouping(object):
 
     def parent(self, new_parent):
         top_node, new_parent = str(self.top_node), str(new_parent)
-        if all([rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node != 'None']):
+        nodes_exist = [rt.dcc.scene.exists(node) if node != 'None' else False for node in [top_node, new_parent] ]
+        print nodes_exist
+        if all(nodes_exist or [False]):
             self.LOG.debug('Parenting control offset group %s to %s' % (top_node, new_parent))
             rt.dcc.scene.parent(top_node, new_parent)
             return True

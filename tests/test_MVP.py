@@ -11,6 +11,7 @@ class TestBaseRig(TestBase):
 
     @classmethod
     def build_dependencies(cls):
+        super(TestBaseRig, cls).build_dependencies()
         test_rig = nt.Rig(meta_data=cls.name_tokens)
         sub_rig = test_rig.register_sub_rig('eyeball', meta_data={'name': 'eyeball'})
         test_rig.build()

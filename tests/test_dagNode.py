@@ -33,7 +33,7 @@ class TestDagNodeRename(TestBaseDagNode):
             self.assertEqual(str(dag_node), desired_output)
 
     def test_empty_input(self):
-        self.rename_runner(None, '')
+        self.assertRaises(RuntimeError, self.rename_runner, None, '')
 
     def test_single_char_input(self):
         self.rename_runner('n', 'n')

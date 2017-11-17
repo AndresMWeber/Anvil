@@ -24,29 +24,11 @@ handlers:
         backupCount: 20
         encoding: utf8
 
-    dcc_file_handler:
-        class: logging.handlers.RotatingFileHandler
-        level: INFO
-        formatter: structlog
-        filename: dcc.log
-        maxBytes: 10485760 # 10MB
-        backupCount: 20
-        encoding: utf8
-
-    testing_file_handler:
-        class: logging.handlers.RotatingFileHandler
-        level: INFO
-        formatter: structlog
-        filename: testing.log
-        maxBytes: 10485760 # 10MB
-        backupCount: 20
-        encoding: utf8
-
 loggers:
     anvil:
         level: INFO
-        handlers: [info_file_handler]
-        propagate: yes
+        handlers: [info_file_handler, console]
+        propagate: no
 
     anvil.log:
         level: INFO
@@ -55,33 +37,33 @@ loggers:
 
     anvil.grouping.base:
         level: INFO
-        handlers: [info_file_handler]
-        propagate: yes
+        handlers: [info_file_handler, console]
+        propagate: no
 
     anvil.grouping.rig:
         level: INFO
-        handlers: [info_file_handler]
-        propagate: yes
+        handlers: [info_file_handler, console]
+        propagate: no
 
     anvil.grouping.sub_rig:
         level: INFO
-        handlers: [info_file_handler]
-        propagate: yes
+        handlers: [info_file_handler, console]
+        propagate: no
 
     anvil.plugins.base.api_proxy:
         level: INFO
-        handlers: [info_file_handler]
+        handlers: [info_file_handler, console]
         propagate: no
 
     anvil.plugins.base.api_proxy.api_calls:
         level: INFO
-        handlers: [dcc_file_handler]
+        handlers: [info_file_handler, console]
         propagate: no
 
     testing:
         level: INFO
-        handlers: [testing_file_handler]
-        propagate: yes
+        handlers: [info_file_handler, console]
+        propagate: no
 
 root:
     level: INFO

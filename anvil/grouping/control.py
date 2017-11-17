@@ -24,7 +24,7 @@ class Control(base.AbstractGrouping):
     def build_layout(self):
         if self.flags.get('parent'):
             self.parent(self.flags.get('parent'))
-
+        print(self, self.control, self.offset_group, self.connection_group)
         rt.dcc.scene.parent(str(self.control), str(self.offset_group))
         rt.dcc.scene.parent(str(self.connection_group), str(self.control))
 

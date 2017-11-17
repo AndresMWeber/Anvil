@@ -34,6 +34,7 @@ class UnicodeDelegate(object):
         # If the instance isn't a string we can assume it's some API class instance we can use later.
         if not isinstance(dcc_instance, str):
             instance._api_class_instance = dcc_instance
+
         return instance
 
     @classmethod

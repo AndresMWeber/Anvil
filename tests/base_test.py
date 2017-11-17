@@ -21,7 +21,7 @@ class TestBase(unittest.TestCase):
 
     @classmethod
     def build_dependencies(cls):
-        pass
+        cls.LOG.info('Building Dependencies...')
 
     def tearDown(self):
         super(TestBase, self).tearDown()
@@ -40,7 +40,7 @@ class TestBase(unittest.TestCase):
 
     @classmethod
     def delete_objects(cls, objects):
-        TestBase.LOG.info('Deleting objects %s' % objects)
+        cls.LOG.info('Deleting objects %s' % objects)
         for object in objects:
             if anvil.runtime.dcc.scene.exists(object):
                 anvil.runtime.dcc.scene.delete(object, hierarchy=True)
@@ -91,7 +91,7 @@ class TestBase(unittest.TestCase):
     @classmethod
     def sanitize_scene(cls):
         preexisting_nodes = anvil.runtime.dcc.scene.list_scene_nodes()
-        cls.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
+        TestBase.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
         cls.delete_objects(preexisting_nodes)
 
     @classmethod
@@ -144,7 +144,8 @@ class TestBase(unittest.TestCase):
             return deep_path
 
         def wrapped(self, *args, **kwargs):
-            TestBase.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
+            cls.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
+            cls.LOG.info('THIS IS BULLSHIT')
             self.sanitize_scene()
 
             if getattr(self, 'build_dependencies', None):
@@ -152,16 +153,16 @@ class TestBase(unittest.TestCase):
 
             initial_scene_tree = pre_hook()
 
-            TestBase.LOG.info('Initial scene state is:\n%s' % initial_scene_tree)
+            cls.LOG.info('Initial scene state is:\n%s' % initial_scene_tree)
             func_return = func(self, *args, **kwargs)
 
             created_scene_tree = post_hook()
             created_nodes = process(initial_scene_tree, created_scene_tree)
 
-            TestBase.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
-            TestBase.LOG.info('Scene state is:\n%s' % created_scene_tree)
-            TestBase.LOG.info('After deletion scene state is:\n%s' % created_scene_tree)
-            TestBase.sanitize_scene()
+            cls.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
+            cls.LOG.info('Scene state is:\n%s' % created_scene_tree)
+            cls.LOG.info('After deletion scene state is:\n%s' % created_scene_tree)
+            cls.sanitize_scene()
 
             return func_return
 

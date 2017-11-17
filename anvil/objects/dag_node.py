@@ -4,10 +4,10 @@ import unicode_delegate as unicode_delegate
 
 class DagNode(unicode_delegate.UnicodeDelegate):
     def rename(self, new_name):
-        return runtime.dcc.scene.rename(self._dcc_id, new_name)
+        return runtime.dcc.scene.rename(self.name(), new_name)
 
     def name(self):
-        return self._dcc_id
+        return str(self._dcc_id)
 
     def __repr__(self):
         if hasattr(self, '__str__'):

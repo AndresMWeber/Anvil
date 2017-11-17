@@ -36,7 +36,7 @@ class TestCurveBuild(TestBaseCurve):
     def test_point_input(self):
         curve = nt.Curve.build(point=[[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]])
         try:
-            self.assertEqual(curve.numCVs(), 4)
+            self.assertEqual(curve.getShape().numCVs(), 4)
         except AttributeError:
             self.assertIsNotNone(curve)
 
@@ -45,7 +45,7 @@ class TestCurveBuild(TestBaseCurve):
         curve = nt.Curve.build(shape='jack')
         print(nt.Curve.SHAPE_CACHE)
         try:
-            self.assertEqual(curve.numCVs(), len(nt.Curve.SHAPE_CACHE['jack']['point']))
+            self.assertEqual(curve.getShape().numCVs(), len(nt.Curve.SHAPE_CACHE['jack']['point']))
         except AttributeError:
             self.assertIsNotNone(curve)
 
