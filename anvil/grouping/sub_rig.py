@@ -1,7 +1,7 @@
 import base
 import anvil.log as lg
 import anvil.objects as ot
-import anvil.node_types as nt
+
 
 class SubRig(base.AbstractGrouping):
     LOG = lg.obtainLogger(__name__)
@@ -28,6 +28,3 @@ class SubRig(base.AbstractGrouping):
         self.group_world.inheritsTransform.set(False)
         self.parent(parent)
         return self
-
-    def build_curve_from_transforms(self, transforms):
-        return nt.Curve(p=[transform.get_positionpoints])

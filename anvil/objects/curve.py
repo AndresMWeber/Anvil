@@ -23,6 +23,13 @@ class Curve(transform.Transform):
         return instance
 
     @classmethod
+    def build_from_objects(cls, objects, meta_data=None, **flags):
+        position_flags = {'query': True, 'position': True, 'worldSpace': True}
+        flags['point'] = [runtime.dcc.scene.position(str(object), **position_flags) for object in objects]
+        instance = cls.build(meta_data=None, **flags)
+        return instance
+
+    @classmethod
     def _get_shape_constructor(cls, shape_name, return_positions=False):
         shape_entry = cls.SHAPE_CACHE.get(shape_name or '', {})
 
@@ -48,5 +55,6 @@ class Curve(transform.Transform):
             except IOError:
                 anvil.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
                 cls.SHAPE_CACHE = {}
+
 
 Curve._populate_shape_file_data()
