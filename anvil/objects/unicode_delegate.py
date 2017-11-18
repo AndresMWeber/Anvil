@@ -24,11 +24,15 @@ class UnicodeDelegate(object):
         default_meta_data.update(meta_data or {})
         self.meta_data = default_meta_data
 
+    @staticmethod
+    def create_engine_instance(**flags):
+        return runtime.dcc.create.create_node('transform', **flags)
+
     @classmethod
     def build(cls, meta_data=None, **flags):
         anvil.LOG.info('Building node type %s(flags = %s, meta_data = %s)' % (cls.dcc_type, flags, meta_data))
         cls.convert_subclass_kwargs(flags)
-        dcc_instance = runtime.dcc.create.create_node(cls.dcc_type, flags=flags)
+        dcc_instance = cls.create_engine_instance(**flags)
         instance = cls(dcc_instance, meta_data=meta_data, **flags)
 
         # If the instance isn't a string we can assume it's some API class instance we can use later.

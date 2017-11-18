@@ -5,7 +5,6 @@ from objects import *
 from grouping import *
 
 import grouping
-print(dir(grouping))
 g = globals().copy()
 anvil.LOG.info('Registered all object classes in anvil.node_types: %s' % [k for k, v in iteritems(g) if
                                                                           inspect.isclass(v)])

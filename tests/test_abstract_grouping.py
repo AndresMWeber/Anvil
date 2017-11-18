@@ -21,8 +21,6 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     def test_meta_data_nomenclate(self):
         test_meta_data = {'blah': 'fart'}
         rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout=None, parent=None)
-        import nomenclate
-        print nomenclate.__file__
         tokens = rig._nomenclate.token_dict.to_json()
         self.assertEquals({k: tokens[k]['label'] for k in tokens if k=='blah'}, test_meta_data)
 
@@ -30,7 +28,7 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     def test_top_node(self):
         test_top_node = nt.Transform.build()
         rig = nt.AbstractGrouping(meta_data=None, top_node=test_top_node, layout=None, parent=None)
-        self.assertEquals(rig.top_node, test_top_node)
+        self.assertEquals(rig.root, test_top_node)
 
     @TestBase.delete_created_nodes
     def test_layout(self):
@@ -43,13 +41,13 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
         test_top_node = nt.Transform.build()
         test_parent_node = nt.Transform.build()
         rig = nt.AbstractGrouping(meta_data=None, top_node=test_top_node, layout=None, parent=test_parent_node)
-        self.assertEquals(rig.top_node.getParent(), test_parent_node)
+        self.assertEquals(rig.root.getParent(), test_parent_node)
 
     @TestBase.delete_created_nodes
     def test_parent_without_top_node(self):
         test_parent_node = nt.Transform.build()
         rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout=None, parent=test_parent_node)
-        self.assertEquals(rig.top_node, None)
+        self.assertEquals(rig.root, None)
 
     @TestBase.delete_created_nodes
     def test_all(self):

@@ -1,8 +1,7 @@
 import yaml
-
 import anvil
 import anvil.config as config
-import anvil.runtime as runtime
+import anvil.runtime as rt
 import transform
 
 
@@ -11,6 +10,10 @@ class Curve(transform.Transform):
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
+    @staticmethod
+    def create_engine_instance(**flags):
+        return rt.dcc.create.create_curve(**flags)
+
     @classmethod
     def build(cls, meta_data=None, shape='cube', **flags):
         if flags.get('point') is None:
@@ -18,15 +21,15 @@ class Curve(transform.Transform):
         instance = super(Curve, cls).build(meta_data=meta_data, **flags)
 
         # Just in case we are using PyMEL and it has returned the actual shape node instead of the transform.
-        if runtime.dcc.scene.get_type(str(instance)) == cls.dcc_type and instance.get_parent():
-            instance._dcc_id = runtime.dcc.scene.get_persistent_id(str(instance.get_parent()))
+        if rt.dcc.scene.get_type(str(instance)) == cls.dcc_type and instance.get_parent():
+            instance._dcc_id = rt.dcc.scene.get_persistent_id(str(instance.get_parent()))
         return instance
 
     @classmethod
     def build_from_objects(cls, objects, meta_data=None, **flags):
-        position_flags = {'query': True, 'position': True, 'worldSpace': True}
-        flags['point'] = [runtime.dcc.scene.position(str(object), **position_flags) for object in objects]
-        instance = cls.build(meta_data=None, **flags)
+        position_flags = {'query': True, 'translation': True, 'worldSpace': True}
+        flags['point'] = [rt.dcc.scene.position(str(object), **position_flags) for object in objects]
+        instance = cls.build(meta_data=meta_data, **flags)
         return instance
 
     @classmethod
@@ -38,7 +41,7 @@ class Curve(transform.Transform):
                     shape_entry.get(key)} or {'point': cls.DEFAULT_SHAPE, 'degree': 1}
 
         shape_constructor = shape_entry.pop('constructor')
-        api_function = getattr(runtime.dcc.ENGINE_API, shape_constructor, None)
+        api_function = getattr(rt.dcc.ENGINE_API, shape_constructor, None)
 
         if callable(api_function):
             anvil.LOG.debug('Obtained shape constructor from yml: %s(%s)' % (api_function, shape_entry))

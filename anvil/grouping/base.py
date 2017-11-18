@@ -15,7 +15,7 @@ class AbstractGrouping(object):
     BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
 
     def __init__(self, layout=None, meta_data=None, parent=None, top_node=None, **flags):
-        self.top_node = top_node
+        self.root = top_node
         self.layout = layout
         self.hierarchy = {}
         self.flags = flags or {}
@@ -26,7 +26,7 @@ class AbstractGrouping(object):
 
     @property
     def is_built(self):
-        return all([self.top_node])
+        return all([self.root])
 
     @staticmethod
     def merge_dicts(*input_dicts):
@@ -49,7 +49,7 @@ class AbstractGrouping(object):
         raise NotImplementedError
 
     def parent(self, new_parent):
-        top_node, new_parent = str(self.top_node), str(new_parent)
+        top_node, new_parent = str(self.root), str(new_parent)
         nodes_exist = [rt.dcc.scene.exists(node) if node != 'None' else False for node in [top_node, new_parent]]
         if all(nodes_exist or [False]):
             self.LOG.debug('Parenting control offset group %s to %s' % (top_node, new_parent))
@@ -111,9 +111,9 @@ class AbstractGrouping(object):
 
     def __str__(self):
         try:
-            if self.top_node is None:
+            if self.root is None:
                 raise KeyError
-            return str(self.top_node)
+            return str(self.root)
         except (KeyError, AttributeError):
             self.LOG.warning('Could not find top node on %r' % self)
             return super(AbstractGrouping, self).__str__()

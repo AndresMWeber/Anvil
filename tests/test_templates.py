@@ -11,25 +11,30 @@ class TestBaseTemplates(TestBase):
 
 
 class TestSpineBuild(TestBaseTemplates):
-    @TestBase.delete_created_nodes
-    def test_build(self):
+    @staticmethod
+    def runner(num_joints=6, spine_flags=None, joint_flags=None):
+        spine_flags = {} if spine_flags is None else spine_flags
+        joint_flags = {} if joint_flags is None else joint_flags
+
         joints = []
-        for i in range(6):
-            joint =nt.Joint.build()
-            rt.dcc.scene.position(joint, translate=True, translation=[0,i,0])
+        for i in range(num_joints):
+            joint = nt.Joint.build(**joint_flags)
+            rt.dcc.scene.position(joint, translation=[0, i, 0])
             joints.append(joint)
 
-        sub_rig_instance = spine.Spine()
-        sub_rig_instance.build(joints, {})
+        sub_rig_instance = spine.Spine(joints)
+        sub_rig_instance.build(**spine_flags)
+        return sub_rig_instance
+
+    @TestBase.delete_created_nodes
+    def test_build(self):
+        self.runner()
 
     @TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        top = nt.Transform.build()
-        joints = []
-        for i in range(6):
-            joint = nt.Joint.build()
-            rt.dcc.scene.position(joint, translate=True, translation=[0, i, 0])
-            joints.append(joint)
-
-        sub_rig_instance = spine.Spine()
-        sub_rig_instance.build(joints, {}, parent=top)
+        parent = nt.Transform.build(name='test')
+        print(parent)
+        sub_rig_instance = self.runner(spine_flags={'parent': parent})
+        print(type(sub_rig_instance.group_top))
+        print(sub_rig_instance.group_top.get_parent())
+        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))

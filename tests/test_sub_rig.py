@@ -28,7 +28,7 @@ class TestSubRigBuild(TestBaseSubRig):
         top_node = nt.Transform.build()
         sub_rig = nt.SubRig(meta_data=None, top_node=top_node, layout=None, parent=None)
         sub_rig.build()
-        self.assertEquals(sub_rig.top_node, top_node)
+        self.assertEquals(sub_rig.root, top_node)
 
     @TestBase.delete_created_nodes
     def test_layout(self):
@@ -41,4 +41,4 @@ class TestSubRigBuild(TestBaseSubRig):
         parent = nt.Transform.build()
         sub_rig = nt.SubRig(meta_data=None, top_node=None, layout=None)
         sub_rig.build(parent=parent)
-        self.assertEquals(sub_rig.top_node.getParent(), parent)
+        self.assertEquals(sub_rig.root.getParent(), parent)

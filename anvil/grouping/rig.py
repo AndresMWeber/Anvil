@@ -34,11 +34,11 @@ class Rig(base.AbstractGrouping):
             if not sub_rig_member.is_built:
                 self.LOG.info('Building sub-rig %s on rig %s' % (sub_rig_member, self))
                 sub_rig_member.build()
-            anvil.runtime.dcc.scene.parent(sub_rig_member.top_node, self.group_sub_rigs)
+            anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
 
     def build(self, meta_data=None, **flags):
         self.LOG.info('Building rig %s' % self)
-        if not self.top_node:
+        if not self.root:
             self.build_node(ot.Transform,
                             'group_top',
                             meta_data=self.merge_dicts(self.meta_data, {'rig': 'rig', 'type': 'group'}),
@@ -57,7 +57,7 @@ class Rig(base.AbstractGrouping):
                             meta_data=self.merge_dicts(self.meta_data,
                                                        {'childtype': main_group_type, 'type': 'group'}))
 
-        self.top_node = self.group_top
+        self.root = self.group_top
         self.LOG.info('Building sub rigs...')
         self.build_sub_rigs()
 

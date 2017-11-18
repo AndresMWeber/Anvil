@@ -5,6 +5,7 @@ import base
 
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = 'control'
+    CREATION_FUNCTION = rt.dcc.create.create_curve
 
     def __init__(self, control=None, offset_group=None, connection_group=None, **flags):
         super(Control, self).__init__(top_node=offset_group or control, **flags)
@@ -24,7 +25,6 @@ class Control(base.AbstractGrouping):
     def build_layout(self):
         if self.flags.get('parent'):
             self.parent(self.flags.get('parent'))
-        print(self, self.control, self.offset_group, self.connection_group)
         rt.dcc.scene.parent(str(self.control), str(self.offset_group))
         rt.dcc.scene.parent(str(self.connection_group), str(self.control))
 
