@@ -21,6 +21,8 @@ class AbstractGrouping(object):
         self.flags = flags or {}
         self.meta_data = self.merge_dicts(self.BUILT_IN_META_DATA, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
+        self.chain_nomenclate = nomenclate.Nom()
+        self.chain_nomenclate.format = 'side_location_nameDecoratorVar_childtype_purpose_type'
         self.parent(parent)
         self.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
 
@@ -58,6 +60,14 @@ class AbstractGrouping(object):
         else:
             self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, top_node))
             return False
+
+    def rename_chain(self, objects, **name_tokens):
+        self.LOG.debug('Renaming %r...' % (self))
+        self.chain_nomenclate.merge_dict(self.merge_dicts(self.meta_data, name_tokens))
+
+        for index, object in enumerate(objects):
+            variation_kwargs = {'var': index} if index != len(objects) - 1 else {'decorator': 'End'}
+            rt.dcc.scene.rename(str(object), self.chain_nomenclate.get(**variation_kwargs))
 
     def rename(self, *input_dicts, **name_tokens):
         self.LOG.debug('Renaming %r...' % (self))

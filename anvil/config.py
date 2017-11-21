@@ -2,6 +2,7 @@ import os
 import anvil
 
 MODEL_TYPE = 'model'
+TRANSFORM_TYPE = 'transform'
 JOINT_TYPE = 'joint'
 CONTROL_TYPE = 'control'
 HIERARCHY_TYPE = 'hierarchy'

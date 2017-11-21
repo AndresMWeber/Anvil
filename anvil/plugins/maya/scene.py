@@ -18,7 +18,7 @@ def get_type(node, **kwargs):
 
 
 def is_exact_type(node, typename):
-    return type(node) == typename
+    return get_type(node) == typename
 
 
 @api_proxy.APIProxy._validate_function({"type": ["object", "null"],
@@ -31,7 +31,7 @@ def is_exact_type(node, typename):
                                         },
                                        API,
                                        'nodeType')
-def is_type(node, apiType="", **kwargs):
+def node_type(node, apiType="", **kwargs):
     pass
 
 
@@ -242,6 +242,10 @@ def delete(*node_dags, **flags):
                                        'xform')
 def position(*node_dags, **flags):
     pass
+
+
+def is_types(node, types):
+    return any([get_type(node) == object_type for object_type in types])
 
 
 def safe_delete(node_or_nodes):

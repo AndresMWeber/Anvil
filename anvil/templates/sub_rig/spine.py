@@ -18,7 +18,8 @@ class Spine(SubRigTemplate):
         # Build Spine Curve
         spine_curve = nt.Curve.build_from_objects(self.layout_joints,
                                                   parent=self.group_nodes,
-                                                  meta_data=self.merge_dicts(self.meta_data, {'name': 'spine'}))
+                                                  meta_data=self.merge_dicts(self.meta_data, {'name': 'spine'}),
+                                                  degree=3)
         self.register_node('curve_spine', spine_curve)
 
         #self.build_node(nt.Joint, 'joint_eye', parent=self.group_joints, meta_data=self.meta_data)

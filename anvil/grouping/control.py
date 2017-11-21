@@ -5,7 +5,6 @@ import base
 
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = 'control'
-    CREATION_FUNCTION = rt.dcc.create.create_curve
 
     def __init__(self, control=None, offset_group=None, connection_group=None, **flags):
         super(Control, self).__init__(top_node=offset_group or control, **flags)
@@ -30,4 +29,3 @@ class Control(base.AbstractGrouping):
 
     def colorize(self, color_id=None, color_tuple=None):
         self.control.colorize(color_tuple or color_id)
-

@@ -1,6 +1,8 @@
 import base
 import anvil.log as lg
 import anvil.objects as ot
+import anvil.runtime as rt
+from control import Control
 
 
 class SubRig(base.AbstractGrouping):
@@ -29,3 +31,16 @@ class SubRig(base.AbstractGrouping):
         self.group_world.inheritsTransform.set(False)
         self.parent(parent)
         return self
+
+    def build_pole_vector_control(self, reference_transforms, meta_data=None, **flags):
+        """ Point constraint to the two base positions, aim constrain to the other objects
+            Delete constraints then move the control outside of the reference transforms in the aim direction.
+        """
+        control = Control.build(meta_data=meta_data, **flags)
+        aim_constraint = rt.dcc.constrain.aim(reference_transforms[1:-1],
+                                              str(control),
+                                              maintain_offset=False,
+                                              upObject=str(reference_transforms[0]))
+        point_constraint = rt.dcc.constrain.position([reference_transforms[0], reference_transforms[-1]],
+                                                     str(control),
+                                                     maintain_offset=False)
