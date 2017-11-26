@@ -22,23 +22,27 @@ class BipedArm(SubRigTemplate):
         # Build Spine Curve
         spine_curve = nt.Curve.build_from_objects(self.layout_joints,
                                                   parent=self.group_nodes,
-                                                  meta_data=self.merge_dicts(self.meta_data, {'name': 'spine'}),
+                                                  meta_data=self.merge_dicts(self.meta_data,
+                                                                             {'name': 'spine', 'type': 'curve'}),
                                                   degree=3)
         self.register_node('curve_spine', spine_curve)
 
         for chain_type in ['ik', 'fk']:
             chain = rt.dcc.scene.duplicate(self.layout_joints)
             setattr(self, '%s_chain' % chain_type, chain)
-            chain_hierarchy = nt.HierarchyChain(chain[0], node_filter='joint')
 
-            ik_handle, effector = rt.dcc.rigging.ik_handle(chain_hierarchy[0],
+            ik_handle, effector = rt.dcc.rigging.ik_handle(chain[0],
                                                            endEffector=str(chain[-1]),
                                                            curve=str(spine_curve),
                                                            createCurve=False,
                                                            solver='ikRPsolver')
-
-            self.register_node(chain_type + '_solver', nt.DagNode(ik_handle))
-            self.register_node(chain_type + '_effector', nt.DagNode(effector))
+            self.register_node(chain_type + '_handle', nt.Transform(str(ik_handle), meta_data={'name': chain_type,
+                                                                                             'type': 'ik_handle'}))
+            self.register_node(chain_type + '_effector', nt.Transform(str(effector), meta_data={'name': chain_type,
+                                                                                              'type': 'effector'}))
+            getattr(self, '%s_handle' % chain_type).parent(self.group_nodes)
+            print(chain, self.group_joints)
+            rt.dcc.scene.parent(chain, self.group_joints)
 
         # self.build_node(nt.Joint, 'joint_eye', parent=self.group_joints, meta_data=self.meta_data)
         # self.build_node(nt.Control, 'control_eye', parent=self.group_controls, meta_data=self.meta_data,
@@ -50,6 +54,9 @@ class BipedArm(SubRigTemplate):
 
     def rename(self, *input_dicts, **name_tokens):
         super(BipedArm, self).rename()
-        meta_data = {'name': 'ikSolver', 'type': 'ik_handle'}
-        self.rename_chain(self.ik_chain, purpose='ik', **meta_data)
-        self.rename_chain(self.fk_chain, purpose='fk', **meta_data)
+        meta_data = {'type': 'joint'}
+        print(self.ik_chain, self.fk_chain)
+        ik_chain_hierarchy = nt.HierarchyChain(self.ik_chain[0], node_filter='joint')
+        self.rename_chain(ik_chain_hierarchy, purpose='ik', **meta_data)
+        fk_chain_hierarchy = nt.HierarchyChain(self.fk_chain[0], node_filter='joint')
+        self.rename_chain(fk_chain_hierarchy, purpose='fk', **meta_data)

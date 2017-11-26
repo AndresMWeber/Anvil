@@ -4,6 +4,7 @@ import anvil.node_types as nt
 import anvil.templates.sub_rig.spine as spine
 import anvil.templates.sub_rig.biped_arm as biped_arm
 from base_test import TestBase
+from pprint import pprint
 
 
 class TestBaseTemplates(TestBase):
@@ -47,9 +48,12 @@ class TestBipedArmBuild(TestBaseTemplates):
     @TestBase.delete_created_nodes
     def test_build(self):
         self.runner()
+        pprint(anvil.runtime.dcc.scene.get_scene_tree())
+
 
     @TestBase.delete_created_nodes
     def test_build_with_parent(self):
         parent = nt.Transform.build(name='test')
         sub_rig_instance = self.runner(template_flags={'parent': parent})
         self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        pprint(anvil.runtime.dcc.scene.get_scene_tree())

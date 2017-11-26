@@ -76,9 +76,6 @@ class HierarchyChain(object):
             return level
         return max(self.depth(d[k], level + 1) for k in d)
 
-    def __str__(self):
-        return self.top_node
-
     @verify_chain_integrity
     def __iter__(self):
         """ This is setup to only iterate on the nodes in between the top node and the end node
@@ -101,17 +98,17 @@ class HierarchyChain(object):
         if isinstance(key, int):
             return [str(n) for n in ts.flatten(self.get_hierarchy())][key]
         else:
-            def gen_matches(key, dictionary, _path=None, full_path=False):
-                if _path is None:
-                    _path = []
+            def gen_matches(key, dictionary):
                 for k, v in iteritems(dictionary):
-                    _path.append(k)
                     if k == key:
-                        yield (_path, v) if full_path else {k: v}
+                        return {k: v}
                     elif isinstance(v, dict):
-                        for result in gen_matches(key, v, _path):
-                            yield result
-            try:
-                return [m for m in gen_matches(key, self.get_hierarchy())][0]
-            except IndexError:
-                raise IndexError('Key %s does not exist in hierarchy.' % key)
+                        return gen_matches(key, v)
+
+            return gen_matches(key, self.get_hierarchy())
+
+    def __len__(self):
+        return len(list(iter(self)))
+
+    def __str__(self):
+        return self.top_node
