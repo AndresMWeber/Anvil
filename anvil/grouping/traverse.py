@@ -2,6 +2,7 @@ from functools import wraps
 from six import iteritems
 import anvil.runtime as rt
 import anvil
+import nomenclate.core.tools as ts
 
 
 def verify_chain_integrity(function):
@@ -15,19 +16,34 @@ def verify_chain_integrity(function):
 
 
 class HierarchyChain(object):
-    def __init__(self, top_node, node_filter=None):
+    def __init__(self, top_node, end_node=None, node_filter=None):
         self.top_node = anvil.factory(top_node)
         self.node_filter = self._default_filter(node_filter=node_filter)
-        self.end_node = anvil.factory(self.get_end())
+        self.end_node = anvil.factory(end_node or self.get_end())
 
     @verify_chain_integrity
-    def verify_chain(self):
+    def __iter__(self):
+        """ This is setup to only iterate on the nodes in between the top node and the end node
+            ignores branching paths
+        """
         current_node = self.end_node
+        chain_path = [current_node]
         while current_node.get_parent():
+            current_node = anvil.factory(current_node.get_parent())
+            chain_path.insert(0, current_node)
             if current_node == self.top_node:
-                return True
-            current_node = current_node.get_parent()
+                return chain_path
+
         raise IndexError('Could not find %s in parent hierarchy of last node %s' % (self.top_node, self.end_node))
+
+    def __contains__(self, item):
+        return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return [str(n) for n in ts.flatten(self.get_hierarchy())][key]
+        else:
+            return ts.gen_dict_key_matches(key, self.get_hierarchy())
 
     @verify_chain_integrity
     def get_end(self, node_filter=None):
@@ -83,6 +99,15 @@ class HierarchyChain(object):
         if not isinstance(d, dict) or not d:
             return level
         return max(self.depth(d[k], level + 1) for k in d)
+
+    def __delitem__(self, key):
+        self.__delattr__(key)
+
+    def __getitem__(self, key):
+        return self.__getattribute__(key)
+
+    def __setitem__(self, key, value):
+        self.__setattr__(key, value)
 
     def __str__(self):
         return self.top_node

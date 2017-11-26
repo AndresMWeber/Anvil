@@ -29,7 +29,9 @@ class BipedArm(SubRigTemplate):
         for chain_type in ['ik', 'fk']:
             chain = rt.dcc.scene.duplicate(self.layout_joints)
             setattr(self, '%s_chain' % chain_type, chain)
-            ik_handle, effector = rt.dcc.rigging.ik_handle(str(chain[0]),
+            chain_hierarchy = nt.HierarchyChain(chain[0], node_filter='joint')
+
+            ik_handle, effector = rt.dcc.rigging.ik_handle(chain_hierarchy[0],
                                                            endEffector=str(chain[-1]),
                                                            curve=str(spine_curve),
                                                            createCurve=False,
