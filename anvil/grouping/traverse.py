@@ -22,30 +22,6 @@ class HierarchyChain(object):
         self.end_node = anvil.factory(end_node or self.get_end())
 
     @verify_chain_integrity
-    def __iter__(self):
-        """ This is setup to only iterate on the nodes in between the top node and the end node
-            ignores branching paths
-        """
-        current_node = self.end_node
-        chain_path = [current_node]
-        while current_node.get_parent():
-            current_node = anvil.factory(current_node.get_parent())
-            chain_path.insert(0, current_node)
-            if current_node == self.top_node:
-                return chain_path
-
-        raise IndexError('Could not find %s in parent hierarchy of last node %s' % (self.top_node, self.end_node))
-
-    def __contains__(self, item):
-        return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
-
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            return [str(n) for n in ts.flatten(self.get_hierarchy())][key]
-        else:
-            return ts.gen_dict_key_matches(key, self.get_hierarchy())
-
-    @verify_chain_integrity
     def get_end(self, node_filter=None):
         """ Returns the last item found of type
         """
@@ -100,14 +76,42 @@ class HierarchyChain(object):
             return level
         return max(self.depth(d[k], level + 1) for k in d)
 
-    def __delitem__(self, key):
-        self.__delattr__(key)
-
-    def __getitem__(self, key):
-        return self.__getattribute__(key)
-
-    def __setitem__(self, key, value):
-        self.__setattr__(key, value)
-
     def __str__(self):
         return self.top_node
+
+    @verify_chain_integrity
+    def __iter__(self):
+        """ This is setup to only iterate on the nodes in between the top node and the end node
+            ignores branching paths
+        """
+        current_node = self.end_node
+        chain_path = [current_node]
+        while current_node.get_parent():
+            current_node = anvil.factory(current_node.get_parent())
+            chain_path.insert(0, current_node)
+            if current_node == self.top_node:
+                return iter(chain_path)
+
+        raise IndexError('Could not find %s in parent hierarchy of last node %s' % (self.top_node, self.end_node))
+
+    def __contains__(self, item):
+        return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return [str(n) for n in ts.flatten(self.get_hierarchy())][key]
+        else:
+            def gen_matches(key, dictionary, _path=None, full_path=False):
+                if _path is None:
+                    _path = []
+                for k, v in iteritems(dictionary):
+                    _path.append(k)
+                    if k == key:
+                        yield (_path, v) if full_path else {k: v}
+                    elif isinstance(v, dict):
+                        for result in gen_matches(key, v, _path):
+                            yield result
+            try:
+                return [m for m in gen_matches(key, self.get_hierarchy())][0]
+            except IndexError:
+                raise IndexError('Key %s does not exist in hierarchy.' % key)
