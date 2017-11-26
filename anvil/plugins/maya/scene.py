@@ -150,7 +150,7 @@ def duplicate(parent_only=True, *node_dags, **flags):
                                             "parent": api_proxy.APIProxy.BOOLEAN_TYPE,
                                             "path": api_proxy.APIProxy.BOOLEAN_TYPE,
                                             "shapes": api_proxy.APIProxy.BOOLEAN_TYPE,
-                                            "type": {"type": "string"},
+                                            "type": api_proxy.APIProxy.STR_OR_STR_LIST_TYPE,
                                         },
                                         },
                                        API,
@@ -304,6 +304,27 @@ def get_scene_tree():
         return tree
 
     return recurse_scene_nodes(top_level_transforms)
+
+
+def node_hierarchy_as_dict(nodes, tree=None, node_filter=None):
+    if not isinstance(nodes, list):
+        nodes = [nodes]
+
+    if tree is None:
+        tree = {tree_child: dict() for tree_child in nodes}
+
+    elif not tree:
+        for tree_child in nodes:
+            tree[tree_child] = dict()
+
+    for tree_child in nodes:
+        relative_tree = tree[tree_child]
+        node_filter_kwargs = {'type': node_filter} if node_filter else {}
+        children = list_relatives(tree_child, fullPath=True, children=True, **node_filter_kwargs) or []
+        if children:
+            node_hierarchy_as_dict(children, relative_tree, node_filter=node_filter)
+
+    return tree
 
 
 def get_persistent_id(node_unicode_proxy):

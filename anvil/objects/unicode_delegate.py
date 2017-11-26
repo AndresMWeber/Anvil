@@ -1,7 +1,6 @@
 from six import iteritems
-
 import anvil
-import anvil.runtime as runtime
+import anvil.runtime as rt
 
 
 class UnicodeDelegate(object):
@@ -16,7 +15,7 @@ class UnicodeDelegate(object):
         :param meta_data: dict, any object specific meta data we want to record
         """
         anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
-        self._dcc_id = runtime.dcc.scene.get_persistent_id(str(node_pointer))
+        self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
         self._api_class_instance = None
 
         self.flags = flags or {}
@@ -26,7 +25,7 @@ class UnicodeDelegate(object):
 
     @staticmethod
     def create_engine_instance(**flags):
-        return runtime.dcc.create.create_node('transform', **flags)
+        return rt.dcc.create.create_node('transform', **flags)
 
     @classmethod
     def build(cls, meta_data=None, **flags):

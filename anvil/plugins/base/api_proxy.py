@@ -7,11 +7,13 @@ class APIProxy(object):
     LOG = anvil.log.obtainLogger(__name__)
     API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
     CURRENT_API = None
+
     BOOLEAN_TYPE = {"type": "boolean"}
     FLOAT_TYPE = {"type": "number"}
     INT_TYPE = {"type": "integer"}
-    STR_TYPE = {"type": "integer"}
+    STR_TYPE = {"type": "string"}
 
+    STR_LIST_TYPE = {"type": "array", "items": STR_TYPE}
     POSITION_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}
     POSITION_LIST = {"type": "array", "items": POSITION_TYPE}
     POSITION_WEIGHT_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4}
@@ -19,7 +21,7 @@ class APIProxy(object):
     MATRIX_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 16, "maxItems": 16}
     QUERYABLE_MATRIX = {"anyOf": [MATRIX_TYPE, BOOLEAN_TYPE]}
     LINEAR_ANGLE_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
-
+    STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
 
     @classmethod
     def _validate_function(cls, schema, api, function_name):
