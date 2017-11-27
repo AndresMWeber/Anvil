@@ -28,29 +28,34 @@ class BipedArm(SubRigTemplate):
         self.register_node('curve_spine', spine_curve)
 
         for chain_type in ['ik', 'fk']:
-            chain = rt.dcc.scene.duplicate(self.layout_joints)
+            meta_data = {'name': chain_type}
+            chain = nt.HierarchyChain(rt.dcc.scene.duplicate(self.layout_joints, renameChildren=True)[0])
             setattr(self, '%s_chain' % chain_type, chain)
+            print(chain, list(chain), chain[0], chain[-1], list(chain)[-1])
+            print(rt.dcc.scene.get_scene_tree())
+            ik_handle_kwargs = {'endEffector': str(chain[-1]),
+                                'curve': str(spine_curve),
+                                'createCurve': False,
+                                'solver': 'ikRPsolver'}
 
-            ik_handle, effector = rt.dcc.rigging.ik_handle(chain[0],
-                                                           endEffector=str(chain[-1]),
-                                                           curve=str(spine_curve),
-                                                           createCurve=False,
-                                                           solver='ikRPsolver')
-            self.register_node(chain_type + '_handle', nt.Transform(str(ik_handle), meta_data={'name': chain_type,
-                                                                                             'type': 'ik_handle'}))
-            self.register_node(chain_type + '_effector', nt.Transform(str(effector), meta_data={'name': chain_type,
-                                                                                              'type': 'effector'}))
-            getattr(self, '%s_handle' % chain_type).parent(self.group_nodes)
-            print(chain, self.group_joints)
-            rt.dcc.scene.parent(chain, self.group_joints)
+            for ik_part, label in zip(rt.dcc.rigging.ik_handle(chain[0], **ik_handle_kwargs), ['handle', 'effector']):
+                meta_data.update({'type': chain_type + label})
+                node = self.register_node('%s_%s' % (chain_type, label),
+                                          nt.Transform(str(ik_part),
+                                                       meta_data=self.merge_dicts(self.meta_data, meta_data)))
+                if label == 'handle':
+                    node.parent(self.group_nodes)
 
-        # self.build_node(nt.Joint, 'joint_eye', parent=self.group_joints, meta_data=self.meta_data)
-        # self.build_node(nt.Control, 'control_eye', parent=self.group_controls, meta_data=self.meta_data,
-        #                shape='sphere')
+                print(chain, self.group_joints)
+                rt.dcc.scene.parent(chain, self.group_joints)
 
-        # rt.dcc.constrain.parent(self.joint_eye, self.control_eye.connection_group)
-        self.rename()
-        self.LOG.info('Built sub rig %s' % self.__class__.__name__)
+                # self.build_node(nt.Joint, 'joint_eye', parent=self.group_joints, meta_data=self.meta_data)
+                # self.build_node(nt.Control, 'control_eye', parent=self.group_controls, meta_data=self.meta_data,
+                #                shape='sphere')
+
+                # rt.dcc.constrain.parent(self.joint_eye, self.control_eye.connection_group)
+                self.rename()
+                self.LOG.info('Built sub rig %s' % self.__class__.__name__)
 
     def rename(self, *input_dicts, **name_tokens):
         super(BipedArm, self).rename()

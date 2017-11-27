@@ -14,19 +14,22 @@ class TestBaseTemplates(TestBase):
 
     @classmethod
     def runner(cls, num_joints=6, template_flags=None, joint_flags=None):
-        template_flags = {} if template_flags is None else template_flags
-        joint_flags = {} if joint_flags is None else joint_flags
+        try:
+            template_flags = {} if template_flags is None else template_flags
+            joint_flags = {} if joint_flags is None else joint_flags
 
-        joints = []
-        for i in range(num_joints):
-            joint = nt.Joint.build(**joint_flags)
-            rt.dcc.scene.position(joint, translation=[0, i, 0])
-            joints.append(joint)
+            joints = []
+            for i in range(num_joints):
+                joint = nt.Joint.build(**joint_flags)
+                rt.dcc.scene.position(joint, translation=[0, i, 0])
+                joints.append(joint)
 
-        sub_rig_instance = cls.TEMPLATE_CLASS(joints)
-        sub_rig_instance.build(**template_flags)
-        return sub_rig_instance
-
+            sub_rig_instance = cls.TEMPLATE_CLASS(joints)
+            sub_rig_instance.build(**template_flags)
+            pprint(anvil.runtime.dcc.scene.get_scene_tree())
+            return sub_rig_instance
+        except:
+            pprint(anvil.runtime.dcc.scene.get_scene_tree())
 
 class TestSpineBuild(TestBaseTemplates):
     TEMPLATE_CLASS = spine.Spine
@@ -48,12 +51,9 @@ class TestBipedArmBuild(TestBaseTemplates):
     @TestBase.delete_created_nodes
     def test_build(self):
         self.runner()
-        pprint(anvil.runtime.dcc.scene.get_scene_tree())
-
 
     @TestBase.delete_created_nodes
     def test_build_with_parent(self):
         parent = nt.Transform.build(name='test')
         sub_rig_instance = self.runner(template_flags={'parent': parent})
         self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
-        pprint(anvil.runtime.dcc.scene.get_scene_tree())

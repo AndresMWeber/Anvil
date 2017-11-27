@@ -19,29 +19,34 @@ class HierarchyChain(object):
     def __init__(self, top_node, end_node=None, node_filter=None):
         self.top_node = anvil.factory(top_node)
         self.node_filter = self._default_filter(node_filter=node_filter)
-        self.end_node = anvil.factory(end_node or self.get_end())
+        self.end_node = end_node
+        self.set_end()
 
     @verify_chain_integrity
-    def get_end(self, node_filter=None):
+    def set_end(self, end_node=None, node_filter=None):
         """ Returns the last item found of type
         """
         node_filter = node_filter or self.node_filter
-        depth = self.depth(d=self.get_hierarchy(node_filter=node_filter)) - 1
-        last_node = self.get_level(depth, node_filter=node_filter)
-        if last_node:
-            return anvil.factory(list(last_node)[0])
-        else:
-            raise ValueError('Could not find last node at depth %d' % depth)
+        try:
+            self.end_node = anvil.factory(end_node)
+        except RuntimeError:
+            last_node = self.get_level(self.depth(), node_filter=node_filter)
+            if last_node:
+                self.end_node = anvil.factory(list(last_node)[0])
+            else:
+                raise ValueError('Could not find last node at depth %d' % self.depth())
 
     @verify_chain_integrity
     def get_hierarchy(self, node_filter=None):
         node_filter = node_filter or self.node_filter
         return rt.dcc.scene.node_hierarchy_as_dict(str(self.top_node), node_filter=node_filter)
 
+    def get_hierarchy_as_list(self, node_filter=None):
+        return self._flatten_dict_keys(self.get_hierarchy(node_filter=node_filter))
+
     def _default_filter(self, node_filter=None):
         return rt.dcc.scene.get_type(self.top_node) if node_filter is None else node_filter
 
-    @verify_chain_integrity
     def get_level(self, desired_level, traversal=None, level_tree=None, node_filter=None):
         """ Returns a dictionary at depth "desired_level" from the hierarchy.
             Returns {} if nothing is found at that depth.
@@ -64,8 +69,11 @@ class HierarchyChain(object):
 
         return level_tree
 
-    @verify_chain_integrity
-    def depth(self, d=None, level=0, node_filter=None):
+    def depth(self, node_filter=None):
+        node_filter = node_filter or self.node_filter
+        return self._dict_depth(d=self.get_hierarchy(node_filter=node_filter)) - 1
+
+    def _dict_depth(self, d=None, level=0, node_filter=None):
         """ Returns maximum depth of the hierarchy
         """
         node_filter = node_filter or self.node_filter
@@ -74,7 +82,17 @@ class HierarchyChain(object):
 
         if not isinstance(d, dict) or not d:
             return level
-        return max(self.depth(d[k], level + 1) for k in d)
+        return max(self._dict_depth(d[k], level + 1) for k in d)
+
+    def _flatten_dict_keys(self, d, keys=None):
+        keys = keys if keys is not None else []
+        if isinstance(d, dict):
+            for k, v in iteritems(d):
+                keys.append(k)
+                self._flatten_dict_keys(v, keys)
+        else:
+            keys.append(d)
+        return keys
 
     @verify_chain_integrity
     def __iter__(self):
@@ -96,7 +114,7 @@ class HierarchyChain(object):
 
     def __getitem__(self, key):
         if isinstance(key, int):
-            return [str(n) for n in ts.flatten(self.get_hierarchy())][key]
+            return list(self)[key]
         else:
             def gen_matches(key, dictionary):
                 for k, v in iteritems(dictionary):
