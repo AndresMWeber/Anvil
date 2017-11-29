@@ -3,7 +3,7 @@ import anvil.runtime as rt
 from base_test import TestBase
 from pprint import pprint
 import anvil.config as cfg
-import nomenclate.core.tools as ts
+
 
 class TestBaseHierarchyChain(TestBase):
     joints = None
@@ -73,3 +73,64 @@ class TestHierarchyChainGetHierarchy(TestBaseHierarchyChain):
     def test_with_filter(self):
         chain = nt.HierarchyChain(self.joints_mixed[0], node_filter=[cfg.JOINT_TYPE, cfg.TRANSFORM_TYPE])
         self.assertEqual(chain.get_hierarchy_as_list(), self.joints_total)
+
+
+class TestHierarchyChainIteration(TestBaseHierarchyChain):
+    @TestBase.delete_created_nodes
+    def test_first_member(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        self.assertEqual(chain[0], self.joints[0])
+
+    @TestBase.delete_created_nodes
+    def test_negative_indexing(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        self.assertEqual(chain[-1], self.joints[-1])
+
+    @TestBase.delete_created_nodes
+    def test_invalid_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        with self.assertRaises(IndexError):
+            chain[40]
+            # self.assertRaises(IndexError, chain[40])
+
+    @TestBase.delete_created_nodes
+    def test_all_members(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        for chain_joint, joint in zip(chain, self.joints):
+            self.assertEqual(chain_joint, joint)
+
+
+class TestHierarchyChainDepth(TestBaseHierarchyChain):
+    @TestBase.delete_created_nodes
+    def test_joints_only(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        self.assertEqual(chain.depth(), len(self.joints) - 1)
+
+    @TestBase.delete_created_nodes
+    def test_joints_mixed(self):
+        chain = nt.HierarchyChain(self.joints_mixed[0])
+        self.assertEqual(chain.depth(), len(self.joints) - 1)
+
+    @TestBase.delete_created_nodes
+    def test_with_filter(self):
+        chain = nt.HierarchyChain(self.joints_mixed[0], node_filter=[cfg.JOINT_TYPE, cfg.TRANSFORM_TYPE])
+        self.assertEqual(chain.depth(), len(self.joints_total) - 1)
+
+
+class TestHierarchyGetLevel(TestBaseHierarchyChain):
+    @TestBase.delete_created_nodes
+    def test_joints_only(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        self.assertEqual(chain.get_level(4), nt.HierarchyChain(self.joints[4]).get_hierarchy())
+
+    @TestBase.delete_created_nodes
+    def test_joints_mixed(self):
+        chain = nt.HierarchyChain(self.joints_mixed[0])
+        self.assertEqual(chain.get_level(4), nt.HierarchyChain(self.joints_mixed[4]).get_hierarchy())
+
+    @TestBase.delete_created_nodes
+    def test_with_filter(self):
+        filter = [cfg.JOINT_TYPE, cfg.TRANSFORM_TYPE]
+        chain = nt.HierarchyChain(self.joints_total[0], node_filter=filter)
+        self.assertDictEqual(chain.get_level(8),
+                             nt.HierarchyChain(self.joints_total[8], node_filter=filter).get_hierarchy())

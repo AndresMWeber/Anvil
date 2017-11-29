@@ -1,3 +1,4 @@
+from six import iteritems
 import config
 import log
 import version
@@ -14,8 +15,22 @@ import node_types
 LOG.info('Anvil environment has been set to %s' % config.ENV)
 LOG.info('Successfully initiated Anvil %s.' % version.__version__)
 
+EXISTING_ENCAPSULATIONS = {}
+
+
+def check_for_encapsulation(dag_path):
+    for node_index, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
+        if dag_path == node_encapsulation._dcc_id:
+            return node_encapsulation
+    else:
+        return None
+
 
 def factory(dag_path):
+    existing = check_for_encapsulation(runtime.dcc.scene.get_persistent_id(str(dag_path)))
+    if existing is not None:
+        return existing
+
     node_type = runtime.dcc.scene.get_type(dag_path)
 
     if node_type in config.DCC_TYPES[config.TRANSFORM_TYPE]:
@@ -29,8 +44,9 @@ def factory(dag_path):
 
     else:
         encapsulation_class = objects.DagNode
-
-    return encapsulation_class(dag_path)
+    encapsulation = encapsulation_class(dag_path)
+    EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = encapsulation
+    return encapsulation
 
 
 __all__ = ['config',

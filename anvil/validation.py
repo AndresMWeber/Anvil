@@ -42,6 +42,9 @@ def verify_class_method_inputs(filterers=None, validators=None):
         def wrapper(self, *args, **kwargs):
             check_inputs = []
             for function_input in list(args) + [v for k, v in iteritems(kwargs)]:
+                if isinstance(function_input, dict):
+                    break
+
                 for filterer in filterers:
                     if filterer(function_input):
                         check_inputs.append(function_input)
@@ -61,6 +64,7 @@ def verify_class_method_inputs(filterers=None, validators=None):
 def filter_list_type(query_input, chain_type):
     if not isinstance(query_input, list):
         query_input = [query_input]
+    print query_input
     return all([rt.dcc.scene.is_types(node, [chain_type]) for node in query_input])
 
 

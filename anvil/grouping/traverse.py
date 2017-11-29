@@ -8,7 +8,7 @@ import nomenclate.core.tools as ts
 def verify_chain_integrity(function):
     @wraps(function)
     def wrapper(self, *args, **kwargs):
-        if not rt.dcc.scene.exists(self.top_node):
+        if not rt.dcc.scene.exists(self.root):
             raise MemoryError('Reference %s to top node does not exist anymore...' % self.top_node)
         return function(self, *args, **kwargs)
 
@@ -17,9 +17,9 @@ def verify_chain_integrity(function):
 
 class HierarchyChain(object):
     def __init__(self, top_node, end_node=None, node_filter=None):
-        self.top_node = anvil.factory(top_node)
+        self.root = anvil.factory(top_node)
         self.node_filter = self._default_filter(node_filter=node_filter)
-        self.end_node = end_node
+        self.end = end_node
         self.set_end()
 
     @verify_chain_integrity
@@ -28,24 +28,24 @@ class HierarchyChain(object):
         """
         node_filter = node_filter or self.node_filter
         try:
-            self.end_node = anvil.factory(end_node)
+            self.end = anvil.factory(end_node)
         except RuntimeError:
             last_node = self.get_level(self.depth(), node_filter=node_filter)
             if last_node:
-                self.end_node = anvil.factory(list(last_node)[0])
+                self.end = anvil.factory(list(last_node)[0])
             else:
                 raise ValueError('Could not find last node at depth %d' % self.depth())
 
     @verify_chain_integrity
     def get_hierarchy(self, node_filter=None):
         node_filter = node_filter or self.node_filter
-        return rt.dcc.scene.node_hierarchy_as_dict(str(self.top_node), node_filter=node_filter)
+        return rt.dcc.scene.node_hierarchy_as_dict(self.root, node_filter=node_filter)
 
     def get_hierarchy_as_list(self, node_filter=None):
         return self._flatten_dict_keys(self.get_hierarchy(node_filter=node_filter))
 
     def _default_filter(self, node_filter=None):
-        return rt.dcc.scene.get_type(self.top_node) if node_filter is None else node_filter
+        return rt.dcc.scene.get_type(self.root) if node_filter is None else node_filter
 
     def get_level(self, desired_level, traversal=None, level_tree=None, node_filter=None):
         """ Returns a dictionary at depth "desired_level" from the hierarchy.
@@ -99,15 +99,15 @@ class HierarchyChain(object):
         """ This is setup to only iterate on the nodes in between the top node and the end node
             ignores branching paths
         """
-        current_node = self.end_node
+        current_node = self.end
         chain_path = [current_node]
         while current_node.get_parent():
             current_node = anvil.factory(current_node.get_parent())
             chain_path.insert(0, current_node)
-            if current_node == self.top_node:
+            if current_node == self.root:
                 return iter(chain_path)
 
-        raise IndexError('Could not find %s in parent hierarchy of last node %s' % (self.top_node, self.end_node))
+        raise IndexError('Could not find %s in parent hierarchy of last node %s' % (self.root, self.end))
 
     def __contains__(self, item):
         return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
@@ -129,4 +129,4 @@ class HierarchyChain(object):
         return len(list(iter(self)))
 
     def __str__(self):
-        return self.top_node
+        return self.root

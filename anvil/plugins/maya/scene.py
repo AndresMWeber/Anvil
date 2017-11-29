@@ -1,4 +1,5 @@
 from anvil.plugins.maya.dependencies import *
+import anvil
 import anvil.plugins.base.api_proxy as api_proxy
 
 
@@ -173,7 +174,7 @@ def list_relatives(node_dag, **flags):
                                         },
                                        API,
                                        'parent')
-def parent(node_dags, new_parent_dag, **flags):
+def parent(node_dags, new_parent_dag=None, **flags):
     pass
 
 
@@ -311,14 +312,16 @@ def node_hierarchy_as_dict(nodes, tree=None, node_filter=None):
         nodes = [nodes]
 
     if tree is None:
-        tree = {tree_child: dict() for tree_child in nodes}
-
-    elif not tree:
-        for tree_child in nodes:
-            tree[tree_child] = dict()
+        tree = dict()
 
     for tree_child in nodes:
-        relative_tree = tree[tree_child]
+        anvil_node = anvil.factory(tree_child)
+        try:
+            relative_tree = tree[anvil_node]
+        except KeyError:
+            tree[anvil_node] = dict()
+            relative_tree = tree[anvil_node]
+
         node_filter_kwargs = {'type': node_filter} if node_filter else {}
         children = list_relatives(tree_child, fullPath=True, children=True, **node_filter_kwargs) or []
         if children:
