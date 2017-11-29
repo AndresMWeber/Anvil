@@ -26,6 +26,12 @@ class HierarchyChain(object):
         self.end = end_node
         self.set_end()
 
+    @property
+    def mid(self):
+        """ Should only be used with non-branching chains as it will create false positives.
+        """
+        return self.get_hierarchy_as_list()[self.depth() / 2]
+
     @verify_chain_integrity
     def set_end(self, end_node=None, node_filter=None):
         """ Returns the last item found of type
