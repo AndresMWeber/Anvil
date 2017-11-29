@@ -16,8 +16,12 @@ def verify_chain_integrity(function):
 
 
 class HierarchyChain(object):
-    def __init__(self, top_node, end_node=None, node_filter=None):
-        self.root = anvil.factory(top_node)
+    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None):
+        if duplicate:
+            duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False}
+            top_node = rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)
+
+        self.root = anvil.factory(top_node[0]) if isinstance(top_node, list) else anvil.factory(top_node)
         self.node_filter = self._default_filter(node_filter=node_filter)
         self.end = end_node
         self.set_end()
@@ -72,6 +76,22 @@ class HierarchyChain(object):
     def depth(self, node_filter=None):
         node_filter = node_filter or self.node_filter
         return self._dict_depth(d=self.get_hierarchy(node_filter=node_filter)) - 1
+
+    def build_ik(self, chain_start=None, chain_end=None, **kwargs):
+        chain_start = chain_start if chain_start is not None else self.root
+        chain_end = chain_end if chain_end is not None else self.end
+        kwargs.update({'endEffector': str(chain_end), 'solver': 'ikRPsolver'})
+        handle, effector = rt.dcc.rigging.ik_handle(str(chain_start), **kwargs)
+        return (anvil.factory(handle), anvil.factory(effector))
+
+    def parent(self, new_parent):
+        top_node, new_parent = str(self.root), str(new_parent)
+        nodes_exist = [rt.dcc.scene.exists(node) if node != 'None' else False for node in [top_node, new_parent]]
+        if all(nodes_exist or [False]):
+            rt.dcc.scene.parent(top_node, new_parent)
+            return True
+        else:
+            return False
 
     def _dict_depth(self, d=None, level=0, node_filter=None):
         """ Returns maximum depth of the hierarchy

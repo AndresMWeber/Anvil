@@ -43,7 +43,7 @@ def factory(dag_path):
         encapsulation_class = objects.Joint
 
     else:
-        encapsulation_class = objects.DagNode
+        encapsulation_class = objects.Transform
     encapsulation = encapsulation_class(dag_path)
     EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = encapsulation
     return encapsulation

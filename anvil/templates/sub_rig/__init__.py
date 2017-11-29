@@ -13,6 +13,7 @@ from eye import Eye
 from eyelid import Eyelid
 from center_of_mass import CenterOfMass
 from tentacle import Tentacle
+from limb import Limb
 
 __all__ = ['CenterOfMass',
            'BipedArm',
@@ -27,4 +28,5 @@ __all__ = ['CenterOfMass',
            'Mouth',
            'FacialFeature',
            'Eye',
-           'Eyelid']
+           'Eyelid',
+           'Limb']

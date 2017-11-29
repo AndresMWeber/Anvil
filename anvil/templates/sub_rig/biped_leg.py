@@ -1,5 +1,5 @@
-from base import SubRigTemplate
+from limb import Limb
 
 
-class BipedLeg(SubRigTemplate):
-    pass
+class BipedLeg(Limb):
+    BUILT_IN_META_DATA = {'name': 'leg'}

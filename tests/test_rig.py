@@ -7,7 +7,6 @@ class TestBaseRig(TestBase):
     def build_dependencies(cls):
         cls.test_rig = nt.Rig([])
         cls.test_rig.build()
-        print('built rig')
 
 
 class TestRigBuild(TestBaseRig):

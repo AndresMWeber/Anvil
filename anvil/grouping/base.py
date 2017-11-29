@@ -23,6 +23,7 @@ class AbstractGrouping(object):
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.chain_nomenclate = nomenclate.Nom()
         self.chain_nomenclate.format = 'side_location_nameDecoratorVar_childtype_purpose_type'
+        self.chain_nomenclate.var.case = 'upper'
         self.parent(parent)
         self.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
 
@@ -96,7 +97,7 @@ class AbstractGrouping(object):
         self.register_node(node_key, dag_node)
         return dag_node
 
-    def register_node(self, node_key, dag_node, overwrite=True):
+    def register_node(self, node_key, dag_node, overwrite=True, meta_data=None):
         if dag_node is None:
             self.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
             return
@@ -104,6 +105,7 @@ class AbstractGrouping(object):
             if self.hierarchy.get(node_key) is not None and not overwrite:
                 raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
             self.hierarchy[node_key] = dag_node
+            dag_node.meta_data = self.merge_dicts(self.meta_data, meta_data or {})
             return dag_node
         else:
             raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.')

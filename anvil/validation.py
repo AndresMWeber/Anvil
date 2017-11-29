@@ -64,7 +64,6 @@ def verify_class_method_inputs(filterers=None, validators=None):
 def filter_list_type(query_input, chain_type):
     if not isinstance(query_input, list):
         query_input = [query_input]
-    print query_input
     return all([rt.dcc.scene.is_types(node, [chain_type]) for node in query_input])
 
 
