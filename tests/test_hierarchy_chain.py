@@ -15,7 +15,7 @@ class TestBaseHierarchyChain(TestBase):
     @classmethod
     def build_dependencies(cls, num_joints=6, joint_flags=None):
         try:
-            joint_flags = joint_flags if joint_flags is not None else {}
+            joint_flags = joint_flags or {}
             joints = []
             for i in range(num_joints):
                 joint = nt.Joint.build(**joint_flags)
@@ -79,25 +79,25 @@ class TestHierarchyChainIteration(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_first_member(self):
         chain = nt.HierarchyChain(self.joints[0])
-        self.assertEqual(chain[0], self.joints[0])
+        print(self.joints[0], chain[0], type(chain[0]), type(self.joints[0]))
+        self.assertEquals(chain[0], self.joints[0])
 
     @TestBase.delete_created_nodes
     def test_negative_indexing(self):
         chain = nt.HierarchyChain(self.joints[0])
-        self.assertEqual(chain[-1], self.joints[-1])
+        self.assertEquals(chain[-1], self.joints[-1])
 
     @TestBase.delete_created_nodes
     def test_invalid_index(self):
         chain = nt.HierarchyChain(self.joints[0])
-        with self.assertRaises(IndexError):
-            chain[40]
+        with self.assertRaises(IndexError) as exception_context_manager:
+            f = chain[40]
+        exception = exception_context_manager.exception
 
     @TestBase.delete_created_nodes
     def test_all_members(self):
         chain = nt.HierarchyChain(self.joints[0])
-        for chain_joint, joint in zip(chain, self.joints):
-            self.assertEqual(chain_joint, joint)
-
+        self.checkEqual(chain, self.joints)
 
 class TestHierarchyChainDepth(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes

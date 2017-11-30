@@ -145,7 +145,6 @@ class TestBase(unittest.TestCase):
 
         def wrapped(self, *args, **kwargs):
             cls.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
-            cls.LOG.info('THIS IS BULLSHIT')
             self.sanitize_scene()
 
             if getattr(self, 'build_dependencies', None):
@@ -153,15 +152,13 @@ class TestBase(unittest.TestCase):
 
             initial_scene_tree = pre_hook()
 
-            cls.LOG.info('Initial scene state is:\n%s' % initial_scene_tree)
+            cls.LOG.info('Pre-scene: %s' % initial_scene_tree)
+            cls.LOG.info('Running Test: %s(%s, %s)' % (func, args, kwargs))
             func_return = func(self, *args, **kwargs)
-
             created_scene_tree = post_hook()
             created_nodes = process(initial_scene_tree, created_scene_tree)
-
             cls.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
-            cls.LOG.info('Scene state is:\n%s' % created_scene_tree)
-            cls.LOG.info('After deletion scene state is:\n%s' % created_scene_tree)
+            cls.LOG.info('Post-scene: %s' % created_scene_tree)
             cls.sanitize_scene()
 
             return func_return

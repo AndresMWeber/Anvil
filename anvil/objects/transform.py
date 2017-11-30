@@ -30,10 +30,15 @@ class Transform(dag_node.DagNode):
             raise KeyError('Node %s or %s does not exist.' % (str(self), str(new_parent)))
 
     @classmethod
-    def build(cls, meta_data=None, parent=None, **flags):
+    def build(cls, reference_object=None, meta_data=None, parent=None, **flags):
         node = super(Transform, cls).build(meta_data=meta_data, **flags)
         node.parent(parent)
+        node.match_position(reference_object)
         return node
+
+    def match_position(self, reference_object):
+        constraint = rt.dcc.constrain.parent(str(self), str(reference_object), maintainOffset=False)
+        rt.dcc.scene.delete(constraint)
 
     def colorize(self, color):
         if isinstance(color, int):
