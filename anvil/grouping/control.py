@@ -13,9 +13,10 @@ class Control(base.AbstractGrouping):
         self.register_node('connection_group', connection_group)
 
     @classmethod
-    def build(cls, meta_data=None, **flags):
+    def build(cls, reference_object=None, meta_data=None, **flags):
         instance = cls(control=objects.Curve.build(meta_data={'type': 'control'}, **flags),
-                       offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **flags),
+                       offset_group=objects.Transform.build(reference_object=reference_object,
+                                                            meta_data={'type': 'offset_group'}, **flags),
                        connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **flags),
                        meta_data=meta_data, **flags)
         instance.build_layout()

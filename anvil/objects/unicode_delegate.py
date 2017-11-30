@@ -29,7 +29,8 @@ class UnicodeDelegate(object):
 
     @classmethod
     def build(cls, meta_data=None, **flags):
-        anvil.LOG.info('Building node type %s(flags = %s, meta_data = %s)' % (cls.dcc_type, flags, meta_data))
+        anvil.LOG.info(
+            'Building anvil node %s: %s(flags = %s, meta_data = %s)' % (cls.__name__, cls.dcc_type, flags, meta_data))
         cls.convert_subclass_kwargs(flags)
         dcc_instance = cls.create_engine_instance(**flags)
         instance = cls(dcc_instance, meta_data=meta_data, **flags)

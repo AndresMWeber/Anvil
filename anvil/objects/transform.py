@@ -37,8 +37,9 @@ class Transform(dag_node.DagNode):
         return node
 
     def match_position(self, reference_object):
-        constraint = rt.dcc.constrain.parent(str(self), str(reference_object), maintainOffset=False)
-        rt.dcc.scene.delete(constraint)
+        if reference_object and rt.dcc.scene.exists(str(reference_object)):
+            constraint = rt.dcc.constrain.parent(str(reference_object), str(self), maintainOffset=False)
+            # rt.dcc.scene.delete(constraint)
 
     def colorize(self, color):
         if isinstance(color, int):

@@ -3,14 +3,16 @@ import anvil.plugins.base.api_proxy as api_proxy
 
 default_schema = {
     "type": ["object", "null"],
-    "properties": {
-        "layer": {"type": "string"},
-        "name": {"type": "string"},
-        "remove": {"type": "boolean"},
-        "targetList": {"type": "boolean"},
-        "weight": {"type": "number"},
-        "weightAliasList": {"type": "boolean"},
-    },
+    "properties": {}
+}
+
+default_properties = {
+    "layer": {"type": "string"},
+    "name": {"type": "string"},
+    "remove": {"type": "boolean"},
+    "targetList": {"type": "boolean"},
+    "weight": {"type": "number"},
+    "weightAliasList": {"type": "boolean"},
 }
 
 cacheable_schema = {
@@ -33,77 +35,87 @@ aim_schema = {
 }
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema, offset_schema),
-                                       API,
-                                       'pointConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema,
+                          {'properties': api_proxy.merge_dicts(default_properties, offset_schema)}),
+    API,
+    'pointConstraint')
 def translate(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema, offset_schema, cacheable_schema),
-                                       API,
-                                       'orientConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema,
+                          {'properties': api_proxy.merge_dicts(default_properties, offset_schema, cacheable_schema)}),
+    API,
+    'orientConstraint')
 def rotate(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema, offset_schema, aim_schema),
-                                       API,
-                                       'aimConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema,
+                          {'properties': api_proxy.merge_dicts(default_properties, offset_schema, aim_schema)}),
+    API,
+    'aimConstraint')
 def aim(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts({"properties":
-                                                                  {"scaleCompensate": {"type": "boolean"},
-                                                                   "targetList": {"type": "boolean"}, },
-                                                              },
-                                                             default_schema,
-                                                             offset_schema),
-                                       API,
-                                       'scaleConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema,
+                          {'properties': api_proxy.merge_dicts(default_properties,
+                                                               {"scaleCompensate": {"type": "boolean"},
+                                                                "targetList": {"type": "boolean"}},
+                                                               offset_schema)}),
+    API,
+    'scaleConstraint')
 def scale(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts({"properties":
-                                                                  {"decompRotationToChild": {"type": "boolean"},
-                                                                   "skipRotate": {"type": "string"},
-                                                                   "skipTranslate": {"type": "string"},
-                                                                   },
-                                                              },
-                                                             default_schema,
-                                                             offset_schema,
-                                                             cacheable_schema),
-                                       API,
-                                       'parentConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema,
+                          {'properties': api_proxy.merge_dicts(default_properties,
+                                                               {"decompRotationToChild": {"type": "boolean"},
+                                                                "skipRotate": {"type": "string"},
+                                                                "skipTranslate": {"type": "string"},
+                                                                },
+                                                               offset_schema,
+                                                               cacheable_schema)}),
+    API,
+    'parentConstraint')
 def parent(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema, aim_schema),
-                                       API,
-                                       'tangentConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema, {'properties': api_proxy.merge_dicts(default_properties, aim_schema)}),
+    API,
+    'tangentConstraint')
 def tangent(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema),
-                                       API,
-                                       'geometryConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema, {'properties': api_proxy.merge_dicts(default_properties)}),
+    API,
+    'geometryConstraint')
 def geometry_point(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema, aim_schema),
-                                       API,
-                                       'normalConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema, {'properties': api_proxy.merge_dicts(default_properties, aim_schema)}),
+    API,
+    'normalConstraint')
 def geometry_normal(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(api_proxy.merge_dicts(default_schema),
-                                       API,
-                                       'poleVectorConstraint')
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(default_schema, {'properties': api_proxy.merge_dicts(default_properties)}),
+    API,
+    'poleVectorConstraint')
 def pole_vector(source, targets, **flags):
     pass
