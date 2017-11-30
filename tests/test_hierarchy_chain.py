@@ -91,7 +91,6 @@ class TestHierarchyChainIteration(TestBaseHierarchyChain):
         chain = nt.HierarchyChain(self.joints[0])
         with self.assertRaises(IndexError):
             chain[40]
-            # self.assertRaises(IndexError, chain[40])
 
     @TestBase.delete_created_nodes
     def test_all_members(self):

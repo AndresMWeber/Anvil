@@ -21,6 +21,7 @@ EXISTING_ENCAPSULATIONS = {}
 def check_for_encapsulation(dag_path):
     for node_index, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
+            LOG.debug('Found previous encapsulation for %s: %s. Using instead.' % (dag_path, node_encapsulation))
             return node_encapsulation
     else:
         return None
@@ -44,7 +45,10 @@ def factory(dag_path):
 
     else:
         encapsulation_class = objects.Transform
+
     encapsulation = encapsulation_class(dag_path)
+
+    LOG.debug('Encapsulating %s with node type %s as %s' % (dag_path, encapsulation_class, encapsulation))
     EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = encapsulation
     return encapsulation
 
@@ -56,8 +60,6 @@ __all__ = ['config',
            'version',
            'node_types',
            'runtime',
-           'core',
            'node_types',
            'objects',
-           'grouping',
-           'dcc']
+           'grouping']

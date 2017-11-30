@@ -105,7 +105,7 @@ class AbstractGrouping(object):
             if self.hierarchy.get(node_key) is not None and not overwrite:
                 raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
             self.hierarchy[node_key] = dag_node
-            dag_node.meta_data = self.merge_dicts(self.meta_data, meta_data or {})
+            dag_node.meta_data = self.merge_dicts(self.meta_data, dag_node.meta_data, meta_data or {})
             return dag_node
         else:
             raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.')

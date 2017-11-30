@@ -24,7 +24,7 @@ class HierarchyChain(object):
         self.root = anvil.factory(top_node[0]) if isinstance(top_node, list) else anvil.factory(top_node)
         self.node_filter = self._default_filter(node_filter=node_filter)
         self.end = end_node
-        self.set_end()
+        self.set_end(end_node=end_node)
 
     @property
     def mid(self):
