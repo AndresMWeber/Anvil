@@ -32,15 +32,27 @@ class SubRig(base.AbstractGrouping):
         self.parent(parent)
         return self
 
-    def build_pole_vector_control(self, reference_transforms, meta_data=None, **flags):
+    def build_pole_vector_control(self, joints, ik_handle, node_key='', move_by=None, meta_data=None, **flags):
         """ Point constraint to the two base positions, aim constrain to the other objects
             Delete constraints then move the control outside of the reference transforms in the aim direction.
         """
+        joints = list(joints)
+
+        if len(joints) < 3:
+            raise ValueError('Cannot create a pole vector control for less than 3 joints...')
+
+        move_by = move_by or [5, 0, 0]
         control = Control.build(meta_data=meta_data, **flags)
-        aim_constraint = rt.dcc.constrain.aim(reference_transforms[1:-1],
-                                              str(control),
+        point_constraint = rt.dcc.constrain.translate([joints[0], joints[-1]],
+                                                      control.offset_group,
+                                                      maintain_offset=False)
+        aim_constraint = rt.dcc.constrain.aim(joints,
+                                              control.offset_group,
                                               maintain_offset=False,
-                                              upObject=str(reference_transforms[0]))
-        point_constraint = rt.dcc.constrain.position([reference_transforms[0], reference_transforms[-1]],
-                                                     str(control),
-                                                     maintain_offset=False)
+                                              upObject=str(joints[0]))
+        rt.dcc.scene.delete([aim_constraint, point_constraint])
+        local_movement_kwargs = {'relative': True, 'objectSpace': True, 'worldSpaceDistance': True}
+        rt.dcc.scene.position(control.offset_group, translation=move_by, **local_movement_kwargs)
+        rt.dcc.constrain.pole_vector(control.connection_group, ik_handle)
+        self.register_node(node_key, control)
+        return control

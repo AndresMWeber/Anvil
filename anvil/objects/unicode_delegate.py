@@ -17,10 +17,11 @@ class UnicodeDelegate(object):
         """
         anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
-        print type(node_pointer), type(str(node_pointer)), str(node_pointer)
-        print(rt.dcc.scene.APIWrapper('front'))
-        print(rt.dcc.scene.APIWrapper, dir(rt.dcc.scene.APIWrapper))
-        self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
+
+        try:
+            self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
+        except:
+            self._api_class_instance = object()
 
         self.flags = flags or {}
         default_meta_data = {'type': self.dcc_type}

@@ -48,7 +48,8 @@ class Limb(SubRigTemplate):
                         parent=self.group_controls,
                         shape='flat_diamond',
                         reference_object=self.ik_chain[-1])
-        rt.dcc.constrain.parent(self.control_ik, self.ik_handle)
+        self.build_pole_vector_control(self.ik_chain, self.ik_handle, 'control_ik_pole_vector')
+        rt.dcc.constrain.translate(self.control_ik.connection_group, self.ik_handle)
 
     def prep_joint_chain_for_rigging(self, joint_chain):
         for joint in joint_chain:

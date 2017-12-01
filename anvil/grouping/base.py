@@ -101,14 +101,19 @@ class AbstractGrouping(object):
         if dag_node is None:
             self.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
             return
-        if issubclass(type(dag_node), AbstractGrouping) or issubclass(type(dag_node), ot.UnicodeDelegate):
-            if self.hierarchy.get(node_key) is not None and not overwrite:
-                raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
-            self.hierarchy[node_key] = dag_node
-            dag_node.meta_data = self.merge_dicts(self.meta_data, dag_node.meta_data, meta_data or {})
-            return dag_node
-        else:
+
+        try:
+            anvil.factory(dag_node)
+        except:
             raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.')
+
+        if self.hierarchy.get(node_key) is not None and not overwrite:
+            raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
+
+        self.hierarchy[node_key] = dag_node
+        dag_node.meta_data = self.merge_dicts(self.meta_data, dag_node.meta_data, meta_data or {})
+
+        return dag_node
 
     def find_node(self, node_key):
         try:

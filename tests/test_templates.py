@@ -14,29 +14,25 @@ class TestBaseTemplates(TestBase):
 
     @classmethod
     def runner(cls, num_joints=6, template_args=None, template_flags=None, joint_flags=None):
-        try:
-            addtl_template_flags = {} if template_flags is None else template_flags
-            joint_flags = {} if joint_flags is None else joint_flags
-            template_flags = {'meta_data': {'side': 'center', 'name': 'tripod'}}
-            template_flags.update(addtl_template_flags)
+        addtl_template_flags = {} if template_flags is None else template_flags
+        joint_flags = {} if joint_flags is None else joint_flags
+        template_flags = {'meta_data': {'side': 'center', 'name': 'tripod'}}
+        template_flags.update(addtl_template_flags)
 
-            if not template_args:
-                import pymel.core as pm
-                pm.select(d=True)
-                joints = []
-                for i in range(num_joints):
-                    joint = nt.Joint.build(**joint_flags)
-                    rt.dcc.scene.position(joint, translation=[0, i, 0])
-                    joints.append(joint)
-            else:
-                joints = template_args
-            sub_rig_instance = cls.TEMPLATE_CLASS(joints)
-            sub_rig_instance.build(**template_flags)
-            pprint(anvil.runtime.dcc.scene.get_scene_tree())
-            return sub_rig_instance
-        except:
-            pprint(anvil.runtime.dcc.scene.get_scene_tree())
-            raise
+        if not template_args:
+            import pymel.core as pm
+            pm.select(d=True)
+            joints = []
+            for i in range(num_joints):
+                joint = nt.Joint.build(**joint_flags)
+                rt.dcc.scene.position(joint, translation=[0, i, 0])
+                joints.append(joint)
+        else:
+            joints = template_args
+        sub_rig_instance = cls.TEMPLATE_CLASS(joints)
+        sub_rig_instance.build(**template_flags)
+        pprint(anvil.runtime.dcc.scene.get_scene_tree())
+        return sub_rig_instance
 
 
 class TestSpineBuild(TestBaseTemplates):
@@ -71,7 +67,7 @@ class TestBipedArmBuild(TestBaseTemplates):
 
     @TestBase.delete_created_nodes
     def test_build(self):
-        self.runner()
+        self.assertIsNotNone(self.runner())
 
     @TestBase.delete_created_nodes
     def test_build_with_parent(self):

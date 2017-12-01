@@ -2,7 +2,7 @@ import os
 import unittest
 from deepdiff import DeepDiff
 from six import iteritems, string_types
-
+from functools import wraps
 os.environ['ANVIL_MODE'] = 'TEST'
 import anvil
 from anvil.log import obtainLogger
@@ -94,74 +94,70 @@ class TestBase(unittest.TestCase):
         TestBase.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
         cls.delete_objects(preexisting_nodes)
 
+    def post_hook(self):
+        created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+        self.LOG.info('Scene state after: %s' % created_scene_tree)
+        return created_scene_tree
+
+    def pre_hook(self):
+        initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+        self.LOG.info(initial_scene_tree)
+        return initial_scene_tree
+
+    def process_scene_tree_diff(self, initial_scene_tree, post_scene_tree):
+        diff = DeepDiff(initial_scene_tree, post_scene_tree)
+        created_nodes = []
+        deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
+        for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
+            deep_path = self.tokenize_deep_diff_string(dict_item)
+            created_nodes.append(self.dict_item_from_path(post_scene_tree, deep_path))
+        return created_nodes
+
+    def dict_item_from_path(self, dict_to_query, query_path):
+        """
+        item_from_path = dict_to_query
+        TestBase.LOG.info('Attempting to get item from path %s in dict %s' % (query_path, dict_to_query))
+        for path in query_path:
+            try:
+                item_from_path = item_from_path.get(path)
+            except AttributeError:
+                pass
+        return list(item_from_path)
+        """
+        return query_path[-1]
+
+    def tokenize_deep_diff_string(self, deep_diff_path_string):
+        full_path = [item.replace(']', '') for item in deep_diff_path_string.split('[')]
+        full_path.remove('root')
+        deep_path = []
+        for item in full_path:
+            try:
+                deep_path.append(
+                    item.strip('\"').strip("\'") if '\"' in item or '\'' in item or item == 'root' else int(item))
+            except ValueError:
+                deep_path.append(str(item))
+        return deep_path
+
     @classmethod
     def delete_created_nodes(cls, func):
-        def pre_hook():
-            initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            TestBase.LOG.info(initial_scene_tree)
-            return initial_scene_tree
-
-        def post_hook():
-            created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
-            TestBase.LOG.info(created_scene_tree)
-            return created_scene_tree
-
-        def process(initial_scene_tree, post_scene_tree):
-            diff = DeepDiff(initial_scene_tree, post_scene_tree)
-            # TestBase.LOG.info('Unprocessed DeepDiff:\n%s' % pformat(diff, indent=2))
-            created_nodes = []
-            deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
-            for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
-                deep_path = tokenize_deep_diff_string(dict_item)
-                created_nodes.append(dict_item_from_path(post_scene_tree, deep_path))
-
-            return created_nodes
-
-        def dict_item_from_path(dict_to_query, query_path):
-            """
-            item_from_path = dict_to_query
-            TestBase.LOG.info('Attempting to get item from path %s in dict %s' % (query_path, dict_to_query))
-            for path in query_path:
-                try:
-                    item_from_path = item_from_path.get(path)
-                except AttributeError:
-                    pass
-            return list(item_from_path)
-            """
-            return query_path[-1]
-
-        def tokenize_deep_diff_string(deep_diff_path_string):
-            full_path = [item.replace(']', '') for item in deep_diff_path_string.split('[')]
-            full_path.remove('root')
-            deep_path = []
-            for item in full_path:
-                try:
-                    deep_path.append(
-                        item.strip('\"').strip("\'") if '\"' in item or '\'' in item or item == 'root' else int(item))
-                except ValueError:
-                    deep_path.append(str(item))
-            return deep_path
-
+        @wraps(func)
         def wrapped(self, *args, **kwargs):
-            cls.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
+            self.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
             self.sanitize_scene()
 
             if getattr(self, 'build_dependencies', None):
                 self.build_dependencies()
 
-            initial_scene_tree = pre_hook()
+            initial_scene_tree = self.pre_hook()
 
-            cls.LOG.info('Pre-scene: %s' % initial_scene_tree)
-            cls.LOG.info('Running Test: %s(%s, %s)' % (func, args, kwargs))
+            self.LOG.info('Pre-scene: %s' % initial_scene_tree)
+            self.LOG.info('Running Test: %s(%s, %s)' % (func, args, kwargs))
             func_return = func(self, *args, **kwargs)
-            created_scene_tree = post_hook()
-            created_nodes = process(initial_scene_tree, created_scene_tree)
-            cls.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
-            cls.LOG.info('Post-scene: %s' % created_scene_tree)
-            cls.sanitize_scene()
+            created_scene_tree = self.post_hook()
+            created_nodes = self.process_scene_tree_diff(initial_scene_tree, created_scene_tree)
+            self.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
+            self.LOG.info('Post-scene: %s' % created_scene_tree)
+            self.sanitize_scene()
 
             return func_return
-
-        wrapped.__name__ = func.__name__
         return wrapped
