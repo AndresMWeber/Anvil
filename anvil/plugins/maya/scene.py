@@ -336,5 +336,5 @@ def get_persistent_id(node_unicode_proxy):
     return selection_list.getDagPath(0)
 
 
-def api_wrap(dag_path):
-    return API.PyNode(dag_path)
+class APIWrapper(API.PyNode):
+    pass

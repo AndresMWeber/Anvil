@@ -17,7 +17,7 @@ class UnicodeDelegate(object):
         """
         anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
-        self._api_class_instance = rt.dcc.scene.api_wrap(str(node_pointer))
+        self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
 
         self.flags = flags or {}
         default_meta_data = {'type': self.dcc_type}
