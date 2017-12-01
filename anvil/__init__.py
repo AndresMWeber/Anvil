@@ -28,6 +28,9 @@ def check_for_encapsulation(dag_path):
 
 
 def factory(dag_path):
+    if is_anvil(dag_path):
+        return dag_path
+
     existing = check_for_encapsulation(runtime.dcc.scene.get_persistent_id(str(dag_path)))
     if existing is not None:
         return existing
@@ -47,7 +50,6 @@ def factory(dag_path):
         encapsulation_class = objects.Transform
 
     encapsulation = encapsulation_class(dag_path)
-
     LOG.debug('Encapsulating %s with node type %s as %s' % (dag_path, encapsulation_class, encapsulation))
     EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = encapsulation
     return encapsulation
