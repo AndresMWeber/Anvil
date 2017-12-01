@@ -16,7 +16,7 @@ def verify_chain_integrity(function):
 
 
 class HierarchyChain(object):
-    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None):
+    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
         if duplicate:
             duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False}
             top_node = rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)
@@ -25,6 +25,7 @@ class HierarchyChain(object):
         self.node_filter = self._default_filter(node_filter=node_filter)
         self.end = end_node
         self.set_end(end_node=end_node)
+        self.parent(parent)
 
     @property
     def mid(self):

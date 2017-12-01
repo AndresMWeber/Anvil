@@ -15,18 +15,18 @@ class Control(base.AbstractGrouping):
     @classmethod
     def build(cls, reference_object=None, meta_data=None, **flags):
         instance = cls(control=objects.Curve.build(meta_data={'type': 'control'}, **flags),
-                       offset_group=objects.Transform.build(reference_object=reference_object,
-                                                            meta_data={'type': 'offset_group'}, **flags),
+                       offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **flags),
                        connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **flags),
                        meta_data=meta_data, **flags)
+        instance.offset_group.match_position(reference_object)
         instance.build_layout()
         return instance
 
     def build_layout(self):
         if self.flags.get('parent'):
             self.parent(self.flags.get('parent'))
-        rt.dcc.scene.parent(str(self.control), str(self.offset_group))
-        rt.dcc.scene.parent(str(self.connection_group), str(self.control))
+        rt.dcc.scene.parent(self.control, self.offset_group, relative=True)
+        rt.dcc.scene.parent(self.connection_group, self.control, relative=True)
 
     def colorize(self, color_id=None, color_tuple=None):
         self.control.colorize(color_tuple or color_id)

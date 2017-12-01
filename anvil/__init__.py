@@ -53,6 +53,13 @@ def factory(dag_path):
     return encapsulation
 
 
+def is_anvil(node):
+    if node_types.REGISTERED_NODES.get(type(node).__name__):
+        return True
+    else:
+        return False
+
+
 __all__ = ['config',
            'validation',
            'plugins',

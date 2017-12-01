@@ -1,7 +1,7 @@
 from base import SubRigTemplate
 import anvil.node_types as nt
 import anvil.validation as validation
-
+import anvil.runtime as rt
 
 class Limb(SubRigTemplate):
     BUILT_IN_META_DATA = {'name': 'limb'}
@@ -17,8 +17,10 @@ class Limb(SubRigTemplate):
                                            [validation.verify_joint_chain_ready, validation.verify_joint_chain_length])
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **flags):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **flags)
-        self.blend_chain = nt.HierarchyChain(self.layout_joints, duplicate=not use_layout)
-        self.blend_chain.parent(self.group_joints)
+
+        self.prep_joint_chain_for_rigging(self.layout_joints)
+
+        self.build_blend(self.layout_joints, use_layout=use_layout)
 
         # Build IK/FK chains from the initial layout joints
         if build_fk:
@@ -30,18 +32,28 @@ class Limb(SubRigTemplate):
         self.rename()
         self.LOG.info('Built sub rig %s' % self.__class__.__name__)
 
+    def build_blend(self, layout_joints, use_layout):
+        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
+
     def build_fk(self, layout_joints):
-        self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True)
-        self.fk_chain.parent(self.group_joints)
+        self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
 
     def build_ik(self, layout_joints, ik_end_index=-1):
-        self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True)
-        self.ik_chain.parent(self.group_joints)
+        self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
         handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index])
         self.register_node('ik_handle', handle, meta_data={'name': 'ik', 'type': 'ikhandle'})
         self.register_node('ik_effector', effector, meta_data={'name': 'ik', 'type': 'ikeffector'})
         self.ik_handle.parent(self.group_nodes)
-        self.build_node(nt.Control, 'control_ik', shape='flat_diamond', reference_object=self.ik_chain[-1])
+        self.build_node(nt.Control, 'control_ik',
+                        parent=self.group_controls,
+                        shape='flat_diamond',
+                        reference_object=self.ik_chain[-1])
+        rt.dcc.constrain.parent(self.control_ik, self.ik_handle)
+
+    def prep_joint_chain_for_rigging(self, joint_chain):
+        for joint in joint_chain:
+            pass
+        joint_chain[-1].jointOrient.set([0, 0, 0])
 
     def rename(self, *input_dicts, **name_tokens):
         super(Limb, self).rename()

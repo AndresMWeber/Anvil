@@ -37,7 +37,9 @@ class APIProxy(object):
                 kwargs = cls._initialize_and_filter_flags(kwargs, schema)
                 function(*args, **kwargs)
                 return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
+
             return validator
+
         return to_validate
 
     @classmethod
@@ -73,12 +75,15 @@ class APIProxy(object):
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):
-        formatted_args = ', '.join([str(arg) for arg in args]) if args else ''
-        formatted_kwargs = ', '.join('%s=%r' % (key, str(node)) for key, node in iteritems(kwargs)) if kwargs else ''
-        formatted_flags = ', '.join(
-            '%s=%r' % (key, str(node)) for key, node in iteritems(kwargs.get('flags', {}))) if kwargs else ''
-        formatted_parameters = ', '.join([arg for arg in [formatted_args, formatted_kwargs, formatted_flags] if arg])
-        return '%s.%s(%s)' % (api.__name__, function_name, formatted_parameters)
+        formatted_args = ', '.join([str(arg) if anvil.is_anvil(arg) else repr(arg) for arg in args]) if args else ''
+
+        if kwargs is not None and kwargs != {}:
+            flags = kwargs.pop('flags', {})
+            kwargs.update(flags)
+            formatted_kwargs = [(key, str(node)) if anvil.is_anvil(node) else (key, node) for key, node in iteritems(kwargs)]
+            formatted_args = ', '.join('%s=%r' % kwarg for kwarg in formatted_kwargs)
+
+        return '%s.%s(%s)' % (api.__name__, function_name, formatted_args)
 
     @staticmethod
     def _convert_anvil_nodes_to_string(func):
