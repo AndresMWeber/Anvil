@@ -2,6 +2,7 @@ import base
 import anvil.log as lg
 import anvil.objects as ot
 import anvil.runtime as rt
+import anvil.config as cfg
 from control import Control
 
 
@@ -10,6 +11,7 @@ class SubRig(base.AbstractGrouping):
     POLE_VECTOR_MIN_JOINTS = 2
     POLE_VECTOR_MOVE_DEFAULT = [5, 0, 0]
     LOCAL_MOVE_KWARGS = {'relative': True, 'objectSpace': True, 'worldSpaceDistance': True}
+    SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 
     def __init__(self, *args, **kwargs):
         super(SubRig, self).__init__(*args, **kwargs)
@@ -20,16 +22,17 @@ class SubRig(base.AbstractGrouping):
         if self.root is None:
             self.build_node(ot.Transform,
                             'group_top',
-                            meta_data=self.merge_dicts(self.meta_data, {'rig': 'subrig', 'type': 'group'}),
+                            meta_data=self.merge_dicts(self.meta_data, {'rig': 'subrig', 'type': cfg.GROUP_TYPE}),
                             **flags)
             self.root = self.group_top
 
-        for main_group_type in ['surfaces', 'joints', 'controls', 'nodes', 'world']:
+        for main_group_type in self.SUB_GROUPS:
             group_name = 'group_%s' % main_group_type
             self.build_node(ot.Transform,
                             group_name,
                             parent=self.root,
-                            meta_data=self.merge_dicts(self.meta_data, {'childtype': main_group_type, 'type': 'group'}))
+                            meta_data=self.merge_dicts(self.meta_data, {'childtype': main_group_type,
+                                                                        'type': cfg.GROUP_TYPE}))
 
         self.group_world.inheritsTransform.set(False)
         self.parent(parent)

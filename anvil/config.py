@@ -7,6 +7,7 @@ JOINT_TYPE = 'joint'
 CURVE_TYPE = 'curve'
 NURBS_TYPE = 'nurbs'
 POLY_TYPE = 'poly'
+GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
 
 # COMPLEX TYPES

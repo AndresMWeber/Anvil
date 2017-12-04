@@ -4,7 +4,6 @@ import anvil.node_types as nt
 import anvil.templates.sub_rig.spine as spine
 import anvil.templates.sub_rig.biped_arm as biped_arm
 import base_test
-from unittest2 import TestCase
 from pprint import pprint
 
 
@@ -42,15 +41,16 @@ class TestBuildSpine(TestBaseTemplates):
     def test_build(self):
         self.runner()
 
+    @base_test.TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        with base_test.cleanup_nodes():
-            parent = nt.Transform.build(name='test')
-            sub_rig_instance = self.runner(template_flags={'parent': parent})
-            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        parent = nt.Transform.build(name='test')
+        sub_rig_instance = self.runner(template_flags={'parent': parent})
+        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
 
 class TestBuildBipedArm(TestBaseTemplates):
     TEMPLATE_CLASS = biped_arm.BipedArm
+
     @classmethod
     def from_template_file(cls):
         import pymel.core as pm
@@ -64,17 +64,17 @@ class TestBuildBipedArm(TestBaseTemplates):
                                         template_flags={'meta_data': {'side': 'right'}})
         return l_sub_rig_instance, r_sub_rig_instance
 
+    @base_test.TestBase.delete_created_nodes
     def test_build(self):
-        with base_test.cleanup_nodes():
-            rig = self.runner()
-            self.assertIsNotNone(rig)
+        rig = self.runner()
+        self.assertIsNotNone(rig)
 
+    @base_test.TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        with base_test.cleanup_nodes():
-            parent = nt.Transform.build(name='test')
-            sub_rig_instance = self.runner(template_flags={'parent': parent})
-            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        parent = nt.Transform.build(name='test')
+        sub_rig_instance = self.runner(template_flags={'parent': parent})
+        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
+    @base_test.TestBase.delete_created_nodes
     def test_build_with_imported_skeleton(self):
-        with base_test.cleanup_nodes():
-            l_arm, r_arm = self.from_template_file()
+        l_arm, r_arm = self.from_template_file()

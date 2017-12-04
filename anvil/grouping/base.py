@@ -14,10 +14,12 @@ class AbstractGrouping(object):
     ANVIL_TYPE = 'group'
     LOG = anvil.log.obtainLogger(__name__)
     BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
-    VIS_ATTR_KWARGS = {'attributeType': 'enum', 'enumName': 'on:off:reference:template', 'channelBox': True,
-                       'keyable': True}
-    DEFAULT_ATTRS = {'model': VIS_ATTR_KWARGS, 'joint': VIS_ATTR_KWARGS, 'nodes': VIS_ATTR_KWARGS,
-                     'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'channelBox': True, 'keyable': True}}
+    VIS_ATTR_KWARGS = {'attributeType': 'enum', 'enumName': 'on:off:reference:template', 'keyable': True}
+    DEFAULT_ATTRS = {'surfaces': VIS_ATTR_KWARGS,
+                     'joints': VIS_ATTR_KWARGS,
+                     'nodes': VIS_ATTR_KWARGS,
+                     'controls': VIS_ATTR_KWARGS,
+                     'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True}}
 
     def __init__(self, layout=None, meta_data=None, parent=None, top_node=None, **flags):
         self.root = top_node
