@@ -8,18 +8,29 @@ import anvil.runtime as rt
 
 class AbstractGrouping(object):
     """ A fully functional and self-contained rig with all requirements implemented that
-        require it to give a performance.
+        are required to give a performance.
 
     """
     ANVIL_TYPE = 'group'
     LOG = anvil.log.obtainLogger(__name__)
     BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
-    VIS_ATTR_KWARGS = {'attributeType': 'enum', 'enumName': 'on:off:reference:template', 'keyable': True}
-    DEFAULT_ATTRS = {'surfaces': VIS_ATTR_KWARGS,
-                     'joints': VIS_ATTR_KWARGS,
-                     'nodes': VIS_ATTR_KWARGS,
-                     'controls': VIS_ATTR_KWARGS,
-                     'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True}}
+    DEFAULT_ATTRS = {'surfaces': {'attributeType': 'enum',
+                                  'enumName': 'off:on:template:reference',
+                                  'keyable': True,
+                                  'defaultValue': 0},
+                     'joints': {'attributeType': 'enum',
+                                'enumName': 'off:on:template:reference',
+                                'keyable': True,
+                                'defaultValue': 2},
+                     'nodes': {'attributeType': 'enum',
+                               'enumName': 'off:on:template:reference',
+                               'keyable': True,
+                               'defaultValue': 0},
+                     'controls': {'attributeType': 'enum',
+                                  'enumName': 'off:on:template:reference',
+                                  'keyable': True,
+                                  'defaultValue': 1},
+                     'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True, 'defaultValue': 0}}
 
     def __init__(self, layout=None, meta_data=None, parent=None, top_node=None, **flags):
         self.root = top_node
@@ -60,7 +71,7 @@ class AbstractGrouping(object):
 
     def assign_rendering_delegate(self, assignee=None):
         # TODO: I Think this should be a part of the plugins section as it is very API dependent.
-        assignee = assignee or self.root
+        assignee = anvil.factory(assignee) if assignee is not None else self.root
         self.LOG.info('Assigning/Connecting display attributes to %s' % assignee)
         for attr, attr_kwargs in iteritems(self.DEFAULT_ATTRS):
             attr_name, group_name = '%s_rendering' % attr, 'group_%s' % attr
@@ -69,7 +80,7 @@ class AbstractGrouping(object):
                 target_group, display_attr = getattr(self, group_name), getattr(assignee, attr_name)
                 target_group.overrideEnabled.set(1)
                 display_attr.connect(target_group.visibility, force=True)
-                display_attr.connect(target_group.overrideDisplayType, force=True)
+                assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
 
     def parent(self, new_parent):
         top_node, new_parent = str(self.root), str(new_parent)

@@ -46,3 +46,10 @@ class Control(base.AbstractGrouping):
         rt.dcc.scene.delete(self.control.get_shape())
         rt.dcc.scene.parent(curve.get_shape(), self.control, **self.SHAPE_PARENT_KWARGS)
         self.rename()
+
+    def rotate_shape(self, value=90.0, relative=False):
+        rt.dcc.scene.position(self.control.get_shape().cv[:],
+                              rotate=[value] * 3,
+                              pivots=self.control.scalePivot.get(),
+                              relative=relative,
+                              absolute=not relative)
