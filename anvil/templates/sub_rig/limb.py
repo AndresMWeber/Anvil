@@ -17,9 +17,7 @@ class Limb(SubRigTemplate):
                                            [validation.verify_joint_chain_ready, validation.verify_joint_chain_length])
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **flags):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **flags)
-
         self.prep_joint_chain_for_rigging(self.layout_joints)
-
         self.build_blend(self.layout_joints, use_layout=use_layout)
 
         # Build IK/FK chains from the initial layout joints

@@ -1,5 +1,5 @@
 import os
-import unittest
+import unittest2
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 from functools import wraps
@@ -9,13 +9,15 @@ from anvil.log import obtainLogger
 import logging
 from collections import Iterable
 from collections import OrderedDict
+
+from contextlib import contextmanager
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
 
 
 
-class TestBase(unittest.TestCase):
+class TestBase(unittest2.TestCase):
     LOG = obtainLogger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
 
@@ -144,8 +146,7 @@ class TestBase(unittest.TestCase):
         def wrapped(self, *args, **kwargs):
             self.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
             self.sanitize_scene()
-
-            if getattr(self, 'build_dependencies', None):
+            if hasattr(self, 'build_dependencies'):
                 self.build_dependencies()
 
             initial_scene_tree = self.pre_hook()
@@ -161,3 +162,9 @@ class TestBase(unittest.TestCase):
 
             return func_return
         return wrapped
+
+@contextmanager
+def cleanup_nodes():
+    TestBase.sanitize_scene()
+    yield
+    TestBase.sanitize_scene()

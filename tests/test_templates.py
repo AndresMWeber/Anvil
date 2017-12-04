@@ -3,11 +3,12 @@ import anvil.runtime as rt
 import anvil.node_types as nt
 import anvil.templates.sub_rig.spine as spine
 import anvil.templates.sub_rig.biped_arm as biped_arm
-from base_test import TestBase
+import base_test
+from unittest2 import TestCase
 from pprint import pprint
 
 
-class TestBaseTemplates(TestBase):
+class TestBaseTemplates(base_test.TestBase):
     name_tokens = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
     TEMPLATE_CLASS = None
@@ -35,23 +36,21 @@ class TestBaseTemplates(TestBase):
         return sub_rig_instance
 
 
-class TestSpineBuild(TestBaseTemplates):
+class TestBuildSpine(TestBaseTemplates):
     TEMPLATE_CLASS = spine.Spine
 
-    @TestBase.delete_created_nodes
     def test_build(self):
         self.runner()
 
-    @TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        parent = nt.Transform.build(name='test')
-        sub_rig_instance = self.runner(template_flags={'parent': parent})
-        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        with base_test.cleanup_nodes():
+            parent = nt.Transform.build(name='test')
+            sub_rig_instance = self.runner(template_flags={'parent': parent})
+            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
 
-class TestBipedArmBuild(TestBaseTemplates):
+class TestBuildBipedArm(TestBaseTemplates):
     TEMPLATE_CLASS = biped_arm.BipedArm
-
     @classmethod
     def from_template_file(cls):
         import pymel.core as pm
@@ -65,16 +64,17 @@ class TestBipedArmBuild(TestBaseTemplates):
                                         template_flags={'meta_data': {'side': 'right'}})
         return l_sub_rig_instance, r_sub_rig_instance
 
-    @TestBase.delete_created_nodes
     def test_build(self):
-        self.assertIsNotNone(self.runner())
+        with base_test.cleanup_nodes():
+            rig = self.runner()
+            self.assertIsNotNone(rig)
 
-    @TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        parent = nt.Transform.build(name='test')
-        sub_rig_instance = self.runner(template_flags={'parent': parent})
-        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        with base_test.cleanup_nodes():
+            parent = nt.Transform.build(name='test')
+            sub_rig_instance = self.runner(template_flags={'parent': parent})
+            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
-    @TestBase.delete_created_nodes
     def test_build_with_imported_skeleton(self):
-        l_arm, r_arm = self.from_template_file()
+        with base_test.cleanup_nodes():
+            l_arm, r_arm = self.from_template_file()

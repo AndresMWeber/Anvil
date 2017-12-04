@@ -1,4 +1,5 @@
 import nomenclate
+from six import iteritems
 import anvil.objects as ot
 from six import iteritems
 import anvil
@@ -13,6 +14,10 @@ class AbstractGrouping(object):
     ANVIL_TYPE = 'group'
     LOG = anvil.log.obtainLogger(__name__)
     BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
+    VIS_ATTR_KWARGS = {'attributeType': 'enum', 'enumName': 'on:off:reference:template', 'channelBox': True,
+                       'keyable': True}
+    DEFAULT_ATTRS = {'model': VIS_ATTR_KWARGS, 'joint': VIS_ATTR_KWARGS, 'nodes': VIS_ATTR_KWARGS,
+                     'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'channelBox': True, 'keyable': True}}
 
     def __init__(self, layout=None, meta_data=None, parent=None, top_node=None, **flags):
         self.root = top_node
@@ -50,6 +55,19 @@ class AbstractGrouping(object):
 
     def build_layout(self):
         raise NotImplementedError
+
+    def assign_rendering_delegate(self, assignee=None):
+        # TODO: I Think this should be a part of the plugins section as it is very API dependent.
+        assignee = assignee or self.root
+        self.LOG.info('Assigning/Connecting display attributes to %s' % assignee)
+        for attr, attr_kwargs in iteritems(self.DEFAULT_ATTRS):
+            attr_name, group_name = '%s_rendering' % attr, 'group_%s' % attr
+            assignee.addAttr(attr_name, **attr_kwargs)
+            if hasattr(self, group_name):
+                target_group, display_attr = getattr(self, group_name), getattr(assignee, attr_name)
+                target_group.overrideEnabled.set(1)
+                display_attr.connect(target_group.visibility, force=True)
+                display_attr.connect(target_group.overrideDisplayType, force=True)
 
     def parent(self, new_parent):
         top_node, new_parent = str(self.root), str(new_parent)
@@ -97,7 +115,7 @@ class AbstractGrouping(object):
         self.register_node(node_key, dag_node)
         return dag_node
 
-    def register_node(self, node_key, dag_node, overwrite=True, meta_data=None):
+    def register_node(self, node_key, dag_node, parent=False, overwrite=True, meta_data=None):
         if dag_node is None:
             self.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
             return

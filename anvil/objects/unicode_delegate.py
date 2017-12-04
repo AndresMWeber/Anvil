@@ -48,15 +48,12 @@ class UnicodeDelegate(object):
     def __getattr__(self, item):
         try:
             return super(UnicodeDelegate, self).__getattribute__(item)
-        except AttributeError as e:
+        except AttributeError:
+            _api_class_instance = super(UnicodeDelegate, self).__getattribute__('_api_class_instance')
             try:
-                _api_class_instance = super(UnicodeDelegate, self).__getattribute__('_api_class_instance')
-                try:
-                    return getattr(_api_class_instance, item)
-                except AttributeError:
-                    def to_camel_case(input_string):
-                        tokens = input_string.split('_')
-                        return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
-                    return getattr(_api_class_instance, to_camel_case(item))
-            except:
-                raise e
+                return getattr(_api_class_instance, item)
+            except AttributeError:
+                def to_camel_case(input_string):
+                    tokens = input_string.split('_')
+                    return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
+                return getattr(_api_class_instance, to_camel_case(item))

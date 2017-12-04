@@ -58,6 +58,8 @@ class Rig(base.AbstractGrouping):
                                                        {'childtype': main_group_type, 'type': 'group'}))
 
         self.root = self.group_top
+
+        self.assign_rendering_delegate(self.control_universal)
         self.LOG.info('Building sub rigs...')
         self.build_sub_rigs()
 
