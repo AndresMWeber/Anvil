@@ -3,6 +3,7 @@ import anvil.runtime as rt
 import anvil.node_types as nt
 import anvil.templates.sub_rig.spine as spine
 import anvil.templates.sub_rig.biped_arm as biped_arm
+import anvil.templates.rig.biped as biped
 import base_test
 from pprint import pprint
 
@@ -51,11 +52,10 @@ class TestBuildSpine(TestBaseTemplates):
 class TestBuildBipedArm(TestBaseTemplates):
     TEMPLATE_CLASS = biped_arm.BipedArm
 
+
     @classmethod
-    def from_template_file(cls):
-        import pymel.core as pm
-        import os
-        pm.importFile(os.path.join(os.path.dirname(__file__), 'test_skeleton.mb'), force=True)
+    def from_template_file(cls, template_file):
+        cls.import_template_files(template_file)
         l_arm = nt.HierarchyChain('l_armA_JNT')
         r_arm = nt.HierarchyChain('r_armA_JNT')
         l_sub_rig_instance = cls.runner(template_args=l_arm.get_hierarchy_as_list(),
@@ -76,5 +76,9 @@ class TestBuildBipedArm(TestBaseTemplates):
         self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
     @base_test.TestBase.delete_created_nodes
-    def test_build_with_imported_skeleton(self):
-        l_arm, r_arm = self.from_template_file()
+    def test_build_with_imported_skeleton_t_pose(self):
+        l_arm, r_arm = self.from_template_file(self.TPOSE)
+
+    @base_test.TestBase.delete_created_nodes
+    def test_build_with_imported_skeleton_a_pose(self):
+        l_arm, r_arm = self.from_template_file(self.APOSE)

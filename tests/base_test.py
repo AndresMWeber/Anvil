@@ -20,6 +20,16 @@ NOMENCLATE = nomenclate.Nom()
 class TestBase(unittest2.TestCase):
     LOG = obtainLogger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
+    APOSE = 'APOSE'
+    TPOSE = 'TPOSE'
+    TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.mb',
+                      TPOSE: 'test_skeleton_t_pose.mb'}
+
+    @classmethod
+    def import_template_files(cls, template_file):
+        import pymel.core as pm
+        import os
+        pm.importFile(os.path.join(os.path.dirname(__file__), cls.TEMPLATE_FILES[template_file]), force=True)
 
     @classmethod
     def build_dependencies(cls):

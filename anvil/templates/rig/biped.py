@@ -3,10 +3,21 @@ import anvil.templates.sub_rig as sub_rig_template
 
 
 class Biped(nt.Rig):
-    def __init__(self, center_of_mass, left_arm, right_arm, left_leg, right_leg, spine, neck, head,
+    def __init__(self,
+                 left_arm=None,
+                 right_arm=None,
+                 left_hand=None,
+                 right_hand=None,
+                 left_leg=None,
+                 right_leg=None,
+                 left_foot=None,
+                 right_foot=None,
+                 spine=None,
+                 neck=None,
+                 head=None,
                  layout=None,
                  name_tokens=None):
-        sub_rigs = [center_of_mass, left_arm, right_arm, left_leg, right_leg, spine, neck, head]
+        sub_rigs = [left_arm, right_arm, left_leg, right_leg, spine, neck, head]
         super(Biped, self).__init__(sub_rigs=sub_rigs, layout=layout, name_tokens=name_tokens)
 
     @classmethod
