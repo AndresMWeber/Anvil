@@ -58,10 +58,12 @@ def factory(dag_path):
 
 
 def is_anvil(node):
-    if node_types.REGISTERED_NODES.get(type(node).__name__):
-        return True
-    else:
-        return False
+    try:
+        if isinstance(node, node_types.REGISTERED_NODES.get(type(node).__name__)):
+            return True
+    except:
+        pass
+    return False
 
 
 __all__ = ['config',

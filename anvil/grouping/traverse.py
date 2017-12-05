@@ -129,7 +129,8 @@ class HierarchyChain(object):
         """
         current_node = self.end
         chain_path = [current_node]
-        while current_node.get_parent():
+
+        while anvil.factory(current_node).get_parent():
             current_node = anvil.factory(current_node.get_parent())
             chain_path.insert(0, current_node)
             if current_node == self.root:
