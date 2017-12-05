@@ -78,7 +78,7 @@ class Rig(base.AbstractGrouping):
 
         self.root = self.group_top
 
-        self.assign_rendering_delegate(self.control_universal)
+        self.assign_rendering_delegate(self.control_universal.control)
         self.LOG.info('Building sub rigs...')
         self.build_sub_rigs()
 
