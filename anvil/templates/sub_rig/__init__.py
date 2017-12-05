@@ -1,8 +1,9 @@
 from biped_arm import BipedArm
+from biped_foot import BipedFoot
 from quadruped_arm import QuadrupedArm
 from biped_leg import BipedLeg
 from quadruped_leg import QuadrupedLeg
-from digit import Digit
+from digits import Digit
 from hand import Hand
 from head import Head
 from neck import Neck
@@ -17,8 +18,9 @@ from limb import Limb
 
 __all__ = ['CenterOfMass',
            'BipedArm',
-           'QuadrupedArm',
+           'BipedFoot',
            'BipedLeg',
+           'QuadrupedArm',
            'QuadrupedLeg',
            'Digit',
            'Hand',

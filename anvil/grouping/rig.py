@@ -36,13 +36,13 @@ class Rig(base.AbstractGrouping):
                 sub_rig_member.build()
             anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
 
-    def build(self, meta_data=None, **flags):
+    def build(self, meta_data=None, **kwargs):
         self.LOG.info('Building rig %s' % self)
         if not self.root:
             self.build_node(ot.Transform,
                             'group_top',
                             meta_data=self.merge_dicts(self.meta_data, {'rig': 'rig', 'type': 'group'}),
-                            **flags)
+                            **kwargs)
 
         self.build_node(control.Control,
                         'control_universal',

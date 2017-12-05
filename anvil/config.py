@@ -10,6 +10,23 @@ POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
 
+# NAME METADATA
+LEFT = 'left'
+RIGHT = 'right'
+CENTER = 'center'
+NAME = 'name'
+SIDE = 'side'
+
+# SUB RIGS
+ARM = 'arm'
+LEG = 'leg'
+HAND = 'hand'
+FOOT = 'foot'
+SPINE = 'spine'
+NECK = 'neck'
+HEAD = 'head'
+DIGITS = 'digits'
+
 # COMPLEX TYPES
 CONTROL_TYPE = 'control'
 HIERARCHY_TYPE = 'hierarchy'
