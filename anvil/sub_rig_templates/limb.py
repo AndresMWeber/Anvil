@@ -6,9 +6,9 @@ import anvil.runtime as rt
 class Limb(SubRigTemplate):
     BUILT_IN_META_DATA = {'name': 'limb'}
 
-    def __init__(self, joints, layout=None, meta_data=None, parent=None, top_node=None, **flags):
-        super(Limb, self).__init__(layout=layout, meta_data=meta_data, parent=parent, top_node=top_node, **flags)
-        self.layout_joints = joints
+    def __init__(self, layout_joints, meta_data=None, parent=None, top_node=None, **flags):
+        super(Limb, self).__init__(layout=layout_joints, meta_data=meta_data, parent=parent, top_node=top_node, **flags)
+        self.layout_joints = layout_joints
         self.blend_chain = []
         self.fk_chain = []
         self.ik_chain = []

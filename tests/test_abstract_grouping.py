@@ -13,40 +13,40 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     @TestBase.delete_created_nodes
     def test_meta_data(self):
         test_meta_data = {'blah': 'fart'}
-        rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout=None, parent=None)
+        rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout_joints=None, parent=None)
         test_meta_data.update(nt.AbstractGrouping.BUILT_IN_META_DATA)
         self.assertDictEqual(rig.meta_data, test_meta_data)
 
     @TestBase.delete_created_nodes
     def test_meta_data_nomenclate(self):
         test_meta_data = {'blah': 'fart'}
-        rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout=None, parent=None)
+        rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout_joints=None, parent=None)
         tokens = rig._nomenclate.token_dict.to_json()
         self.assertEquals({k: tokens[k]['label'] for k in tokens if k=='blah'}, test_meta_data)
 
     @TestBase.delete_created_nodes
     def test_top_node(self):
         test_top_node = nt.Transform.build()
-        rig = nt.AbstractGrouping(meta_data=None, top_node=test_top_node, layout=None, parent=None)
+        rig = nt.AbstractGrouping(meta_data=None, top_node=test_top_node, layout_joints=None, parent=None)
         self.assertEquals(rig.root, test_top_node)
 
     @TestBase.delete_created_nodes
     def test_layout(self):
         layout = 'test'
-        rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout=layout, parent=None)
-        self.assertEquals(rig.layout, layout)
+        rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout_joints=layout, parent=None)
+        self.assertEquals(rig.layout_joints, layout)
 
     @TestBase.delete_created_nodes
     def test_parent_with_top_node(self):
         test_top_node = nt.Transform.build()
         test_parent_node = nt.Transform.build()
-        rig = nt.AbstractGrouping(meta_data=None, top_node=test_top_node, layout=None, parent=test_parent_node)
+        rig = nt.AbstractGrouping(meta_data=None, top_node=test_top_node, layout_joints=None, parent=test_parent_node)
         self.assertEquals(rig.root.getParent(), test_parent_node)
 
     @TestBase.delete_created_nodes
     def test_parent_without_top_node(self):
         test_parent_node = nt.Transform.build()
-        rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout=None, parent=test_parent_node)
+        rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout_joints=None, parent=test_parent_node)
         self.assertEquals(rig.root, None)
 
     @TestBase.delete_created_nodes
@@ -55,12 +55,12 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
         layout = 'test'
         test_top_node = nt.Transform.build()
         test_meta_data = {'blah': 'fart'}
-        nt.AbstractGrouping(meta_data=test_meta_data, top_node=test_top_node, layout=layout, parent=test_parent_node)
+        nt.AbstractGrouping(meta_data=test_meta_data, top_node=test_top_node, layout_joints=layout, parent=test_parent_node)
 
     @TestBase.delete_created_nodes
     def test_kwargs(self):
         test_flags = {'blah': 'fart'}
-        rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout=None, parent=None, **test_flags)
+        rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout_joints=None, parent=None, **test_flags)
         self.assertDictEqual(rig.flags, test_flags)
 
 

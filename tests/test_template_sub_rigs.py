@@ -1,9 +1,8 @@
 import anvil
 import anvil.runtime as rt
 import anvil.node_types as nt
-import anvil.templates.sub_rig.spine as spine
-import anvil.templates.sub_rig.biped_arm as biped_arm
-import anvil.templates.rig.biped as biped
+import anvil.sub_rig_templates.spine as spine
+import anvil.sub_rig_templates.biped_arm as biped_arm
 import base_test
 from pprint import pprint
 

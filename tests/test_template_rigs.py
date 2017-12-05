@@ -1,7 +1,6 @@
-import anvil
-import anvil.runtime as rt
+import anvil.config as cfg
 import anvil.node_types as nt
-import anvil.templates.rig.biped as biped
+from anvil.rig_templates import Biped
 import base_test
 
 
@@ -12,38 +11,35 @@ class TestBaseTemplateRigs(base_test.TestBase):
 
 
 class TestBuildBiped(TestBaseTemplateRigs):
-    CLASS = biped.Biped()
+    CLASS = Biped
 
-    def test_build(self, template_file):
-        self.import_template_files(template_file)
-        l_arm = nt.HierarchyChain('l_armA_JNT')
-        r_arm = nt.HierarchyChain('r_armA_JNT')
-        l_leg = nt.HierarchyChain('l_legA_JNT')
-        r_leg = nt.HierarchyChain('r_legA_JNT')
-        spine = nt.HierarchyChain('spineA_JNT')
-        head = nt.HierarchyChain('headA_JNT')
-        neck = nt.HierarchyChain('neckA_JNT')
-        l_hand = nt.HierarchyChain('l_handA_JNT')
-        r_hand = nt.HierarchyChain('r_handA_JNT')
-        l_foot = nt.HierarchyChain('l_footA_JNT')
-        r_foot = nt.HierarchyChain('r_footA_JNT')
-
-        rig_instance = self.CLASS(l_arm=l_arm,
-                                  r_arm=l_arm,
-                                  l_leg=l_leg,
-                                  r_leg=r_leg,
-                                  l_hand=l_hand,
-                                  r_hand=r_hand,
-                                  l_foot=l_foot,
-                                  r_foot=r_foot,
-                                  neck=neck,
-                                  head=head,
-                                  spine=spine,
-                                  template_flags={'meta_data': {'side': 'left'}})
+    @classmethod
+    def from_template_file(cls, template_file, **kwargs):
+        cls.import_template_files(template_file)
+        sub_rig_dict = {
+            cfg.LEFT + '_' + cfg.ARM: nt.HierarchyChain('l_armA_JNT'),
+            cfg.RIGHT + '_' + cfg.ARM: nt.HierarchyChain('r_armA_JNT'),
+            #cfg.LEFT + '_' + cfg.HAND: nt.HierarchyChain('l_handA_JNT'),
+            #cfg.RIGHT + '_' + cfg.HAND: nt.HierarchyChain('r_handA_JNT'),
+            cfg.LEFT + '_' + cfg.LEG: nt.HierarchyChain('l_legA_JNT'),
+            cfg.RIGHT + '_' + cfg.LEG: nt.HierarchyChain('r_legA_JNT'),
+            #cfg.LEFT + '_' + cfg.FOOT: nt.HierarchyChain('l_footA_JNT'),
+            #cfg.RIGHT + '_' + cfg.FOOT: nt.HierarchyChain('r_footA_JNT'),
+            cfg.SPINE: nt.HierarchyChain('spineA_JNT'),
+            #cfg.NECK: nt.HierarchyChain('neckA_JNT'),
+            #cfg.HEAD: nt.HierarchyChain('headA_JNT'),
+        }
+        rig_instance = cls.CLASS(sub_rig_dict, meta_data= {cfg.NAME: 'hombre'}, **kwargs).build()
         return rig_instance
 
     @base_test.TestBase.delete_created_nodes
-    def test_build_with_parent(self):
+    def test_build_with_parent_t_pose(self):
         parent = nt.Transform.build(name='test')
-        sub_rig_instance = self.runner(template_flags={'parent': parent})
-        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        rig_instance = self.from_template_file(self.TPOSE, parent=parent)
+        self.assertEqual(str(rig_instance.group_top.get_parent()), str(parent))
+
+    @base_test.TestBase.delete_created_nodes
+    def test_build_with_parent_a_pose(self):
+        parent = nt.Transform.build(name='test')
+        rig_instance = self.from_template_file(self.APOSE, parent=parent)
+        self.assertEqual(str(rig_instance.root.get_parent()), str(parent))

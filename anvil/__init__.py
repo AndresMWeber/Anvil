@@ -11,6 +11,8 @@ import plugins
 import objects
 import grouping
 import node_types
+import sub_rig_templates
+import rig_templates
 
 LOG.info('Anvil environment has been set to %s' % config.ENV)
 LOG.info('Successfully initiated Anvil %s.' % version.__version__)
@@ -71,4 +73,6 @@ __all__ = ['config',
            'runtime',
            'node_types',
            'objects',
-           'grouping']
+           'grouping',
+           'sub_rig_templates',
+           'rig_templates']

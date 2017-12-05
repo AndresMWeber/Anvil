@@ -6,11 +6,10 @@ import anvil.runtime as rt
 class Spine(SubRigTemplate):
     name_tokens = {'name': 'spine'}
 
-    def __init__(self, spine_joints, layout=None, meta_data=None, parent=None, top_node=None, **flags):
-        super(Spine, self).__init__(layout=None, meta_data=None, parent=None, top_node=None, **flags)
-        self.layout_joints = spine_joints
+    def __init__(self, **kwargs):
+        super(Spine, self).__init__(**kwargs)
 
-    def build(self, parent=None, meta_data=None, **flags):
+    def build(self, parent=None, meta_data=None, **kwargs):
         if len(self.layout_joints) < 4:
             raise ValueError('Need to input more than 4 joints in order to create a %s' % self.__class__.__name__)
         super(Spine, self).build(name_tokens=meta_data, parent=parent)
