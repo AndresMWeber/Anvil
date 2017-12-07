@@ -1,5 +1,4 @@
 from six import iteritems
-from pprint import pprint
 import anvil
 import anvil.node_types as nt
 from base_test import TestBase

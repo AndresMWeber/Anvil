@@ -51,7 +51,7 @@ class SubRig(base.AbstractGrouping):
         control = Control.build(parent=self.group_controls, meta_data=meta_data, **flags)
 
         rt.dcc.scene.delete(
-            rt.dcc.constrain.translate([start_joint, end_joint], control.offset_group, maintain_offset=False))
+            rt.dcc.constrain.translate([str(start_joint), str(end_joint)], control.offset_group, maintain_offset=False))
 
         rt.dcc.scene.delete(
             rt.dcc.constrain.aim(joints, control.offset_group, maintain_offset=False, upObject=start_joint))

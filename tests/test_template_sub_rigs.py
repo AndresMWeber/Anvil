@@ -31,7 +31,7 @@ class TestBaseTemplates(base_test.TestBase):
             joints = template_args
         sub_rig_instance = cls.TEMPLATE_CLASS(joints)
         sub_rig_instance.build(**template_flags)
-        pprint(anvil.runtime.dcc.scene.get_scene_tree())
+        pprint('Sub_rig_template runner built: ', anvil.runtime.dcc.scene.get_scene_tree())
         return sub_rig_instance
 
 

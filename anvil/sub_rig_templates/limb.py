@@ -57,6 +57,6 @@ class Limb(SubRigTemplate):
     def rename(self, *input_dicts, **name_tokens):
         super(Limb, self).rename()
         meta_data = {'type': 'joint'}
-        self.rename_chain(self.blend_chain, purpose='blend', **meta_data)
-        self.rename_chain(self.fk_chain, purpose='fk', **meta_data)
-        self.rename_chain(self.ik_chain, purpose='ik', **meta_data)
+        self.rename_chain(list(self.blend_chain), purpose='blend', **meta_data)
+        self.rename_chain(list(self.fk_chain), purpose='fk', **meta_data)
+        self.rename_chain(list(self.ik_chain), purpose='ik', **meta_data)

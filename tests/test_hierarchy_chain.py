@@ -31,9 +31,9 @@ class TestBaseHierarchyChain(TestBase):
             cls.group = group
             cls.joints_third = joints_third
             cls.joints_total = joints_second + [group] + joints_third
-            pprint(rt.dcc.scene.get_scene_tree())
+            pprint('dependencies-built:', rt.dcc.scene.get_scene_tree())
         except:
-            pprint(rt.dcc.scene.get_scene_tree())
+            pprint('dependencies-build-failed:', rt.dcc.scene.get_scene_tree())
 
 
 class TestHierarchyChainInit(TestBaseHierarchyChain):
@@ -79,7 +79,6 @@ class TestHierarchyChainIteration(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_first_member(self):
         chain = nt.HierarchyChain(self.joints[0])
-        print(self.joints[0], chain[0], type(chain[0]), type(self.joints[0]))
         self.assertEquals(chain[0], self.joints[0])
 
     @TestBase.delete_created_nodes

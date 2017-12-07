@@ -5,27 +5,24 @@ import anvil
 import nomenclate.core.tools as ts
 
 
-def verify_chain_integrity(function):
-    @wraps(function)
-    def wrapper(self, *args, **kwargs):
-        if not rt.dcc.scene.exists(self.root):
-            raise MemoryError('Reference %s to top node does not exist anymore...' % self.top_node)
-        return function(self, *args, **kwargs)
-
-    return wrapper
-
-
 class HierarchyChain(object):
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
+        top_node = self._resolve_root(top_node)
         if duplicate:
             duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False}
-            top_node = rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)
+            top_node = str(rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)[0])
+        self.root = top_node
 
-        self.root = anvil.factory(top_node[0]) if isinstance(top_node, list) else anvil.factory(top_node)
-        self.node_filter = self._default_filter(node_filter=node_filter)
+        print('resolved root as %r' % self.root)
+        self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         self.end = end_node
         self.set_end(end_node=end_node)
         self.parent(parent)
+
+    def _resolve_root(self, root_candidate):
+        if isinstance(root_candidate, self.__class__):
+            return root_candidate.root
+        return anvil.factory(root_candidate[0]) if isinstance(root_candidate, list) else anvil.factory(root_candidate)
 
     @property
     def mid(self):
@@ -33,30 +30,35 @@ class HierarchyChain(object):
         """
         return self.get_hierarchy_as_list()[self.depth() / 2]
 
-    @verify_chain_integrity
     def set_end(self, end_node=None, node_filter=None):
         """ Returns the last item found of type
         """
-        node_filter = node_filter or self.node_filter
         try:
             self.end = anvil.factory(end_node)
         except RuntimeError:
-            last_node = self.get_level(self.depth(), node_filter=node_filter)
-            if last_node:
-                self.end = anvil.factory(list(last_node)[0])
-            else:
-                raise ValueError('Could not find last node at depth %d' % self.depth())
+            self.end = self.get_linear_end(node_filter=node_filter)
 
-    @verify_chain_integrity
+    def get_linear_end(self, node_filter=None):
+        node_filter = node_filter or self.node_filter
+        last_node = self.get_level(self.depth(), node_filter=node_filter)
+        if last_node:
+            return anvil.factory(list(last_node)[0])
+        else:
+            raise ValueError('Could not find last node at depth %d' % self.depth())
+
     def get_hierarchy(self, node_filter=None):
         node_filter = node_filter or self.node_filter
+        print('my root is: ', self.root)
         return rt.dcc.scene.node_hierarchy_as_dict(self.root, node_filter=node_filter)
 
     def get_hierarchy_as_list(self, node_filter=None):
         return self._flatten_dict_keys(self.get_hierarchy(node_filter=node_filter))
 
-    def _default_filter(self, node_filter=None):
-        return rt.dcc.scene.get_type(self.root) if node_filter is None else node_filter
+    def _get_default_filter_type(self, node_filter=None):
+        if self.root and node_filter:
+            return rt.dcc.scene.get_type(self.root) if node_filter is None else node_filter
+        else:
+            return node_filter or []
 
     def get_level(self, desired_level, traversal=None, level_tree=None, node_filter=None):
         """ Returns a dictionary at depth "desired_level" from the hierarchy.
@@ -122,7 +124,6 @@ class HierarchyChain(object):
             keys.append(d)
         return keys
 
-    @verify_chain_integrity
     def __iter__(self):
         """ This is setup to only iterate on the nodes in between the top node and the end node
             ignores branching paths
@@ -136,7 +137,7 @@ class HierarchyChain(object):
             if current_node == self.root:
                 return iter(chain_path)
 
-        raise IndexError('Could not find %s in parent hierarchy of last node %s' % (self.root, self.end))
+        raise IndexError('Could not find %s in parent hierarchy with last node %s' % (self.root, self.end))
 
     def __contains__(self, item):
         return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
@@ -158,4 +159,4 @@ class HierarchyChain(object):
         return len(list(iter(self)))
 
     def __str__(self):
-        return self.root
+        return str(self.root)

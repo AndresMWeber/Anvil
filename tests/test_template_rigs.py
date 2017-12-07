@@ -29,14 +29,15 @@ class TestBuildBiped(TestBaseTemplateRigs):
             #cfg.NECK: nt.HierarchyChain('neckA_JNT'),
             #cfg.HEAD: nt.HierarchyChain('headA_JNT'),
         }
-        rig_instance = cls.CLASS(sub_rig_dict, meta_data= {cfg.NAME: 'hombre'}, **kwargs).build()
+        rig_instance = cls.CLASS(sub_rig_dict, meta_data= {cfg.NAME: 'hombre'}, **kwargs)
+        rig_instance.build()
         return rig_instance
 
     @base_test.TestBase.delete_created_nodes
     def test_build_with_parent_t_pose(self):
         parent = nt.Transform.build(name='test')
         rig_instance = self.from_template_file(self.TPOSE, parent=parent)
-        self.assertEqual(str(rig_instance.group_top.get_parent()), str(parent))
+        self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
     @base_test.TestBase.delete_created_nodes
     def test_build_with_parent_a_pose(self):

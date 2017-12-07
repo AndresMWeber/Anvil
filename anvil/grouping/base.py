@@ -86,7 +86,7 @@ class AbstractGrouping(object):
         top_node, new_parent = str(self.root), str(new_parent)
         nodes_exist = [rt.dcc.scene.exists(node) if node != 'None' else False for node in [top_node, new_parent]]
         if all(nodes_exist or [False]):
-            self.LOG.debug('Parenting control offset group %s to %s' % (top_node, new_parent))
+            self.LOG.info('Parenting root of %r: %s to %s' % (self, top_node, new_parent))
             rt.dcc.scene.parent(top_node, new_parent)
             return True
         else:
@@ -94,7 +94,7 @@ class AbstractGrouping(object):
             return False
 
     def rename_chain(self, objects, **name_tokens):
-        self.LOG.debug('Renaming %r...' % (self))
+        self.LOG.info('Renaming chain %r...' % (self))
         self.chain_nomenclate.merge_dict(self.merge_dicts(self.meta_data, name_tokens))
 
         for index, object in enumerate(objects):

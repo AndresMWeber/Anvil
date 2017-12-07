@@ -6,8 +6,8 @@ import anvil.runtime as rt
 class Spine(SubRigTemplate):
     name_tokens = {'name': 'spine'}
 
-    def __init__(self, **kwargs):
-        super(Spine, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(Spine, self).__init__(*args, **kwargs)
 
     def build(self, parent=None, meta_data=None, **kwargs):
         if len(self.layout_joints) < 4:

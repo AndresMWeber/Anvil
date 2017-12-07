@@ -58,7 +58,7 @@ loggers:
     anvil.plugins.base.api_proxy.api_calls:
         level: INFO
         handlers: [info_file_handler]
-        propagate: no
+        propagate: yes
 
     testing:
         level: INFO

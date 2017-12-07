@@ -55,7 +55,7 @@ class Rig(base.AbstractGrouping):
                 sub_rig_member.build()
             anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
 
-    def build(self, meta_data=None, **kwargs):
+    def build(self, meta_data=None, parent=None, **kwargs):
         self.LOG.info('Building rig %s' % self)
         if not self.root:
             self.build_node(ot.Transform,
@@ -77,10 +77,13 @@ class Rig(base.AbstractGrouping):
                                                        {'childtype': main_group_type, 'type': 'group'}))
 
         self.root = self.group_top
-
-        self.assign_rendering_delegate(self.control_universal.control)
         self.LOG.info('Building sub rigs...')
         self.build_sub_rigs()
+        self.assign_rendering_delegate(self.control_universal.control)
+
+        if parent:
+            self.parent(parent)
+        self.rename()
 
     def __getattr__(self, item):
         try:

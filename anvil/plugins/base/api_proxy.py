@@ -29,17 +29,14 @@ class APIProxy(object):
         def to_validate(function):
             @wraps(function)
             def validator(*args, **kwargs):
-                cls.LOG.debug('Validating call for %s.%s(%s, %s) against schema %s' % (
-                    api.__name__, function_name, ', '.join([str(a) for a in args]),
-                    ','.join(['%s=%s' % (k, v) for k, v in iteritems(kwargs)]),
+                cls.LOG.debug('Validating call for %s.%s(args=%s, kwargs=%s) against schema %s' % (
+                    api.__name__, function_name, ', '.join([repr(a) for a in args]),
+                    ', '.join(['%s=%s' % (k, v) for k, v in iteritems(kwargs)]),
                     list(schema['properties'])))
                 validate(kwargs, schema)
                 kwargs = cls._initialize_and_filter_flags(kwargs, schema)
-                function(*args, **kwargs)
                 return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
-
             return validator
-
         return to_validate
 
     @classmethod
@@ -51,7 +48,7 @@ class APIProxy(object):
 
         for flag_key in list(new_flags):
             if flag_key not in schema_properties:
-                cls.LOG.warning('  Flag %s not in schema...removing from flags' % (flag_key))
+                cls.LOG.debug('  Flag %s not in schema...removing from flags' % (flag_key))
                 new_flags.pop(flag_key)
 
         for schema_property in schema_properties:
@@ -62,35 +59,38 @@ class APIProxy(object):
 
         return new_flags
 
-    @staticmethod
-    def is_anvil_type(obj):
-        return issubclass(type(obj), (anvil.grouping.AbstractGrouping, anvil.objects.UnicodeDelegate))
-
     @classmethod
     def _log_and_run_api_call(cls, api, function_name, *args, **kwargs):
-        args = [arg for arg in args if arg not in ['None', None]]
-        parametrized_function_call = cls._compose_api_call(api, function_name, *args, **kwargs)
-        cls.API_LOG.info(parametrized_function_call)
+        # Pre-process all Anvil nodes to str
+        args = [str(arg) if anvil.is_anvil(arg) else arg for arg in args if arg not in ['None', None]]
+
+        if kwargs:
+            flags = kwargs.pop('flags', {})
+            kwargs.update(flags)
+            for key, node in iteritems(kwargs):
+                if anvil.is_anvil(node):
+                    kwargs[key] = str(node)
+
+        cls.API_LOG.info(cls._compose_api_call(api, function_name, *args, **kwargs))
         return getattr(api, function_name)(*args, **kwargs)
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):
-        formatted_args = ', '.join([str(arg) if anvil.is_anvil(arg) else repr(arg) for arg in args]) if args else ''
+        formatted_args = ', '.join([repr(a) for a in args]) if args else ''
 
+        flags = kwargs.pop('flags', {})
+        kwargs.update(flags)
         if kwargs is not None and kwargs != {}:
-            flags = kwargs.pop('flags', {})
-            kwargs.update(flags)
-            formatted_kwargs = [(key, str(node)) if anvil.is_anvil(node) else (key, node) for key, node in iteritems(kwargs)]
-            formatted_args = ', '.join('%s=%r' % kwarg for kwarg in formatted_kwargs)
+            formatted_args += ''.join(', %s=%r' % (key, node) for key, node in iteritems(kwargs))
 
         return '%s.%s(%s)' % (api.__name__, function_name, formatted_args)
 
     @staticmethod
     def _convert_anvil_nodes_to_string(func):
         def wrapper(*args, **kwargs):
-            args = tuple(str(arg) if APIProxy.is_anvil_type(arg) else arg for arg in args)
+            args = tuple(str(arg) if anvil.is_anvil(arg) else arg for arg in args)
             for k, v in iteritems(kwargs):
-                if APIProxy.is_anvil_type(v):
+                if anvil.is_anvil(v):
                     kwargs[k] = str(v)
 
             result = func(*args, **kwargs)
