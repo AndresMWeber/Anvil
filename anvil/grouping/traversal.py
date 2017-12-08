@@ -11,7 +11,7 @@ class HierarchyChain(object):
         if duplicate:
             duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False}
             top_node = str(rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)[0])
-        self.root = top_node
+        self.root = anvil.factory(top_node)
 
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         self.end = end_node
@@ -21,7 +21,7 @@ class HierarchyChain(object):
     def _resolve_root(self, root_candidate):
         if isinstance(root_candidate, self.__class__):
             return root_candidate.root
-        return anvil.factory(root_candidate[0]) if isinstance(root_candidate, list) else anvil.factory(root_candidate)
+        return root_candidate[0] if isinstance(root_candidate, list) else root_candidate
 
     @property
     def mid(self):
@@ -34,7 +34,7 @@ class HierarchyChain(object):
         """
         try:
             self.end = anvil.factory(end_node)
-        except RuntimeError:
+        except (RuntimeError, IOError):
             self.end = self.get_linear_end(node_filter=node_filter)
 
     def get_linear_end(self, node_filter=None):
