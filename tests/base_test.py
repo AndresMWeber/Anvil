@@ -31,7 +31,7 @@ class TestBase(unittest2.TestCase):
         import os
         file_path = os.path.join(os.path.dirname(__file__), cls.TEMPLATE_FILES[template_file])
         cls.LOG.info('Importing file %s from anvil/tests dir' % file_path)
-        #pm.importFile(file_path)
+        pm.importFile(file_path)
         cls.LOG.info('Successfully imported file.')
 
     @classmethod
