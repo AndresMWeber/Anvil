@@ -17,15 +17,15 @@ class TestBuildBiped(TestBaseTemplateRigs):
     def from_template_file(cls, template_file, **kwargs):
         cls.import_template_files(template_file)
         sub_rig_dict = {
-            cfg.LEFT + '_' + cfg.ARM: nt.HierarchyChain('l_armA_JNT'),
-            cfg.RIGHT + '_' + cfg.ARM: nt.HierarchyChain('r_armA_JNT'),
+            cfg.LEFT + '_' + cfg.ARM: nt.HierarchyChain('l_armA_JNT', end_node='l_armC_JNT'),
+            cfg.RIGHT + '_' + cfg.ARM: nt.HierarchyChain('r_armA_JNT', end_node='r_armC_JNT'),
             #cfg.LEFT + '_' + cfg.HAND: nt.HierarchyChain('l_handA_JNT'),
             #cfg.RIGHT + '_' + cfg.HAND: nt.HierarchyChain('r_handA_JNT'),
-            cfg.LEFT + '_' + cfg.LEG: nt.HierarchyChain('l_legA_JNT'),
-            cfg.RIGHT + '_' + cfg.LEG: nt.HierarchyChain('r_legA_JNT'),
+            cfg.LEFT + '_' + cfg.LEG: nt.HierarchyChain('l_legA_JNT', end_node='l_legC_JNT'),
+            cfg.RIGHT + '_' + cfg.LEG: nt.HierarchyChain('r_legA_JNT', end_node='r_legC_JNT'),
             #cfg.LEFT + '_' + cfg.FOOT: nt.HierarchyChain('l_footA_JNT'),
             #cfg.RIGHT + '_' + cfg.FOOT: nt.HierarchyChain('r_footA_JNT'),
-            cfg.SPINE: nt.HierarchyChain('spineA_JNT'),
+            cfg.SPINE: nt.HierarchyChain('spineA_JNT', end_node='spineEnd_JNT'),
             #cfg.NECK: nt.HierarchyChain('neckA_JNT'),
             #cfg.HEAD: nt.HierarchyChain('headA_JNT'),
         }

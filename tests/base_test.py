@@ -22,8 +22,8 @@ class TestBase(unittest2.TestCase):
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
     APOSE = 'APOSE'
     TPOSE = 'TPOSE'
-    TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.mb',
-                      TPOSE: 'test_skeleton_t_pose.mb'}
+    TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
+                      TPOSE: 'test_skeleton_t_pose.ma'}
 
     @classmethod
     def import_template_files(cls, template_file):

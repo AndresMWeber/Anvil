@@ -21,7 +21,8 @@ class Rig(base.AbstractGrouping):
         super(Rig, self).__init__(**kwargs)
         self._nomenclate.format = 'side_location_nameDecoratorVar_childtype_purpose_rig_type'
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
-        self.register_sub_rigs_from_dict(sub_rig_dict)
+        if sub_rig_dict:
+            self.register_sub_rigs_from_dict(sub_rig_dict)
 
     def rename(self, *input_dicts, **name_tokens):
         super(Rig, self).rename(*input_dicts, **name_tokens)
