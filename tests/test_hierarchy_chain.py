@@ -1,5 +1,6 @@
 import anvil.node_types as nt
 import anvil.runtime as rt
+import anvil
 from base_test import TestBase
 from pprint import pprint
 import anvil.config as cfg
@@ -14,26 +15,23 @@ class TestBaseHierarchyChain(TestBase):
 
     @classmethod
     def build_dependencies(cls, num_joints=6, joint_flags=None):
-        try:
-            joint_flags = joint_flags or {}
-            joints = []
-            for i in range(num_joints):
-                joint = nt.Joint.build(**joint_flags)
-                rt.dcc.scene.position(joint, translation=[0, i, 0])
-                joints.append(joint)
-            cls.joints = joints
+        joint_flags = joint_flags or {}
+        joints = []
+        for i in range(num_joints):
+            joint = nt.Joint.build(**joint_flags)
+            rt.dcc.scene.position(joint, translation=[0, i, 0])
+            joints.append(joint)
+        cls.joints = joints
 
-            joints_second = rt.dcc.scene.duplicate(joints, renameChildren=True)
-            joints_third = rt.dcc.scene.duplicate(joints, renameChildren=True)
-            group = nt.Transform.build(parent=joints_second[-1])
-            rt.dcc.scene.parent(joints_third[0], group)
-            cls.joints_mixed = joints_second
-            cls.group = group
-            cls.joints_third = joints_third
-            cls.joints_total = joints_second + [group] + joints_third
-            pprint('dependencies-built:', rt.dcc.scene.get_scene_tree())
-        except:
-            pprint('dependencies-build-failed:', rt.dcc.scene.get_scene_tree())
+        joints_second = rt.dcc.scene.duplicate(joints, renameChildren=True)
+        joints_third = rt.dcc.scene.duplicate(joints, renameChildren=True)
+        group = nt.Transform.build(parent=joints_second[-1])
+        rt.dcc.scene.parent(joints_third[0], group)
+        cls.joints_mixed = joints_second
+        cls.group = group
+        cls.joints_third = joints_third
+        cls.joints_total = joints_second + [group] + joints_third
+        pprint(rt.dcc.scene.get_scene_tree())
 
 
 class TestHierarchyChainInit(TestBaseHierarchyChain):
@@ -67,7 +65,7 @@ class TestHierarchyChainGetHierarchy(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_joints_mixed(self):
         chain = nt.HierarchyChain(self.joints_mixed[0])
-        self.assertEqual(chain.get_hierarchy_as_list(), self.joints_mixed)
+        self.assertEqual(chain.get_hierarchy_as_list(), [anvil.factory(j) for j in self.joints_total])
 
     @TestBase.delete_created_nodes
     def test_with_filter(self):
@@ -107,7 +105,7 @@ class TestHierarchyChainDepth(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_joints_mixed(self):
         chain = nt.HierarchyChain(self.joints_mixed[0])
-        self.assertEqual(chain.depth(), len(self.joints) - 1)
+        self.assertEqual(chain.depth(), len(self.joints_total) - 1)
 
     @TestBase.delete_created_nodes
     def test_with_filter(self):
@@ -119,12 +117,20 @@ class TestHierarchyGetLevel(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
         chain = nt.HierarchyChain(self.joints[0])
+        print('yo')
+        print(anvil.EXISTING_ENCAPSULATIONS)
+        print(self.joints)
+        print(chain.get_level(4))
+        print(nt.HierarchyChain(self.joints[4]).get_hierarchy())
+        print(chain.get_level(4) == nt.HierarchyChain(self.joints[4]).get_hierarchy())
+        print('yo')
+
         self.assertEqual(chain.get_level(4), nt.HierarchyChain(self.joints[4]).get_hierarchy())
 
     @TestBase.delete_created_nodes
     def test_joints_mixed(self):
         chain = nt.HierarchyChain(self.joints_mixed[0])
-        self.assertEqual(chain.get_level(4), nt.HierarchyChain(self.joints_mixed[4]).get_hierarchy())
+        self.assertDictEqual(chain.get_level(4), nt.HierarchyChain(self.joints_mixed[4]).get_hierarchy())
 
     @TestBase.delete_created_nodes
     def test_with_filter(self):

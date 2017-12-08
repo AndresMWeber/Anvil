@@ -1,7 +1,5 @@
-from six import iteritems
 import anvil
 import anvil.runtime as rt
-from inspect import isclass
 
 
 class UnicodeDelegate(object):
@@ -28,9 +26,12 @@ class UnicodeDelegate(object):
         default_meta_data.update(meta_data or {})
         self.meta_data = default_meta_data
 
+    def name(self):
+        return str(self._dcc_id)
+
     @staticmethod
     def create_engine_instance(**flags):
-        return rt.dcc.create.create_node('transform', **flags)
+        raise NotImplementedError('Cannot instantiate nodes from this class')
 
     @classmethod
     def build(cls, meta_data=None, **flags):
@@ -42,7 +43,7 @@ class UnicodeDelegate(object):
         # If the instance isn't a string we can assume it's some API class instance we can use later.
         if not isinstance(dcc_instance, str):
             instance._api_class_instance = dcc_instance
-
+        anvil.register_encapsulation(instance)
         return instance
 
     def __getattr__(self, item):
@@ -56,4 +57,17 @@ class UnicodeDelegate(object):
                 def to_camel_case(input_string):
                     tokens = input_string.split('_')
                     return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
+
                 return getattr(_api_class_instance, to_camel_case(item))
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __repr__(self):
+        if hasattr(self, '__str__'):
+            return '<%s @ 0x%x (%s)>' % (self.__class__.__name__, id(self), str(self))
+        else:
+            return '<%s @ 0x%x>' % (self.__class__.__name__, id(self))
+
+    def __str__(self):
+        return str(self.name())

@@ -21,9 +21,10 @@ EXISTING_ENCAPSULATIONS = {}
 
 
 def check_for_encapsulation(dag_path):
+    print('checking for encapsulation of %s' % dag_path)
     for node_index, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
-            LOG.debug('Found previous encapsulation for %s: %s. Using instead.' % (dag_path, node_encapsulation))
+            LOG.info('Found previous encapsulation for %s: %r. Using instead.' % (dag_path, node_encapsulation))
             return node_encapsulation
     else:
         return None
@@ -53,8 +54,12 @@ def factory(dag_path):
 
     encapsulation = encapsulation_class(dag_path)
     LOG.debug('Encapsulating %s with node type %s as %s' % (dag_path, encapsulation_class, encapsulation))
-    EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = encapsulation
+    register_encapsulation(encapsulation)
     return encapsulation
+
+
+def register_encapsulation(anvil_class_instance):
+    EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = anvil_class_instance
 
 
 def is_anvil(node):

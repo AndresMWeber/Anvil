@@ -13,7 +13,6 @@ class HierarchyChain(object):
             top_node = str(rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)[0])
         self.root = top_node
 
-        print('resolved root as %r' % self.root)
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         self.end = end_node
         self.set_end(end_node=end_node)
@@ -48,7 +47,6 @@ class HierarchyChain(object):
 
     def get_hierarchy(self, node_filter=None):
         node_filter = node_filter or self.node_filter
-        print('my root is: ', self.root)
         return rt.dcc.scene.node_hierarchy_as_dict(self.root, node_filter=node_filter)
 
     def get_hierarchy_as_list(self, node_filter=None):

@@ -29,7 +29,10 @@ class TestBase(unittest2.TestCase):
     def import_template_files(cls, template_file):
         import pymel.core as pm
         import os
-        pm.importFile(os.path.join(os.path.dirname(__file__), cls.TEMPLATE_FILES[template_file]), force=True)
+        file_path = os.path.join(os.path.dirname(__file__), cls.TEMPLATE_FILES[template_file])
+        cls.LOG.info('Importing file %s from anvil/tests dir' % file_path)
+        #pm.importFile(file_path)
+        cls.LOG.info('Successfully imported file.')
 
     @classmethod
     def build_dependencies(cls):

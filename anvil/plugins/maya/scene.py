@@ -331,9 +331,12 @@ def node_hierarchy_as_dict(nodes, tree=None, node_filter=None):
 
 
 def get_persistent_id(node_unicode_proxy):
-    selection_list = om.MSelectionList()
-    selection_list.add(str(node_unicode_proxy))
-    return selection_list.getDagPath(0)
+    try:
+        selection_list = om.MSelectionList()
+        selection_list.add(str(node_unicode_proxy))
+        return selection_list.getDagPath(0)
+    except RuntimeError:
+        raise KeyError('Requested node-ID %r does not exist in the scene.' % node_unicode_proxy)
 
 
 APIWrapper = API.PyNode

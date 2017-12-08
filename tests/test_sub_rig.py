@@ -32,7 +32,7 @@ class TestSubRigBuild(TestBaseSubRig):
 
     @TestBase.delete_created_nodes
     def test_layout(self):
-        sub_rig = nt.SubRig(meta_data=None, top_node=None, layout='test layout', parent=None)
+        sub_rig = nt.SubRig(meta_data=None, top_node=None, layout_joints='test layout', parent=None)
         sub_rig.build()
         self.assertEquals(sub_rig.layout_joints, 'test layout')
 

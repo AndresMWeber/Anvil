@@ -10,16 +10,15 @@ class TestBaseDagNode(TestBase):
 class TestDagNodeBuild(TestBaseDagNode):
     @TestBase.delete_created_nodes
     def test_empty_input(self):
-        self.assertRaises(nt.DagNode.build, None, KeyError)
+        self.assertRaises(NotImplementedError, nt.DagNode.build, None)
 
     @TestBase.delete_created_nodes
     def test_full_input(self):
-        self.assertRaises(nt.DagNode.build, None, KeyError)
+        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name':'test'}, name='bob')
 
     @TestBase.delete_created_nodes
     def test_partial_input(self):
-        self.assertRaises(nt.DagNode.build, None, KeyError)
-
+        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name':'test'})
 
 class TestDagNodeRename(TestBaseDagNode):
     @TestBase.delete_created_nodes
