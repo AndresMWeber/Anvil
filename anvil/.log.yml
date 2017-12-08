@@ -60,7 +60,7 @@ loggers:
         handlers: [info_file_handler]
         propagate: yes
 
-    testing:
+    anvil.tests:
         level: INFO
         handlers: [info_file_handler]
         propagate: yes

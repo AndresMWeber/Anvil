@@ -23,14 +23,14 @@ class TestBaseHierarchyChain(TestBase):
             joints.append(joint)
         cls.joints = joints
 
-        joints_second = rt.dcc.scene.duplicate(joints, renameChildren=True)
-        joints_third = rt.dcc.scene.duplicate(joints, renameChildren=True)
-        group = nt.Transform.build(parent=joints_second[-1])
-        rt.dcc.scene.parent(joints_third[0], group)
-        cls.joints_mixed = joints_second
+        cls.joints_second = rt.dcc.scene.duplicate(joints, renameChildren=True)
+        cls.joints_third = rt.dcc.scene.duplicate(joints, renameChildren=True)
+        group = nt.Transform.build(parent=cls.joints_second[-1])
+        rt.dcc.scene.parent(cls.joints_third[0], group)
+        cls.joints_mixed = cls.joints_second
         cls.group = group
-        cls.joints_third = joints_third
-        cls.joints_total = joints_second + [group] + joints_third
+        cls.joints_third = cls.joints_third
+        cls.joints_total = cls.joints_second + [group] + cls.joints_third
         pprint(rt.dcc.scene.get_scene_tree())
 
 
@@ -41,7 +41,7 @@ class TestHierarchyChainInit(TestBaseHierarchyChain):
 
     @TestBase.delete_created_nodes
     def test_none_input(self):
-        self.assertRaises(RuntimeError, nt.HierarchyChain, None)
+        self.assertRaises(IOError, nt.HierarchyChain, None)
 
     @TestBase.delete_created_nodes
     def test_full_list(self):
@@ -96,6 +96,23 @@ class TestHierarchyChainIteration(TestBaseHierarchyChain):
         chain = nt.HierarchyChain(self.joints[0])
         self.checkEqual(chain, self.joints)
 
+    @TestBase.delete_created_nodes
+    def test_specified_end_node(self):
+        chain = nt.HierarchyChain(self.joints_total[0], self.joints_second[-1])
+        self.checkEqual(chain, self.joints_second)
+
+    @TestBase.delete_created_nodes
+    def test_specified_end_node_with_node_filter(self):
+        chain = nt.HierarchyChain(self.joints_mixed[0], self.joints_total[-3], node_filter=cfg.JOINT_TYPE)
+        self.checkEqual(chain, self.joints)
+
+    @TestBase.delete_created_nodes
+    def test_specified_end_node_with_node_filter_all(self):
+        chain = nt.HierarchyChain(self.joints_mixed[0], self.joints_total[-3],
+                                  node_filter=[cfg.JOINT_TYPE, cfg.TRANSFORM_TYPE])
+        self.checkEqual(chain, self.joints_total[:-3])
+
+
 class TestHierarchyChainDepth(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
@@ -117,14 +134,6 @@ class TestHierarchyGetLevel(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
         chain = nt.HierarchyChain(self.joints[0])
-        print('yo')
-        print(anvil.EXISTING_ENCAPSULATIONS)
-        print(self.joints)
-        print(chain.get_level(4))
-        print(nt.HierarchyChain(self.joints[4]).get_hierarchy())
-        print(chain.get_level(4) == nt.HierarchyChain(self.joints[4]).get_hierarchy())
-        print('yo')
-
         self.assertEqual(chain.get_level(4), nt.HierarchyChain(self.joints[4]).get_hierarchy())
 
     @TestBase.delete_created_nodes

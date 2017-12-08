@@ -8,9 +8,14 @@ import nomenclate.core.tools as ts
 class HierarchyChain(object):
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
         top_node = self._resolve_root(top_node)
+
+        if isinstance(top_node, self.__class__):
+            top_node, end_node = top_node.root, top_node.end
+
         if duplicate:
             duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False}
-            top_node = str(rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)[0])
+            top_node, end_node = str(rt.dcc.scene.duplicate(top_node, **duplicate_kwargs)[0]), None
+
         self.root = anvil.factory(top_node)
 
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
@@ -19,8 +24,6 @@ class HierarchyChain(object):
         self.parent(parent)
 
     def _resolve_root(self, root_candidate):
-        if isinstance(root_candidate, self.__class__):
-            return root_candidate.root
         return root_candidate[0] if isinstance(root_candidate, list) else root_candidate
 
     @property
@@ -158,3 +161,7 @@ class HierarchyChain(object):
 
     def __str__(self):
         return str(self.root)
+
+    def __repr__(self):
+        return super(HierarchyChain, self).__repr__().replace('>',
+                                                              '(root=%s, end=%s)>' % (str(self.root), str(self.end)))
