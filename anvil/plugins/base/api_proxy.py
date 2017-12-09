@@ -48,13 +48,13 @@ class APIProxy(object):
 
         for flag_key in list(new_flags):
             if flag_key not in schema_properties:
-                cls.LOG.debug('  Flag %s not in schema...removing from flags' % (flag_key))
+                cls.LOG.debug('Flag %s not in schema...removing from flags' % (flag_key))
                 new_flags.pop(flag_key)
 
         for schema_property in schema_properties:
             default = schema['properties'][schema_property].get('default')
             if default is not None and new_flags.get(schema_property) is None:
-                cls.LOG.warning('  Flag %s has default value %s from schema ' % (schema_property, default))
+                cls.LOG.debug('Setting flag %s from default value %s in schema ' % (schema_property, default))
                 new_flags[schema_property] = default
 
         return new_flags

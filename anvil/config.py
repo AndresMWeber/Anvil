@@ -32,6 +32,18 @@ CONTROL_TYPE = 'control'
 HIERARCHY_TYPE = 'hierarchy'
 meta_data_TYPE = 'meta_data'
 
+# RIG CONCEPTS
+IK = 'ik'
+IK_HANDLE = 'ik_handle'
+IK_EFFECTOR = 'ik_effector'
+FK = 'fk'
+POLE_VECTOR = 'pole_vector'
+BLEND = 'blend'
+
+# NAMING TOKENS
+TYPE = 'type'
+PURPOSE = 'purpose'
+
 # DCC LIST
 BASE = 'standalone'
 MAYA = 'maya'

@@ -2,6 +2,7 @@ from base import SubRigTemplate
 import anvil.node_types as nt
 import anvil.validation as validation
 import anvil.runtime as rt
+import anvil.config as cfg
 
 class Limb(SubRigTemplate):
     BUILT_IN_META_DATA = {'name': 'limb'}
@@ -9,6 +10,7 @@ class Limb(SubRigTemplate):
     def __init__(self, layout_joints, meta_data=None, parent=None, top_node=None, **flags):
         super(Limb, self).__init__(layout=layout_joints, meta_data=meta_data, parent=parent, top_node=top_node, **flags)
         self.layout_joints = layout_joints
+        print(layout_joints, list(layout_joints))
         self.blend_chain = []
         self.fk_chain = []
         self.ik_chain = []
@@ -39,24 +41,31 @@ class Limb(SubRigTemplate):
     def build_ik(self, layout_joints, ik_end_index=-1):
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
         handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index])
-        self.register_node('ik_handle', handle, meta_data={'name': 'ik', 'type': 'ikhandle'})
-        self.register_node('ik_effector', effector, meta_data={'name': 'ik', 'type': 'ikeffector'})
+        self.register_node(cfg.IK_HANDLE, handle, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_HANDLE})
+        self.register_node(cfg.IK_EFFECTOR, effector, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_EFFECTOR})
         self.ik_handle.parent(self.group_nodes)
-        self.build_node(nt.Control, 'control_ik',
+
+        self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK),
                         parent=self.group_controls,
                         shape='flat_diamond',
-                        reference_object=self.ik_chain[-1])
-        self.build_pole_vector_control(self.ik_chain, self.ik_handle, 'control_ik_pole_vector')
+                        reference_object=self.ik_chain[-1],
+                        meta_data={cfg.PURPOSE: cfg.IK})
+
+        self.build_pole_vector_control(self.ik_chain,
+                                       self.ik_handle,
+                                       '%s_%s_%s' % (cfg.CONTROL_TYPE, cfg.IK, cfg.POLE_VECTOR),
+                                       meta_data={cfg.PURPOSE: cfg.POLE_VECTOR})
+
         rt.dcc.constrain.translate(self.control_ik.connection_group, self.ik_handle)
 
     def prep_joint_chain_for_rigging(self, joint_chain):
         for joint in joint_chain:
             pass
-        joint_chain[-1].jointOrient.set([0, 0, 0])
+        #joint_chain[-1].jointOrient.set([0, 0, 0])
 
     def rename(self, *input_dicts, **name_tokens):
         super(Limb, self).rename()
-        meta_data = {'type': 'joint'}
-        self.rename_chain(list(self.blend_chain), purpose='blend', **meta_data)
-        self.rename_chain(list(self.fk_chain), purpose='fk', **meta_data)
-        self.rename_chain(list(self.ik_chain), purpose='ik', **meta_data)
+        meta_data = {cfg.TYPE: cfg.JOINT_TYPE}
+        self.rename_chain(list(self.blend_chain), purpose=cfg.BLEND, **meta_data)
+        self.rename_chain(list(self.fk_chain), purpose=cfg.FK, **meta_data)
+        self.rename_chain(list(self.ik_chain), purpose=cfg.IK, **meta_data)

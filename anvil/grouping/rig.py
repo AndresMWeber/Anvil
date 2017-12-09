@@ -67,6 +67,7 @@ class Rig(base.AbstractGrouping):
         self.build_node(control.Control,
                         'control_universal',
                         parent=self.group_top,
+                        shape='pyramid',
                         meta_data=self.merge_dicts(self.meta_data, {'childtype': 'universal'}))
 
         for main_group_type in ['extras', 'model', 'sub_rigs']:
