@@ -10,7 +10,6 @@ class Limb(SubRigTemplate):
     def __init__(self, layout_joints, meta_data=None, parent=None, top_node=None, **flags):
         super(Limb, self).__init__(layout=layout_joints, meta_data=meta_data, parent=parent, top_node=top_node, **flags)
         self.layout_joints = layout_joints
-        print(layout_joints, list(layout_joints))
         self.blend_chain = []
         self.fk_chain = []
         self.ik_chain = []
