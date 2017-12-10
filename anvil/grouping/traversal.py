@@ -1,4 +1,3 @@
-from functools import wraps
 from six import iteritems
 import anvil.runtime as rt
 import anvil
@@ -7,40 +6,23 @@ import nomenclate.core.tools as ts
 
 class HierarchyChain(object):
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
-        top_node = self._resolve_root(top_node)
+        self.node_filter = self._get_default_filter_type(node_filter=node_filter)
+        top_node, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
+        self.head = top_node
+        self.tail = self._process_end_node(end_node)
+        self.parent(parent)
 
-        if isinstance(top_node, self.__class__):
+    def _process_top_node(self, top_node, end_node, duplicate=False):
+        if isinstance(top_node, list) and end_node is None:
+            top_node, end_node = top_node[0], top_node[-1]
+
+        elif isinstance(top_node, self.__class__):
             top_node, end_node = top_node.head, top_node.tail
 
         if duplicate:
             top_node, end_node = self.duplicate_chain(top_node, end_node=end_node)
 
-        self.head = anvil.factory(top_node)
-        self.tail = anvil.factory(end_node)
-        self.node_filter = self._get_default_filter_type(node_filter=node_filter)
-        self.set_end(end_node=end_node)
-        self.parent(parent)
-
-    def _resolve_root(self, root_candidate):
-        return root_candidate[0] if isinstance(root_candidate, list) else root_candidate
-
-    def duplicate_chain(self, top_node, end_node=None):
-        """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain
-        :param top_node:
-        :param end_node:
-        :return:
-        """
-        duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
-        if isinstance(top_node, self.__class__):
-            nodes = list(top_node)
-        else:
-            try:
-                nodes = list(self._traverse_linear_path(top_node, end_node))
-            except IndexError:
-                nodes = top_node
-        anvil.LOG.info('Duplicating chain %s from top node %s and end node %s' % (nodes, top_node, end_node))
-        duplicates = rt.dcc.scene.duplicate(nodes, **duplicate_kwargs)
-        return str(duplicates[0]), str(duplicates[-1])
+        return anvil.factory(top_node), end_node
 
     @property
     def mid(self):
@@ -48,13 +30,13 @@ class HierarchyChain(object):
         """
         return self.get_hierarchy_as_list()[self.depth() / 2]
 
-    def set_end(self, end_node=None, node_filter=None):
+    def _process_end_node(self, end_node_candidate, node_filter=None):
         """ Returns the last item found of type
         """
         try:
-            self.tail = anvil.factory(end_node)
+            return anvil.factory(end_node_candidate)
         except (RuntimeError, IOError):
-            self.tail = self._get_linear_end(node_filter=node_filter)
+            return self._get_linear_end(node_filter=node_filter)
 
     def get_hierarchy(self, node_filter=None):
         node_filter = node_filter or self.node_filter
@@ -62,20 +44,6 @@ class HierarchyChain(object):
 
     def get_hierarchy_as_list(self, node_filter=None):
         return self._flatten_dict_keys(self.get_hierarchy(node_filter=node_filter))
-
-    def _get_default_filter_type(self, node_filter=None):
-        if self.head and node_filter:
-            return rt.dcc.scene.get_type(self.head) if node_filter is None else node_filter
-        else:
-            return node_filter or []
-
-    def _get_linear_end(self, node_filter=None):
-        node_filter = node_filter or self.node_filter
-        last_node = self.get_level(self.depth(), node_filter=node_filter)
-        if last_node:
-            return anvil.factory(list(last_node)[0])
-        else:
-            raise ValueError('Could not find last node at depth %d' % self.depth())
 
     def get_level(self, desired_level, traversal=None, level_tree=None, node_filter=None):
         """ Returns a dictionary at depth "desired_level" from the hierarchy.
@@ -120,6 +88,61 @@ class HierarchyChain(object):
         else:
             return False
 
+    def duplicate_chain(self, top_node, end_node=None):
+        """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain
+        :param top_node:
+        :param end_node:
+        :return:
+        """
+        duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
+        if isinstance(top_node, self.__class__):
+            nodes = list(top_node)
+        else:
+            try:
+                nodes = list(self._traverse_up_linear_tree(end_node, top_node))
+            except (IndexError, IOError):
+                # This is the case if no end was specified so we will duplicate the entire chain.
+                nodes = top_node
+                duplicate_kwargs.pop('parentOnly')
+        anvil.LOG.info('Duplicating chain %s from %s->%s, kwargs: %s' % (nodes, top_node, end_node, duplicate_kwargs))
+        duplicates = rt.dcc.scene.duplicate(nodes, **duplicate_kwargs)
+        anvil.LOG.info('Duplicates of %s are %s' % (nodes, duplicates))
+        if len(duplicates) == 1:
+            duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
+        return str(duplicates[0]), str(duplicates[-1])
+
+    def _traverse_up_linear_tree(self, downstream_node, upstream_node):
+        all_descendants = self._traverse_down_linear_tree(upstream_node)
+        if not str(downstream_node) in all_descendants:
+            raise IndexError('Node %r is not in the descendants of %s --> %s' % (downstream_node,
+                                                                                 upstream_node,
+                                                                                 all_descendants))
+
+        current_node = anvil.factory(downstream_node)
+        chain_path = [current_node]
+
+        while anvil.factory(current_node).get_parent():
+            current_node = anvil.factory(current_node.get_parent())
+            chain_path.insert(0, current_node)
+            if current_node == upstream_node:
+                return iter(chain_path)
+        raise IndexError('Could not find path between start(%s) --> last(%s)' % (downstream_node, upstream_node))
+
+    def _get_default_filter_type(self, node_filter=None):
+        try:
+            default_type = rt.dcc.scene.get_type(self.head)
+        except AttributeError:
+            default_type = []
+        return node_filter or default_type
+
+    def _get_linear_end(self, node_filter=None):
+        node_filter = node_filter or self.node_filter
+        last_node = self.get_level(self.depth(), node_filter=node_filter)
+        if last_node:
+            return anvil.factory(list(last_node)[0])
+        else:
+            raise ValueError('Could not find last node at depth %d' % self.depth())
+
     def _dict_depth(self, d=None, level=0, node_filter=None):
         """ Returns maximum depth of the hierarchy
         """
@@ -142,25 +165,17 @@ class HierarchyChain(object):
             keys.append(d)
         return keys
 
-    @staticmethod
-    def _traverse_linear_path(start, end):
-        current_node = end
-        chain_path = [current_node]
-
-        while anvil.factory(current_node).get_parent():
-            current_node = anvil.factory(current_node.get_parent())
-            chain_path.insert(0, current_node)
-            if current_node == start:
-                return iter(chain_path)
-
-        raise IndexError('Could not find %s in parent hierarchy with last node %s' % (start, end))
+    def _traverse_down_linear_tree(self, start):
+        relatives_kwargs = {'allDescendents': True, 'children': True}
+        if self.node_filter:
+            relatives_kwargs['type'] = self.node_filter
+        return list(reversed(rt.dcc.scene.list_relatives(start, **relatives_kwargs)))
 
     def __iter__(self):
         """ This is setup to only iterate on the nodes in between the top node and the end node
             ignores branching paths
         """
-        return self._traverse_linear_path(self.head, self.tail)
-
+        return self._traverse_up_linear_tree(self.tail, self.head)
 
     def __contains__(self, item):
         return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]

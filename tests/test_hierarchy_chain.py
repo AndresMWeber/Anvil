@@ -55,6 +55,40 @@ class TestHierarchyChainInit(TestBaseHierarchyChain):
     def test_mixed_joints_and_transforms(self):
         nt.HierarchyChain(self.joints_mixed[0])
 
+    @TestBase.delete_created_nodes
+    def test_duplicate(self):
+        self.assertEqual(len(list(nt.HierarchyChain(self.joints_total[0], self.joints_total[-3], duplicate=True))),
+                         len(self.joints_total) - 2)
+
+    @TestBase.delete_created_nodes
+    def test_duplicate_no_end_specified(self):
+        self.assertEqual(len(nt.HierarchyChain(self.joints_total[0], duplicate=True,
+                                               node_filter=[cfg.JOINT_TYPE, cfg.TRANSFORM_TYPE])),
+                         len(self.joints_total))
+
+    @TestBase.delete_created_nodes
+    def test_pynode_input(self):
+        import pymel.core as pm
+        nodes = [pm.createNode('joint')]
+        nodes.append(pm.createNode('joint', parent=nodes[0]))
+        self.checkEqual([str(f) for f in list(nt.HierarchyChain(nodes[0]))],
+                        [str(f) for f in list(nodes)])
+
+    @TestBase.delete_created_nodes
+    def test_str_input(self):
+        import maya.cmds as mc
+        nodes = [mc.createNode('joint')]
+        nodes.append(mc.createNode('joint', parent=nodes[0]))
+        self.checkEqual([str(f) for f in list(nt.HierarchyChain(nodes[0]))],
+                        nodes)
+
+    @TestBase.delete_created_nodes
+    def test_anvil_input(self):
+        nodes = [nt.Joint.build()]
+        nodes.append(nt.Joint.build(parent=nodes[0]))
+        self.checkEqual([str(f) for f in list(nt.HierarchyChain(str(nodes[0])))],
+                        [str(f) for f in list(nodes)])
+
 
 class TestHierarchyChainGetHierarchy(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes

@@ -164,7 +164,6 @@ class AbstractGrouping(object):
                 raise KeyError
             return str(self.root)
         except (KeyError, AttributeError):
-            self.LOG.warning('Could not find top node on %r' % self)
             return super(AbstractGrouping, self).__str__()
 
     def __repr__(self):

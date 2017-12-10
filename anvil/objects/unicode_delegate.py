@@ -64,10 +64,7 @@ class UnicodeDelegate(object):
         return str(self) == str(other)
 
     def __repr__(self):
-        if hasattr(self, '__str__'):
-            return '<%s @ 0x%x (%s)>' % (self.__class__.__name__, id(self), str(self))
-        else:
-            return '<%s @ 0x%x>' % (self.__class__.__name__, id(self))
+        return '<%s.%s @ 0x%x (%s)>' % (self.__class__.__module__, self.__class__.__name__, id(self), str(self))
 
     def __str__(self):
         return str(self.name())

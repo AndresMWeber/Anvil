@@ -29,6 +29,7 @@ class TestBaseTemplates(base_test.TestBase):
                 joints.append(joint)
         else:
             joints = template_args
+        print(joints, template_flags)
         sub_rig_instance = cls.TEMPLATE_CLASS(joints)
         sub_rig_instance.build(**template_flags)
         pprint(anvil.runtime.dcc.scene.get_scene_tree())
@@ -57,10 +58,8 @@ class TestBuildBipedArm(TestBaseTemplates):
         cls.import_template_files(template_file)
         l_arm = nt.HierarchyChain('l_armA_JNT')
         r_arm = nt.HierarchyChain('r_armA_JNT')
-        l_sub_rig_instance = cls.runner(template_args=l_arm.get_hierarchy_as_list(),
-                                        template_flags={'meta_data': {'side': 'left'}})
-        r_sub_rig_instance = cls.runner(template_args=r_arm.get_hierarchy_as_list(),
-                                        template_flags={'meta_data': {'side': 'right'}})
+        l_sub_rig_instance = cls.runner(template_args=l_arm, template_flags={'meta_data': {'side': 'left'}})
+        r_sub_rig_instance = cls.runner(template_args=r_arm, template_flags={'meta_data': {'side': 'right'}})
         return l_sub_rig_instance, r_sub_rig_instance
 
     @base_test.TestBase.delete_created_nodes

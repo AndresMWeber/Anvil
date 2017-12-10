@@ -18,7 +18,7 @@ class TestBuildBiped(TestBaseTemplateRigs):
         cls.import_template_files(template_file)
 
         sub_rig_dict = {
-            cfg.LEFT + '_' + cfg.ARM: nt.HierarchyChain('l_armA_JNT', end_node='l_amrC_JNT'),
+            cfg.LEFT + '_' + cfg.ARM: nt.HierarchyChain('l_armA_JNT', end_node='l_armC_JNT'),
             cfg.RIGHT + '_' + cfg.ARM: nt.HierarchyChain('r_armA_JNT', end_node='r_armC_JNT'),
             #cfg.LEFT + '_' + cfg.HAND: nt.HierarchyChain('l_handA_JNT'),
             #cfg.RIGHT + '_' + cfg.HAND: nt.HierarchyChain('r_handA_JNT'),
