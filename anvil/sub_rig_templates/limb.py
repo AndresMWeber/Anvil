@@ -19,24 +19,36 @@ class Limb(SubRigTemplate):
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **flags):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **flags)
         self.prep_joint_chain_for_rigging(self.layout_joints)
-        self.build_blend(self.layout_joints, use_layout=use_layout)
 
         # Build IK/FK chains from the initial layout joints
         if build_fk:
             self.LOG.info('Building FK chain on %r from layout joints %r.' % (self, self.layout_joints))
-            self.build_fk(self.layout_joints)
+            self.build_fk_chain(self.layout_joints)
 
         if build_ik:
             self.LOG.info('Building IK chain on %r from layout joints %r.' % (self, self.layout_joints))
-            self.build_ik(self.layout_joints)
+            self.build_ik_chain(self.layout_joints)
 
+        self.build_blend_chain(self.layout_joints, use_layout=use_layout)
         self.rename()
         self.LOG.info('Built sub rig %s' % self.__class__.__name__)
 
-    def build_blend(self, layout_joints, use_layout):
-        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
+    def build_blend_chain(self, layout_joints, use_layout):
+        source_chains = [getattr(self, chain) for chain in ['fk_chain', 'ik_chain'] if hasattr(self, chain)]
 
-    def build_fk(self, layout_joints):
+        if not source_chains:
+            raise ValueError('No fk/ik chains detected...cannot build a blend chain without something to blend to!')
+
+        self.root.add_attr(cfg.IKFK_BLEND, attributeType='double', min=0, max=1, defaultValue=0, keyable=True)
+        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
+        for bl, source_chains in zip(self.blend_chain, zip(*source_chains)):
+            blender = rt.dcc.create.create_node(cfg.BLENDER)
+            blender.output.connect(bl.rotate)
+            for index, source_chain in enumerate(source_chains):
+                source_chain.rotate.connect(blender.attr('color%d' % (index + 1)))
+            getattr(self.root, cfg.IKFK_BLEND).connect(blender.blender)
+
+    def build_fk_chain(self, layout_joints):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
         parent = self.group_controls
         for index, joint in enumerate(self.fk_chain):
@@ -48,21 +60,18 @@ class Limb(SubRigTemplate):
             parent = control.connection_group
             rt.dcc.constrain.parent(control.connection_group, joint)
 
-    def build_ik(self, layout_joints, ik_end_index=-1):
+    def build_ik_chain(self, layout_joints, ik_end_index=-1):
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
 
         handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index], parent=self.group_nodes)
         self.register_node(cfg.IK_HANDLE, handle, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_HANDLE})
         self.register_node(cfg.IK_EFFECTOR, effector, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_EFFECTOR})
 
-        self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK),
-                        parent=self.group_controls,
-                        shape='flat_diamond',
-                        reference_object=self.ik_chain[-1],
-                        meta_data={cfg.PURPOSE: cfg.IK})
+        control_kwargs = {'parent': self.group_controls, 'shape': 'flat_diamond', 'reference_object': self.ik_chain[-1]}
+        self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK), meta_data={cfg.PURPOSE: cfg.IK},
+                        **control_kwargs)
 
-        self.build_pole_vector_control(self.ik_chain,
-                                       self.ik_handle,
+        self.build_pole_vector_control(self.ik_chain, self.ik_handle,
                                        '%s_%s_%s' % (cfg.CONTROL_TYPE, cfg.IK, cfg.POLE_VECTOR),
                                        meta_data={cfg.PURPOSE: cfg.POLE_VECTOR})
 

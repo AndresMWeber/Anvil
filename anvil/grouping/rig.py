@@ -1,6 +1,7 @@
 from six import iteritems
 import base
 import anvil
+import anvil.config as cfg
 import anvil.objects as ot
 import sub_rig
 import control
@@ -17,9 +18,12 @@ class Rig(base.AbstractGrouping):
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []
 
-    def __init__(self, sub_rig_dict=None, **kwargs):
+    def __init__(self, character_name=None, sub_rig_dict=None, **kwargs):
+        if character_name:
+            kwargs['character'] = character_name
+
         super(Rig, self).__init__(**kwargs)
-        self._nomenclate.format = 'side_location_nameDecoratorVar_childtype_purpose_rig_type'
+        self._nomenclate.format = cfg.RIG_FORMAT
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
         if sub_rig_dict:
             self.register_sub_rigs_from_dict(sub_rig_dict)
@@ -39,8 +43,7 @@ class Rig(base.AbstractGrouping):
             if sub_rig_dict.get(sub_rig_name):
                 sub_rig_class, sub_rig_metadata = self.SUB_RIG_BUIlD_TABLE[sub_rig_name]
                 sub_rig_kwargs = sub_rig_dict.get(sub_rig_name)
-                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {
-                    'layout_joints': sub_rig_kwargs}
+                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {'layout_joints': sub_rig_kwargs}
                 self.register_sub_rig(sub_rig_name, sub_rig_class, meta_data=sub_rig_metadata, **sub_rig_kwargs)
 
     def register_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, meta_data=None, **kwargs):
@@ -61,22 +64,21 @@ class Rig(base.AbstractGrouping):
         if not self.root:
             self.build_node(ot.Transform,
                             'group_top',
-                            meta_data=self.merge_dicts(self.meta_data, {'rig': 'rig', 'type': 'group'}),
+                            meta_data={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE},
                             **kwargs)
 
         self.build_node(control.Control,
                         'control_universal',
                         parent=self.group_top,
                         shape='pyramid',
-                        meta_data=self.merge_dicts(self.meta_data, {'childtype': 'universal'}))
+                        meta_data={cfg.CHILD_TYPE: 'universal'})
 
         for main_group_type in ['extras', 'model', 'sub_rigs']:
             group_name = 'group_%s' % main_group_type
             self.build_node(ot.Transform,
                             group_name,
                             parent=self.control_universal.connection_group,
-                            meta_data=self.merge_dicts(self.meta_data,
-                                                       {'childtype': main_group_type, 'type': 'group'}))
+                            meta_data={cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE})
 
         self.root = self.group_top
         self.LOG.info('Building sub rigs...')

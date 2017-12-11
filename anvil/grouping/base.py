@@ -33,7 +33,6 @@ class AbstractGrouping(object):
                      'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True, 'defaultValue': 0}}
 
     def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, **flags):
-        print('setting root to %s' % top_node)
         self.root = top_node
         self.layout_joints = layout_joints
         self.hierarchy = {}
@@ -41,7 +40,7 @@ class AbstractGrouping(object):
         self.meta_data = self.merge_dicts(self.BUILT_IN_META_DATA, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.chain_nomenclate = nomenclate.Nom()
-        self.chain_nomenclate.format = 'side_location_nameDecoratorVar_childtype_purpose_type'
+        self.chain_nomenclate.format = 'character_side_location_nameDecoratorVar_childtype_purpose_type'
         self.chain_nomenclate.var.case = 'upper'
         self.parent(parent)
         self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))

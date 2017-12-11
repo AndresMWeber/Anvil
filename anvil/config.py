@@ -17,6 +17,10 @@ CENTER = 'center'
 NAME = 'name'
 SIDE = 'side'
 VARIATION = 'var'
+CHILD_TYPE = 'childtype'
+
+# NAME FORMATS
+RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_type'
 
 # SUB RIGS
 ARM = 'arm'
@@ -34,10 +38,15 @@ HIERARCHY_TYPE = 'hierarchy'
 meta_data_TYPE = 'meta_data'
 
 # RIG CONCEPTS
+RIG = 'rig'
+SUB_RIG = 'sub_rig'
+
 IK = 'ik'
 IK_HANDLE = 'ik_handle'
 IK_EFFECTOR = 'ik_effector'
 FK = 'fk'
+IKFK_BLEND = 'ikfk_blend'
+BLENDER = 'blendColors'
 POLE_VECTOR = 'pole_vector'
 BLEND = 'blend'
 TRANSLATE = 'translate'
