@@ -16,6 +16,7 @@ RIGHT = 'right'
 CENTER = 'center'
 NAME = 'name'
 SIDE = 'side'
+VARIATION = 'var'
 
 # SUB RIGS
 ARM = 'arm'
@@ -39,6 +40,15 @@ IK_EFFECTOR = 'ik_effector'
 FK = 'fk'
 POLE_VECTOR = 'pole_vector'
 BLEND = 'blend'
+TRANSLATE = 'translate'
+ROTATE = 'rotate'
+SCALE = 'scale'
+
+TRANSLATION = 'translation'
+
+PIVOTS = 'pivots'
+ABSOLUTE = 'absolute'
+RELATIVE = 'relative'
 
 # NAMING TOKENS
 TYPE = 'type'

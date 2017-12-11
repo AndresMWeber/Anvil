@@ -71,12 +71,15 @@ class HierarchyChain(object):
         node_filter = node_filter or self.node_filter
         return self._dict_depth(d=self.get_hierarchy(node_filter=node_filter)) - 1
 
-    def build_ik(self, chain_start=None, chain_end=None, solver='ikRPsolver', **kwargs):
+    def build_ik(self, chain_start=None, chain_end=None, solver='ikRPsolver', parent=None, **kwargs):
         chain_start = chain_start if chain_start is not None else self.head
         chain_end = chain_end if chain_end is not None else self.tail
 
         kwargs.update({'endEffector': str(chain_end), 'solver': solver})
         handle, effector = rt.dcc.rigging.ik_handle(str(chain_start), **kwargs)
+        if parent:
+            rt.dcc.scene.parent(handle, parent)
+
         return (anvil.factory(handle), anvil.factory(effector))
 
     def parent(self, new_parent):

@@ -4,6 +4,7 @@ import anvil.validation as validation
 import anvil.runtime as rt
 import anvil.config as cfg
 
+
 class Limb(SubRigTemplate):
     BUILT_IN_META_DATA = {'name': 'limb'}
 
@@ -37,13 +38,22 @@ class Limb(SubRigTemplate):
 
     def build_fk(self, layout_joints):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
+        parent = self.group_controls
+        for index, joint in enumerate(self.fk_chain):
+            control = self.build_node(nt.Control, '%s_%s_%d' % (cfg.CONTROL_TYPE, cfg.FK, index),
+                                      parent=parent,
+                                      shape='cube',
+                                      reference_object=joint,
+                                      meta_data={cfg.PURPOSE: cfg.FK, cfg.VARIATION: index})
+            parent = control.connection_group
+            rt.dcc.constrain.parent(control.connection_group, joint)
 
     def build_ik(self, layout_joints, ik_end_index=-1):
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
-        handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index])
+
+        handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index], parent=self.group_nodes)
         self.register_node(cfg.IK_HANDLE, handle, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_HANDLE})
         self.register_node(cfg.IK_EFFECTOR, effector, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_EFFECTOR})
-        self.ik_handle.parent(self.group_nodes)
 
         self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK),
                         parent=self.group_controls,
@@ -61,7 +71,7 @@ class Limb(SubRigTemplate):
     def prep_joint_chain_for_rigging(self, joint_chain):
         for joint in joint_chain:
             pass
-        #joint_chain[-1].jointOrient.set([0, 0, 0])
+        # joint_chain[-1].jointOrient.set([0, 0, 0])
 
     def rename(self, *input_dicts, **name_tokens):
         super(Limb, self).rename()

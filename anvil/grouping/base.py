@@ -33,6 +33,7 @@ class AbstractGrouping(object):
                      'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True, 'defaultValue': 0}}
 
     def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, **flags):
+        print('setting root to %s' % top_node)
         self.root = top_node
         self.layout_joints = layout_joints
         self.hierarchy = {}
@@ -43,7 +44,7 @@ class AbstractGrouping(object):
         self.chain_nomenclate.format = 'side_location_nameDecoratorVar_childtype_purpose_type'
         self.chain_nomenclate.var.case = 'upper'
         self.parent(parent)
-        self.LOG.debug('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
+        self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
 
     @property
     def is_built(self):
@@ -86,7 +87,7 @@ class AbstractGrouping(object):
         top_node, new_parent = str(self.root), str(new_parent)
         nodes_exist = [rt.dcc.scene.exists(node) if node != 'None' else False for node in [top_node, new_parent]]
         if all(nodes_exist or [False]):
-            self.LOG.info('Parenting root of %r: %s to %s' % (self, top_node, new_parent))
+            self.LOG.info('Parenting root of %r to %s' % (self, new_parent))
             rt.dcc.scene.parent(top_node, new_parent)
             return True
         else:
@@ -142,7 +143,14 @@ class AbstractGrouping(object):
             raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
 
         self.hierarchy[node_key] = dag_node
-        dag_node.meta_data = self.merge_dicts(self.meta_data, dag_node.meta_data, meta_data or {})
+
+        meta_data_dicts = [self.meta_data, meta_data or {}]
+        try:
+            meta_data_dicts.append(dag_node.meta_data)
+        except:
+            pass
+
+        dag_node.meta_data = self.merge_dicts(*meta_data_dicts)
 
         return dag_node
 
@@ -167,4 +175,5 @@ class AbstractGrouping(object):
             return super(AbstractGrouping, self).__str__()
 
     def __repr__(self):
-        return super(AbstractGrouping, self).__repr__().replace('>', ' children=%d>' % len(list(self.hierarchy)))
+        formatted_properties = ' root=%s children=%d>' % (self.root, len(list(self.hierarchy)))
+        return super(AbstractGrouping, self).__repr__().replace('>', formatted_properties)

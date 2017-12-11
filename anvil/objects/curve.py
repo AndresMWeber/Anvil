@@ -1,6 +1,6 @@
 import yaml
 import anvil
-import anvil.config as config
+import anvil.config as cfg
 import anvil.runtime as rt
 import transform
 
@@ -32,6 +32,31 @@ class Curve(transform.Transform):
         instance = cls.build(meta_data=meta_data, **flags)
         return instance
 
+    def colorize(self, color_id=None, color_tuple=None, use_metadata=False):
+        raise NotImplementedError
+
+    def transform_shape(self, value, mode=cfg.SCALE, relative=False):
+        transform_kwargs = {cfg.PIVOTS: list(self.scalePivot.get()),
+                            cfg.RELATIVE: relative,
+                            cfg.ABSOLUTE: not relative}
+        if not isinstance(value, list):
+            value = [value] * 3
+
+        if mode == cfg.SCALE:
+            transform_kwargs[cfg.SCALE] = value
+        elif mode == cfg.TRANSLATE:
+            transform_kwargs[cfg.TRANSLATION] = value
+        elif mode == cfg.ROTATE:
+            transform_kwargs[cfg.ROTATE] = value
+        rt.dcc.scene.position(self.get_shape().cv[:], **transform_kwargs)
+
+    def swap_shape(self, new_shape, maintain_position=False):
+        self.SHAPE_PARENT_KWARGS['relative'] = not maintain_position
+        self.SHAPE_PARENT_KWARGS['absolute'] = maintain_position
+        curve = self.__class__.build(shape=new_shape)
+        rt.dcc.scene.delete(self.get_shape())
+        rt.dcc.scene.parent(curve.get_shape(), self, **self.SHAPE_PARENT_KWARGS)
+
     @classmethod
     def _get_shape_constructor(cls, shape_name, return_positions=False):
         shape_entry = cls.SHAPE_CACHE.get(shape_name or '', {})
@@ -50,7 +75,7 @@ class Curve(transform.Transform):
     @classmethod
     def _populate_shape_file_data(cls, shape_file=None):
         if shape_file is None:
-            shape_file = config.SHAPES_FILE
+            shape_file = cfg.SHAPES_FILE
 
         if not cls.SHAPE_CACHE:
             try:

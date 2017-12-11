@@ -1,3 +1,4 @@
+import anvil.config as cfg
 import anvil.objects as objects
 import anvil.runtime as rt
 import base
@@ -7,8 +8,8 @@ class Control(base.AbstractGrouping):
     ANVIL_TYPE = 'control'
     SHAPE_PARENT_KWARGS = {'relative': True, 'absolute': False, 'shape': True}
 
-    def __init__(self, control=None, offset_group=None, connection_group=None, **flags):
-        super(Control, self).__init__(top_node=offset_group or control, **flags)
+    def __init__(self, control=None, offset_group=None, connection_group=None, **kwargs):
+        super(Control, self).__init__(top_node=offset_group or control, **kwargs)
         self.register_node('control', control)
         self.register_node('offset_group', offset_group)
         self.register_node('connection_group', connection_group)
@@ -19,37 +20,32 @@ class Control(base.AbstractGrouping):
                        offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **flags),
                        connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **flags),
                        meta_data=meta_data, **flags)
-        instance.offset_group.match_position(reference_object)
         instance.build_layout()
+        instance.match_position(reference_object)
         return instance
 
+    def match_position(self, reference_object):
+        try:
+            self.offset_group.match_position(reference_object)
+        except AttributeError:
+            self.control.match_position(reference_object)
+
     def build_layout(self):
-        if self.flags.get('parent'):
-            self.parent(self.flags.get('parent'))
-        rt.dcc.scene.parent(self.control, self.offset_group, relative=True)
-        rt.dcc.scene.parent(self.connection_group, self.control, relative=True)
+        rt.dcc.scene.parent(self.control, self.offset_group)
+        rt.dcc.scene.parent(self.connection_group, self.control)
 
     def colorize(self, color_id=None, color_tuple=None, use_metadata=False):
-        self.control.colorize(color_tuple or color_id)
+        self.control.colorize(color_tuple or color_id, use_metadata=use_metadata)
 
     def scale_shape(self, value=1.0, relative=False):
-        rt.dcc.scene.position(self.control.get_shape().cv[:],
-                              scale=[value] * 3,
-                              pivots=self.control.scalePivot.get(),
-                              relative=relative,
-                              absolute=not relative)
-
-    def swap_shape(self, new_shape, maintain_position=False):
-        self.SHAPE_PARENT_KWARGS['relative'] = not maintain_position
-        self.SHAPE_PARENT_KWARGS['absolute'] = maintain_position
-        curve = objects.Curve.build(shape=new_shape)
-        rt.dcc.scene.delete(self.control.get_shape())
-        rt.dcc.scene.parent(curve.get_shape(), self.control, **self.SHAPE_PARENT_KWARGS)
-        self.rename()
+        self.control.transform_shape(value, relative=relative, mode=cfg.SCALE)
 
     def rotate_shape(self, value=90.0, relative=False):
-        rt.dcc.scene.position(self.control.get_shape().cv[:],
-                              rotate=[value] * 3,
-                              pivots=self.control.scalePivot.get(),
-                              relative=relative,
-                              absolute=not relative)
+        self.control.transform_shape(value, relative=relative, mode=cfg.ROTATE)
+
+    def translate_shape(self, value=0.0, relative=False):
+        self.control.transform_shape(value, relative=relative, mode=cfg.TRANSLATE)
+
+    def swap_shape(self, new_shape, maintain_position=False):
+        self.control.swap_shape(new_shape, maintain_position=maintain_position)
+        self.rename()
