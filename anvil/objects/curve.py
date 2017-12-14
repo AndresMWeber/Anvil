@@ -15,7 +15,7 @@ class Curve(transform.Transform):
         return rt.dcc.create.create_curve(**flags)
 
     @classmethod
-    def build(cls, meta_data=None, shape='cube', **flags):
+    def build(cls, meta_data=None, shape='cube', pre_scale=None, **flags):
         if flags.get('point') is None:
             flags.update(cls._get_shape_constructor(shape, return_positions=True))
         instance = super(Curve, cls).build(meta_data=meta_data, **flags)
@@ -23,6 +23,8 @@ class Curve(transform.Transform):
         # Just in case we are using PyMEL and it has returned the actual shape node instead of the transform.
         if rt.dcc.scene.get_type(str(instance)) == cls.dcc_type and instance.get_parent():
             instance._dcc_id = rt.dcc.scene.get_persistent_id(str(instance.get_parent()))
+        if pre_scale:
+            instance.transform_shape(pre_scale, mode=cfg.SCALE)
         return instance
 
     @classmethod

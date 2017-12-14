@@ -31,6 +31,8 @@ SPINE = 'spine'
 NECK = 'neck'
 HEAD = 'head'
 DIGITS = 'digits'
+FINGER = 'finger'
+LAYOUT = 'layout_joints'
 
 # COMPLEX TYPES
 CONTROL_TYPE = 'control'

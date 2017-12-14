@@ -4,7 +4,7 @@ import anvil.runtime as rt
 
 
 class Spine(SubRigTemplate):
-    name_tokens = {'name': 'spine'}
+    BUILT_IN_META_DATA = {'name': 'spine'}
 
     def __init__(self, *args, **kwargs):
         super(Spine, self).__init__(*args, **kwargs)

@@ -18,18 +18,26 @@ class TestBuildBiped(TestBaseTemplateRigs):
         cls.import_template_files(template_file)
 
         sub_rig_dict = {
-            cfg.LEFT + '_' + cfg.ARM: nt.HierarchyChain('l_armA_JNT', end_node='l_armC_JNT'),
-            cfg.RIGHT + '_' + cfg.ARM: nt.HierarchyChain('r_armA_JNT', end_node='r_armC_JNT'),
-            #cfg.LEFT + '_' + cfg.HAND: nt.HierarchyChain('l_handA_JNT'),
-            #cfg.RIGHT + '_' + cfg.HAND: nt.HierarchyChain('r_handA_JNT'),
-            cfg.LEFT + '_' + cfg.LEG: nt.HierarchyChain('l_legA_JNT', end_node='l_legC_JNT'),
-            cfg.RIGHT + '_' + cfg.LEG: nt.HierarchyChain('r_legA_JNT', end_node='r_legC_JNT'),
-            #cfg.LEFT + '_' + cfg.FOOT: nt.HierarchyChain('l_footA_JNT'),
-            #cfg.RIGHT + '_' + cfg.FOOT: nt.HierarchyChain('r_footA_JNT'),
-            cfg.SPINE: nt.HierarchyChain('spineA_JNT', end_node='spineE_JNT'),
-            #cfg.NECK: nt.HierarchyChain('neckA_JNT'),
-            #cfg.HEAD: nt.HierarchyChain('headA_JNT'),
+            cfg.LEFT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('l_armA_JNT', 'l_armC_JNT'), 'pre_scale': .3},
+            cfg.RIGHT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('r_armA_JNT', 'r_armC_JNT'), 'pre_scale': .3},
+            cfg.LEFT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('l_legA_JNT', 'l_legC_JNT'), 'pre_scale': .3},
+            cfg.RIGHT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('r_legA_JNT', 'r_legC_JNT'), 'pre_scale': .3},
+            cfg.LEFT + '_' + cfg.FOOT: nt.HierarchyChain('l_legC_JNT', 'l_foot_toeEnd_JNT'),
+            cfg.RIGHT + '_' + cfg.FOOT: nt.HierarchyChain('r_legC_JNT', 'r_foot_toeEnd_JNT'),
+            cfg.SPINE: nt.HierarchyChain('spineA_JNT', 'spineE_JNT'),
+            cfg.NECK: nt.HierarchyChain('neckA_JNT', 'neckEnd_JNT'),
+            cfg.HEAD: nt.HierarchyChain('headA_JNT', 'headEnd_JNT'),
         }
+
+        finger_start = '%s_finger_%s_A_JNT'
+        finger_end = '%s_finger_%s_D_JNT'
+        for side in [cfg.LEFT, cfg.RIGHT]:
+            fingers = []
+            for finger in ['thb', 'ind', 'mid', 'rng', 'pnk']:
+                fingers.append(nt.HierarchyChain(finger_start % (side[0], finger),
+                                                 finger_end % (side[0], finger)))
+            sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers}
+
         rig_instance = cls.CLASS(sub_rig_dict, meta_data= {cfg.NAME: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)
         return rig_instance

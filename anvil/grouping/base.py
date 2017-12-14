@@ -32,11 +32,11 @@ class AbstractGrouping(object):
                                   'defaultValue': 1},
                      'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True, 'defaultValue': 0}}
 
-    def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, **flags):
+    def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, **kwargs):
         self.root = top_node
         self.layout_joints = layout_joints
         self.hierarchy = {}
-        self.flags = flags or {}
+        self.build_kwargs = kwargs or {}
         self.meta_data = self.merge_dicts(self.BUILT_IN_META_DATA, meta_data)
         self._nomenclate = nomenclate.Nom(self.meta_data)
         self.chain_nomenclate = nomenclate.Nom()

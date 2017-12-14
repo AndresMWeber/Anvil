@@ -9,21 +9,22 @@ from control import Control
 class SubRig(base.AbstractGrouping):
     LOG = lg.obtainLogger(__name__)
     POLE_VECTOR_MIN_JOINTS = 2
-    POLE_VECTOR_MOVE_DEFAULT = [5, 0, 0]
+    POLE_VECTOR_MOVE_DEFAULT = [3, 0, 0]
     LOCAL_MOVE_KWARGS = {'relative': True, 'objectSpace': True, 'worldSpaceDistance': True}
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 
     def __init__(self, *args, **kwargs):
         super(SubRig, self).__init__(*args, **kwargs)
 
-    def build(self, parent=None, meta_data=None, **flags):
+    def build(self, parent=None, meta_data=None, **kwargs):
+        self.build_kwargs.update(kwargs)
         self.LOG.info('Building sub-rig %s' % self)
         self.meta_data = self.merge_dicts(self.meta_data, meta_data or {})
         if self.root is None:
             self.build_node(ot.Transform,
                             'group_top',
                             meta_data=self.merge_dicts(self.meta_data, {'rig': 'subrig', 'type': cfg.GROUP_TYPE}),
-                            **flags)
+                            **self.build_kwargs)
             self.root = self.group_top
 
         for main_group_type in self.SUB_GROUPS:
@@ -37,9 +38,10 @@ class SubRig(base.AbstractGrouping):
         self.group_world.inheritsTransform.set(False)
         self.parent(parent)
         self.assign_rendering_delegate()
+        self.LOG.info('Built sub rig %s' % self.__class__.__name__)
         return self
 
-    def build_pole_vector_control(self, joints, ik_handle, node_key='', move_by=None, meta_data=None, **flags):
+    def build_pole_vector_control(self, joints, ik_handle, node_key='', move_by=None, meta_data=None, **kwargs):
         """ Point constraint to the two base positions, aim constrain to the other objects
             Delete constraints then move the control outside of the reference transforms in the aim direction.
         """
@@ -48,7 +50,7 @@ class SubRig(base.AbstractGrouping):
             raise ValueError('Pole vector control needs more than %d joints...' % self.POLE_VECTOR_MIN_JOINTS)
         start_joint, end_joint = joints[0], joints[-1]
 
-        control = Control.build(parent=self.group_controls, meta_data=meta_data, **flags)
+        control = Control.build(parent=self.group_controls, meta_data=meta_data, **kwargs)
 
         rt.dcc.scene.delete(
             rt.dcc.constrain.translate([str(start_joint), str(end_joint)], control.offset_group, maintain_offset=False))

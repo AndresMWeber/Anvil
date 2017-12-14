@@ -15,11 +15,11 @@ class Control(base.AbstractGrouping):
         self.register_node('connection_group', connection_group)
 
     @classmethod
-    def build(cls, reference_object=None, meta_data=None, **flags):
-        instance = cls(control=objects.Curve.build(meta_data={'type': 'control'}, **flags),
-                       offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **flags),
-                       connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **flags),
-                       meta_data=meta_data, **flags)
+    def build(cls, reference_object=None, meta_data=None, **kwargs):
+        instance = cls(control=objects.Curve.build(meta_data={'type': 'control'}, **kwargs),
+                       offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **kwargs),
+                       connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **kwargs),
+                       meta_data=meta_data, **kwargs)
         instance.build_layout()
         instance.match_position(reference_object)
         return instance
