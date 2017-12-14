@@ -17,13 +17,13 @@ class SubRig(base.AbstractGrouping):
         super(SubRig, self).__init__(*args, **kwargs)
 
     def build(self, parent=None, meta_data=None, **kwargs):
-        self.build_kwargs.update(kwargs)
+        self.build_kwargs.merge(kwargs)
+        self.meta_data.merge(meta_data)
         self.LOG.info('Building sub-rig %s' % self)
-        self.meta_data = self.merge_dicts(self.meta_data, meta_data or {})
         if self.root is None:
             self.build_node(ot.Transform,
                             'group_top',
-                            meta_data=self.merge_dicts(self.meta_data, {'rig': 'subrig', 'type': cfg.GROUP_TYPE}),
+                            meta_data=self.meta_data + {'rig': 'subrig', 'type': cfg.GROUP_TYPE},
                             **self.build_kwargs)
             self.root = self.group_top
 
@@ -32,8 +32,7 @@ class SubRig(base.AbstractGrouping):
             self.build_node(ot.Transform,
                             group_name,
                             parent=self.root,
-                            meta_data=self.merge_dicts(self.meta_data, {'childtype': main_group_type,
-                                                                        'type': cfg.GROUP_TYPE}))
+                            meta_data=self.meta_data + {'childtype': main_group_type, 'type': cfg.GROUP_TYPE})
 
         self.group_world.inheritsTransform.set(False)
         self.parent(parent)
@@ -45,6 +44,7 @@ class SubRig(base.AbstractGrouping):
         """ Point constraint to the two base positions, aim constrain to the other objects
             Delete constraints then move the control outside of the reference transforms in the aim direction.
         """
+        meta_data = self.meta_data + meta_data
         joints = list(joints)
         if len(joints) < self.POLE_VECTOR_MIN_JOINTS:
             raise ValueError('Pole vector control needs more than %d joints...' % self.POLE_VECTOR_MIN_JOINTS)

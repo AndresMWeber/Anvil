@@ -1,10 +1,11 @@
 import anvil
+from anvil.meta_data import MetaData
 from six import iteritems
 from limb import Limb
 
 
 class Digit(Limb):
-    BUILT_IN_META_DATA = Limb.merge_dicts({"name": "finger"}, Limb.BUILT_IN_META_DATA)
+    BUILT_IN_META_DATA = MetaData.merge_dicts({"name": "finger"}, Limb.BUILT_IN_META_DATA)
     CONTROLLER_ATTRIBUTES = {
         "curl": None,
         "spread": None,

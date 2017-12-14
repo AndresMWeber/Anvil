@@ -31,22 +31,19 @@ class Hand(SubRigTemplate):
         num_fingers = len(self.layout_joints)
         self.LOG.info('Building %s: %r with %d digits' % (self.__class__.__name__, self, num_fingers))
 
-        meta_data_copy = self.meta_data.copy()
         base_names = self.DEFAULT_NAMES if num_fingers == 5 else [cfg.FINGER + letter for letter in
                                                                   string.uppercase[:num_fingers]]
         for layout_joints, base_name in zip(self.layout_joints, base_names):
             self.LOG.info('Building digit %s from joints %r' % (base_name, layout_joints))
-            meta_data_copy[cfg.NAME] = base_name
-            digit = Digit(layout_joints, meta_data=meta_data_copy)
-            digit.build(parent=self.root, **self.build_kwargs)
+            digit = Digit(layout_joints, meta_data=self.meta_data + {cfg.NAME: base_name})
+            digit.build(parent=self.root, ikSolver=cfg.IK_SC_SOLVER, **self.build_kwargs)
             self.digits.append(digit)
 
         self.rename()
 
     def rename(self, *input_dicts, **name_tokens):
-        super(Hand, self).rename()
-        meta_data = self.meta_data.copy()
-        meta_data.pop(cfg.NAME)
+        super(Hand, self).rename(*input_dicts, **name_tokens)
 
         for digit in self.digits:
-            digit.rename(meta_data)
+            digit.meta_data.merge(self.meta_data, ignore_keys=cfg.NAME)
+            digit.rename()

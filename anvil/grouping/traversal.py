@@ -1,6 +1,7 @@
 from six import iteritems
 import anvil.runtime as rt
 import anvil
+import anvil.config as cfg
 import nomenclate.core.tools as ts
 
 
@@ -71,7 +72,7 @@ class HierarchyChain(object):
         node_filter = node_filter or self.node_filter
         return self._dict_depth(d=self.get_hierarchy(node_filter=node_filter)) - 1
 
-    def build_ik(self, chain_start=None, chain_end=None, solver='ikRPsolver', parent=None, **kwargs):
+    def build_ik(self, chain_start=None, chain_end=None, solver=cfg.IK_RP_SOLVER, parent=None, **kwargs):
         chain_start = chain_start if chain_start is not None else self.head
         chain_end = chain_end if chain_end is not None else self.tail
 

@@ -38,7 +38,7 @@ class TestBuildBiped(TestBaseTemplateRigs):
                                                  finger_end % (side[0], finger)))
             sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers}
 
-        rig_instance = cls.CLASS(sub_rig_dict, meta_data= {cfg.NAME: 'hombre'}, **kwargs)
+        rig_instance = cls.CLASS(sub_rig_dict, meta_data={cfg.NAME: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)
         return rig_instance
 

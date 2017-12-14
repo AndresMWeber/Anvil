@@ -30,8 +30,8 @@ class Transform(dag_node.DagNode):
             raise KeyError('Node %s or %s does not exist.' % (str(self), str(new_parent)))
 
     @classmethod
-    def build(cls, reference_object=None, meta_data=None, parent=None, **flags):
-        node = super(Transform, cls).build(meta_data=meta_data, **flags)
+    def build(cls, reference_object=None, meta_data=None, parent=None, **kwargs):
+        node = super(Transform, cls).build(meta_data=meta_data, **kwargs)
         node.parent(parent)
         node.match_position(reference_object)
         return node

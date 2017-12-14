@@ -23,7 +23,6 @@ class Rig(base.AbstractGrouping):
             kwargs['character'] = character_name
 
         super(Rig, self).__init__(**kwargs)
-        self._nomenclate.format = cfg.RIG_FORMAT
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
         if sub_rig_dict:
             self.register_sub_rigs_from_dict(sub_rig_dict)

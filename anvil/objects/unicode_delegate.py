@@ -1,30 +1,28 @@
 import anvil
+from anvil.meta_data import MetaData
 import anvil.runtime as rt
 
 
 class UnicodeDelegate(object):
     dcc_type = None
+    BUILTIN_METADATA = {'type': dcc_type}
 
-    def __init__(self, node_pointer, meta_data=None, **flags):
+    def __init__(self, node_pointer, meta_data=None, **kwargs):
         """ All nodes must be initialized with a string representation that the encompassing platform
             uses as DAG path representation for the object.
 
         :param node_pointer: str, DAG path to the object we want to encapsulate
-        :param flags: dict, creation flags specific for the platform environment node creation function
+        :param kwargs: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
         anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
+        self.meta_data = MetaData(meta_data, kwargs)
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
         except:
             self._api_class_instance = object()
-
-        self.flags = flags or {}
-        default_meta_data = {'type': self.dcc_type}
-        default_meta_data.update(meta_data or {})
-        self.meta_data = default_meta_data
 
     def name(self):
         return str(self._dcc_id)
@@ -34,11 +32,10 @@ class UnicodeDelegate(object):
         raise NotImplementedError('Cannot instantiate nodes from this class')
 
     @classmethod
-    def build(cls, meta_data=None, **flags):
-        anvil.LOG.info(
-            'Building anvil node %s: %s(flags = %s, meta_data = %s)' % (cls.__name__, cls.dcc_type, flags, meta_data))
-        dcc_instance = cls.create_engine_instance(**flags)
-        instance = cls(dcc_instance, meta_data=meta_data, **flags)
+    def build(cls, meta_data=None, **kwargs):
+        anvil.LOG.info('Building node %s: %s(kwargs=%s, meta_data=%s)' % (cls.__name__, cls.dcc_type, kwargs, meta_data))
+        dcc_instance = cls.create_engine_instance(**kwargs)
+        instance = cls(dcc_instance, meta_data=meta_data, **kwargs)
 
         # If the instance isn't a string we can assume it's some API class instance we can use later.
         if not isinstance(dcc_instance, str):

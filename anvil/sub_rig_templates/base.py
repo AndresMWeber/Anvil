@@ -1,10 +1,11 @@
 import anvil.runtime as rt
+from anvil.meta_data import MetaData
 import anvil.node_types as nt
 import anvil.config as cfg
 
+
 class SubRigTemplate(nt.SubRig):
-    BUILT_IN_META_DATA = nt.SubRig.merge_dicts({'name': 'untitled'},
-                                               nt.SubRig.BUILT_IN_META_DATA)
+    BUILT_IN_META_DATA = MetaData.merge_dicts({'name': 'untitled'}, nt.SubRig.BUILT_IN_META_DATA)
 
     def build_fk_chain(self, layout_joints, **kwargs):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
@@ -19,22 +20,26 @@ class SubRigTemplate(nt.SubRig):
             parent = control.connection_group
             rt.dcc.constrain.parent(control.connection_group, joint)
 
-    def build_ik_chain(self, layout_joints, ik_end_index=-1, **kwargs):
+    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, **kwargs):
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
-
         handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index], parent=self.group_nodes)
-        self.register_node(cfg.IK_HANDLE, handle, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_HANDLE})
-        self.register_node(cfg.IK_EFFECTOR, effector, meta_data={cfg.NAME: cfg.IK, cfg.TYPE: cfg.IK_EFFECTOR})
+
+        self.register_node(cfg.IK_HANDLE, handle, meta_data=self.meta_data + {cfg.NAME: cfg.IK,
+                                                                              cfg.TYPE: cfg.IK_HANDLE})
+
+        self.register_node(cfg.IK_EFFECTOR, effector, meta_data=self.meta_data + {cfg.NAME: cfg.IK,
+                                                                                  cfg.TYPE: cfg.IK_EFFECTOR})
 
         control_kwargs = {'parent': self.group_controls, 'shape': 'flat_diamond', 'reference_object': self.ik_chain[-1]}
         control_kwargs.update(kwargs)
         self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK), meta_data={cfg.PURPOSE: cfg.IK},
                         **control_kwargs)
 
-        self.build_pole_vector_control(self.ik_chain, self.ik_handle,
-                                       '%s_%s_%s' % (cfg.CONTROL_TYPE, cfg.IK, cfg.POLE_VECTOR),
-                                       meta_data={cfg.PURPOSE: cfg.POLE_VECTOR},
-                                       **kwargs)
+        if solver == cfg.IK_RP_SOLVER:
+            self.build_pole_vector_control(self.ik_chain, self.ik_handle,
+                                           '%s_%s_%s' % (cfg.CONTROL_TYPE, cfg.IK, cfg.POLE_VECTOR),
+                                           meta_data=self.meta_data + {cfg.PURPOSE: cfg.POLE_VECTOR},
+                                           **kwargs)
 
         rt.dcc.constrain.translate(self.control_ik.connection_group, self.ik_handle)
 
@@ -45,7 +50,8 @@ class SubRigTemplate(nt.SubRig):
             raise ValueError('No fk/ik chains detected...cannot build a blend chain without something to blend to!')
 
         self.root.add_attr(cfg.IKFK_BLEND, attributeType='double', min=0, max=1, defaultValue=0, keyable=True)
-        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
+        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints,
+                                             **kwargs)
 
         for bl, source_chains in zip(self.blend_chain, zip(*source_chains)):
             blender = rt.dcc.create.create_node(cfg.BLENDER)

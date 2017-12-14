@@ -1,5 +1,6 @@
 from six import iteritems
 import config
+import meta_data
 import log
 import version
 
@@ -73,6 +74,7 @@ def is_anvil(node):
 
 
 __all__ = ['config',
+           'meta_data',
            'validation',
            'plugins',
            'log',

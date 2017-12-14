@@ -18,6 +18,8 @@ NAME = 'name'
 SIDE = 'side'
 VARIATION = 'var'
 CHILD_TYPE = 'childtype'
+UPPER = 'upper'
+LOWER = 'lower'
 
 # NAME FORMATS
 RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_type'
@@ -44,6 +46,8 @@ RIG = 'rig'
 SUB_RIG = 'sub_rig'
 
 IK = 'ik'
+IK_RP_SOLVER = 'ikRPsolver'
+IK_SC_SOLVER = 'ikSCsolver'
 IK_HANDLE = 'ik_handle'
 IK_EFFECTOR = 'ik_effector'
 FK = 'fk'

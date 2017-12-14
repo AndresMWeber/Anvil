@@ -1,5 +1,6 @@
 import nomenclate
-from six import iteritems
+import anvil.config as cfg
+from anvil.meta_data import MetaData
 import anvil.objects as ot
 from six import iteritems
 import anvil
@@ -14,6 +15,7 @@ class AbstractGrouping(object):
     ANVIL_TYPE = 'group'
     LOG = anvil.log.obtainLogger(__name__)
     BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
+    NOMENCLATE_DEFAULT_FORMAT = cfg.RIG_FORMAT
     DEFAULT_ATTRS = {'surfaces': {'attributeType': 'enum',
                                   'enumName': 'off:on:template:reference',
                                   'keyable': True,
@@ -32,36 +34,25 @@ class AbstractGrouping(object):
                                   'defaultValue': 1},
                      'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True, 'defaultValue': 0}}
 
-    def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, **kwargs):
+    def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, build_kwargs=None, **kwargs):
+        self.hierarchy = {}
         self.root = top_node
         self.layout_joints = layout_joints
-        self.hierarchy = {}
-        self.build_kwargs = kwargs or {}
-        self.meta_data = self.merge_dicts(self.BUILT_IN_META_DATA, meta_data)
-        self._nomenclate = nomenclate.Nom(self.meta_data)
+        self.build_kwargs = MetaData(build_kwargs, kwargs)
+        self.meta_data = MetaData(self.BUILT_IN_META_DATA, meta_data, protected_fields=list(self.BUILT_IN_META_DATA))
+
+        self._nomenclate = nomenclate.Nom(self.meta_data.data)
+
         self.chain_nomenclate = nomenclate.Nom()
-        self.chain_nomenclate.format = 'character_side_location_nameDecoratorVar_childtype_purpose_type'
-        self.chain_nomenclate.var.case = 'upper'
+        self.chain_nomenclate.format = self.NOMENCLATE_DEFAULT_FORMAT
+        self.chain_nomenclate.var.case = cfg.UPPER
+
         self.parent(parent)
         self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
 
     @property
     def is_built(self):
         return all([self.root])
-
-    @staticmethod
-    def merge_dicts(*input_dicts):
-        """ Merge dictionaries. Rightmost dictionary overwrites all previous overlapping keys.
-
-        :param input_dicts: list(dict), list of input dictionaries
-        :return: dict, resulting dictionary.
-        """
-        result = {}
-        if input_dicts:
-            for input_dict in input_dicts:
-                if isinstance(input_dict, dict):
-                    result.update(input_dict)
-        return result
 
     def build(self, parent=None):
         self.parent(parent)
@@ -70,8 +61,9 @@ class AbstractGrouping(object):
         raise NotImplementedError
 
     def assign_rendering_delegate(self, assignee=None):
-        # TODO: I Think this should be a part of the plugins section as it is very API dependent.
+        # TODO: API Attribute dependent...dangerous.
         assignee = anvil.factory(assignee) if assignee is not None else self.root
+
         self.LOG.info('Assigning/Connecting display attributes to %s' % assignee)
         for attr, attr_kwargs in iteritems(self.DEFAULT_ATTRS):
             attr_name, group_name = '%s_rendering' % attr, 'group_%s' % attr
@@ -83,36 +75,38 @@ class AbstractGrouping(object):
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
 
     def parent(self, new_parent):
-        top_node, new_parent = str(self.root), str(new_parent)
-        nodes_exist = [rt.dcc.scene.exists(node) if node != 'None' else False for node in [top_node, new_parent]]
+        nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]
         if all(nodes_exist or [False]):
             self.LOG.info('Parenting root of %r to %s' % (self, new_parent))
-            rt.dcc.scene.parent(top_node, new_parent)
+            rt.dcc.scene.parent(self.root, new_parent)
             return True
         else:
-            self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, top_node))
+            self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, self.root))
             return False
 
-    def rename_chain(self, objects, **name_tokens):
+    def rename_chain(self, objects, use_end_naming=True, **name_tokens):
         self.LOG.info('Renaming chain %r...' % (self))
-        self.chain_nomenclate.merge_dict(self.merge_dicts(self.meta_data, name_tokens))
+        self.meta_data.merge(name_tokens)
+        self.chain_nomenclate.merge_dict(self.meta_data.data)
 
         for index, object in enumerate(objects):
-            variation_kwargs = {'var': index} if index != len(objects) - 1 else {'decorator': 'End'}
-            rt.dcc.scene.rename(str(object), self.chain_nomenclate.get(**variation_kwargs))
+            variation_kwargs = {'var': index}
+            if use_end_naming and index != len(objects) - 1:
+                variation_kwargs = {'decorator': 'End'}
+            rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
 
     def rename(self, *input_dicts, **name_tokens):
         self.LOG.debug('Renaming %r...' % (self))
-        self.meta_data.update(self.merge_dicts(*(input_dicts + (name_tokens,))))
-        self._nomenclate.merge_dict(**self.meta_data)
+        self.meta_data.merge(*input_dicts, **name_tokens)
+        self._nomenclate.merge_dict(**self.meta_data.data)
 
         # Sub node is going to be either subtype of grouping or objects.
         for sub_node_key, sub_node in iteritems(self.hierarchy):
             if self.node_is_grouping(sub_node):
-                sub_node.rename(self.merge_dicts(self.meta_data, sub_node.meta_data))
+                sub_node.rename(self.meta_data + sub_node.meta_data)
 
             elif self.node_is_object(sub_node):
-                sub_node.rename(self._nomenclate.get(**sub_node.meta_data))
+                sub_node.rename(self._nomenclate.get(**sub_node.meta_data.copy_dict_as_strings()))
 
             self.LOG.debug('Renamed to %r' % (sub_node))
 
@@ -124,7 +118,7 @@ class AbstractGrouping(object):
 
     def build_node(self, node_class, node_key, meta_data=None, **flags):
         self.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
-        dag_node = node_class.build(meta_data=self.merge_dicts(self.meta_data, meta_data), **flags)
+        dag_node = node_class.build(meta_data=self.meta_data + meta_data, **flags)
         self.register_node(node_key, dag_node)
         return dag_node
 
@@ -142,15 +136,7 @@ class AbstractGrouping(object):
             raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
 
         self.hierarchy[node_key] = dag_node
-
-        meta_data_dicts = [self.meta_data, meta_data or {}]
-        try:
-            meta_data_dicts.append(dag_node.meta_data)
-        except:
-            pass
-
-        dag_node.meta_data = self.merge_dicts(*meta_data_dicts)
-
+        dag_node.meta_data.merge(self.meta_data, meta_data )
         return dag_node
 
     def find_node(self, node_key):

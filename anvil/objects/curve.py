@@ -15,10 +15,10 @@ class Curve(transform.Transform):
         return rt.dcc.create.create_curve(**flags)
 
     @classmethod
-    def build(cls, meta_data=None, shape='cube', pre_scale=None, **flags):
-        if flags.get('point') is None:
-            flags.update(cls._get_shape_constructor(shape, return_positions=True))
-        instance = super(Curve, cls).build(meta_data=meta_data, **flags)
+    def build(cls, meta_data=None, shape='cube', pre_scale=None, **kwargs):
+        if kwargs.get('point') is None:
+            kwargs.update(cls._get_shape_constructor(shape, return_positions=True))
+        instance = super(Curve, cls).build(meta_data=meta_data, **kwargs)
 
         # Just in case we are using PyMEL and it has returned the actual shape node instead of the transform.
         if rt.dcc.scene.get_type(str(instance)) == cls.dcc_type and instance.get_parent():
