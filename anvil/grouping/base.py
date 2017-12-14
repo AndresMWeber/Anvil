@@ -85,7 +85,7 @@ class AbstractGrouping(object):
             return False
 
     def rename_chain(self, objects, use_end_naming=True, **name_tokens):
-        self.LOG.info('Renaming chain %r...' % (self))
+        self.LOG.info('Renaming chain %s for parent %s' % (objects, self))
         self.meta_data.merge(name_tokens)
         self.chain_nomenclate.merge_dict(self.meta_data.data)
 

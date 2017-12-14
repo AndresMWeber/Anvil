@@ -10,10 +10,10 @@ class SubRigTemplate(nt.SubRig):
     def build_fk_chain(self, layout_joints, **kwargs):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
         parent = self.group_controls
+
         for index, joint in enumerate(self.fk_chain):
             control = self.build_node(nt.Control, '%s_%s_%d' % (cfg.CONTROL_TYPE, cfg.FK, index),
                                       parent=parent,
-                                      shape='cube',
                                       reference_object=joint,
                                       meta_data={cfg.PURPOSE: cfg.FK, cfg.VARIATION: index},
                                       **kwargs)
@@ -30,9 +30,10 @@ class SubRigTemplate(nt.SubRig):
         self.register_node(cfg.IK_EFFECTOR, effector, meta_data=self.meta_data + {cfg.NAME: cfg.IK,
                                                                                   cfg.TYPE: cfg.IK_EFFECTOR})
 
-        control_kwargs = {'parent': self.group_controls, 'shape': 'flat_diamond', 'reference_object': self.ik_chain[-1]}
+        control_kwargs = {'parent': self.group_controls, 'reference_object': self.ik_chain[-1]}
         control_kwargs.update(kwargs)
-        self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK), meta_data={cfg.PURPOSE: cfg.IK},
+        self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK),
+                        meta_data=self.meta_data + {cfg.PURPOSE: cfg.IK},
                         **control_kwargs)
 
         if solver == cfg.IK_RP_SOLVER:
@@ -50,8 +51,7 @@ class SubRigTemplate(nt.SubRig):
             raise ValueError('No fk/ik chains detected...cannot build a blend chain without something to blend to!')
 
         self.root.add_attr(cfg.IKFK_BLEND, attributeType='double', min=0, max=1, defaultValue=0, keyable=True)
-        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints,
-                                             **kwargs)
+        self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
 
         for bl, source_chains in zip(self.blend_chain, zip(*source_chains)):
             blender = rt.dcc.create.create_node(cfg.BLENDER)

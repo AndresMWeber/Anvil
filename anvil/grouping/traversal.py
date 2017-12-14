@@ -185,8 +185,9 @@ class HierarchyChain(object):
         return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
 
     def __getitem__(self, key):
-        if isinstance(key, int):
+        if isinstance(key, (int, slice)):
             return list(self)[key]
+
         else:
             def gen_matches(key, dictionary):
                 for k, v in iteritems(dictionary):

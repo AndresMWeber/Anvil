@@ -36,7 +36,7 @@ class Hand(SubRigTemplate):
         for layout_joints, base_name in zip(self.layout_joints, base_names):
             self.LOG.info('Building digit %s from joints %r' % (base_name, layout_joints))
             digit = Digit(layout_joints, meta_data=self.meta_data + {cfg.NAME: base_name})
-            digit.build(parent=self.root, ikSolver=cfg.IK_SC_SOLVER, **self.build_kwargs)
+            digit.build(parent=self.root, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
             self.digits.append(digit)
 
         self.rename()
