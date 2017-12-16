@@ -18,10 +18,10 @@ class TestBuildBiped(TestBaseTemplateRigs):
         cls.import_template_files(template_file)
 
         sub_rig_dict = {
-            cfg.LEFT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('l_armA_JNT', 'l_armC_JNT'), 'pre_scale': .3},
-            cfg.RIGHT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('r_armA_JNT', 'r_armC_JNT'), 'pre_scale': .3},
-            cfg.LEFT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('l_legA_JNT', 'l_legC_JNT'), 'pre_scale': .3},
-            cfg.RIGHT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('r_legA_JNT', 'r_legC_JNT'), 'pre_scale': .3},
+            cfg.LEFT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('l_armA_JNT', 'l_armC_JNT'), 'scale': .5},
+            cfg.RIGHT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('r_armA_JNT', 'r_armC_JNT'), 'scale': .5},
+            cfg.LEFT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('l_legA_JNT', 'l_legC_JNT'), 'scale': .5},
+            cfg.RIGHT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('r_legA_JNT', 'r_legC_JNT'), 'scale': .5},
             cfg.LEFT + '_' + cfg.FOOT: nt.HierarchyChain('l_legC_JNT', 'l_foot_toeEnd_JNT'),
             cfg.RIGHT + '_' + cfg.FOOT: nt.HierarchyChain('r_legC_JNT', 'r_foot_toeEnd_JNT'),
             cfg.SPINE: nt.HierarchyChain('spineA_JNT', 'spineE_JNT'),
@@ -36,7 +36,7 @@ class TestBuildBiped(TestBaseTemplateRigs):
             for finger in ['thb', 'ind', 'mid', 'rng', 'pnk']:
                 fingers.append(nt.HierarchyChain(finger_start % (side[0], finger),
                                                  finger_end % (side[0], finger)))
-            sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers, 'pre_scale': 0.1}
+            sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers}#, 'scale': 0.1}
 
         rig_instance = cls.CLASS(sub_rig_dict, meta_data={cfg.NAME: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)

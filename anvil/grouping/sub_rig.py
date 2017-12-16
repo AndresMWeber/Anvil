@@ -36,7 +36,8 @@ class SubRig(base.AbstractGrouping):
 
         self.group_world.inheritsTransform.set(False)
         self.parent(parent)
-        self.assign_rendering_delegate()
+        self.initialize_sub_rig_attributes()
+        self.connect_rendering_delegate()
         self.LOG.info('Built sub rig %s' % self.__class__.__name__)
         return self
 

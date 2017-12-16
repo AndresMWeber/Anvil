@@ -1,28 +1,32 @@
 from six import iteritems
 from functools import wraps
 import anvil
+import anvil.config as cfg
 from jsonschema import validate
+
+DEFAULT_SCHEMA = {cfg.TYPE: ["object", "null"], "properties": {}}
+BOOL_TYPE = {cfg.TYPE: cfg.BOOLEAN}
+FLOAT_TYPE = {cfg.TYPE: cfg.NUMBER}
+INT_TYPE = {cfg.TYPE: cfg.INTEGER}
+STR_TYPE = {cfg.TYPE: cfg.STRING}
+NUM_TYPE = {cfg.TYPE: cfg.NUMBER}
+
+STR_LIST_TYPE = {cfg.TYPE: cfg.ARRAY, "items": STR_TYPE}
+POSITION_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 3, "maxItems": 3}
+POSITION_LIST = {cfg.TYPE: cfg.ARRAY, "items": POSITION_TYPE}
+POSITION_WEIGHT_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 4, "maxItems": 4}
+QUERYABLE_POSITION = {"anyOf": [POSITION_TYPE, BOOL_TYPE]}
+MATRIX_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 16, "maxItems": 16}
+QUERYABLE_MATRIX = {"anyOf": [MATRIX_TYPE, BOOL_TYPE]}
+LINEAR_ANGLE_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 2, "maxItems": 2}
+LINEAR_STRING_TYPE = {cfg.TYPE: cfg.ARRAY, "items": STR_TYPE, "minItems": 2, "maxItems": 2}
+STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
 
 
 class APIProxy(object):
     LOG = anvil.log.obtainLogger(__name__)
     API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
     CURRENT_API = None
-
-    BOOLEAN_TYPE = {"type": "boolean"}
-    FLOAT_TYPE = {"type": "number"}
-    INT_TYPE = {"type": "integer"}
-    STR_TYPE = {"type": "string"}
-
-    STR_LIST_TYPE = {"type": "array", "items": STR_TYPE}
-    POSITION_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}
-    POSITION_LIST = {"type": "array", "items": POSITION_TYPE}
-    POSITION_WEIGHT_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4}
-    QUERYABLE_POSITION = {"anyOf": [POSITION_TYPE, BOOLEAN_TYPE]}
-    MATRIX_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 16, "maxItems": 16}
-    QUERYABLE_MATRIX = {"anyOf": [MATRIX_TYPE, BOOLEAN_TYPE]}
-    LINEAR_ANGLE_TYPE = {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
-    STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
 
     @classmethod
     def _validate_function(cls, schema, api, function_name):
@@ -36,7 +40,9 @@ class APIProxy(object):
                 validate(kwargs, schema)
                 kwargs = cls._initialize_and_filter_flags(kwargs, schema)
                 return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
+
             return validator
+
         return to_validate
 
     @classmethod

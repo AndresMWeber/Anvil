@@ -91,6 +91,9 @@ class HierarchyChain(object):
             return True
         else:
             return False
+    def insert_buffer(self, **kwargs):
+        # TODO: This is most important.  Need to be able to create buffer objects that do not screw up parenting/position.
+        pass
 
     def duplicate_chain(self, top_node, end_node=None):
         """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain

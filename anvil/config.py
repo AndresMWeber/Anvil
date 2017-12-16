@@ -6,9 +6,12 @@ MODEL_TYPE = 'model'
 JOINT_TYPE = 'joint'
 CURVE_TYPE = 'curve'
 NURBS_TYPE = 'nurbs'
+NODE_TYPE = 'node'
+SURFACE_TYPE = 'surface'
 POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
+LOD = 'lod'
 
 # NAME METADATA
 LEFT = 'left'
@@ -23,6 +26,7 @@ LOWER = 'lower'
 
 # NAME FORMATS
 RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_type'
+DISPLAY_ATTR_ENUM = 'off:on:template:reference'
 
 # SUB RIGS
 ARM = 'arm'
@@ -59,8 +63,26 @@ TRANSLATE = 'translate'
 ROTATE = 'rotate'
 SCALE = 'scale'
 
-TRANSLATION = 'translation'
+# DATA TYPES
+ATTRIBUTE = 'attributeType'
+DEFAULT_VALUE = 'defaultValue'
+FLOAT = 'double'
+INTEGER = 'integer'
+NUMBER = 'number'
+STRING = 'string'
+BOOLEAN = 'boolean'
+ENUM = 'enum'
+INT = 'int'
+ARRAY = 'array'
+ATTR_DELIMITER = '.'
 
+# 3D CONCEPTS
+X = 'x'
+Y = 'y'
+Z = 'Z'
+AXES = [X, Y, Z]
+TRANSLATION = 'translation'
+TRANSFORMATION = [TRANSLATE, ROTATE, SCALE]
 PIVOTS = 'pivots'
 ABSOLUTE = 'absolute'
 RELATIVE = 'relative'
@@ -102,3 +124,7 @@ DCC_TYPES = {
     NURBS_TYPE: ['nurbsSurface'],
     POLY_TYPE: ['mesh'],
 }
+
+DEFAULT_IK_SHAPE = 'sphere'
+DEFAULT_FK_SHAPE = 'cube'
+DEFAULT_DIGIT_FK_SHAPE = 'pyramid_pin'

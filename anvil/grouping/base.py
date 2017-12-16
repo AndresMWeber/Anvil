@@ -1,10 +1,9 @@
-import nomenclate
-import anvil.config as cfg
-from anvil.meta_data import MetaData
-import anvil.objects as ot
 from six import iteritems
+import nomenclate
 import anvil
+from anvil.meta_data import MetaData
 import anvil.runtime as rt
+import anvil.config as cfg
 
 
 class AbstractGrouping(object):
@@ -12,27 +11,31 @@ class AbstractGrouping(object):
         are required to give a performance.
 
     """
-    ANVIL_TYPE = 'group'
     LOG = anvil.log.obtainLogger(__name__)
-    BUILT_IN_META_DATA = {'type': ANVIL_TYPE}
+    ANVIL_TYPE = cfg.GROUP_TYPE
+    BUILT_IN_META_DATA = {cfg.TYPE: ANVIL_TYPE}
+    BUILT_IN_ATTRIBUTES = {}
+    RENDERING_ATTRIBUTES = {'%ss' % cfg.SURFACE_TYPE: {cfg.ATTRIBUTE: cfg.ENUM,
+                                                       'enumName': cfg.DISPLAY_ATTR_ENUM,
+                                                       'keyable': True,
+                                                       cfg.DEFAULT_VALUE: 0},
+                            '%ss' % cfg.JOINT_TYPE: {cfg.ATTRIBUTE: cfg.ENUM,
+                                                     'enumName': cfg.DISPLAY_ATTR_ENUM,
+                                                     'keyable': True,
+                                                     cfg.DEFAULT_VALUE: 2},
+                            '%ss' % cfg.NODE_TYPE: {cfg.ATTRIBUTE: cfg.ENUM,
+                                                    'enumName': cfg.DISPLAY_ATTR_ENUM,
+                                                    'keyable': True,
+                                                    cfg.DEFAULT_VALUE: 0},
+                            '%ss' % cfg.CONTROL_TYPE: {cfg.ATTRIBUTE: 'enum',
+                                                       'enumName': cfg.DISPLAY_ATTR_ENUM,
+                                                       'keyable': True,
+                                                       cfg.DEFAULT_VALUE: 1},
+                            '%s' % cfg.LOD: {cfg.ATTRIBUTE: cfg.ENUM,
+                                             'enumName': 'Hero:Proxy',
+                                             'keyable': True,
+                                             cfg.DEFAULT_VALUE: 0}}
     NOMENCLATE_DEFAULT_FORMAT = cfg.RIG_FORMAT
-    DEFAULT_ATTRS = {'surfaces': {'attributeType': 'enum',
-                                  'enumName': 'off:on:template:reference',
-                                  'keyable': True,
-                                  'defaultValue': 0},
-                     'joints': {'attributeType': 'enum',
-                                'enumName': 'off:on:template:reference',
-                                'keyable': True,
-                                'defaultValue': 2},
-                     'nodes': {'attributeType': 'enum',
-                               'enumName': 'off:on:template:reference',
-                               'keyable': True,
-                               'defaultValue': 0},
-                     'controls': {'attributeType': 'enum',
-                                  'enumName': 'off:on:template:reference',
-                                  'keyable': True,
-                                  'defaultValue': 1},
-                     'lod': {'attributeType': 'enum', 'enumName': 'Hero:Proxy', 'keyable': True, 'defaultValue': 0}}
 
     def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, build_kwargs=None, **kwargs):
         self.hierarchy = {}
@@ -55,24 +58,36 @@ class AbstractGrouping(object):
         return all([self.root])
 
     def build(self, parent=None):
+        self.initialize_sub_rig_attributes()
         self.parent(parent)
 
     def build_layout(self):
         raise NotImplementedError
 
-    def assign_rendering_delegate(self, assignee=None):
+    def connect_rendering_delegate(self, assignee=None):
         # TODO: API Attribute dependent...dangerous.
         assignee = anvil.factory(assignee) if assignee is not None else self.root
 
         self.LOG.info('Assigning/Connecting display attributes to %s' % assignee)
-        for attr, attr_kwargs in iteritems(self.DEFAULT_ATTRS):
-            attr_name, group_name = '%s_rendering' % attr, 'group_%s' % attr
-            assignee.addAttr(attr_name, **attr_kwargs)
+        for attr, attr_kwargs in iteritems(self.RENDERING_ATTRIBUTES):
+            attr_name = '%s_rendering' % attr
+            group_name = 'group_%s' % attr
+
+            rendering_attribute = assignee.add_attr(attr_name, **attr_kwargs)
+
             if hasattr(self, group_name):
-                target_group, display_attr = getattr(self, group_name), getattr(assignee, attr_name)
+                target_group= getattr(self, group_name)
                 target_group.overrideEnabled.set(1)
-                display_attr.connect(target_group.visibility, force=True)
+                rendering_attribute.connect(target_group.visibility, force=True)
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
+
+    def initialize_sub_rig_attributes(self, attr_dict=None, controller=None):
+        attr_dict = self.BUILT_IN_ATTRIBUTES if attr_dict is None else attr_dict
+        controller = self.root if controller is None else anvil.factory(controller)
+
+        self.LOG.info('Assigning %s with sub-rig attributes %s' % (controller, attr_dict))
+        for attr, attr_kwargs in iteritems(attr_dict):
+            controller.add_attr(attr, **attr_kwargs)
 
     def parent(self, new_parent):
         nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]
@@ -110,12 +125,6 @@ class AbstractGrouping(object):
 
             self.LOG.debug('Renamed to %r' % (sub_node))
 
-    def node_is_grouping(self, node):
-        return issubclass(type(node), AbstractGrouping)
-
-    def node_is_object(self, node):
-        return issubclass(type(node), ot.UnicodeDelegate)
-
     def build_node(self, node_class, node_key, meta_data=None, **flags):
         self.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
         dag_node = node_class.build(meta_data=self.meta_data + meta_data, **flags)
@@ -136,7 +145,7 @@ class AbstractGrouping(object):
             raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
 
         self.hierarchy[node_key] = dag_node
-        dag_node.meta_data.merge(self.meta_data, meta_data )
+        dag_node.meta_data.merge(self.meta_data, meta_data)
         return dag_node
 
     def find_node(self, node_key):

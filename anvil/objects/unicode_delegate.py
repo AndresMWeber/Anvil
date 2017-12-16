@@ -27,6 +27,12 @@ class UnicodeDelegate(object):
     def name(self):
         return str(self._dcc_id)
 
+    def exists(self):
+        return rt.dcc.scene.exists(self)
+
+    def rename(self, new_name):
+        return rt.dcc.scene.rename(self.name(), new_name)
+
     @staticmethod
     def create_engine_instance(**flags):
         raise NotImplementedError('Cannot instantiate nodes from this class')
@@ -42,6 +48,13 @@ class UnicodeDelegate(object):
             instance._api_class_instance = dcc_instance
         anvil.register_encapsulation(instance)
         return instance
+
+    def get_history(self, **kwargs):
+        return rt.dcc.connections.list_history(self, **kwargs)
+
+    def get_future(self, **kwargs):
+        kwargs['future'] = True
+        return rt.dcc.connections.list_history(self, **kwargs)
 
     def __getattr__(self, item):
         try:

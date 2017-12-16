@@ -73,6 +73,14 @@ def is_anvil(node):
     return False
 
 
+def is_agrouping(node):
+    return issubclass(type(node), node_types.AbstractGrouping)
+
+
+def is_aobject(node):
+    return issubclass(type(node), node_types.UnicodeDelegate)
+
+
 __all__ = ['config',
            'meta_data',
            'validation',

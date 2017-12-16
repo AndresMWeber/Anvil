@@ -1,15 +1,17 @@
 import string
-import anvil
 import anvil.config as cfg
 from base import SubRigTemplate
-from digits import Digit
+import digits
 
 
 class Hand(SubRigTemplate):
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
-    CONTROLLER_ATTRIBUTES = {
+    BUILT_IN_ATTRIBUTES = {
         "curl_side_bias": None,
-
+        "curl": None,
+        "spread": None,
+        "fist": None,
+        "cup" : None,
     }
 
     def __init__(self, has_thumb=False, finger_joints=None, **kwargs):
@@ -23,9 +25,6 @@ class Hand(SubRigTemplate):
         self.has_thumb = has_thumb
         self.digits = []
 
-    def hook_up_attribute_controls(self, controller):
-        controller = anvil.factory(controller)
-
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
         num_fingers = len(self.layout_joints)
@@ -35,9 +34,9 @@ class Hand(SubRigTemplate):
                                                                   string.uppercase[:num_fingers]]
         for layout_joints, base_name in zip(self.layout_joints, base_names):
             self.LOG.info('Building digit %s from joints %r' % (base_name, layout_joints))
-            digit = Digit(layout_joints, meta_data=self.meta_data + {cfg.NAME: base_name})
-            digit.build(parent=self.root, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
-            self.digits.append(digit)
+            digit_instance = digits.Digit(layout_joints, meta_data=self.meta_data + {cfg.NAME: base_name})
+            digit_instance.build(parent=self.root, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
+            self.digits.append(digit_instance)
 
         self.rename()
 
@@ -47,3 +46,12 @@ class Hand(SubRigTemplate):
         for digit in self.digits:
             digit.meta_data.merge(self.meta_data, ignore_keys=cfg.NAME)
             digit.rename()
+
+    def set_up_fist_pose(self):
+        pass
+
+    def set_up_spread_pose(self):
+        pass
+
+    def set_up_curl_pose(self):
+        pass

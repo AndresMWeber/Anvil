@@ -1,7 +1,4 @@
 from importlib import import_module
-import anvil.config as cfg
-#import anvil.node_types as nt
-import anvil.validation as validation
 
 
 class DCCPlugin(object):
@@ -14,10 +11,10 @@ class DCCPlugin(object):
 
         self.scene = dcc_module.scene
         self.create = dcc_module.create
-        self.constrain = dcc_module.connections
+        self.connections = dcc_module.connections
         self.rigging = dcc_module.rigging
+        self.animation = dcc_module.animation
 
-    @validation.verify_inputs(validation.filter_list_transforms, validation.verify_transform_skinned)
     def copy_weights(self, source, targets):
         if not isinstance(targets, list):
             targets = [targets]

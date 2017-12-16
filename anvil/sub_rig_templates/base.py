@@ -1,3 +1,4 @@
+import anvil
 import anvil.runtime as rt
 from anvil.meta_data import MetaData
 import anvil.node_types as nt
@@ -6,6 +7,14 @@ import anvil.config as cfg
 
 class SubRigTemplate(nt.SubRig):
     BUILT_IN_META_DATA = MetaData.merge_dicts({'name': 'untitled'}, nt.SubRig.BUILT_IN_META_DATA)
+    BUILT_IN_ATTRIBUTES = {cfg.IKFK_BLEND: {'attributeType': cfg.FLOAT,
+                                            'min':0, 'max':1, 'defaultValue':0, 'keyable':True}}
+
+    def __init__(self, *args, **kwargs):
+        super(SubRigTemplate, self).__init__(*args, **kwargs)
+        self.ini
+        self.root.add_attr()
+
 
     def build_fk_chain(self, layout_joints, **kwargs):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
@@ -50,7 +59,6 @@ class SubRigTemplate(nt.SubRig):
         if not source_chains:
             raise ValueError('No fk/ik chains detected...cannot build a blend chain without something to blend to!')
 
-        self.root.add_attr(cfg.IKFK_BLEND, attributeType='double', min=0, max=1, defaultValue=0, keyable=True)
         self.blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
 
         for bl, source_chains in zip(self.blend_chain, zip(*source_chains)):
