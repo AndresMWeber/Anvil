@@ -81,7 +81,7 @@ class AbstractGrouping(object):
                 rendering_attribute.connect(target_group.visibility, force=True)
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
 
-    def initialize_sub_rig_attributes(self, attr_dict=None, controller=None):
+    def initialize_sub_rig_attributes(self, controller=None, attr_dict=None):
         attr_dict = self.BUILT_IN_ATTRIBUTES if attr_dict is None else attr_dict
         controller = self.root if controller is None else anvil.factory(controller)
 
@@ -117,10 +117,10 @@ class AbstractGrouping(object):
 
         # Sub node is going to be either subtype of grouping or objects.
         for sub_node_key, sub_node in iteritems(self.hierarchy):
-            if self.node_is_grouping(sub_node):
+            if anvil.is_agrouping(sub_node):
                 sub_node.rename(self.meta_data + sub_node.meta_data)
 
-            elif self.node_is_object(sub_node):
+            elif anvil.is_aobject(sub_node):
                 sub_node.rename(self._nomenclate.get(**sub_node.meta_data.copy_dict_as_strings()))
 
             self.LOG.debug('Renamed to %r' % (sub_node))

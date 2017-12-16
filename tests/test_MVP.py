@@ -18,7 +18,7 @@ class TestBaseRig(TestBase):
         sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, meta_data=cls.name_tokens,
                            shape='sphere')
 
-        anvil.runtime.dcc.constrain.parent(sub_rig.joint_eye, sub_rig.control_eye.connection_group)
+        anvil.runtime.dcc.connections.parent(sub_rig.joint_eye, sub_rig.control_eye.connection_group)
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig

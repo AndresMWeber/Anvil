@@ -1,8 +1,5 @@
 import anvil.node_types as nt
-import anvil.runtime as rt
-import nomenclate
 from base_test import TestBase
-import sys
 
 class TestBaseAbstractGrouping(TestBase):
     def build_dependencies(cls):
@@ -13,7 +10,7 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     @TestBase.delete_created_nodes
     def test_meta_data(self):
         test_meta_data = {'blah': 'fart'}
-        rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout_joints=None, parent=None)
+        rig = nt.AbstractGrouping(meta_data=test_meta_data, top_node=None, layout_joints=None, parent=None)
         test_meta_data.update(nt.AbstractGrouping.BUILT_IN_META_DATA)
         self.assertDictEqual(rig.meta_data, test_meta_data)
 
@@ -61,41 +58,8 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     def test_kwargs(self):
         test_flags = {'blah': 'fart'}
         rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout_joints=None, parent=None, **test_flags)
-        self.assertDictEqual(rig.flags, test_flags)
+        self.assertDictEqual(rig.build_kwargs, test_flags)
 
-
-class TestAbstractGroupingMergeDicts(TestBaseAbstractGrouping):
-    @TestBase.delete_created_nodes
-    def test_meta_data_double(self):
-        test_meta_data = {'foo': 'moo'}
-        test_other_meta_data = {'bar': 'larp'}
-        actual = {}
-        actual.update(test_meta_data)
-        actual.update(test_other_meta_data)
-        merged_dict = nt.AbstractGrouping.merge_dicts(test_meta_data, test_other_meta_data)
-        self.assertEquals(merged_dict, actual)
-
-    @TestBase.delete_created_nodes
-    def test_meta_data_single(self):
-        test_meta_data = {'foo': 'moo'}
-        actual = {}
-        actual.update(test_meta_data)
-        merged_dict = nt.AbstractGrouping.merge_dicts(test_meta_data)
-        self.assertEquals(merged_dict, actual)
-
-    @TestBase.delete_created_nodes
-    def test_meta_data_empty(self):
-        test_meta_data = {}
-        actual = {}
-        actual.update(test_meta_data)
-        merged_dict = nt.AbstractGrouping.merge_dicts(test_meta_data)
-        self.assertEquals(merged_dict, actual)
-
-    @TestBase.delete_created_nodes
-    def test_meta_data_none(self):
-        test_meta_data = None
-        merged_dict = nt.AbstractGrouping.merge_dicts(test_meta_data)
-        self.assertEquals(merged_dict, {})
 
 
 class TestAbstractGroupingParent(TestBaseAbstractGrouping):

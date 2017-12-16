@@ -30,11 +30,13 @@ aim_schema = {
     "worldUpVector": api_proxy.POSITION_TYPE,
 }
 
+
 @api_proxy.APIProxy._validate_function(
-    api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,{'properties':{'ignoreUnitConversion': api_proxy.BOOL_TYPE}}),
+    api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': {'ignoreUnitConversion': api_proxy.BOOL_TYPE}}),
     API, 'mute')
 def connected_attr(attribute_dag_path_1, attribute_dag_path_2, **kwargs):
     pass
+
 
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
@@ -233,6 +235,33 @@ def get_attr(attribute_dag_path, *args, **kwargs):
                               'type': api_proxy.STR_TYPE}}),
     API, 'setAttr')
 def set_attr(attribute, **kwargs):
+    pass
+
+
+@api_proxy.APIProxy._validate_function(
+    api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
+                          {'properties': {
+                              'attributeType': api_proxy.STR_TYPE, 'binaryTag': api_proxy.STR_TYPE,
+                              'cachedInternally': api_proxy.BOOL_TYPE, 'category': api_proxy.STR_TYPE,
+                              'dataType': api_proxy.STR_TYPE, 'defaultValue': api_proxy.NUM_TYPE,
+                              'disconnectBehaviour': api_proxy.INT_TYPE, 'enumName': api_proxy.STR_TYPE,
+                              'exists': api_proxy.BOOL_TYPE, 'fromPlugin': api_proxy.BOOL_TYPE,
+                              'hasMaxValue': api_proxy.BOOL_TYPE, 'hasMinValue': api_proxy.BOOL_TYPE,
+                              'hasSoftMaxValue': api_proxy.BOOL_TYPE, 'hasSoftMinValue': api_proxy.BOOL_TYPE,
+                              'hidden': api_proxy.BOOL_TYPE, 'indexMatters': api_proxy.BOOL_TYPE,
+                              'api_proxy.INT_TYPEernalSet': api_proxy.BOOL_TYPE, 'keyable': api_proxy.BOOL_TYPE,
+                              'longName': api_proxy.STR_TYPE, 'maxValue': api_proxy.NUM_TYPE,
+                              'minValue': api_proxy.NUM_TYPE, 'multi': api_proxy.BOOL_TYPE,
+                              'niceName': api_proxy.STR_TYPE, 'numberOfChildren': api_proxy.INT_TYPE,
+                              'parent': api_proxy.STR_TYPE, 'proxy': api_proxy.STR_TYPE,
+                              'readable': api_proxy.BOOL_TYPE, 'shortName': api_proxy.STR_TYPE,
+                              'softMaxValue': api_proxy.NUM_TYPE, 'softMinValue': api_proxy.NUM_TYPE,
+                              'storable': api_proxy.BOOL_TYPE, 'usedAsColor': api_proxy.BOOL_TYPE,
+                              'usedAsFilename': api_proxy.BOOL_TYPE, 'usedAsProxy': api_proxy.BOOL_TYPE,
+                              'writable': api_proxy.BOOL_TYPE
+                          }}),
+    API, 'addAttr')
+def add_attr(attribute, **kwargs):
     pass
 
 
