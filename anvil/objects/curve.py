@@ -78,7 +78,7 @@ class Curve(transform.Transform):
         api_function = getattr(rt.dcc.ENGINE_API, shape_constructor, None)
 
         if callable(api_function):
-            anvil.LOG.debug('Obtained shape constructor from yml: %s(%s)' % (api_function, shape_entry))
+            cls.LOG.debug('Obtained shape constructor from yml: %s(%s)' % (api_function, shape_entry))
             return lambda: api_function(**shape_entry)
 
     @classmethod
@@ -90,7 +90,7 @@ class Curve(transform.Transform):
             try:
                 cls.SHAPE_CACHE = yaml.load(open(shape_file, "r"))
             except IOError:
-                anvil.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
+                cls.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
                 cls.SHAPE_CACHE = {}
 
     @staticmethod
@@ -129,10 +129,10 @@ class Curve(transform.Transform):
 
             with io.open(shape_file, 'w') as f:
                 self.ordered_dump(shapes_data, stream=f, encoding='utf-8', default_flow_style=None)
-                anvil.LOG.info('Successfully wrote shape data %s to file %s' % (shape_name, f))
+                self.LOG.info('Successfully wrote shape data %s to file %s' % (shape_name, f))
 
         except IOError:
-            anvil.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
+            self.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
 
     @classmethod
     def _build_all_controls(cls):

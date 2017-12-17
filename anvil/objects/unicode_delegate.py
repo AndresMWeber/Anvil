@@ -1,9 +1,11 @@
 import anvil
+import anvil.log as log
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
 
 
 class UnicodeDelegate(object):
+    LOG = log.obtainLogger(__name__)
     dcc_type = None
     BUILTIN_METADATA = {'type': dcc_type}
 
@@ -15,7 +17,8 @@ class UnicodeDelegate(object):
         :param kwargs: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
-        anvil.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
+
+        self.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
         self.meta_data = MetaData(meta_data, kwargs)
 
@@ -39,7 +42,7 @@ class UnicodeDelegate(object):
 
     @classmethod
     def build(cls, meta_data=None, **kwargs):
-        anvil.LOG.info('Building node %s: %s(kwargs=%s, meta_data=%s)' % (cls.__name__, cls.dcc_type, kwargs, meta_data))
+        cls.LOG.info('Building node %s: %s(kwargs=%s, meta_data=%s)' % (cls.__name__, cls.dcc_type, kwargs, meta_data))
         dcc_instance = cls.create_engine_instance(**kwargs)
         instance = cls(dcc_instance, meta_data=meta_data, **kwargs)
 

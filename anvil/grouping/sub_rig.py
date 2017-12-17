@@ -1,4 +1,5 @@
 import base
+import anvil
 import anvil.log as lg
 import anvil.objects as ot
 import anvil.runtime as rt
@@ -19,7 +20,7 @@ class SubRig(base.AbstractGrouping):
     def build(self, parent=None, meta_data=None, **kwargs):
         self.build_kwargs.merge(kwargs)
         self.meta_data.merge(meta_data)
-        self.LOG.info('Building sub-rig %s' % self)
+        anvil.LOG.info('Building sub-rig %s' % self)
         if self.root is None:
             self.build_node(ot.Transform,
                             'group_top',
@@ -38,7 +39,7 @@ class SubRig(base.AbstractGrouping):
         self.parent(parent)
         self.initialize_sub_rig_attributes()
         self.connect_rendering_delegate()
-        self.LOG.info('Built sub rig %s' % self.__class__.__name__)
+        anvil.LOG.info('Built sub rig %s' % self.__class__.__name__)
         return self
 
     def build_pole_vector_control(self, joints, ik_handle, node_key='', move_by=None, meta_data=None, **kwargs):

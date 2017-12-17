@@ -18,7 +18,7 @@ class Transform(dag_node.DagNode):
             return parents
 
     def parent(self, new_parent):
-        anvil.LOG.debug('Parenting %s to %s' % (str(self), str(new_parent)))
+        self.LOG.debug('Parenting %s to %s' % (str(self), str(new_parent)))
         top_node, new_parent = str(self), str(new_parent)
         nodes_exist = [rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node != 'None']
         if all(nodes_exist or [False]):
@@ -38,7 +38,7 @@ class Transform(dag_node.DagNode):
 
     def match_position(self, reference_object):
         if reference_object and rt.dcc.scene.exists(str(reference_object)):
-            anvil.LOG.info('Matching position of %s to %s' % (self, reference_object))
+            self.LOG.info('Matching position of %s to %s' % (self, reference_object))
             constraint = rt.dcc.connections.parent(str(reference_object), str(self), maintainOffset=False)
             rt.dcc.scene.delete(constraint)
 
