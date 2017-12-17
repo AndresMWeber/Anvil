@@ -63,7 +63,7 @@ class Rig(base.AbstractGrouping):
         if not self.root:
             self.build_node(ot.Transform,
                             'group_top',
-                            meta_data={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE},
+                            meta_data={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE, 'protected_fields': cfg.RIG},
                             **kwargs)
 
         self.build_node(control.Control,

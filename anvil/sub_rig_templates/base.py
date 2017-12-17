@@ -12,8 +12,6 @@ class SubRigTemplate(nt.SubRig):
 
     def __init__(self, *args, **kwargs):
         super(SubRigTemplate, self).__init__(*args, **kwargs)
-        self.ini
-        self.root.add_attr()
 
 
     def build_fk_chain(self, layout_joints, **kwargs):
@@ -27,7 +25,7 @@ class SubRigTemplate(nt.SubRig):
                                       meta_data={cfg.PURPOSE: cfg.FK, cfg.VARIATION: index},
                                       **kwargs)
             parent = control.connection_group
-            rt.dcc.constrain.parent(control.connection_group, joint)
+            rt.dcc.connections.parent(control.connection_group, joint)
 
     def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, **kwargs):
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
@@ -51,7 +49,7 @@ class SubRigTemplate(nt.SubRig):
                                            meta_data=self.meta_data + {cfg.PURPOSE: cfg.POLE_VECTOR},
                                            **kwargs)
 
-        rt.dcc.constrain.translate(self.control_ik.connection_group, self.ik_handle)
+        rt.dcc.connections.translate(self.control_ik.connection_group, self.ik_handle)
 
     def build_blend_chain(self, layout_joints, use_layout, **kwargs):
         source_chains = [getattr(self, chain) for chain in ['fk_chain', 'ik_chain'] if hasattr(self, chain)]

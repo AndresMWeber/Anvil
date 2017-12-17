@@ -39,7 +39,7 @@ class Transform(dag_node.DagNode):
     def match_position(self, reference_object):
         if reference_object and rt.dcc.scene.exists(str(reference_object)):
             anvil.LOG.info('Matching position of %s to %s' % (self, reference_object))
-            constraint = rt.dcc.constrain.parent(str(reference_object), str(self), maintainOffset=False)
+            constraint = rt.dcc.connections.parent(str(reference_object), str(self), maintainOffset=False)
             rt.dcc.scene.delete(constraint)
 
     def colorize(self, color):

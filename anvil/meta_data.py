@@ -67,26 +67,8 @@ class MetaData(object):
     def keys(self):
         return list(self.data)
 
-    @staticmethod
-    def dict_compare(d1, d2):
-        """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
-        """
-        d1_keys = set(d1.keys())
-        d2_keys = set(d2.keys())
-        intersect_keys = d1_keys.intersection(d2_keys)
-        added = d1_keys - d2_keys
-        removed = d2_keys - d1_keys
-        modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
-        same = set(o for o in intersect_keys if d1[o] == d2[o])
-        return added, removed, modified, same
-
-    def __add__(self, other):
-        if isinstance(other, self.__class__):
-            return self.merge_dicts(self.data, other.data, ignore_keys=None)
-        if isinstance(other, dict):
-            return self.merge_dicts(self.data, other, ignore_keys=None)
-        else:
-            raise ValueError('Addition for %s and %s types unsupported.' % (self.__class__, type(other)))
+    def iteritems(self):
+        return iteritems(self.data)
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -99,8 +81,13 @@ class MetaData(object):
         except (AttributeError, KeyError):
             super(MetaData, self).__getattribute__(item)
 
-    def __setitem__(self, key, value):
-        self.data[key] = value
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            return self.merge_dicts(self.data, other.data, ignore_keys=None)
+        if isinstance(other, dict):
+            return self.merge_dicts(self.data, other, ignore_keys=None)
+        else:
+            raise ValueError('Addition for %s and %s types unsupported.' % (self.__class__, type(other)))
 
     def __getitem__(self, key):
         return self.data[key]
@@ -108,8 +95,8 @@ class MetaData(object):
     def __len__(self):
         return len(list(self.data))
 
-    def __iter__(self):
-        return iter(self.data)
+    def __setitem__(self, key, value):
+        self.data[key] = value
 
     def __repr__(self):
         return self.serialize()
@@ -120,3 +107,19 @@ class MetaData(object):
         if isinstance(other, dict):
             return self.dict_compare(self.data, other)
         return False
+
+    def __iter__(self):
+        return iter(self.data)
+
+    @staticmethod
+    def dict_compare(d1, d2):
+        """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
+        """
+        d1_keys = set(d1.keys())
+        d2_keys = set(d2.keys())
+        intersect_keys = d1_keys.intersection(d2_keys)
+        added = d1_keys - d2_keys
+        removed = d2_keys - d1_keys
+        modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
+        same = set(o for o in intersect_keys if d1[o] == d2[o])
+        return added, removed, modified, same

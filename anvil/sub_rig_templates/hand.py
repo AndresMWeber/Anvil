@@ -2,16 +2,16 @@ import string
 import anvil.config as cfg
 from base import SubRigTemplate
 import digits
-
+import anvil.objects.attribute as at
 
 class Hand(SubRigTemplate):
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
     BUILT_IN_ATTRIBUTES = {
-        "curl_side_bias": None,
-        "curl": None,
-        "spread": None,
-        "fist": None,
-        "cup" : None,
+        "curl_bias": at.PM_1_KWARGS,
+        "curl": at.PM_10_KWARGS,
+        "spread": at.PM_10_KWARGS,
+        "fist": at.PM_10_KWARGS,
+        "cup": at.PM_10_KWARGS,
     }
 
     def __init__(self, has_thumb=False, finger_joints=None, **kwargs):

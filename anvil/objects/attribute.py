@@ -219,3 +219,9 @@ class Attribute(unicode_delegate.UnicodeDelegate):
             return self.__getattribute__('__class__')('%s.%s' % (self, item))
         else:
             return super(Attribute, self).__getattr__(item)
+
+
+DISPLAY_KWARGS = {cfg.ATTRIBUTE: cfg.ENUM, cfg.ENUM_NAME: cfg.DISPLAY_ENUM, cfg.KEYABLE: True, cfg.DEFAULT_VALUE: 0}
+PM_1_KWARGS = {cfg.ATTRIBUTE: cfg.FLOAT, cfg.KEYABLE: True, cfg.MIN: -1, cfg.MAX: 1, cfg.DEFAULT_VALUE: 0}
+PM_10_KWARGS = {cfg.ATTRIBUTE: cfg.FLOAT, cfg.KEYABLE: True, cfg.MIN: -10, cfg.MAX: 10, cfg.DEFAULT_VALUE: 0}
+RANGE_10_KWARGS = {cfg.ATTRIBUTE: cfg.FLOAT, cfg.KEYABLE: True, cfg.MIN: 0, cfg.MAX: 10, cfg.DEFAULT_VALUE: 0}

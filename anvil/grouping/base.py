@@ -4,6 +4,7 @@ import anvil
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
 import anvil.config as cfg
+import anvil.objects.attribute as at
 
 
 class AbstractGrouping(object):
@@ -13,28 +14,17 @@ class AbstractGrouping(object):
     """
     LOG = anvil.log.obtainLogger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
-    BUILT_IN_META_DATA = {cfg.TYPE: ANVIL_TYPE}
+    BUILT_IN_META_DATA = {
+        cfg.TYPE: ANVIL_TYPE
+    }
     BUILT_IN_ATTRIBUTES = {}
-    RENDERING_ATTRIBUTES = {'%ss' % cfg.SURFACE_TYPE: {cfg.ATTRIBUTE: cfg.ENUM,
-                                                       'enumName': cfg.DISPLAY_ATTR_ENUM,
-                                                       'keyable': True,
-                                                       cfg.DEFAULT_VALUE: 0},
-                            '%ss' % cfg.JOINT_TYPE: {cfg.ATTRIBUTE: cfg.ENUM,
-                                                     'enumName': cfg.DISPLAY_ATTR_ENUM,
-                                                     'keyable': True,
-                                                     cfg.DEFAULT_VALUE: 2},
-                            '%ss' % cfg.NODE_TYPE: {cfg.ATTRIBUTE: cfg.ENUM,
-                                                    'enumName': cfg.DISPLAY_ATTR_ENUM,
-                                                    'keyable': True,
-                                                    cfg.DEFAULT_VALUE: 0},
-                            '%ss' % cfg.CONTROL_TYPE: {cfg.ATTRIBUTE: 'enum',
-                                                       'enumName': cfg.DISPLAY_ATTR_ENUM,
-                                                       'keyable': True,
-                                                       cfg.DEFAULT_VALUE: 1},
-                            '%s' % cfg.LOD: {cfg.ATTRIBUTE: cfg.ENUM,
-                                             'enumName': 'Hero:Proxy',
-                                             'keyable': True,
-                                             cfg.DEFAULT_VALUE: 0}}
+    RENDERING_ATTRIBUTES = {
+        '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,
+        '%ss' % cfg.JOINT_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 2}),
+        '%ss' % cfg.NODE_TYPE: at.DISPLAY_KWARGS,
+        '%ss' % cfg.CONTROL_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 1}),
+        '%s' % cfg.LOD: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
+    }
     NOMENCLATE_DEFAULT_FORMAT = cfg.RIG_FORMAT
 
     def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, build_kwargs=None, **kwargs):
@@ -45,6 +35,7 @@ class AbstractGrouping(object):
         self.meta_data = MetaData(self.BUILT_IN_META_DATA, meta_data, protected_fields=list(self.BUILT_IN_META_DATA))
 
         self._nomenclate = nomenclate.Nom(self.meta_data.data)
+        self._nomenclate.format = self.NOMENCLATE_DEFAULT_FORMAT
 
         self.chain_nomenclate = nomenclate.Nom()
         self.chain_nomenclate.format = self.NOMENCLATE_DEFAULT_FORMAT
@@ -76,18 +67,18 @@ class AbstractGrouping(object):
             rendering_attribute = assignee.add_attr(attr_name, **attr_kwargs)
 
             if hasattr(self, group_name):
-                target_group= getattr(self, group_name)
+                target_group = getattr(self, group_name)
                 target_group.overrideEnabled.set(1)
                 rendering_attribute.connect(target_group.visibility, force=True)
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
 
     def initialize_sub_rig_attributes(self, controller=None, attr_dict=None):
         attr_dict = self.BUILT_IN_ATTRIBUTES if attr_dict is None else attr_dict
-        controller = self.root if controller is None else anvil.factory(controller)
-
-        self.LOG.info('Assigning %s with sub-rig attributes %s' % (controller, attr_dict))
-        for attr, attr_kwargs in iteritems(attr_dict):
-            controller.add_attr(attr, **attr_kwargs)
+        if attr_dict:
+            controller = self.root if controller is None else anvil.factory(controller)
+            self.LOG.info('Assigning %s with sub-rig attributes %s' % (controller, attr_dict))
+            for attr, attr_kwargs in iteritems(attr_dict):
+                controller.add_attr(attr, **attr_kwargs)
 
     def parent(self, new_parent):
         nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]

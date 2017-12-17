@@ -26,7 +26,7 @@ LOWER = 'lower'
 
 # NAME FORMATS
 RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_type'
-DISPLAY_ATTR_ENUM = 'off:on:template:reference'
+DISPLAY_ENUM = 'off:on:template:reference'
 
 # SUB RIGS
 ARM = 'arm'
@@ -74,7 +74,13 @@ BOOLEAN = 'boolean'
 ENUM = 'enum'
 INT = 'int'
 ARRAY = 'array'
+
+# ATTRIBUTES
 ATTR_DELIMITER = '.'
+MIN = 'minimum'
+MAX = 'maximum'
+KEYABLE = 'keyable'
+ENUM_NAME = 'enumName'
 
 # 3D CONCEPTS
 X = 'x'
