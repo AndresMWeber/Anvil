@@ -22,8 +22,11 @@ class TestBase(unittest2.TestCase):
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
     APOSE = 'APOSE'
     TPOSE = 'TPOSE'
+    EXTERNALA = 'EXTERNALA'
     TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
-                      TPOSE: 'test_skeleton_t_pose.ma'}
+                      TPOSE: 'test_skeleton_t_pose.ma',
+                      EXTERNALA: 'test_skeleton_externalA.ma',
+                      }
 
     @classmethod
     def import_template_files(cls, template_file):
@@ -31,7 +34,7 @@ class TestBase(unittest2.TestCase):
         import os
         file_path = os.path.join(os.path.dirname(__file__), cls.TEMPLATE_FILES[template_file])
         cls.LOG.info('Importing file %s from anvil/tests dir' % file_path)
-        pm.importFile(file_path)
+        pm.importFile(file_path, ignoreVersion=True)
         cls.LOG.info('Successfully imported file.')
 
     @classmethod
@@ -66,7 +69,6 @@ class TestBase(unittest2.TestCase):
         https://stackoverflow.com/questions/18464095/how-to-achieve-assertdictequal-with-assertsequenceequal-applied-to-values
         Recursively sort list or dict nested lists
         """
-
         if isinstance(obj, dict):
             _sorted = OrderedDict()
             for key in sorted(list(obj)):

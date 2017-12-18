@@ -69,7 +69,8 @@ class Rig(base.AbstractGrouping):
         self.build_node(control.Control,
                         'control_universal',
                         parent=self.group_top,
-                        shape='pyramid',
+                        shape='pentagon_cross',
+                        scale=5,
                         meta_data={cfg.CHILD_TYPE: 'universal'})
 
         for main_group_type in ['extras', 'model', 'sub_rigs']:

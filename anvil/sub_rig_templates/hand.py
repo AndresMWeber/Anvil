@@ -1,8 +1,10 @@
 import string
+import anvil
 import anvil.config as cfg
 from base import SubRigTemplate
 import digits
 import anvil.objects.attribute as at
+
 
 class Hand(SubRigTemplate):
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
@@ -27,18 +29,23 @@ class Hand(SubRigTemplate):
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
-        num_fingers = len(self.layout_joints)
-        self.LOG.info('Building %s: %r with %d digits' % (self.__class__.__name__, self, num_fingers))
+        anvil.LOG.info('Building %s: %r with %d digits' % (self.__class__.__name__, self, len(self.layout_joints)))
 
-        base_names = self.DEFAULT_NAMES if num_fingers == 5 else [cfg.FINGER + letter for letter in
-                                                                  string.uppercase[:num_fingers]]
+        base_names = self.get_finger_base_names()
         for layout_joints, base_name in zip(self.layout_joints, base_names):
-            self.LOG.info('Building digit %s from joints %r' % (base_name, layout_joints))
             digit_instance = digits.Digit(layout_joints, meta_data=self.meta_data + {cfg.NAME: base_name})
-            digit_instance.build(parent=self.root, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
+            digit_instance.build(parent=self.group_controls, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
             self.digits.append(digit_instance)
 
         self.rename()
+
+    def get_finger_base_names(self):
+        num_fingers = len(self.layout_joints)
+        if num_fingers == 5:
+            names = self.DEFAULT_NAMES
+        else:
+            names = [cfg.FINGER + letter for letter in string.uppercase[:num_fingers]]
+        return names
 
     def rename(self, *input_dicts, **name_tokens):
         super(Hand, self).rename(*input_dicts, **name_tokens)

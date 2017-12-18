@@ -36,6 +36,9 @@ class UnicodeDelegate(object):
     def rename(self, new_name):
         return rt.dcc.scene.rename(self.name(), new_name)
 
+    def type(self):
+        return rt.dcc.scene.get_type(self)
+
     @staticmethod
     def create_engine_instance(**flags):
         raise NotImplementedError('Cannot instantiate nodes from this class')

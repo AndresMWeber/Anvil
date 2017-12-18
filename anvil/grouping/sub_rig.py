@@ -17,14 +17,12 @@ class SubRig(base.AbstractGrouping):
     def __init__(self, *args, **kwargs):
         super(SubRig, self).__init__(*args, **kwargs)
 
-    def build(self, parent=None, meta_data=None, **kwargs):
-        self.build_kwargs.merge(kwargs)
-        self.meta_data.merge(meta_data)
-        anvil.LOG.info('Building sub-rig %s' % self)
+    def build(self, parent=None, **kwargs):
+        super(SubRig, self).build(**kwargs)
         if self.root is None:
             self.build_node(ot.Transform,
                             'group_top',
-                            meta_data=self.meta_data + {'rig': 'subrig', 'type': cfg.GROUP_TYPE},
+                            meta_data={'rig': 'subrig', 'type': cfg.GROUP_TYPE},
                             **self.build_kwargs)
             self.root = self.group_top
 
@@ -33,14 +31,14 @@ class SubRig(base.AbstractGrouping):
             self.build_node(ot.Transform,
                             group_name,
                             parent=self.root,
-                            meta_data=self.meta_data + {'childtype': main_group_type, 'type': cfg.GROUP_TYPE})
-
+                            meta_data={'childtype': main_group_type, 'type': cfg.GROUP_TYPE})
         self.group_world.inheritsTransform.set(False)
+
         self.parent(parent)
         self.initialize_sub_rig_attributes()
         self.connect_rendering_delegate()
-        anvil.LOG.info('Built sub rig %s' % self.__class__.__name__)
-        return self
+
+        anvil.LOG.info('Built %s: %s' % (self.__class__.__name__, self))
 
     def build_pole_vector_control(self, joints, ik_handle, node_key='', move_by=None, meta_data=None, **kwargs):
         """ Point constraint to the two base positions, aim constrain to the other objects

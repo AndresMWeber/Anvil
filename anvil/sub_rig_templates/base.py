@@ -1,4 +1,3 @@
-import anvil
 import anvil.runtime as rt
 from anvil.meta_data import MetaData
 import anvil.node_types as nt
@@ -12,7 +11,6 @@ class SubRigTemplate(nt.SubRig):
 
     def __init__(self, *args, **kwargs):
         super(SubRigTemplate, self).__init__(*args, **kwargs)
-
 
     def build_fk_chain(self, layout_joints, **kwargs):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)

@@ -34,12 +34,12 @@ class AbstractGrouping(object):
         self.build_kwargs = MetaData(build_kwargs, kwargs)
         self.meta_data = MetaData(self.BUILT_IN_META_DATA, meta_data, protected_fields=list(self.BUILT_IN_META_DATA))
 
-        self._nomenclate = nomenclate.Nom(self.meta_data.data)
-        self._nomenclate.format = self.NOMENCLATE_DEFAULT_FORMAT
 
+        self._nomenclate = nomenclate.Nom(self.meta_data.data)
         self.chain_nomenclate = nomenclate.Nom()
-        self.chain_nomenclate.format = self.NOMENCLATE_DEFAULT_FORMAT
-        self.chain_nomenclate.var.case = cfg.UPPER
+        for namer in [self._nomenclate, self.chain_nomenclate]:
+            namer.format = self.NOMENCLATE_DEFAULT_FORMAT
+            namer.var.case = cfg.UPPER
 
         self.parent(parent)
         self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
@@ -48,9 +48,13 @@ class AbstractGrouping(object):
     def is_built(self):
         return all([self.root])
 
-    def build(self, parent=None):
-        self.initialize_sub_rig_attributes()
-        self.parent(parent)
+    def build(self, meta_data=None, **kwargs):
+        self.build_kwargs.merge(kwargs)
+        self.meta_data.merge(meta_data)
+        anvil.LOG.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s' % (self.__class__.__name__,
+                                                                                   self.meta_data,
+                                                                                   self.build_kwargs,
+                                                                                   self.layout_joints))
 
     def build_layout(self):
         raise NotImplementedError
@@ -90,14 +94,14 @@ class AbstractGrouping(object):
             self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, self.root))
             return False
 
-    def rename_chain(self, objects, use_end_naming=True, **name_tokens):
+    def rename_chain(self, objects, use_end_naming=False, **name_tokens):
         self.LOG.info('Renaming chain %s for parent %s' % (objects, self))
         self.meta_data.merge(name_tokens)
         self.chain_nomenclate.merge_dict(self.meta_data.data)
 
         for index, object in enumerate(objects):
             variation_kwargs = {'var': index}
-            if use_end_naming and index != len(objects) - 1:
+            if use_end_naming and index == len(objects) - 1:
                 variation_kwargs = {'decorator': 'End'}
             rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
 

@@ -56,7 +56,7 @@ class Curve(transform.Transform):
             elif mode == cfg.TRANSLATE:
                 transform_kwargs[cfg.TRANSLATION] = value
             elif mode == cfg.ROTATE:
-                transform_kwargs[cfg.ROTATE] = value
+                transform_kwargs[cfg.ROTATION] = value
             rt.dcc.scene.position(self.get_shape().cv[:], **transform_kwargs)
 
     def swap_shape(self, new_shape, maintain_position=False):

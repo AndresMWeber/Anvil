@@ -1,11 +1,15 @@
 from six import iteritems
 import anvil.runtime as rt
+import anvil.objects as ob
 import anvil
 import anvil.config as cfg
 import nomenclate.core.tools as ts
 
 
 class HierarchyChain(object):
+    UP = 'up'
+    DOWN = 'down'
+
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         top_node, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
@@ -39,6 +43,17 @@ class HierarchyChain(object):
         except (RuntimeError, IOError):
             return self._get_linear_end(node_filter=node_filter)
 
+    def find_child(self, child):
+        if isinstance(child, int):
+            return self[child]
+
+        child = anvil.factory(child)
+        for node in self:
+            if node == child:
+                return node
+
+        raise IndexError('Child not found in hierarchy %s' % list(self))
+
     def get_hierarchy(self, node_filter=None):
         node_filter = node_filter or self.node_filter
         return rt.dcc.scene.node_hierarchy_as_dict(self.head, node_filter=node_filter)
@@ -68,6 +83,24 @@ class HierarchyChain(object):
 
         return level_tree
 
+    def insert_buffer(self, index_target, buffer_node_class=None, direction=None, **kwargs):
+        index_target = self.find_child(index_target)
+
+        direction = self.UP if direction is None else direction if direction in [self.UP, self.DOWN] else self.UP
+        buffer_node_class = ob.Transform if not anvil.is_anvil(buffer_node_class) else buffer_node_class
+
+        buffer = buffer_node_class.build(**kwargs)
+        buffer_parent = index_target.get_parent() if direction == self.UP else index_target
+
+        buffer.match_position(buffer_parent)
+        buffer.parent(buffer_parent)
+
+        if direction == self.UP:
+            index_target.parent(buffer)
+        else:
+            for child in index_target.children():
+                child.parent(buffer)
+
     def depth(self, node_filter=None):
         node_filter = node_filter or self.node_filter
         return self._dict_depth(d=self.get_hierarchy(node_filter=node_filter)) - 1
@@ -91,9 +124,6 @@ class HierarchyChain(object):
             return True
         else:
             return False
-    def insert_buffer(self, **kwargs):
-        # TODO: This is most important.  Need to be able to create buffer objects that do not screw up parenting/position.
-        pass
 
     def duplicate_chain(self, top_node, end_node=None):
         """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain
@@ -118,7 +148,8 @@ class HierarchyChain(object):
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
         return str(duplicates[0]), str(duplicates[-1])
 
-    def _traverse_up_linear_tree(self, downstream_node, upstream_node):
+    def _traverse_up_linear_tree(self, downstream_node, upstream_node, node_filter=None):
+        node_filter = node_filter if node_filter is not None else self.node_filter
         all_descendants = self._traverse_down_linear_tree(upstream_node)
         if not str(downstream_node) in all_descendants:
             raise IndexError('Node %r is not in the descendants of %s --> %s' % (downstream_node,
@@ -130,7 +161,8 @@ class HierarchyChain(object):
 
         while anvil.factory(current_node).get_parent():
             current_node = anvil.factory(current_node.get_parent())
-            chain_path.insert(0, current_node)
+            if any([current_node.type() in node_filter, node_filter is None, node_filter == []]):
+                chain_path.insert(0, current_node)
             if current_node == upstream_node:
                 return iter(chain_path)
         raise IndexError('Could not find path between start(%s) --> last(%s)' % (downstream_node, upstream_node))
