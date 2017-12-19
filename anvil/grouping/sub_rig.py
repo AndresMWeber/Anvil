@@ -1,5 +1,6 @@
 import base
 import anvil
+from anvil.meta_data import MetaData
 import anvil.log as lg
 import anvil.objects as ot
 import anvil.runtime as rt
@@ -11,7 +12,7 @@ class SubRig(base.AbstractGrouping):
     LOG = lg.obtainLogger(__name__)
     POLE_VECTOR_MIN_JOINTS = 2
     POLE_VECTOR_MOVE_DEFAULT = [3, 0, 0]
-    LOCAL_MOVE_KWARGS = {'relative': True, 'objectSpace': True, 'worldSpaceDistance': True}
+    LOCAL_MOVE_KWARGS = MetaData({'relative': True, 'objectSpace': True, 'worldSpaceDistance': True})
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 
     def __init__(self, *args, **kwargs):
@@ -60,7 +61,7 @@ class SubRig(base.AbstractGrouping):
             rt.dcc.connections.aim(joints, control.offset_group, maintain_offset=False, upObject=start_joint))
 
         rt.dcc.scene.position(control.offset_group, translation=move_by or self.POLE_VECTOR_MOVE_DEFAULT,
-                              **self.LOCAL_MOVE_KWARGS)
+                              **self.LOCAL_MOVE_KWARGS.data)
 
         control.offset_group.rotate.set([0, 0, 0])
 
