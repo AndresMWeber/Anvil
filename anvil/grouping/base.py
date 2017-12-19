@@ -14,17 +14,15 @@ class AbstractGrouping(object):
     """
     LOG = anvil.log.obtainLogger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
-    BUILT_IN_META_DATA = {
-        cfg.TYPE: ANVIL_TYPE
-    }
-    BUILT_IN_ATTRIBUTES = {}
-    RENDERING_ATTRIBUTES = {
+    BUILT_IN_META_DATA = MetaData({cfg.TYPE: ANVIL_TYPE})
+    BUILT_IN_ATTRIBUTES = MetaData({})
+    RENDERING_ATTRIBUTES = MetaData({
         '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,
         '%ss' % cfg.JOINT_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 2}),
         '%ss' % cfg.NODE_TYPE: at.DISPLAY_KWARGS,
         '%ss' % cfg.CONTROL_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 1}),
         '%s' % cfg.LOD: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
-    }
+    })
     NOMENCLATE_DEFAULT_FORMAT = cfg.RIG_FORMAT
 
     def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, build_kwargs=None, **kwargs):
@@ -33,7 +31,6 @@ class AbstractGrouping(object):
         self.layout_joints = layout_joints
         self.build_kwargs = MetaData(build_kwargs, kwargs)
         self.meta_data = MetaData(self.BUILT_IN_META_DATA, meta_data, protected_fields=list(self.BUILT_IN_META_DATA))
-
 
         self._nomenclate = nomenclate.Nom(self.meta_data.data)
         self.chain_nomenclate = nomenclate.Nom()

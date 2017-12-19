@@ -28,27 +28,27 @@ loggers:
     anvil:
         level: INFO
         handlers: [info_file_handler]
-        propagate: no
+        propagate: yes
 
     anvil.log:
         level: INFO
         handlers: [info_file_handler]
-        propagate: no
+        propagate: yes
 
     anvil.grouping.base:
         level: INFO
         handlers: [info_file_handler]
-        propagate: no
+        propagate: yes
 
     anvil.grouping.rig:
         level: INFO
         handlers: [info_file_handler]
-        propagate: no
+        propagate: yes
 
     anvil.grouping.sub_rig:
         level: INFO
         handlers: [info_file_handler]
-        propagate: no
+        propagate: yes
 
     anvil.plugins.base.api_proxy:
         level: DEBUG

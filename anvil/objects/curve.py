@@ -19,7 +19,7 @@ class Curve(transform.Transform):
 
     @classmethod
     def build(cls, meta_data=None, shape='cube', scale=None, **kwargs):
-        if kwargs.get('point') is None:
+        if kwargs.get(cfg.POINT) is None:
             kwargs.update(cls._get_shape_constructor(shape, return_positions=True))
         instance = super(Curve, cls).build(meta_data=meta_data, **kwargs)
 
@@ -33,7 +33,7 @@ class Curve(transform.Transform):
     @classmethod
     def build_from_objects(cls, objects, meta_data=None, **flags):
         position_flags = {'query': True, 'translation': True, 'worldSpace': True}
-        flags['point'] = [rt.dcc.scene.position(str(object), **position_flags) for object in objects]
+        flags[cfg.POINT] = [rt.dcc.scene.position(str(object), **position_flags) for object in objects]
         instance = cls.build(meta_data=meta_data, **flags)
         return instance
 
@@ -60,8 +60,8 @@ class Curve(transform.Transform):
             rt.dcc.scene.position(self.get_shape().cv[:], **transform_kwargs)
 
     def swap_shape(self, new_shape, maintain_position=False):
-        self.SHAPE_PARENT_KWARGS['relative'] = not maintain_position
-        self.SHAPE_PARENT_KWARGS['absolute'] = maintain_position
+        self.SHAPE_PARENT_KWARGS[cfg.RELATIVE] = not maintain_position
+        self.SHAPE_PARENT_KWARGS[cfg.ABSOLUTE] = maintain_position
         curve = self.__class__.build(shape=new_shape)
         rt.dcc.scene.delete(self.get_shape())
         rt.dcc.scene.parent(curve.get_shape(), self, **self.SHAPE_PARENT_KWARGS)
@@ -71,8 +71,8 @@ class Curve(transform.Transform):
         shape_entry = cls.SHAPE_CACHE.get(shape_name or '', {})
 
         if return_positions:
-            return {key: shape_entry.get(key) for key in ['point', 'degree'] if
-                    shape_entry.get(key)} or {'point': cls.DEFAULT_SHAPE, 'degree': 1}
+            return {key: shape_entry.get(key) for key in [cfg.POINT, cfg.DEGREE] if
+                    shape_entry.get(key)} or {cfg.POINT: cls.DEFAULT_SHAPE, cfg.DEGREE: 1}
 
         shape_constructor = shape_entry.pop('constructor')
         api_function = getattr(rt.dcc.ENGINE_API, shape_constructor, None)
@@ -96,7 +96,6 @@ class Curve(transform.Transform):
     @staticmethod
     def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwargs):
         """ Stolen from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
-
         """
 
         class OrderedDumper(Dumper):
@@ -121,9 +120,9 @@ class Curve(transform.Transform):
 
             target_data = shapes_data.get(shape_name, {})
             degree = self.get_shape().degree()
-            target_data['degree'] = degree
-            target_data['point'] = [[round(p, 3) for p in cv.getPosition(space='world')] for cv in
-                                    self.get_shape().cv[:]]
+            target_data[cfg.DEGREE] = degree
+            target_data[cfg.POINT] = [[round(p, 3) for p in cv.getPosition(space='world')] for cv in
+                                      self.get_shape().cv[:]]
 
             shapes_data[shape_name] = target_data
 

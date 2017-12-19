@@ -5,9 +5,12 @@ import anvil.config as cfg
 
 
 class SubRigTemplate(nt.SubRig):
-    BUILT_IN_META_DATA = MetaData.merge_dicts({'name': 'untitled'}, nt.SubRig.BUILT_IN_META_DATA)
-    BUILT_IN_ATTRIBUTES = {cfg.IKFK_BLEND: {'attributeType': cfg.FLOAT,
-                                            'min':0, 'max':1, 'defaultValue':0, 'keyable':True}}
+    BUILT_IN_META_DATA = nt.SubRig.BUILT_IN_META_DATA + {cfg.NAME: 'untitled'}
+    BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES + {cfg.IKFK_BLEND: {cfg.ATTRIBUTE: cfg.FLOAT,
+                                                                            cfg.MIN_VALUE: 0,
+                                                                            cfg.MAX_VALUE: 1,
+                                                                            cfg.DEFAULT_VALUE: 0,
+                                                                            cfg.KEYABLE: True}}
 
     def __init__(self, *args, **kwargs):
         super(SubRigTemplate, self).__init__(*args, **kwargs)
@@ -46,7 +49,8 @@ class SubRigTemplate(nt.SubRig):
         rt.dcc.connections.translate(self.control_ik.connection_group, self.ik_handle)
 
     def build_blend_chain(self, layout_joints, use_layout, **kwargs):
-        source_chains = [getattr(self, chain) for chain in ['fk_chain', 'ik_chain'] if hasattr(self, chain)]
+        source_chains = [getattr(self, chain) for chain in ['%s_chain' % cfg.IK, '%s_chain' % cfg.FK] if
+                         hasattr(self, chain)]
 
         if not source_chains:
             raise ValueError('No fk/ik chains detected...cannot build a blend chain without something to blend to!')

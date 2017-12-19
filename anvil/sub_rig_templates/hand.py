@@ -55,10 +55,13 @@ class Hand(SubRigTemplate):
             digit.rename()
 
     def set_up_fist_pose(self):
+        # for now just hook it up to the controls
         pass
 
     def set_up_spread_pose(self):
+        # for now just hook it up to the controls
         pass
 
     def set_up_curl_pose(self):
+        # for now just hook it up to the controls
         pass
