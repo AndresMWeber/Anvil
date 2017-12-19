@@ -86,6 +86,8 @@ class MetaData(object):
             return self.merge_dicts(self.data, other.data, ignore_keys=None)
         if isinstance(other, dict):
             return self.merge_dicts(self.data, other, ignore_keys=None)
+        if other is None:
+            return self.data
         else:
             raise ValueError('Addition for %s and %s types unsupported.' % (self.__class__, type(other)))
 

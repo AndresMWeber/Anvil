@@ -28,7 +28,8 @@ class SubRigTemplate(nt.SubRig):
             parent = control.connection_group
             rt.dcc.connections.parent(control.connection_group, joint)
 
-    def build_ik_chain(self, layout_joints, ik_end_index=-1, control_shape='sphere', solver=cfg.IK_RP_SOLVER, **kwargs):
+    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, **kwargs):
+        kwargs = MetaData(kwargs)
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
 
         handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index], parent=self.group_nodes)
@@ -37,14 +38,15 @@ class SubRigTemplate(nt.SubRig):
 
         self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, cfg.IK),
                         meta_data=self.meta_data + {cfg.PURPOSE: cfg.IK},
-                        **(MetaData({'parent': self.group_controls, 'reference_object': self.ik_chain[-1]}) + kwargs))
+                        **(kwargs + {cfg.PARENT: self.group_controls,
+                                     cfg.REFERENCE_OBJECT: self.ik_chain[-1],
+                                     cfg.SHAPE: cfg.DEFAULT_IK_SHAPE}))
 
         if solver == cfg.IK_RP_SOLVER:
-            kwargs[cfg.SHAPE] = 'triangle'
             self.build_pole_vector_control(self.ik_chain, self.ik_handle,
                                            '%s_%s_%s' % (cfg.CONTROL_TYPE, cfg.IK, cfg.POLE_VECTOR),
                                            meta_data=self.meta_data + {cfg.PURPOSE: cfg.POLE_VECTOR},
-                                           **kwargs)
+                                           **(kwargs + {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE}))
 
         rt.dcc.connections.translate(self.control_ik.connection_group, self.ik_handle)
 

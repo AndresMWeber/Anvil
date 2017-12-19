@@ -11,7 +11,6 @@ SURFACE_TYPE = 'surface'
 POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
-LOD = 'lod'
 
 # NAME METADATA
 LEFT = 'left'
@@ -29,7 +28,7 @@ LOWER = 'lower'
 RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_type'
 DISPLAY_ENUM = 'off:on:template:reference'
 
-# SUB RIGS
+# RIG CONCEPTS
 RIG = 'rig'
 SUB_RIG = 'sub_rig'
 ARM = 'arm'
@@ -42,6 +41,9 @@ HEAD = 'head'
 DIGITS = 'digits'
 FINGER = 'finger'
 LAYOUT = 'layout_joints'
+LOD = 'lod'
+DEFAULT = 'default'
+REFERENCE_OBJECT = 'reference_object'
 
 # COMPLEX TYPES
 CONTROL_TYPE = 'control'
@@ -66,7 +68,7 @@ RADIAN = 'radian'
 # ATTRIBUTES
 ATTR_DELIMITER = '.'
 MINIMUM = 'minimum'
-MIN= 'min'
+MIN = 'min'
 MIN_VALUE = 'minValue'
 MAX = 'max'
 MAXIMUM = 'maximum'
@@ -75,6 +77,7 @@ KEYABLE = 'keyable'
 ENUM_NAME = 'enumName'
 
 # 3D CONCEPTS
+PARENT = 'parent'
 IK = 'ik'
 IK_RP_SOLVER = 'ikRPsolver'
 IK_SC_SOLVER = 'ikSCsolver'
@@ -91,7 +94,6 @@ TRANSLATE = 'translate'
 ROTATE = 'rotate'
 ROTATION = 'rotation'
 SCALE = 'scale'
-
 X = 'x'
 Y = 'y'
 Z = 'Z'
@@ -101,14 +103,15 @@ TRANSFORMATION = [TRANSLATE, ROTATE, SCALE]
 PIVOTS = 'pivots'
 ABSOLUTE = 'absolute'
 RELATIVE = 'relative'
+WORLD = 'world'
+LOCAL = 'local'
 
 # SHAPES
+CUBE = 'cube'
 SHAPE = 'shape'
 SPHERE = 'sphere'
-DEFAULT_IK_SHAPE = 'sphere'
-DEFAULT_FK_SHAPE = 'cube'
-DEFAULT_DIGIT_FK_SHAPE = 'pyramid_pin'
-DEFAULT_PV_SHAPE = 'triangle'
+TRIANGLE = 'triangle'
+PYRAMID_PIN = 'pyramid_pin'
 
 # NAMING TOKENS
 TYPE = 'type'
@@ -128,6 +131,10 @@ PROD = 'prod'
 DEV = 'dev'
 MODE_ENV_KEY = 'ANVIL_MODE'
 LOG_ENV_KEY = 'ANVIL_LOG_CFG'
+DEFAULT_IK_SHAPE = SPHERE
+DEFAULT_FK_SHAPE = CUBE
+DEFAULT_DIGIT_FK_SHAPE = PYRAMID_PIN
+DEFAULT_PV_SHAPE = TRIANGLE
 
 # PATHS
 BASE_DIR = os.path.dirname(os.path.abspath(anvil.__file__))
@@ -147,4 +154,3 @@ DCC_TYPES = {
     NURBS_TYPE: ['nurbsSurface'],
     POLY_TYPE: ['mesh'],
 }
-

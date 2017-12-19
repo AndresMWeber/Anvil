@@ -58,7 +58,7 @@ class APIProxy(object):
                 new_flags.pop(flag_key)
 
         for schema_property in schema_properties:
-            default = schema['properties'][schema_property].get('default')
+            default = schema['properties'][schema_property].get(cfg.DEFAULT)
             if default is not None and new_flags.get(schema_property) is None:
                 cls.LOG.debug('Setting flag %s from default value %s in schema ' % (schema_property, default))
                 new_flags[schema_property] = default

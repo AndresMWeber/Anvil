@@ -17,7 +17,7 @@ cacheable_schema = {
 }
 
 offset_schema = {
-    "maintainOffset": {api_proxy.BOOL_TYPE, cfg.DEFAULT,
+    "maintainOffset": api_proxy.merge_dicts(api_proxy.BOOL_TYPE, {cfg.DEFAULT: True}),
     "offset": api_proxy.POSITION_TYPE,
     "skip": api_proxy.STR_TYPE,
 }

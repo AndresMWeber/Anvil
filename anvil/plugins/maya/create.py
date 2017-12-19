@@ -40,8 +40,7 @@ def create_curve(*args, **kwargs):
                                             "name": api_proxy.STR_TYPE,
                                             "world": api_proxy.BOOL_TYPE,
                                             "parent": {},
-                                            "empty": {cfg.TYPE: cfg.BOOLEAN,
-                                                      "default": True},
+                                            "empty": {cfg.TYPE: cfg.BOOLEAN, cfg.DEFAULT: True},
                                             "relative": api_proxy.BOOL_TYPE,
                                             "absolute": api_proxy.BOOL_TYPE}},
                                        API, 'group')

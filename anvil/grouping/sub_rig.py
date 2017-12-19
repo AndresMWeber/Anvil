@@ -12,7 +12,7 @@ class SubRig(base.AbstractGrouping):
     LOG = lg.obtainLogger(__name__)
     POLE_VECTOR_MIN_JOINTS = 2
     POLE_VECTOR_MOVE_DEFAULT = [3, 0, 0]
-    LOCAL_MOVE_KWARGS = MetaData({'relative': True, 'objectSpace': True, 'worldSpaceDistance': True})
+    LOCAL_MOVE_KWARGS = MetaData({cfg.RELATIVE: True, 'objectSpace': True, 'worldSpaceDistance': True})
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 
     def __init__(self, *args, **kwargs):
@@ -52,19 +52,14 @@ class SubRig(base.AbstractGrouping):
         start_joint, end_joint = joints[0], joints[-1]
 
         control = Control.build(parent=self.group_controls, meta_data=meta_data, **kwargs)
-
-        rt.dcc.scene.delete(
-            rt.dcc.connections.translate([str(start_joint), str(end_joint)], control.offset_group,
-                                         maintain_offset=False))
-
-        rt.dcc.scene.delete(
-            rt.dcc.connections.aim(joints, control.offset_group, maintain_offset=False, upObject=start_joint))
-
+        print(start_joint, end_joint)
+        rt.dcc.scene.delete(rt.dcc.connections.translate([str(start_joint), str(end_joint)],
+                                                         control.offset_group, maintain_offset=False))
+        rt.dcc.scene.delete(rt.dcc.connections.aim(joints, control.offset_group,
+                                                   maintain_offset=False, upObject=start_joint))
         rt.dcc.scene.position(control.offset_group, translation=move_by or self.POLE_VECTOR_MOVE_DEFAULT,
                               **self.LOCAL_MOVE_KWARGS.data)
-
         control.offset_group.rotate.set([0, 0, 0])
-
         rt.dcc.connections.pole_vector(control.connection_group, ik_handle)
 
         self.register_node(node_key, control)
