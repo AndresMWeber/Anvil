@@ -111,3 +111,23 @@ def copy_skin_weights(source, destination, **kwargs):
                                        API, 'skinCluster')
 def skin_cluster(objects):
     pass
+
+
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {'after': api_proxy.BOOL_TYPE, 'before': api_proxy.BOOL_TYPE,
+                                                       'bindState': api_proxy.BOOL_TYPE,
+                                                       'deformerTools': api_proxy.BOOL_TYPE,
+                                                       'envelope': api_proxy.FLOAT_TYPE,
+                                                       'exclusive': api_proxy.STR_TYPE,
+                                                       'frontOfChain': api_proxy.BOOL_TYPE,
+                                                       'geometry': api_proxy.STR_TYPE,
+                                                       'ignoreSelected': api_proxy.BOOL_TYPE,
+                                                       'name': api_proxy.STR_TYPE, 'parallel': api_proxy.BOOL_TYPE,
+                                                       'prune': api_proxy.BOOL_TYPE, 'relative': api_proxy.BOOL_TYPE,
+                                                       'remove': api_proxy.BOOL_TYPE,
+                                                       'resetGeometry': api_proxy.BOOL_TYPE,
+                                                       'split': api_proxy.BOOL_TYPE,
+                                                       'weightedNode': api_proxy.LINEAR_STRING_TYPE}},
+                                       API, 'cluster')
+def cluster(objects, **kwargs):
+    pass

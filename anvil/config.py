@@ -30,6 +30,8 @@ RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_typ
 DISPLAY_ENUM = 'off:on:template:reference'
 
 # SUB RIGS
+RIG = 'rig'
+SUB_RIG = 'sub_rig'
 ARM = 'arm'
 LEG = 'leg'
 HAND = 'hand'
@@ -47,9 +49,6 @@ HIERARCHY_TYPE = 'hierarchy'
 meta_data_TYPE = 'meta_data'
 
 # RIG CONCEPTS
-RIG = 'rig'
-SUB_RIG = 'sub_rig'
-
 IK = 'ik'
 IK_RP_SOLVER = 'ikRPsolver'
 IK_SC_SOLVER = 'ikSCsolver'
@@ -95,6 +94,14 @@ PIVOTS = 'pivots'
 ABSOLUTE = 'absolute'
 RELATIVE = 'relative'
 
+# SHAPES
+SHAPE = 'shape'
+SPHERE = 'sphere'
+DEFAULT_IK_SHAPE = 'sphere'
+DEFAULT_FK_SHAPE = 'cube'
+DEFAULT_DIGIT_FK_SHAPE = 'pyramid_pin'
+DEFAULT_PV_SHAPE = 'triangle'
+
 # NAMING TOKENS
 TYPE = 'type'
 PURPOSE = 'purpose'
@@ -105,7 +112,7 @@ MAYA = 'maya'
 NUKE = 'nuke'
 HOUDINI = 'houdini'
 
-# BASIC VARS
+# ANVIL VARS
 DEFAULT_TAG_ATTR = 'anvil'
 MODE = MAYA
 TEST = 'test'
@@ -133,6 +140,3 @@ DCC_TYPES = {
     POLY_TYPE: ['mesh'],
 }
 
-DEFAULT_IK_SHAPE = 'sphere'
-DEFAULT_FK_SHAPE = 'cube'
-DEFAULT_DIGIT_FK_SHAPE = 'pyramid_pin'

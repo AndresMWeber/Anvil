@@ -17,7 +17,7 @@ cacheable_schema = {
 }
 
 offset_schema = {
-    "maintainOffset": api_proxy.BOOL_TYPE,
+    "maintainOffset": {api_proxy.BOOL_TYPE, cfg.DEFAULT,
     "offset": api_proxy.POSITION_TYPE,
     "skip": api_proxy.STR_TYPE,
 }
