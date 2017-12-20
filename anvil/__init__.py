@@ -9,6 +9,7 @@ LOG = log.obtainLogger(__name__)
 import runtime
 import validation
 import plugins
+import core
 import objects
 import grouping
 import node_types
@@ -93,4 +94,5 @@ __all__ = ['config',
            'objects',
            'grouping',
            'sub_rig_templates',
-           'rig_templates']
+           'rig_templates',
+           'core']

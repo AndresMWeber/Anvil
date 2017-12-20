@@ -3,6 +3,7 @@ import unicode_delegate
 import attribute as at
 import anvil.config as cfg
 
+
 class DagNode(unicode_delegate.UnicodeDelegate):
 
     def buffer_connect(self, attribute, other_attribute, buffer_value, **kwargs):
@@ -26,6 +27,12 @@ class DagNode(unicode_delegate.UnicodeDelegate):
 
     def connect_attr(self, attribute_source, attribute_destination, **kwargs):
         self.attr(attribute_source).connect(at.Attribute(attribute_destination), **kwargs)
+
+    def colorize(self, color):
+        if isinstance(color, int):
+            pass
+        if isinstance(color, list) and len(color) == 3:
+            pass
 
     def __getattr__(self, item):
         if item in rt.dcc.connections.list_attr(self):

@@ -77,7 +77,7 @@ class APIProxy(object):
                 if anvil.is_anvil(node):
                     kwargs[key] = str(node)
 
-        cls.API_LOG.debug(cls._compose_api_call(api, function_name, *args, **kwargs))
+        cls.API_LOG.info(cls._compose_api_call(api, function_name, *args, **kwargs))
         return getattr(api, function_name)(*args, **kwargs)
 
     @staticmethod

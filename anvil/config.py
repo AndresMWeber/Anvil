@@ -91,6 +91,8 @@ BLEND = 'blend'
 
 # 3D SPACE
 TRANSLATE = 'translate'
+TRANSLATION = 'translation'
+TRANSFORM = 'transform'
 ROTATE = 'rotate'
 ROTATION = 'rotation'
 SCALE = 'scale'
@@ -98,13 +100,13 @@ X = 'x'
 Y = 'y'
 Z = 'Z'
 AXES = [X, Y, Z]
-TRANSLATION = 'translation'
 TRANSFORMATION = [TRANSLATE, ROTATE, SCALE]
 PIVOTS = 'pivots'
 ABSOLUTE = 'absolute'
 RELATIVE = 'relative'
 WORLD = 'world'
 LOCAL = 'local'
+AIM = 'aim'
 
 # SHAPES
 CUBE = 'cube'

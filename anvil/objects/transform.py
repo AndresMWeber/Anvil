@@ -1,5 +1,7 @@
-import anvil.runtime as rt
 import dag_node
+import anvil.runtime as rt
+import anvil.config as cfg
+import anvil.core.utils as ut
 
 
 class Transform(dag_node.DagNode):
@@ -35,14 +37,75 @@ class Transform(dag_node.DagNode):
         node.match_position(reference_object)
         return node
 
-    def match_position(self, reference_object):
-        if reference_object and rt.dcc.scene.exists(reference_object):
-            self.LOG.info('Matching position of %s to %s' % (self, reference_object))
-            constraint = rt.dcc.connections.parent(reference_object, self, maintainOffset=False)
-            rt.dcc.scene.delete(constraint)
+    def match(self, reference_objects, mode=cfg.TRANSLATE, keep_constraint=False, **kwargs):
+        if mode == cfg.TRANSLATE:
+            return self.match_position(reference_objects, keep_constraint=keep_constraint, **kwargs)
+        elif mode == cfg.ROTATE:
+            return self.match_rotation(reference_objects, keep_constraint=keep_constraint, **kwargs)
+        elif mode == cfg.AIM:
+            return self.aim_at(reference_objects, keep_constraint=keep_constraint, **kwargs)
+        elif mode == cfg.TRANSFORM:
+            return self.match_transform(reference_objects, keep_constraint=keep_constraint, **kwargs)
+        else:
+            raise ValueError('%s.match - mode %s not supported.' % self.__class__.__name__)
 
-    def colorize(self, color):
-        if isinstance(color, int):
-            pass
-        if isinstance(color, list) and len(color) == 3:
-            pass
+    def aim_at(self, reference_objects, up_object=None, keep_constraint=False, **kwargs):
+        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        self.LOG.info('Aiming %s at %s' % (self, reference_objects))
+        if reference_objects:
+            if up_object:
+                kwargs['upObject'] = up_object
+            constraint = rt.dcc.connections.aim(reference_objects, self, maintain_offset=False, **kwargs)
+            if not keep_constraint:
+                rt.dcc.scene.delete(constraint)
+                constraint = None
+            return constraint
+
+    def match_rotation(self, reference_objects, keep_constraint=False, **kwargs):
+        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
+        if reference_objects:
+            constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
+            if not keep_constraint:
+                rt.dcc.scene.delete(constraint)
+                constraint = None
+            return constraint
+
+    def match_position(self, reference_objects, keep_constraint=False, **kwargs):
+        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
+        if reference_objects:
+            constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
+            if not keep_constraint:
+                rt.dcc.scene.delete(constraint)
+                constraint = None
+            return constraint
+
+    def match_transform(self, reference_objects, keep_constraint=False, **kwargs):
+        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
+        if reference_objects:
+            constraint = rt.dcc.connections.parent(reference_objects, self, maintainOffset=False, **kwargs)
+            if not keep_constraint:
+                rt.dcc.scene.delete(constraint)
+                constraint = None
+            return constraint
+
+    def move(self, value, mode=cfg.TRANSLATE, **kwargs):
+        if mode in [cfg.SCALE, cfg.SCALE[0], cfg.SCALE[0].upper()]:
+            self.scale_node(value, **kwargs)
+
+        elif mode in [cfg.TRANSLATE, cfg.TRANSFORMATION, cfg.TRANSFORM, cfg.TRANSLATE[0], cfg.TRANSLATE[0].upper()]:
+            self.translate_node(value, **kwargs)
+
+        elif mode in [cfg.ROTATE, cfg.ROTATION, cfg.ROTATE[0], cfg.ROTATE[0].upper()]:
+            self.rotate_node(value, **kwargs)
+
+    def scale_node(self, value, **kwargs):
+        rt.dcc.scene.position(self, scale=value, **kwargs)
+
+    def translate_node(self, value, **kwargs):
+        rt.dcc.scene.position(self, translation=value, **kwargs)
+
+    def rotate_node(self, value, **kwargs):
+        rt.dcc.scene.position(self, rotation=value, **kwargs)

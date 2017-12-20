@@ -97,3 +97,22 @@ def node_hierarchy_as_dict(nodes, tree=None, node_filter=None):
             node_hierarchy_as_dict(children, relative_tree, node_filter=node_filter)
 
     return tree
+
+
+def cast_to_list(query):
+    if isinstance(query, list):
+        return query
+    else:
+        return [query]
+
+
+def validate_and_cast_to_str_list(reference_objects):
+    reference_objects = cast_to_list(reference_objects)
+    return [str(reference_object) for reference_object in reference_objects if
+            reference_object is not None and rt.dcc.scene.exists(reference_object)]
+
+
+def validate_and_cast_to_anvil_list(reference_objects):
+    reference_objects = cast_to_list(reference_objects)
+    return [anvil.factory(reference_object) for reference_object in reference_objects if
+            reference_object is not None and rt.dcc.scene.exists(reference_object)]
