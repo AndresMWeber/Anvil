@@ -2,6 +2,7 @@ import anvil
 import anvil.log as log
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
+import anvil.core.utils as ut
 
 
 class UnicodeDelegate(object):
@@ -70,11 +71,7 @@ class UnicodeDelegate(object):
             try:
                 return getattr(_api_class_instance, item)
             except AttributeError:
-                def to_camel_case(input_string):
-                    tokens = input_string.split('_')
-                    return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
-
-                return getattr(_api_class_instance, to_camel_case(item))
+                return getattr(_api_class_instance, ut.to_camel_case(item))
 
     def __eq__(self, other):
         return str(self) == str(other)

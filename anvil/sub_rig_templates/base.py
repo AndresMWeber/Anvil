@@ -5,7 +5,7 @@ import anvil.config as cfg
 
 
 class SubRigTemplate(nt.SubRig):
-    BUILT_IN_META_DATA = nt.SubRig.BUILT_IN_META_DATA + {cfg.NAME: 'untitled'}
+    BUILT_IN_META_DATA = MetaData(nt.SubRig.BUILT_IN_META_DATA + {cfg.NAME: 'untitled'})
     BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES + {cfg.IKFK_BLEND: {cfg.ATTRIBUTE: cfg.FLOAT,
                                                                             cfg.MIN_VALUE: 0,
                                                                             cfg.MAX_VALUE: 1,

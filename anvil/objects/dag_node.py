@@ -7,7 +7,7 @@ import anvil.config as cfg
 class DagNode(unicode_delegate.UnicodeDelegate):
 
     def buffer_connect(self, attribute, other_attribute, buffer_value, **kwargs):
-        pma = rt.dcc.create.create_node('plusMinusAverage')
+        pma = rt.dcc.create.create_node(cfg.ADD_SUB_TYPE)
         self.attr(attribute).connect(pma.input1D[0])
         pma.input1D[1].set(buffer_value)
         pma.output1D.connect(other_attribute, **kwargs)
@@ -29,10 +29,10 @@ class DagNode(unicode_delegate.UnicodeDelegate):
         self.attr(attribute_source).connect(at.Attribute(attribute_destination), **kwargs)
 
     def colorize(self, color):
-        if isinstance(color, int):
-            pass
+        self.attr(cfg.OVERRIDE_ENABLED).set(True)
         if isinstance(color, list) and len(color) == 3:
-            pass
+            self.attr(cfg.OVERRIDE_RGB).set(True)
+        self.attr(cfg.OVERRIDE_COLOR).set(color)
 
     def __getattr__(self, item):
         if item in rt.dcc.connections.list_attr(self):

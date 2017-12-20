@@ -1,8 +1,9 @@
 from six import iteritems
-import anvil.runtime as rt
-import anvil.objects as ob
 import anvil
 import anvil.config as cfg
+import anvil.core.utils as ut
+import anvil.runtime as rt
+import anvil.objects as ob
 import nomenclate.core.tools as ts
 
 
@@ -242,3 +243,10 @@ class HierarchyChain(object):
     def __repr__(self):
         return super(HierarchyChain, self).__repr__().replace('>',
                                                               '(root=%s, end=%s)>' % (str(self.head), str(self.tail)))
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __add__(self, other):
+        other = ut.cast_to_list(other)
+        return list(self) + other

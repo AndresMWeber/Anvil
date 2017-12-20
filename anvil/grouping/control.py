@@ -8,7 +8,9 @@ import base
 
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = 'control'
-    PV_MOVE_DEFAULT = [3, 0, 0]
+    PV_MOVE_DEFAULT = [0, 0, 3]
+    PV_AIM_DEFAULT = [0, 0, 1]
+    PV_UP_DEFAULT = [0, 1, 0]
     LOCAL_MOVE_KWARGS = MetaData({cfg.RELATIVE: True, 'objectSpace': True, 'worldSpaceDistance': True})
     SHAPE_PARENT_KWARGS = {'relative': True, 'absolute': False, 'shape': True}
 
@@ -29,13 +31,18 @@ class Control(base.AbstractGrouping):
         return instance
 
     @classmethod
-    def build_pole_vector(cls, joints, ik_handle, move_by=None, meta_data=None, parent=None, **kwargs):
+    def build_pole_vector(cls, joints, ik_handle, up_vector=None, aim_vector=None, up_object=None, move_by=None,
+                          meta_data=None, parent=None, **kwargs):
         joints = ut.cast_to_list(joints)
-        start, end = joints[0], joints[-1]
+        start = joints[0]
+        end = joints[-1]
 
-        control = Control.build(parent=parent, meta_data=meta_data, **kwargs)
-        control.offset_group.match_position([start, end], control.offset_group)
-        control.offset_group.aim_at(joints, upObject=start)
+        control = cls.build(parent=parent, meta_data=meta_data, **kwargs)
+        control.offset_group.match_position([start, end])
+        control.offset_group.aim_at(joints,
+                                    aim_vector=aim_vector or cls.PV_AIM_DEFAULT,
+                                    up_vector=up_vector or cls.PV_UP_DEFAULT,
+                                    up_object=up_object or start)
         control.offset_group.translate_node(move_by or cls.PV_MOVE_DEFAULT, **cls.LOCAL_MOVE_KWARGS.data)
         control.offset_group.rotate.set([0, 0, 0])
 

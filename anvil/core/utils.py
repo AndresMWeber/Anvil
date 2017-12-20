@@ -102,8 +102,14 @@ def node_hierarchy_as_dict(nodes, tree=None, node_filter=None):
 def cast_to_list(query):
     if isinstance(query, list):
         return query
-    else:
+    try:
+        return list(query)
+    except TypeError:
         return [query]
+
+def to_camel_case(input_string):
+    tokens = input_string.split('_')
+    return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
 
 
 def validate_and_cast_to_str_list(reference_objects):

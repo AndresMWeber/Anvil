@@ -17,7 +17,7 @@ handlers:
 
     info_file_handler:
         class: logging.handlers.RotatingFileHandler
-        level: INFO
+        level: DEBUG
         formatter: structlog
         filename: session.log
         maxBytes: 10485760 # 10MB
@@ -51,7 +51,7 @@ loggers:
         propagate: yes
 
     anvil.plugins.base.api_proxy:
-        level: INFO
+        level: DEBUG
         handlers: [info_file_handler]
         propagate: yes
 

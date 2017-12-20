@@ -11,6 +11,7 @@ SURFACE_TYPE = 'surface'
 POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
+ADD_SUB_TYPE = 'plusMinusAverage'
 
 # NAME METADATA
 LEFT = 'left'
@@ -75,6 +76,9 @@ MAXIMUM = 'maximum'
 MAX_VALUE = 'maxValue'
 KEYABLE = 'keyable'
 ENUM_NAME = 'enumName'
+OVERRIDE_ENABLED = 'overrideEnabled'
+OVERRIDE_RGB = 'overrideRGBColors'
+OVERRIDE_COLOR = 'overrideColorRGB'
 
 # 3D CONCEPTS
 PARENT = 'parent'

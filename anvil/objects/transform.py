@@ -49,13 +49,15 @@ class Transform(dag_node.DagNode):
         else:
             raise ValueError('%s.match - mode %s not supported.' % self.__class__.__name__)
 
-    def aim_at(self, reference_objects, up_object=None, keep_constraint=False, **kwargs):
+    def aim_at(self, reference_objects, up_vector=None, aim_vector=None, up_object=None, keep_constraint=False,
+               **kwargs):
         reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
         self.LOG.info('Aiming %s at %s' % (self, reference_objects))
         if reference_objects:
-            if up_object:
-                kwargs['upObject'] = up_object
-            constraint = rt.dcc.connections.aim(reference_objects, self, maintain_offset=False, **kwargs)
+            kwargs.update(
+                {k: v for k, v in [['upObject', up_object], ['upVector', up_vector], ['aimVector', aim_vector]] if v})
+
+            constraint = rt.dcc.connections.aim(reference_objects, self, maintainOffset=False, **kwargs)
             if not keep_constraint:
                 rt.dcc.scene.delete(constraint)
                 constraint = None

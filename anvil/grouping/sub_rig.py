@@ -32,11 +32,14 @@ class SubRig(base.AbstractGrouping):
 
         anvil.LOG.info('Built %s: %s' % (self.__class__.__name__, self))
 
-    def build_pole_vector_control(self, joints, ik_handle, node_key='', move_by=None, meta_data=None, **kwargs):
+    def build_pole_vector_control(self, joints, ik_handle, node_key='', up_vector=None, aim_vector=None, up_object=None,
+                                  move_by=None, meta_data=None, **kwargs):
         """ Point constraint to the two base positions, aim constrain to the other objects
             Delete constraints then move the control outside of the reference transforms in the aim direction.
         """
         meta_data = self.meta_data + meta_data
-        control = Control.build_pole_vector(joints, ik_handle, move_b=move_by, meta_data=meta_data, **kwargs)
+        control = Control.build_pole_vector(joints, ik_handle, move_b=move_by, parent=self.group_controls,
+                                            up_vector=up_vector, aim_vector=aim_vector, up_object=up_object,
+                                            meta_data=meta_data, **kwargs)
         self.register_node(node_key, control)
         return control

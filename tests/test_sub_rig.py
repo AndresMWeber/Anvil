@@ -42,3 +42,19 @@ class TestSubRigBuild(TestBaseSubRig):
         sub_rig = nt.SubRig(meta_data=None, top_node=None, layout=None)
         sub_rig.build(parent=parent)
         self.assertEquals(sub_rig.root.getParent(), parent)
+
+class TestSubRigBuildPoleVector(TestBase):
+    def build_dependencies(cls):
+        cls.sub_rig = nt.SubRig()
+        cls.sub_rig.build()
+        b = nt.Joint.build()
+        c = nt.Joint.build()
+        d = nt.Joint.build()
+        c.translate_node([0, 2.5, 0])
+        d.translate_node([0, 5, 0])
+        cls.joint_chain = nt.HierarchyChain(b, d)
+        cls.handle, cls.effector = cls.joint_chain.build_ik()
+
+    @TestBase.delete_created_nodes
+    def test_build(self):
+        self.sub_rig.build_pole_vector_control(self.joint_chain, self.handle)
