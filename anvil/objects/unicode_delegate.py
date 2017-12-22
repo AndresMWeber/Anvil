@@ -1,14 +1,15 @@
 import anvil
+import anvil.config as cfg
 import anvil.log as log
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
-import anvil.core.utils as ut
+import anvil.utils.generic as gc
 
 
 class UnicodeDelegate(object):
     LOG = log.obtainLogger(__name__)
     dcc_type = None
-    BUILTIN_METADATA = {'type': dcc_type}
+    BUILTIN_METADATA = {cfg.TYPE: dcc_type}
 
     def __init__(self, node_pointer, meta_data=None, **kwargs):
         """ All nodes must be initialized with a string representation that the encompassing platform
@@ -22,6 +23,8 @@ class UnicodeDelegate(object):
         self.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
         self.meta_data = MetaData(meta_data, kwargs)
+        if self.meta_data.get(cfg.SIDE) is None:
+            self.meta_data[cfg.SIDE] = cfg.CENTER
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
@@ -71,7 +74,7 @@ class UnicodeDelegate(object):
             try:
                 return getattr(_api_class_instance, item)
             except AttributeError:
-                return getattr(_api_class_instance, ut.to_camel_case(item))
+                return getattr(_api_class_instance, gc.to_camel_case(item))
 
     def __eq__(self, other):
         return str(self) == str(other)

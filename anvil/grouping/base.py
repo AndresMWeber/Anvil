@@ -4,8 +4,8 @@ import anvil
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
 import anvil.config as cfg
+import anvil.objects as ob
 import anvil.objects.attribute as at
-
 
 class AbstractGrouping(object):
     """ A fully functional and self-contained rig with all requirements implemented that
@@ -139,6 +139,11 @@ class AbstractGrouping(object):
         self.hierarchy[node_key] = dag_node
         dag_node.meta_data.merge(self.meta_data, meta_data)
         return dag_node
+
+    def auto_color(self):
+        for key, node in iteritems(self.hierarchy):
+            if isinstance(node, ob.Curve):
+                node.auto_color()
 
     def find_node(self, node_key):
         try:

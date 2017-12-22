@@ -2,29 +2,29 @@ from anvil.meta_data import MetaData
 import anvil.config as cfg
 import anvil.objects as objects
 import anvil.runtime as rt
-import anvil.core.utils as ut
+import anvil.utils.generic as gc
 import base
 
 
 class Control(base.AbstractGrouping):
-    ANVIL_TYPE = 'control'
+    ANVIL_TYPE = cfg.CONTROL_TYPE
     PV_MOVE_DEFAULT = [0, 0, 3]
     PV_AIM_DEFAULT = [0, 0, 1]
     PV_UP_DEFAULT = [0, 1, 0]
-    LOCAL_MOVE_KWARGS = MetaData({cfg.RELATIVE: True, 'objectSpace': True, 'worldSpaceDistance': True})
-    SHAPE_PARENT_KWARGS = {'relative': True, 'absolute': False, 'shape': True}
+    LOCAL_MOVE_KWARGS = MetaData({cfg.RELATIVE: True, cfg.OBJECT_SPACE: True, cfg.WORLD_SPACE_DISTANCE: True})
+    SHAPE_PARENT_KWARGS = {cfg.RELATIVE: True, cfg.ABSOLUTE: False, cfg.SHAPE: True}
 
     def __init__(self, control=None, offset_group=None, connection_group=None, **kwargs):
         super(Control, self).__init__(top_node=offset_group or control, **kwargs)
-        self.register_node('control', control)
-        self.register_node('offset_group', offset_group)
-        self.register_node('connection_group', connection_group)
+        self.register_node(cfg.CONTROL_TYPE, control)
+        self.register_node(cfg.OFFSET_GROUP, offset_group)
+        self.register_node(cfg.CONNECTION_GROUP, connection_group)
 
     @classmethod
     def build(cls, reference_object=None, meta_data=None, **kwargs):
-        instance = cls(control=objects.Curve.build(meta_data={'type': 'control'}, **kwargs),
-                       offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **kwargs),
-                       connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **kwargs),
+        instance = cls(control=objects.Curve.build(meta_data={cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
+                       offset_group=objects.Transform.build(meta_data={cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
+                       connection_group=objects.Transform.build(meta_data={cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
                        meta_data=meta_data, **kwargs)
         instance.build_layout()
         instance.match_position(reference_object)
@@ -33,7 +33,7 @@ class Control(base.AbstractGrouping):
     @classmethod
     def build_pole_vector(cls, joints, ik_handle, up_vector=None, aim_vector=None, up_object=None, move_by=None,
                           meta_data=None, parent=None, **kwargs):
-        joints = ut.cast_to_list(joints)
+        joints = gc.to_list(joints)
         start = joints[0]
         end = joints[-1]
 

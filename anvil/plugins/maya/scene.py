@@ -278,30 +278,6 @@ def get_scene_tree():
 
     return recurse_scene_nodes(top_level_transforms)
 
-
-def node_hierarchy_as_dict(nodes, tree=None, node_filter=None):
-    if not isinstance(nodes, list):
-        nodes = [nodes]
-
-    if tree is None:
-        tree = dict()
-
-    for tree_child in nodes:
-        anvil_node = anvil.factory(tree_child)
-        try:
-            relative_tree = tree[anvil_node]
-        except KeyError:
-            tree[anvil_node] = dict()
-            relative_tree = tree[anvil_node]
-
-        node_filter_kwargs = {'type': node_filter} if node_filter else {}
-        children = list_relatives(tree_child, fullPath=True, children=True, **node_filter_kwargs) or []
-        if children:
-            node_hierarchy_as_dict(children, relative_tree, node_filter=node_filter)
-
-    return tree
-
-
 def get_persistent_id(node_unicode_proxy):
     try:
         selection_list = om.MSelectionList()

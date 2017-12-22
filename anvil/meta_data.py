@@ -64,6 +64,9 @@ class MetaData(object):
 
         return string_or_none_or_list
 
+    def get(self, item, *args, **kwargs):
+        return self.data.get(item, *args, **kwargs)
+
     def keys(self):
         return list(self.data)
 

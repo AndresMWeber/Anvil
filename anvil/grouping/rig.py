@@ -42,7 +42,8 @@ class Rig(base.AbstractGrouping):
             if sub_rig_dict.get(sub_rig_name):
                 sub_rig_class, sub_rig_metadata = self.SUB_RIG_BUIlD_TABLE[sub_rig_name]
                 sub_rig_kwargs = sub_rig_dict.get(sub_rig_name)
-                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {'layout_joints': sub_rig_kwargs}
+                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {
+                    'layout_joints': sub_rig_kwargs}
                 self.register_sub_rig(sub_rig_name, sub_rig_class, meta_data=sub_rig_metadata, **sub_rig_kwargs)
 
     def register_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, meta_data=None, **kwargs):
@@ -57,6 +58,10 @@ class Rig(base.AbstractGrouping):
                 anvil.LOG.info('Building sub-rig %s on rig %s' % (sub_rig_member, self))
                 sub_rig_member.build()
             anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
+
+    def auto_color(self):
+        for key, sub_rig in iteritems(self.sub_rigs):
+            sub_rig.auto_color()
 
     def build(self, meta_data=None, parent=None, **kwargs):
         anvil.LOG.info('Building rig %r' % self)
@@ -89,6 +94,7 @@ class Rig(base.AbstractGrouping):
         if parent:
             self.parent(parent)
         self.rename()
+        self.auto_color()
 
     def __getattr__(self, item):
         try:

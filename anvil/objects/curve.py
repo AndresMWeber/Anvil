@@ -37,27 +37,20 @@ class Curve(transform.Transform):
         instance = cls.build(meta_data=meta_data, **flags)
         return instance
 
-    def colorize(self, color_id=None, color_tuple=None, use_metadata=False):
-        raise NotImplementedError
+    def auto_color(self):
+        self.colorize(cfg.RIG_COLORS[self.meta_data.get(cfg.SIDE)])
 
     def get_shape(self):
         return self._api_class_instance.getShape()
 
     def transform_shape(self, value, mode=cfg.SCALE, relative=False):
-        if value:
-            transform_kwargs = {cfg.PIVOTS: list(self.scalePivot.get()),
-                                cfg.RELATIVE: relative,
-                                cfg.ABSOLUTE: not relative}
-            if not isinstance(value, list):
-                value = [value] * 3
-
-            if mode == cfg.SCALE:
-                transform_kwargs[cfg.SCALE] = value
-            elif mode == cfg.TRANSLATE:
-                transform_kwargs[cfg.TRANSLATION] = value
-            elif mode == cfg.ROTATE:
-                transform_kwargs[cfg.ROTATION] = value
-            rt.dcc.scene.position(self.get_shape().cv[:], **transform_kwargs)
+        value = [value] * 3 if not isinstance(value, list) else value
+        transform_kwargs = {cfg.PIVOTS: self.get_pivot(),
+                            cfg.RELATIVE: relative,
+                            cfg.ABSOLUTE: not relative,
+                            cfg.WORLD_SPACE_DISTANCE: True,
+                            self.MODE_LOOKUP[mode]: value}
+        rt.dcc.scene.position(self.get_shape().cv[:], **transform_kwargs)
 
     def swap_shape(self, new_shape, maintain_position=False):
         self.SHAPE_PARENT_KWARGS[cfg.RELATIVE] = not maintain_position

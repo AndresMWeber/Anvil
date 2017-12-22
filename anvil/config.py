@@ -1,5 +1,6 @@
 import os
 import anvil
+import colors
 
 # BASIC TYPES
 MODEL_TYPE = 'model'
@@ -45,6 +46,9 @@ LAYOUT = 'layout_joints'
 LOD = 'lod'
 DEFAULT = 'default'
 REFERENCE_OBJECT = 'reference_object'
+OFFSET_GROUP = 'offset_group'
+CONNECTION_GROUP = 'connection_group'
+QUERY = 'query'
 
 # COMPLEX TYPES
 CONTROL_TYPE = 'control'
@@ -92,6 +96,9 @@ IKFK_BLEND = 'ikfk_blend'
 BLENDER = 'blendColors'
 POLE_VECTOR = 'pole_vector'
 BLEND = 'blend'
+WORLD_SPACE = 'worldSpace'
+WORLD_SPACE_DISTANCE = 'worldSpaceDistance'
+OBJECT_SPACE = 'objectSpace'
 
 # 3D SPACE
 TRANSLATE = 'translate'
@@ -118,6 +125,7 @@ SHAPE = 'shape'
 SPHERE = 'sphere'
 TRIANGLE = 'triangle'
 PYRAMID_PIN = 'pyramid_pin'
+CIRCLE = 'circle'
 
 # NAMING TOKENS
 TYPE = 'type'
@@ -159,4 +167,10 @@ DCC_TYPES = {
     CURVE_TYPE: ['nurbsCurve'],
     NURBS_TYPE: ['nurbsSurface'],
     POLY_TYPE: ['mesh'],
+}
+
+RIG_COLORS={
+    CENTER: colors.YELLOW,
+    LEFT: colors.RED,
+    RIGHT: colors.YELLOW
 }

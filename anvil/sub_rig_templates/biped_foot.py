@@ -24,10 +24,17 @@ class BipedFoot(SubRigTemplate):
         last = self.group_controls
         for reference_object, label in zip(self.layout_joints + self.heel,
                                            [self.ANKLE, self.TOE, self.BALL, self.HEEL]):
-            last = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, label),
-                                   reference_object=reference_object,
-                                   parent=last,
-                                   meta_data=self.meta_data + {cfg.NAME: label})
+            shape = '%s_%s' % (cfg.CIRCLE, cfg.X) if not label == self.ANKLE else '_'.join(
+                [s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
+
+            control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, label),
+                                      shape=shape,
+                                      reference_object=reference_object,
+                                      parent=last,
+                                      meta_data=self.meta_data + {cfg.NAME: label})
+            # if label == self.ANKLE:
+            # control.offset_group.translate_node(absolute=True)
+            last = control.connection_group
 
         toe_ball_chain = nt.HierarchyChain(*self.layout_joints[1:], node_filter=cfg.JOINT_TYPE)
         ball_handle, ball_effector = toe_ball_chain.build_ik(solver=cfg.IK_SC_SOLVER)

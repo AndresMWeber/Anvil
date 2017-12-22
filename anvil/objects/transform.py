@@ -1,11 +1,17 @@
 import dag_node
+import anvil
 import anvil.runtime as rt
 import anvil.config as cfg
-import anvil.core.utils as ut
+import anvil.utils.generic as gc
 
 
 class Transform(dag_node.DagNode):
-    dcc_type = 'transform'
+    dcc_type = cfg.TRANSFORM_TYPE
+    MODE_LOOKUP = {
+        cfg.SCALE: cfg.SCALE,
+        cfg.TRANSLATE: cfg.TRANSLATION,
+        cfg.ROTATE: cfg.ROTATION,
+    }
 
     @staticmethod
     def create_engine_instance(**flags):
@@ -37,6 +43,11 @@ class Transform(dag_node.DagNode):
         node.match_position(reference_object)
         return node
 
+    def get_pivot(self, space=cfg.WORLD, **kwargs):
+        if space == cfg.WORLD:
+            kwargs[cfg.WORLD_SPACE] = True
+        return rt.dcc.scene.position(self, query=True, scalePivot=True, **kwargs)
+
     def match(self, reference_objects, mode=cfg.TRANSLATE, keep_constraint=False, **kwargs):
         if mode == cfg.TRANSLATE:
             return self.match_position(reference_objects, keep_constraint=keep_constraint, **kwargs)
@@ -51,7 +62,7 @@ class Transform(dag_node.DagNode):
 
     def aim_at(self, reference_objects, up_vector=None, aim_vector=None, up_object=None, keep_constraint=False,
                **kwargs):
-        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
         self.LOG.info('Aiming %s at %s' % (self, reference_objects))
         if reference_objects:
             kwargs.update(
@@ -64,7 +75,7 @@ class Transform(dag_node.DagNode):
             return constraint
 
     def match_rotation(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
         self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
         if reference_objects:
             constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
@@ -74,7 +85,7 @@ class Transform(dag_node.DagNode):
             return constraint
 
     def match_position(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
         self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
         if reference_objects:
             constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
@@ -84,7 +95,7 @@ class Transform(dag_node.DagNode):
             return constraint
 
     def match_transform(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = ut.validate_and_cast_to_str_list(reference_objects)
+        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
         self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
         if reference_objects:
             constraint = rt.dcc.connections.parent(reference_objects, self, maintainOffset=False, **kwargs)

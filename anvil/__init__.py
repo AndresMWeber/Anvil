@@ -1,5 +1,6 @@
 from six import iteritems
 import config
+import colors
 import meta_data
 import log
 import version
@@ -9,7 +10,7 @@ LOG = log.obtainLogger(__name__)
 import runtime
 import validation
 import plugins
-import core
+import utils
 import objects
 import grouping
 import node_types
@@ -95,4 +96,5 @@ __all__ = ['config',
            'grouping',
            'sub_rig_templates',
            'rig_templates',
-           'core']
+           'utils',
+           'colors']
