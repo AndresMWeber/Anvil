@@ -23,8 +23,6 @@ class UnicodeDelegate(object):
         self.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
         self.meta_data = MetaData(meta_data, kwargs)
-        if self.meta_data.get(cfg.SIDE) is None:
-            self.meta_data[cfg.SIDE] = cfg.CENTER
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))

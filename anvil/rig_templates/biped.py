@@ -6,9 +6,9 @@ from collections import OrderedDict
 
 class Biped(nt.Rig):
     SUB_RIG_BUIlD_TABLE = OrderedDict(
-        [(cfg.SPINE, [sub_rig_templates.Spine, {cfg.NAME: cfg.SPINE}]),
-         (cfg.NECK, [sub_rig_templates.Neck, {cfg.NAME: cfg.NECK}]),
-         (cfg.HEAD, [sub_rig_templates.Head, {cfg.NAME: cfg.HEAD}]),
+        [(cfg.SPINE, [sub_rig_templates.Spine, {cfg.NAME: cfg.SPINE, cfg.SIDE: cfg.CENTER}]),
+         (cfg.NECK, [sub_rig_templates.Neck, {cfg.NAME: cfg.NECK, cfg.SIDE: cfg.CENTER}]),
+         (cfg.HEAD, [sub_rig_templates.Head, {cfg.NAME: cfg.HEAD, cfg.SIDE: cfg.CENTER}]),
          (cfg.LEFT + '_' + cfg.ARM, [sub_rig_templates.BipedArm, {cfg.NAME: cfg.ARM, cfg.SIDE: cfg.LEFT}]),
          (cfg.RIGHT + '_' + cfg.ARM, [sub_rig_templates.BipedArm, {cfg.NAME: cfg.ARM, cfg.SIDE: cfg.RIGHT}]),
          (cfg.LEFT + '_' + cfg.LEG, [sub_rig_templates.BipedLeg, {cfg.NAME: cfg.LEG, cfg.SIDE: cfg.LEFT}]),

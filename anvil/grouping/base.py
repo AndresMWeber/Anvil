@@ -7,6 +7,7 @@ import anvil.config as cfg
 import anvil.objects as ob
 import anvil.objects.attribute as at
 
+
 class AbstractGrouping(object):
     """ A fully functional and self-contained rig with all requirements implemented that
         are required to give a performance.
@@ -104,18 +105,21 @@ class AbstractGrouping(object):
 
     def rename(self, *input_dicts, **name_tokens):
         self.LOG.debug('Renaming %r...' % (self))
-        self.meta_data.merge(*input_dicts, **name_tokens)
+        self._cascading_function(lambda n: n.rename(self._nomenclate.get(**n.meta_data.copy_dict_as_strings())),
+                                 lambda n: n.rename(self.meta_data + n.meta_data),
+                                 *input_dicts,
+                                 **name_tokens)
+
+    def _cascading_function(self, object_function, grouping_function, *args, **kwargs):
+        self.meta_data.merge(*args, **kwargs)
         self._nomenclate.merge_dict(**self.meta_data.data)
 
-        # Sub node is going to be either subtype of grouping or objects.
         for sub_node_key, sub_node in iteritems(self.hierarchy):
             if anvil.is_agrouping(sub_node):
-                sub_node.rename(self.meta_data + sub_node.meta_data)
+                grouping_function(sub_node)
 
             elif anvil.is_aobject(sub_node):
-                sub_node.rename(self._nomenclate.get(**sub_node.meta_data.copy_dict_as_strings()))
-
-            self.LOG.debug('Renamed to %r' % (sub_node))
+                object_function(sub_node)
 
     def build_node(self, node_class, node_key, meta_data=None, **flags):
         self.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
@@ -140,10 +144,9 @@ class AbstractGrouping(object):
         dag_node.meta_data.merge(self.meta_data, meta_data)
         return dag_node
 
-    def auto_color(self):
-        for key, node in iteritems(self.hierarchy):
-            if isinstance(node, ob.Curve):
-                node.auto_color()
+    def auto_color(self, *args, **kwargs):
+        auto_colorer = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
+        self._cascading_function(auto_colorer, auto_colorer, *args, **kwargs)
 
     def find_node(self, node_key):
         try:

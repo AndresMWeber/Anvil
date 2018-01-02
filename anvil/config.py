@@ -82,7 +82,8 @@ KEYABLE = 'keyable'
 ENUM_NAME = 'enumName'
 OVERRIDE_ENABLED = 'overrideEnabled'
 OVERRIDE_RGB = 'overrideRGBColors'
-OVERRIDE_COLOR = 'overrideColorRGB'
+OVERRIDE_COLOR_INDEX = 'overrideColorRGB'
+OVERRIDE_COLOR_RGB = 'overrideColorRGB'
 
 # 3D CONCEPTS
 PARENT = 'parent'
@@ -126,6 +127,7 @@ SPHERE = 'sphere'
 TRIANGLE = 'triangle'
 PYRAMID_PIN = 'pyramid_pin'
 CIRCLE = 'circle'
+PENTAGON_CROSS = 'pentagon_cross'
 
 # NAMING TOKENS
 TYPE = 'type'
@@ -172,5 +174,6 @@ DCC_TYPES = {
 RIG_COLORS={
     CENTER: colors.YELLOW,
     LEFT: colors.RED,
-    RIGHT: colors.YELLOW
+    RIGHT: colors.BLUE,
+    DEFAULT: colors.BEIGE,
 }

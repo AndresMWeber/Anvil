@@ -22,9 +22,10 @@ class Control(base.AbstractGrouping):
 
     @classmethod
     def build(cls, reference_object=None, meta_data=None, **kwargs):
-        instance = cls(control=objects.Curve.build(meta_data={cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
-                       offset_group=objects.Transform.build(meta_data={cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
-                       connection_group=objects.Transform.build(meta_data={cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
+        meta_data = MetaData(meta_data)
+        instance = cls(objects.Curve.build(meta_data=meta_data + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
+                       objects.Transform.build(meta_data=meta_data + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
+                       objects.Transform.build(meta_data=meta_data + {cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
                        meta_data=meta_data, **kwargs)
         instance.build_layout()
         instance.match_position(reference_object)

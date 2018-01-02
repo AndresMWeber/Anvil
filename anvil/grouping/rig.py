@@ -17,6 +17,7 @@ class Rig(base.AbstractGrouping):
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []
+    SUB_GROUPINGS = ['extras', 'model', 'sub_rigs']
 
     def __init__(self, character_name=None, sub_rig_dict=None, **kwargs):
         if character_name:
@@ -60,6 +61,7 @@ class Rig(base.AbstractGrouping):
             anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
 
     def auto_color(self):
+        super(Rig, self).auto_color()
         for key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.auto_color()
 
@@ -72,14 +74,14 @@ class Rig(base.AbstractGrouping):
                             **kwargs)
 
         self.build_node(control.Control,
-                        'control_universal',
+                        '%s_universal' % cfg.CONTROL_TYPE,
                         parent=self.group_top,
-                        shape='pentagon_cross',
+                        shape=cfg.PENTAGON_CROSS,
                         scale=5,
                         meta_data={cfg.CHILD_TYPE: 'universal'})
 
-        for main_group_type in ['extras', 'model', 'sub_rigs']:
-            group_name = 'group_%s' % main_group_type
+        for main_group_type in self.SUB_GROUPINGS:
+            group_name = '%s_%s' % (cfg.GROUP_TYPE, main_group_type)
             self.build_node(ot.Transform,
                             group_name,
                             parent=self.control_universal.connection_group,

@@ -94,17 +94,17 @@ class TestHierarchyChainGetHierarchy(TestBaseHierarchyChain):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
         chain = nt.HierarchyChain(self.joints[0])
-        self.assertListEqual(self.joints, chain.get_hierarchy_as_list())
+        self.assertListEqual(self.joints, chain.get_hierarchy(as_list=True))
 
     @TestBase.delete_created_nodes
     def test_joints_mixed(self):
         chain = nt.HierarchyChain(self.joints_mixed[0])
-        self.assertEqual(chain.get_hierarchy_as_list(), [anvil.factory(j) for j in self.joints_total])
+        self.assertEqual(chain.get_hierarchy(as_list=True), [anvil.factory(j) for j in self.joints_total])
 
     @TestBase.delete_created_nodes
     def test_with_filter(self):
         chain = nt.HierarchyChain(self.joints_mixed[0], node_filter=[cfg.JOINT_TYPE, cfg.TRANSFORM_TYPE])
-        self.assertEqual(chain.get_hierarchy_as_list(), self.joints_total)
+        self.assertEqual(chain.get_hierarchy(as_list=True), self.joints_total)
 
 
 class TestHierarchyChainIteration(TestBaseHierarchyChain):

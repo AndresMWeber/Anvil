@@ -3,16 +3,79 @@ Credit:
 Provide RGB color constants and a colors dictionary with
 elements formatted: colors[colorname] = CONSTANT"""
 
+import colorsys
 from collections import namedtuple, OrderedDict
 
-Color = namedtuple('RGB', 'red, green, blue')
-colors = {}  # dict of colors
+R = 'red'
+G = 'green'
+B = 'blue'
+
+Color = namedtuple('RGB', ','.join([R, G, B]))
+colors = {}
 
 
 class RGB(Color):
-    def hex_format(self):
-        '''Returns color in hex format'''
-        return '#{:02X}{:02X}{:02X}'.format(self.red, self.green, self.blue)
+    components = [R, G, B]
+
+    def as_list(self):
+        return [getattr(self, component) for component in self.components]
+
+    def as_dict(self):
+        return {component: getattr(self, component) for component in self.components}
+
+    def as_rgb(self):
+        return tuple(self.as_list())
+
+    def as_rgb_normalized(self):
+        return tuple(component/255.0 for component in self.as_list())
+
+    def as_hsv(self):
+        return colorsys.rgb_to_hsv(*self.as_rgb_normalized())
+
+    def as_hsv_360(self):
+        hsv = self.as_hsv()
+        return tuple([hsv[0] * 360, hsv[1], hsv[2]])
+
+    def as_yiq(self):
+        return colorsys.rgb_to_yiq(*self.as_rgb_normalized())
+
+    def as_hls(self):
+        return colorsys.rgb_to_hls(*self.as_rgb_normalized())
+
+    def as_hex(self):
+        return '#{:02X}{:02X}{:02X}'.format(int(self.red), int(self.green), int(self.blue))
+
+    @classmethod
+    def from_hex(cls, hex):
+        hex = hex.lstrip('#')
+        return cls(*tuple(int(hex[i:i + 2], 16) for i in (0, 2, 4)))
+
+    @classmethod
+    def from_hsv(cls, hsv):
+        return cls(*colorsys.hsv_to_rgb(*hsv))
+
+    @classmethod
+    def from_hls(cls, hls):
+        return cls(*colorsys.hls_to_rgb(*hls))
+
+    @classmethod
+    def from_yiq(cls, yiq):
+        return cls(*colorsys.yiq_to_rgb(*yiq))
+
+    def __len__(self):
+        return len(self.components)
+
+    def __repr__(self):
+        values = tuple(getattr(self, 'as_%s' % f)() for f in ['rgb', 'hsv', 'yiq', 'hls', 'hex'])
+        return str(self.__class__).replace('>', '(RGB: %s, HSV: %s, YIQ: %s, HLS: %s, HEX: %s)>' % values)
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __add__(self, other):
+        for x, y, component in zip(list(self), list(other), self.components):
+            setattr(self, component, x + y)
+        return self
 
 
 def get_closest_color(r, g, b):

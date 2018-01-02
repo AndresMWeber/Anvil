@@ -23,16 +23,18 @@ class SubRigTemplate(nt.SubRig):
             control = self.build_node(nt.Control, '%s_%s_%d' % (cfg.CONTROL_TYPE, cfg.FK, index),
                                       parent=parent,
                                       reference_object=joint,
-                                      meta_data={cfg.PURPOSE: cfg.FK, cfg.VARIATION: index},
+                                      meta_data=self.meta_data + {cfg.PURPOSE: cfg.FK, cfg.VARIATION: index},
                                       **kwargs)
             parent = control.connection_group
             rt.dcc.connections.parent(control.connection_group, joint)
 
     def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, **kwargs):
         kwargs = MetaData(kwargs)
+
         self.ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
 
         handle, effector = self.ik_chain.build_ik(chain_end=self.ik_chain[ik_end_index], parent=self.group_nodes)
+
         for node, label in zip([handle, effector], [cfg.IK_HANDLE, cfg.IK_EFFECTOR]):
             self.register_node(label, handle, meta_data=self.meta_data + {cfg.NAME: cfg.IK, cfg.TYPE: label})
 
