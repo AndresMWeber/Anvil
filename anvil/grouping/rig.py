@@ -76,7 +76,7 @@ class Rig(base.AbstractGrouping):
         self.build_node(control.Control,
                         '%s_universal' % cfg.CONTROL_TYPE,
                         parent=self.group_top,
-                        shape=cfg.PENTAGON_CROSS,
+                        shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
                         scale=5,
                         meta_data={cfg.CHILD_TYPE: 'universal'})
 
