@@ -60,8 +60,8 @@ class Control(base.AbstractGrouping):
         rt.dcc.scene.parent(self.control, self.offset_group)
         rt.dcc.scene.parent(self.connection_group, self.control)
 
-    def colorize(self, color_id=None, color_tuple=None, use_metadata=False):
-        self.control.colorize(color_tuple or color_id, use_metadata=use_metadata)
+    def colorize(self, rgb_or_index):
+        self.control.colorize(rgb_or_index)
 
     def scale_shape(self, value=1.0, relative=False):
         self.control.transform_shape(value, relative=relative, mode=cfg.SCALE)

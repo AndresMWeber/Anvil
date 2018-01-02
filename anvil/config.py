@@ -171,9 +171,9 @@ DCC_TYPES = {
     POLY_TYPE: ['mesh'],
 }
 
-RIG_COLORS={
+RIG_COLORS = {
     CENTER: colors.YELLOW,
     LEFT: colors.RED,
     RIGHT: colors.BLUE,
-    DEFAULT: colors.BEIGE,
+    DEFAULT: colors.DARKSALMON,
 }
