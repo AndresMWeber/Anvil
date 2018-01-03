@@ -6,7 +6,6 @@ from anvil.colors import RGB
 
 
 class DagNode(unicode_delegate.UnicodeDelegate):
-
     def buffer_connect(self, attribute, other_attribute, buffer_value, **kwargs):
         pma = rt.dcc.create.create_node(cfg.ADD_SUB_TYPE)
         self.attr(attribute).connect(pma.input1D[0])
@@ -30,6 +29,7 @@ class DagNode(unicode_delegate.UnicodeDelegate):
         self.attr(attribute_source).connect(at.Attribute(attribute_destination), **kwargs)
 
     def colorize(self, rgb_or_index):
+        self.LOG.error('%s' % repr(self.attr(cfg.OVERRIDE_ENABLED)))
         self.attr(cfg.OVERRIDE_ENABLED).set(True)
 
         if isinstance(rgb_or_index, int):

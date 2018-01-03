@@ -37,11 +37,17 @@ class Transform(dag_node.DagNode):
             raise KeyError('Node %s or %s does not exist.' % (self, new_parent))
 
     @classmethod
-    def build(cls, reference_object=None, meta_data=None, parent=None, **kwargs):
-        node = super(Transform, cls).build(meta_data=meta_data, **kwargs)
+    def build(cls, reference_object=None, parent=None, **kwargs):
+        node = super(Transform, cls).build(**kwargs)
         node.parent(parent)
         node.match_position(reference_object)
         return node
+
+    def get_world_position(self, **kwargs):
+        kwargs[cfg.WORLD_SPACE] = True
+        kwargs[cfg.QUERY] = True
+        kwargs[cfg.TRANSLATION] = True
+        return rt.dcc.scene.position(self, **kwargs)
 
     def get_pivot(self, space=cfg.WORLD, **kwargs):
         if space == cfg.WORLD:

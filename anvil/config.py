@@ -27,12 +27,15 @@ UPPER = 'upper'
 LOWER = 'lower'
 
 # NAME FORMATS
-RIG_FORMAT = 'character_side_location_nameDecoratorVar_childtype_purpose_rig_type'
+RIG_FORMAT = 'character_rig_subrig_side_location_nameDecoratorVar_childtype_purpose_type'
 DISPLAY_ENUM = 'off:on:template:reference'
 
 # RIG CONCEPTS
 RIG = 'rig'
 SUB_RIG = 'sub_rig'
+SUBRIG = 'subrig'
+NAME_TOKENS = 'name_tokens'
+META_DATA= 'meta_data'
 ARM = 'arm'
 LEG = 'leg'
 HAND = 'hand'

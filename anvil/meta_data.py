@@ -36,6 +36,7 @@ class MetaData(object):
         self.data.update(self.merge_dicts(ignore_keys=ignore_keys,
                                           *input_dicts,
                                           **input_kwargs))
+        return self.data
 
     def serialize(self, ignore_keys=None):
         ignore_fields = self._cast_input_to_list(ignore_keys)

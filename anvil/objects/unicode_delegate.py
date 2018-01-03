@@ -11,7 +11,7 @@ class UnicodeDelegate(object):
     dcc_type = None
     BUILTIN_METADATA = {cfg.TYPE: dcc_type}
 
-    def __init__(self, node_pointer, meta_data=None, **kwargs):
+    def __init__(self, node_pointer, name_tokens=None, meta_data=None, **kwargs):
         """ All nodes must be initialized with a string representation that the encompassing platform
             uses as DAG path representation for the object.
 
@@ -22,7 +22,9 @@ class UnicodeDelegate(object):
 
         self.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
-        self.meta_data = MetaData(meta_data, kwargs)
+        self.build_kwargs = MetaData(kwargs)
+        self.meta_data = MetaData(meta_data)
+        self.name_tokens = MetaData(name_tokens)
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
@@ -46,10 +48,10 @@ class UnicodeDelegate(object):
         raise NotImplementedError('Cannot instantiate nodes from this class')
 
     @classmethod
-    def build(cls, meta_data=None, **kwargs):
-        cls.LOG.info('Building node %s: %s(kwargs=%s, meta_data=%s)' % (cls.__name__, cls.dcc_type, kwargs, meta_data))
+    def build(cls, **kwargs):
+        cls.LOG.info('Building node %s: %s(%s)' % (cls.__name__, cls.dcc_type, kwargs))
         dcc_instance = cls.create_engine_instance(**kwargs)
-        instance = cls(dcc_instance, meta_data=meta_data, **kwargs)
+        instance = cls(dcc_instance, **kwargs)
 
         # If the instance isn't a string we can assume it's some API class instance we can use later.
         if not isinstance(dcc_instance, str):

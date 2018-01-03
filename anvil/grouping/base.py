@@ -15,7 +15,8 @@ class AbstractGrouping(object):
     """
     LOG = anvil.log.obtainLogger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
-    BUILT_IN_META_DATA = MetaData({cfg.TYPE: ANVIL_TYPE})
+    BUILT_IN_META_DATA = MetaData()
+    BUILT_IN_NAME = MetaData({cfg.TYPE: ANVIL_TYPE})
     BUILT_IN_ATTRIBUTES = MetaData({})
     RENDERING_ATTRIBUTES = MetaData({
         '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,
@@ -24,31 +25,34 @@ class AbstractGrouping(object):
         '%ss' % cfg.CONTROL_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 1}),
         '%s' % cfg.LOD: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
     })
-    NOMENCLATE_DEFAULT_FORMAT = cfg.RIG_FORMAT
 
-    def __init__(self, layout_joints=None, meta_data=None, parent=None, top_node=None, build_kwargs=None, **kwargs):
+    def __init__(self, layout_joints=None, meta_data=None, name_tokens=None, parent=None, top_node=None,
+                 build_kwargs=None, **kwargs):
         self.hierarchy = {}
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_kwargs = MetaData(build_kwargs, kwargs)
+        self.name_tokens = MetaData(self.BUILT_IN_NAME, name_tokens)
         self.meta_data = MetaData(self.BUILT_IN_META_DATA, meta_data, protected_fields=list(self.BUILT_IN_META_DATA))
 
-        self._nomenclate = nomenclate.Nom(self.meta_data.data)
+        self._nomenclate = nomenclate.Nom(self.name_tokens.data)
         self.chain_nomenclate = nomenclate.Nom()
         for namer in [self._nomenclate, self.chain_nomenclate]:
-            namer.format = self.NOMENCLATE_DEFAULT_FORMAT
+            namer.format = cfg.RIG_FORMAT
             namer.var.case = cfg.UPPER
 
         self.parent(parent)
-        self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s)' % (self, top_node, parent, meta_data))
+        log_tuple = (self, top_node, parent, meta_data, name_tokens)
+        self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s, name_tokens=%s)' % log_tuple)
 
     @property
     def is_built(self):
         return all([self.root])
 
-    def build(self, meta_data=None, **kwargs):
+    def build(self, meta_data=None, name_tokens=None, **kwargs):
         self.build_kwargs.merge(kwargs)
         self.meta_data.merge(meta_data)
+        self.name_tokens.merge(name_tokens)
         anvil.LOG.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s' % (self.__class__.__name__,
                                                                                    self.meta_data,
                                                                                    self.build_kwargs,
@@ -94,8 +98,7 @@ class AbstractGrouping(object):
 
     def rename_chain(self, objects, use_end_naming=False, **name_tokens):
         self.LOG.info('Renaming chain %s for parent %s' % (objects, self))
-        self.meta_data.merge(name_tokens)
-        self.chain_nomenclate.merge_dict(self.meta_data.data)
+        self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
 
         for index, object in enumerate(objects):
             variation_kwargs = {'var': index}
@@ -105,33 +108,25 @@ class AbstractGrouping(object):
 
     def rename(self, *input_dicts, **name_tokens):
         self.LOG.debug('Renaming %r...' % (self))
-        self._cascading_function(lambda n: n.rename(self._nomenclate.get(**n.meta_data.copy_dict_as_strings())),
-                                 lambda n: n.rename(self.meta_data + n.meta_data),
-                                 *input_dicts,
-                                 **name_tokens)
+        self._cascading_function(lambda n: n.rename(self._nomenclate.get(**n.name_tokens.copy_dict_as_strings())),
+                                 lambda n: n.rename(self.name_tokens + n.name_tokens),
+                                 name_tokens=MetaData(*input_dicts, **name_tokens))
 
-    def _cascading_function(self, object_function, grouping_function, *args, **kwargs):
-        self.meta_data.merge(*args, **kwargs)
-        self._nomenclate.merge_dict(**self.meta_data.data)
+    def build_node(self, node_class, node_key, build_fn='build', name_tokens=None, meta_data=None, *args, **kwargs):
+        log_tuple = (self, node_key, node_class, name_tokens, meta_data, kwargs)
+        self.LOG.info('build_node %r.%s = %s(name_tokens=%s, meta_data=%s, flags=%s)' % log_tuple)
 
-        for sub_node_key, sub_node in iteritems(self.hierarchy):
-            if anvil.is_agrouping(sub_node):
-                grouping_function(sub_node)
-
-            elif anvil.is_aobject(sub_node):
-                object_function(sub_node)
-
-    def build_node(self, node_class, node_key, meta_data=None, **flags):
-        self.LOG.info('build_node %r.%s = %s(meta_data=%s, flags=%s)' % (self, node_key, node_class, meta_data, flags))
-        dag_node = node_class.build(meta_data=self.meta_data + meta_data, **flags)
+        dag_node = getattr(node_class, build_fn)(meta_data=self.meta_data + meta_data,
+                                                 name_tokens=self.name_tokens + name_tokens,
+                                                 *args,
+                                                 **kwargs)
         self.register_node(node_key, dag_node)
         return dag_node
 
-    def register_node(self, node_key, dag_node, parent=False, overwrite=True, meta_data=None):
+    def register_node(self, node_key, dag_node, overwrite=True, name_tokens=None, meta_data=None):
         if dag_node is None:
             self.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
             return
-
         try:
             anvil.factory(dag_node)
         except:
@@ -142,6 +137,7 @@ class AbstractGrouping(object):
 
         self.hierarchy[node_key] = dag_node
         dag_node.meta_data.merge(self.meta_data, meta_data)
+        dag_node.name_tokens.merge(self.name_tokens, name_tokens)
         return dag_node
 
     def auto_color(self, *args, **kwargs):
@@ -153,6 +149,18 @@ class AbstractGrouping(object):
             return self.hierarchy[node_key]
         except:
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
+
+    def _cascading_function(self, object_function, grouping_function, name_tokens=None, *args, **kwargs):
+        self.meta_data.merge(*args, **kwargs)
+        self.name_tokens.merge(name_tokens)
+        self._nomenclate.merge_dict(**self.name_tokens.data)
+
+        for sub_node_key, sub_node in iteritems(self.hierarchy):
+            if anvil.is_agrouping(sub_node):
+                grouping_function(sub_node)
+
+            elif anvil.is_aobject(sub_node):
+                object_function(sub_node)
 
     def __getattr__(self, item):
         try:

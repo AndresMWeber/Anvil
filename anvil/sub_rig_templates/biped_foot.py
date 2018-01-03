@@ -15,6 +15,7 @@ class BipedFoot(SubRigTemplate):
 
     def __init__(self, heel, outsole=None, insole=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
+        self.ankle, self.ball, self.toe, self.toe_end = self.layout_joints
         self.heel = heel
         self.outsole = outsole
         self.insole = insole
@@ -22,8 +23,8 @@ class BipedFoot(SubRigTemplate):
     def build(self, parent=None, meta_data=None, **kwargs):
         super(BipedFoot, self).build(meta_data=meta_data, parent=parent, **kwargs)
         last = self.group_controls
-        for reference_object, label in zip(self.layout_joints + self.heel,
-                                           [self.ANKLE, self.TOE, self.BALL, self.HEEL]):
+        for reference_object, label in zip([self.ankle, self.ball, self.toe, self.heel],
+                                           [self.ANKLE, self.BALL, self.TOE, self.HEEL]):
             shape = '%s_%s' % (cfg.CIRCLE, cfg.X) if not label == self.ANKLE else '_'.join(
                 [s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
 

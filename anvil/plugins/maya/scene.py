@@ -281,7 +281,7 @@ def get_scene_tree():
 def get_persistent_id(node_unicode_proxy):
     try:
         selection_list = om.MSelectionList()
-        if cfg.ATTR_DELIMITER in node_unicode_proxy:
+        if cfg.ATTR_DELIMITER in node_unicode_proxy and not '[' in node_unicode_proxy:
             node_name, attr_name = node_unicode_proxy.split('.')
             selection_list.add(node_name)
             depend_node = om.MFnDependencyNode(selection_list.getDependNode(0))
@@ -292,6 +292,5 @@ def get_persistent_id(node_unicode_proxy):
 
     except RuntimeError:
         raise KeyError('Requested node-ID %r does not exist in the scene.' % node_unicode_proxy)
-
 
 APIWrapper = API.PyNode

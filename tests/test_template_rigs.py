@@ -39,7 +39,7 @@ class TestBuildBiped(TestBaseTemplateRigs):
                 fingers.append(nt.HierarchyChain(finger_start % (side[0], finger), finger_end % (side[0], finger)))
             sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers, 'scale': 0.3}
 
-        rig_instance = cls.CLASS(sub_rig_dict, meta_data={cfg.CHARACTER: 'hombre'}, **kwargs)
+        rig_instance = cls.CLASS(sub_rig_dict=sub_rig_dict, name_tokens={cfg.CHARACTER: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)
         return rig_instance
 

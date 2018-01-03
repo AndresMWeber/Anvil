@@ -62,6 +62,10 @@ def factory(dag_path):
     return encapsulation
 
 
+def factory_list(dag_nodes):
+    return [factory(node) for node in dag_nodes]
+
+
 def register_encapsulation(anvil_class_instance):
     EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = anvil_class_instance
 

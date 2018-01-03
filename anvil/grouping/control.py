@@ -1,6 +1,6 @@
 from anvil.meta_data import MetaData
 import anvil.config as cfg
-import anvil.objects as objects
+import anvil.objects as ob
 import anvil.runtime as rt
 import anvil.utils.generic as gc
 import base
@@ -21,24 +21,28 @@ class Control(base.AbstractGrouping):
         self.register_node(cfg.CONNECTION_GROUP, connection_group)
 
     @classmethod
-    def build(cls, reference_object=None, meta_data=None, **kwargs):
-        meta_data = MetaData(meta_data)
-        instance = cls(objects.Curve.build(meta_data=meta_data + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
-                       objects.Transform.build(meta_data=meta_data + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
-                       objects.Transform.build(meta_data=meta_data + {cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
-                       meta_data=meta_data, **kwargs)
+    def build(cls, reference_object=None, name_tokens=None, parent=None, **kwargs):
+        name_tokens = MetaData(name_tokens)
+        instance = cls(
+            ob.Curve.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
+            ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
+            ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
+            name_tokens=name_tokens,
+            **kwargs)
         instance.build_layout()
         instance.match_position(reference_object)
+        if parent:
+            instance.parent(parent)
         return instance
 
     @classmethod
-    def build_pole_vector(cls, joints, ik_handle, up_vector=None, aim_vector=None, up_object=None, move_by=None,
-                          meta_data=None, parent=None, **kwargs):
+    def build_pole_vector(cls, joints, ik_handle,
+                          up_vector=None, aim_vector=None, up_object=None, move_by=None,**kwargs):
         joints = gc.to_list(joints)
         start = joints[0]
         end = joints[-1]
 
-        control = cls.build(parent=parent, meta_data=meta_data, **kwargs)
+        control = cls.build(**kwargs)
         control.offset_group.match_position([start, end])
         control.offset_group.aim_at(joints,
                                     aim_vector=aim_vector or cls.PV_AIM_DEFAULT,

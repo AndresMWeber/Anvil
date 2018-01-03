@@ -15,6 +15,7 @@ class Spine(SubRigTemplate):
         super(Spine, self).build(name_tokens=meta_data, parent=parent)
 
         # Build Spine Curve
+        self.LOG.info('blarg, %r' % self.layout_joints)
         spine_curve = nt.Curve.build_from_objects(self.layout_joints,
                                                   parent=self.group_nodes,
                                                   meta_data=self.meta_data + {'name': 'spine', 'type': 'curve'},

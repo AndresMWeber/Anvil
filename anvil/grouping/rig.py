@@ -1,6 +1,7 @@
 from six import iteritems
 import base
 import anvil
+from anvil.meta_data import MetaData
 import anvil.config as cfg
 import anvil.objects as ot
 import sub_rig
@@ -14,43 +15,39 @@ class Rig(base.AbstractGrouping):
         require it to give a performance.  A collection of SubRig(s)
     """
     LOG = anvil.log.obtainLogger(__name__)
+    BUILT_IN_NAME = MetaData({cfg.RIG: cfg.RIG}) + base.AbstractGrouping.BUILT_IN_NAME
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []
     SUB_GROUPINGS = ['extras', 'model', 'sub_rigs']
 
     def __init__(self, character_name=None, sub_rig_dict=None, **kwargs):
-        if character_name:
-            kwargs['character'] = character_name
-
         super(Rig, self).__init__(**kwargs)
+        self.name_tokens[cfg.CHARACTER] = character_name or 'robert'
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
-        if sub_rig_dict:
-            self.register_sub_rigs_from_dict(sub_rig_dict)
+        self.register_sub_rigs_from_dict(sub_rig_dict)
 
     def rename(self, *input_dicts, **name_tokens):
         super(Rig, self).rename(*input_dicts, **name_tokens)
         for sub_rig_key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.rename()
 
-    def _validate_dict(self, sub_rig_dict):
-        if sub_rig_dict is None or not isinstance(sub_rig_dict, dict):
-            raise IOError('Must input sub-rig parts as a dictionary')
-
     def register_sub_rigs_from_dict(self, sub_rig_dict):
-        self._validate_dict(sub_rig_dict)
-        for sub_rig_name, sub_rig_construction_data in iteritems(self.SUB_RIG_BUIlD_TABLE):
+        if sub_rig_dict is None or not isinstance(sub_rig_dict, dict):
+            self.LOG.info('Empty sub rig dict...pass.')
+            return
+
+        for sub_rig_name, sub_rig_construction_data in iteritems(self.SUB_RIG_BUILD_TABLE):
             if sub_rig_dict.get(sub_rig_name):
-                sub_rig_class, sub_rig_metadata = self.SUB_RIG_BUIlD_TABLE[sub_rig_name]
+                sub_rig_class, sub_rig_metadata = self.SUB_RIG_BUILD_TABLE[sub_rig_name]
                 sub_rig_kwargs = sub_rig_dict.get(sub_rig_name)
-                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {
-                    'layout_joints': sub_rig_kwargs}
+                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {cfg.LAYOUT: sub_rig_kwargs}
                 self.register_sub_rig(sub_rig_name, sub_rig_class, meta_data=sub_rig_metadata, **sub_rig_kwargs)
 
-    def register_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, meta_data=None, **kwargs):
+    def register_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, **kwargs):
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
             self.LOG.info('Registering %s.[%s] = %s(%s)' % (self, sub_rig_key, sub_rig_candidate.__name__, kwargs))
-            self.sub_rigs[sub_rig_key] = sub_rig_candidate(meta_data=meta_data, **kwargs)
+            self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)
             return self.sub_rigs[sub_rig_key]
 
     def build_sub_rigs(self):
@@ -65,12 +62,13 @@ class Rig(base.AbstractGrouping):
         for key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.auto_color()
 
-    def build(self, meta_data=None, parent=None, **kwargs):
+    def build(self, parent=None, **kwargs):
+        self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}))
         anvil.LOG.info('Building rig %r' % self)
         if not self.root:
             self.build_node(ot.Transform,
                             'group_top',
-                            meta_data={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE, 'protected_fields': cfg.RIG},
+                            name_tokens={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE},
                             **kwargs)
 
         self.build_node(control.Control,
@@ -78,17 +76,17 @@ class Rig(base.AbstractGrouping):
                         parent=self.group_top,
                         shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
                         scale=5,
-                        meta_data={cfg.CHILD_TYPE: 'universal'})
+                        name_tokens={cfg.CHILD_TYPE: 'universal'})
 
         for main_group_type in self.SUB_GROUPINGS:
             group_name = '%s_%s' % (cfg.GROUP_TYPE, main_group_type)
             self.build_node(ot.Transform,
                             group_name,
                             parent=self.control_universal.connection_group,
-                            meta_data={cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE})
+                            name_tokens={cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE})
 
         self.root = self.group_top
-        anvil.LOG.info('Building sub rigs on rig %r' % self)
+        anvil.LOG.info('Building sub rigs on rig %r(%d): %s' % (self, len(list(self.sub_rigs)), list(self.sub_rigs)))
         self.build_sub_rigs()
         self.initialize_sub_rig_attributes(self.control_universal.control)
         self.connect_rendering_delegate(self.control_universal.control)

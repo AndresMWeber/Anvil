@@ -18,10 +18,10 @@ class Curve(transform.Transform):
         return rt.dcc.create.create_curve(**flags)
 
     @classmethod
-    def build(cls, meta_data=None, shape='cube', scale=None, **kwargs):
+    def build(cls, shape='cube', scale=None, **kwargs):
         if kwargs.get(cfg.POINT) is None:
             kwargs.update(cls._get_shape_constructor(shape, return_positions=True))
-        instance = super(Curve, cls).build(meta_data=meta_data, **kwargs)
+        instance = super(Curve, cls).build(**kwargs)
 
         # Just in case we are using PyMEL and it has returned the actual shape node instead of the transform.
         if rt.dcc.scene.get_type(str(instance)) == cls.dcc_type and instance.get_parent():
@@ -31,20 +31,35 @@ class Curve(transform.Transform):
         return instance
 
     @classmethod
-    def build_from_objects(cls, objects, meta_data=None, **flags):
-        position_flags = {'query': True, 'translation': True, 'worldSpace': True}
-        flags[cfg.POINT] = [rt.dcc.scene.position(str(object), **position_flags) for object in objects]
-        instance = cls.build(meta_data=meta_data, **flags)
+    def build_line_indicator(cls, object1, object2, **kwargs):
+        kwargs[cfg.DEGREE] = 1
+        kwargs[cfg.NAME_TOKENS] = kwargs.get(cfg.NAME_TOKENS, {})
+        kwargs[cfg.NAME_TOKENS].update({cfg.NAME: '%s_to_%s' % (object1, object2), cfg.TYPE: cfg.CURVE_TYPE})
+        curve = cls.build_from_objects([object1, object2], **kwargs)
+        object1_cluster, object2_cluster = curve.generate_clusters()
+        object1_cluster.parent(object1)
+        object2_cluster.parent(object2)
+        curve.overrideEnabled.set(1)
+        curve.overrideDisplayType.set(1)
+        return (curve, [object1_cluster, object1_cluster])
+
+    @classmethod
+    def build_from_objects(cls, objects, **kwargs):
+        kwargs[cfg.POINT] = [object.get_world_position() for object in anvil.factory_list(objects)]
+        instance = cls.build(**kwargs)
         return instance
 
     def auto_color(self, override_color=None):
-        self.LOG.info('Auto coloring %s based on metadata side: %s' % (self, self.meta_data.get(cfg.SIDE)))
-        color = override_color or cfg.RIG_COLORS.get(self.meta_data.get(cfg.SIDE, None) or cfg.DEFAULT)
+        self.LOG.info('Auto coloring %s based on name_tokens side: %s' % (self, self.name_tokens.get(cfg.SIDE)))
+        color = override_color or cfg.RIG_COLORS.get(self.name_tokens.get(cfg.SIDE, None) or cfg.DEFAULT)
         self.colorize(color)
         return color
 
     def get_shape(self):
         return self._api_class_instance.getShape()
+
+    def cvs(self):
+        return self.get_shape().cv[:]
 
     def transform_shape(self, value, mode=cfg.SCALE, relative=False):
         if value is not None:
@@ -54,7 +69,10 @@ class Curve(transform.Transform):
                                 cfg.ABSOLUTE: not relative,
                                 cfg.WORLD_SPACE_DISTANCE: True,
                                 self.MODE_LOOKUP[mode]: value}
-            rt.dcc.scene.position(self.get_shape().cv[:], **transform_kwargs)
+            rt.dcc.scene.position(self.cvs(), **transform_kwargs)
+
+    def generate_clusters(self):
+        return [transform.Transform(rt.dcc.rigging.cluster(cv)[1]) for cv in self.cvs()]
 
     def swap_shape(self, new_shape, maintain_position=False):
         self.SHAPE_PARENT_KWARGS[cfg.RELATIVE] = not maintain_position
