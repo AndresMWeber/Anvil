@@ -1,7 +1,7 @@
 from six import iteritems
 import base
 import anvil
-from anvil.meta_data import MetaData
+from anvil.meta_data import MetaData, cls_merge_name_tokens_and_meta_data
 import anvil.config as cfg
 import anvil.objects as ot
 import sub_rig
@@ -15,7 +15,7 @@ class Rig(base.AbstractGrouping):
         require it to give a performance.  A collection of SubRig(s)
     """
     LOG = anvil.log.obtainLogger(__name__)
-    BUILT_IN_NAME = MetaData({cfg.RIG: cfg.RIG}) + base.AbstractGrouping.BUILT_IN_NAME
+    BUILT_IN_NAME = MetaData({cfg.RIG: cfg.RIG}, base.AbstractGrouping.BUILT_IN_NAME)
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []
@@ -33,18 +33,29 @@ class Rig(base.AbstractGrouping):
             sub_rig.rename()
 
     def register_sub_rigs_from_dict(self, sub_rig_dict):
+        """ Only accepts dictionary with keys that match the built in SUB_RIG_BUILD_TABLE for the given Rig.
+            Rig will initialize sub-rigs from the key, value and look up the proper sub-rig class from the build table.
+            This is meant to rebuild a rig from a deserialized rig.
+
+        :param sub_rig_dict: dict, key must be in SUB_RIG_BUILD_TABLE and value must be dict or list of joints.
+        """
         if sub_rig_dict is None or not isinstance(sub_rig_dict, dict):
             self.LOG.info('Empty sub rig dict...pass.')
             return
 
         for sub_rig_name, sub_rig_construction_data in iteritems(self.SUB_RIG_BUILD_TABLE):
             if sub_rig_dict.get(sub_rig_name):
-                sub_rig_class, sub_rig_metadata = self.SUB_RIG_BUILD_TABLE[sub_rig_name]
+                sub_rig_class, default_name_tokens = sub_rig_construction_data
                 sub_rig_kwargs = sub_rig_dict.get(sub_rig_name)
                 sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {cfg.LAYOUT: sub_rig_kwargs}
-                self.register_sub_rig(sub_rig_name, sub_rig_class, meta_data=sub_rig_metadata, **sub_rig_kwargs)
+                self.register_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
 
     def register_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, **kwargs):
+        """ Initializes the given sub rig candidate class with kwargs and stores it in property sub_rigs under the key.
+
+        :param sub_rig_key: str, key to store the sub rig under on the rig.
+        :param sub_rig_candidate: anvil.sub_rig, a class that inherits from anvil.sub_rig.
+        """
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
             self.LOG.info('Registering %s.[%s] = %s(%s)' % (self, sub_rig_key, sub_rig_candidate.__name__, kwargs))
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)
@@ -62,8 +73,8 @@ class Rig(base.AbstractGrouping):
         for key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.auto_color()
 
+    @cls_merge_name_tokens_and_meta_data()
     def build(self, parent=None, **kwargs):
-        self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}))
         anvil.LOG.info('Building rig %r' % self)
         if not self.root:
             self.build_node(ot.Transform,

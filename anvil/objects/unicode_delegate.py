@@ -4,6 +4,7 @@ import anvil.log as log
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
 import anvil.utils.generic as gc
+from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 
 
 class UnicodeDelegate(object):
@@ -11,7 +12,8 @@ class UnicodeDelegate(object):
     dcc_type = None
     BUILTIN_METADATA = {cfg.TYPE: dcc_type}
 
-    def __init__(self, node_pointer, name_tokens=None, meta_data=None, **kwargs):
+    @cls_merge_name_tokens_and_meta_data(pre=False)
+    def __init__(self, node_pointer, **kwargs):
         """ All nodes must be initialized with a string representation that the encompassing platform
             uses as DAG path representation for the object.
 
@@ -23,8 +25,8 @@ class UnicodeDelegate(object):
         self.LOG.debug('Initializing node %s with ID %s' % (self.__class__, node_pointer))
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
         self.build_kwargs = MetaData(kwargs)
-        self.meta_data = MetaData(meta_data)
-        self.name_tokens = MetaData(name_tokens)
+        self.meta_data = MetaData()
+        self.name_tokens = MetaData()
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
@@ -32,7 +34,7 @@ class UnicodeDelegate(object):
             self._api_class_instance = object()
 
     def name(self):
-        return str(self._dcc_id)
+        return self._dcc_id.partialPathName()
 
     def exists(self):
         return rt.dcc.scene.exists(self)
@@ -48,6 +50,7 @@ class UnicodeDelegate(object):
         raise NotImplementedError('Cannot instantiate nodes from this class')
 
     @classmethod
+    @cls_merge_name_tokens_and_meta_data()
     def build(cls, **kwargs):
         cls.LOG.info('Building node %s: %s(%s)' % (cls.__name__, cls.dcc_type, kwargs))
         dcc_instance = cls.create_engine_instance(**kwargs)

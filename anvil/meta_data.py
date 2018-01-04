@@ -1,4 +1,6 @@
 from six import string_types, iteritems
+from functools import wraps
+import config as cfg
 
 
 class MetaData(object):
@@ -129,3 +131,35 @@ class MetaData(object):
         modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
         same = set(o for o in intersect_keys if d1[o] == d2[o])
         return added, removed, modified, same
+
+
+def cls_merge_name_tokens_and_meta_data(pre=True):
+    def outer(function):
+        @wraps(function)
+        def inner(cls_or_self, *args, **kwargs):
+            name_tokens = kwargs.pop(cfg.NAME_TOKENS, {})
+            meta_data = kwargs.pop(cfg.NAME_TOKENS, {})
+
+            for meta_attr in [cfg.META_DATA, cfg.NAME_TOKENS]:
+                if not hasattr(cls_or_self, meta_attr):
+                    setattr(cls_or_self, meta_attr, MetaData())
+
+            if pre:
+                cls_or_self.name_tokens.merge(name_tokens)
+                cls_or_self.meta_data.merge(meta_data)
+
+            function_result = function(cls_or_self, *args, **kwargs)
+            '''
+            if args:
+            else:
+                function_result = function(cls_or_self, **kwargs)
+            '''
+            if not pre:
+                cls_or_self.name_tokens.merge(name_tokens)
+                cls_or_self.meta_data.merge(meta_data)
+
+            return function_result
+
+        return inner
+
+    return outer

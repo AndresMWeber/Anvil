@@ -9,7 +9,7 @@ from anvil.meta_data import MetaData
 
 
 class SubRig(base.AbstractGrouping):
-    BUILT_IN_NAME = MetaData({cfg.SUBRIG: cfg.SUBRIG}) + base.AbstractGrouping.BUILT_IN_NAME
+    BUILT_IN_NAME = MetaData({cfg.SUBRIG: cfg.SUBRIG}, base.AbstractGrouping.BUILT_IN_NAME)
     LOG = lg.obtainLogger(__name__)
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 

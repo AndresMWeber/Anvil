@@ -6,6 +6,7 @@ import anvil.runtime as rt
 import transform
 import io
 from six import iteritems
+from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 
 
 class Curve(transform.Transform):
@@ -109,7 +110,7 @@ class Curve(transform.Transform):
                 cls.SHAPE_CACHE = {}
 
     @staticmethod
-    def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwargs):
+    def _ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwargs):
         """ Stolen from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
         """
 
@@ -142,7 +143,7 @@ class Curve(transform.Transform):
             shapes_data[shape_name] = target_data
 
             with io.open(shape_file, 'w') as f:
-                self.ordered_dump(shapes_data, stream=f, encoding='utf-8', default_flow_style=None)
+                self._ordered_dump(shapes_data, stream=f, encoding='utf-8', default_flow_style=None)
                 self.LOG.info('Successfully wrote shape data %s to file %s' % (shape_name, f))
 
         except IOError:

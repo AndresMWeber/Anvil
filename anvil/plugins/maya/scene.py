@@ -278,6 +278,7 @@ def get_scene_tree():
 
     return recurse_scene_nodes(top_level_transforms)
 
+
 def get_persistent_id(node_unicode_proxy):
     try:
         selection_list = om.MSelectionList()
@@ -292,5 +293,10 @@ def get_persistent_id(node_unicode_proxy):
 
     except RuntimeError:
         raise KeyError('Requested node-ID %r does not exist in the scene.' % node_unicode_proxy)
+
+
+def get_path_from_api_object(mobject):
+    return om.MDagPath.getAPathTo(mobject)
+
 
 APIWrapper = API.PyNode

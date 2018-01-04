@@ -4,8 +4,8 @@ import anvil
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
 import anvil.config as cfg
-import anvil.objects as ob
 import anvil.objects.attribute as at
+from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 
 
 class AbstractGrouping(object):
@@ -26,24 +26,24 @@ class AbstractGrouping(object):
         '%s' % cfg.LOD: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
     })
 
-    def __init__(self, layout_joints=None, meta_data=None, name_tokens=None, parent=None, top_node=None,
-                 build_kwargs=None, **kwargs):
+    @cls_merge_name_tokens_and_meta_data(pre=False)
+    def __init__(self, layout_joints=None, parent=None, top_node=None, **kwargs):
         self.hierarchy = {}
         self.root = top_node
         self.layout_joints = layout_joints
-        self.build_kwargs = MetaData(build_kwargs, kwargs)
-        self.name_tokens = MetaData(self.BUILT_IN_NAME, name_tokens)
-        self.meta_data = MetaData(self.BUILT_IN_META_DATA, meta_data, protected_fields=list(self.BUILT_IN_META_DATA))
-
+        self.build_kwargs = MetaData(kwargs)
+        self.name_tokens = self.BUILT_IN_NAME
+        self.meta_data = self.BUILT_IN_META_DATA
+        
         self._nomenclate = nomenclate.Nom(self.name_tokens.data)
         self.chain_nomenclate = nomenclate.Nom()
+
         for namer in [self._nomenclate, self.chain_nomenclate]:
             namer.format = cfg.RIG_FORMAT
             namer.var.case = cfg.UPPER
 
         self.parent(parent)
-        log_tuple = (self, top_node, parent, meta_data, name_tokens)
-        self.LOG.info('%r.__init__(top_node=%s, parent=%s, meta_data=%s, name_tokens=%s)' % log_tuple)
+        self.LOG.info('%r.__init__(top_node=%s, parent=%s)' % (self, top_node, parent))
 
     @property
     def is_built(self):

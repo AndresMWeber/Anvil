@@ -20,11 +20,11 @@ class Biped(nt.Rig):
          ]
     )
 
-    def __init__(self, sub_rig_dict=None, meta_data=None, **kwargs):
-        super(Biped, self).__init__(sub_rig_dict=sub_rig_dict, meta_data=meta_data, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(Biped, self).__init__(*args, **kwargs)
 
-    def build(self, meta_data=None, **kwargs):
-        super(Biped, self).build(meta_data=meta_data, **kwargs)
+    def build(self, *args, **kwargs):
+        super(Biped, self).build(*args, **kwargs)
 
     def setup_sub_rig_connections(self):
         pass

@@ -7,6 +7,12 @@ import anvil.runtime as rt
 class Attribute(unicode_delegate.UnicodeDelegate):
     query = rt.dcc.connections.query_attr
 
+    def attr_parent(self):
+        return rt.dcc.scene.get_path_from_api_object(self._dcc_id.node())
+
+    def name(self):
+        return '%s%s%s' % (self.attr_parent(), cfg.ATTR_DELIMITER, self._dcc_id.partialName())
+
     def connect(self, destination_attribute_dag, **kwargs):
         rt.dcc.connections.connect_attr(self, destination_attribute_dag, **kwargs)
 
@@ -215,10 +221,13 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         return self._api_class_instance.elementByLogicalIndex[item]
 
     def __getattr__(self, item):
+        """
         if item in rt.dcc.connections.list_attr(self):
             return self.__getattribute__('__class__')('%s.%s' % (self, item))
         else:
             return super(Attribute, self).__getattr__(item)
+        """
+        return super(Attribute, self).__getattr__(item)
 
 
 DISPLAY_KWARGS = {cfg.ATTRIBUTE: cfg.ENUM,

@@ -4,7 +4,7 @@ from limb import Limb
 
 
 class Digit(Limb):
-    BUILT_IN_META_DATA = MetaData.merge_dicts({"name": "finger"}, Limb.BUILT_IN_META_DATA)
+    BUILT_IN_NAME = MetaData({"name": "finger"}, Limb.BUILT_IN_NAME)
 
     def __init__(self, *args, **kwargs):
         """ General class for the digit of a Plantigrade animal.  Assumes X axis is down.
