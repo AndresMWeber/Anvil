@@ -34,7 +34,7 @@ class AbstractGrouping(object):
         self.build_kwargs = MetaData(kwargs)
         self.name_tokens = self.BUILT_IN_NAME
         self.meta_data = self.BUILT_IN_META_DATA
-        
+
         self._nomenclate = nomenclate.Nom(self.name_tokens.data)
         self.chain_nomenclate = nomenclate.Nom()
 
@@ -53,10 +53,8 @@ class AbstractGrouping(object):
         self.build_kwargs.merge(kwargs)
         self.meta_data.merge(meta_data)
         self.name_tokens.merge(name_tokens)
-        anvil.LOG.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s' % (self.__class__.__name__,
-                                                                                   self.meta_data,
-                                                                                   self.build_kwargs,
-                                                                                   self.layout_joints))
+        _ = (self.__class__.__name__, self.meta_data, self.build_kwargs, self.layout_joints)
+        anvil.LOG.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s' % _)
 
     def build_layout(self):
         raise NotImplementedError
@@ -77,6 +75,7 @@ class AbstractGrouping(object):
                 target_group.overrideEnabled.set(1)
                 rendering_attribute.connect(target_group.visibility, force=True)
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
+        self.LOG.info('Display attributes connected to %s' % assignee)
 
     def initialize_sub_rig_attributes(self, controller=None, attr_dict=None):
         attr_dict = self.BUILT_IN_ATTRIBUTES if attr_dict is None else attr_dict
@@ -106,20 +105,19 @@ class AbstractGrouping(object):
                 variation_kwargs = {'decorator': 'End'}
             rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
 
-    def rename(self, *input_dicts, **name_tokens):
-        self.LOG.debug('Renaming %r...' % (self))
+    @cls_merge_name_tokens_and_meta_data()
+    def rename(self, *input_dicts, **kwargs):
+        self.name_tokens.merge(*input_dicts, **kwargs)
+        self._nomenclate.merge_dict(**self.name_tokens.data)
+        self.LOG.info('Renaming %r...with name tokens %s' % (self, self.name_tokens))
         self._cascading_function(lambda n: n.rename(self._nomenclate.get(**n.name_tokens.copy_dict_as_strings())),
-                                 lambda n: n.rename(self.name_tokens + n.name_tokens),
-                                 name_tokens=MetaData(*input_dicts, **name_tokens))
+                                 lambda n: n.rename(self.name_tokens, n.name_tokens))
 
-    def build_node(self, node_class, node_key, build_fn='build', name_tokens=None, meta_data=None, *args, **kwargs):
-        log_tuple = (self, node_key, node_class, name_tokens, meta_data, kwargs)
-        self.LOG.info('build_node %r.%s = %s(name_tokens=%s, meta_data=%s, flags=%s)' % log_tuple)
-
-        dag_node = getattr(node_class, build_fn)(meta_data=self.meta_data + meta_data,
-                                                 name_tokens=self.name_tokens + name_tokens,
-                                                 *args,
-                                                 **kwargs)
+    def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
+        kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
+        kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
+        self.LOG.info('build_node %r.%s = %s(%s)...parent name tokens: %s' % (self, node_key, node_class, kwargs, self.name_tokens))
+        dag_node = getattr(node_class, build_fn)(*args, **kwargs)
         self.register_node(node_key, dag_node)
         return dag_node
 
@@ -142,7 +140,7 @@ class AbstractGrouping(object):
 
     def auto_color(self, *args, **kwargs):
         auto_colorer = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
-        self._cascading_function(auto_colorer, auto_colorer, *args, **kwargs)
+        self._cascading_function(auto_colorer, auto_colorer)
 
     def find_node(self, node_key):
         try:
@@ -150,17 +148,15 @@ class AbstractGrouping(object):
         except:
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
 
-    def _cascading_function(self, object_function, grouping_function, name_tokens=None, *args, **kwargs):
-        self.meta_data.merge(*args, **kwargs)
-        self.name_tokens.merge(name_tokens)
-        self._nomenclate.merge_dict(**self.name_tokens.data)
-
+    def _cascading_function(self, object_function, grouping_function):
         for sub_node_key, sub_node in iteritems(self.hierarchy):
+            log_tuple = (sub_node, sub_node.name_tokens, self.name_tokens)
+            self.LOG.info('Renaming sub_node %r based on tokens %s with parent tokens %s' % log_tuple)
             if anvil.is_agrouping(sub_node):
                 grouping_function(sub_node)
-
             elif anvil.is_aobject(sub_node):
                 object_function(sub_node)
+            self.LOG.info('Renamed sub_node to %s based on tokens %s with parent tokens %s' % log_tuple)
 
     def __getattr__(self, item):
         try:

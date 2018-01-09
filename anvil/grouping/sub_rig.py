@@ -49,20 +49,18 @@ class SubRig(base.AbstractGrouping):
         """ Point constraint to the two base positions, aim constrain to the other objects
             Delete constraints then move the control outside of the reference transforms in the aim direction.
         """
-        meta_data = MetaData(self.meta_data, meta_data)
-        name_tokens = MetaData(self.name_tokens, name_tokens)
-
         mid_joint = joints[len(joints) / 2]
 
-        kwargs.update({'move_by': move_by, 'parent': self.group_controls,
-                       'up_vector': up_vector, 'aim_vector': aim_vector, 'up_object': up_object})
+        kwargs.update({cfg.NAME_TOKENS: MetaData(self.name_tokens, name_tokens),
+                       cfg.META_DATA: MetaData(self.meta_data, meta_data),
+                       'move_by': move_by,
+                       'parent': self.group_controls,
+                       'up_vector': up_vector,
+                       'aim_vector': aim_vector,
+                       'up_object': up_object})
 
-        control = Control.build_pole_vector(joints, ik_handle, meta_data=meta_data, name_tokens=name_tokens, **kwargs)
-        pv_line, clusters = Curve.build_line_indicator(mid_joint, control.control,
-                                                       meta_data=meta_data,
-                                                       name_tokens=name_tokens,
-                                                       **kwargs)
-
+        control = Control.build_pole_vector(joints, ik_handle, **kwargs)
+        pv_line, clusters = Curve.build_line_indicator(mid_joint, control.control, **kwargs)
         self.register_node(node_key, control)
         self.register_node(node_key + '_line', pv_line)
         for cluster in clusters + [pv_line]:

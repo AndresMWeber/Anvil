@@ -5,8 +5,8 @@ import anvil.config as cfg
 import anvil.runtime as rt
 import transform
 import io
+from anvil.meta_data import MetaData
 from six import iteritems
-from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 
 
 class Curve(transform.Transform):
@@ -34,7 +34,7 @@ class Curve(transform.Transform):
     @classmethod
     def build_line_indicator(cls, object1, object2, **kwargs):
         kwargs[cfg.DEGREE] = 1
-        kwargs[cfg.NAME_TOKENS] = kwargs.get(cfg.NAME_TOKENS, {})
+        kwargs[cfg.NAME_TOKENS] = MetaData(kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.NAME_TOKENS].update({cfg.NAME: '%s_to_%s' % (object1, object2), cfg.TYPE: cfg.CURVE_TYPE})
         curve = cls.build_from_objects([object1, object2], **kwargs)
         object1_cluster, object2_cluster = curve.generate_clusters()

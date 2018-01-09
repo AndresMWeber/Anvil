@@ -29,7 +29,6 @@ class DagNode(unicode_delegate.UnicodeDelegate):
         self.attr(attribute_source).connect(at.Attribute(attribute_destination), **kwargs)
 
     def colorize(self, rgb_or_index):
-        self.LOG.error('%s' % repr(self.attr(cfg.OVERRIDE_ENABLED)))
         self.attr(cfg.OVERRIDE_ENABLED).set(True)
 
         if isinstance(rgb_or_index, int):

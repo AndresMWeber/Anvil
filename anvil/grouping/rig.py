@@ -56,6 +56,8 @@ class Rig(base.AbstractGrouping):
         :param sub_rig_key: str, key to store the sub rig under on the rig.
         :param sub_rig_candidate: anvil.sub_rig, a class that inherits from anvil.sub_rig.
         """
+        kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
+        kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
             self.LOG.info('Registering %s.[%s] = %s(%s)' % (self, sub_rig_key, sub_rig_candidate.__name__, kwargs))
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)

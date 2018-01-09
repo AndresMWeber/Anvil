@@ -48,7 +48,7 @@ class TestControlRename(TestBaseControl):
 
     def test_dict_input(self):
         self.rename_runner({'control': 'larry_CTR', 'offset_group': 'larry_OGP', 'connection_group': 'larry_CGP'},
-                           {'name': 'larry', 'type': 'group'})
+                           {'name': 'larry', 't ype': 'group'})
 
     def test_dict_input_extra(self):
         self.rename_runner({'control': 'maybe_CTR', 'offset_group': 'maybe_OGP', 'connection_group': 'maybe_CGP'},
@@ -93,4 +93,5 @@ class TestControlRename(TestBaseControl):
         self.rename_runner({'control': 'john_position_CTR',
                             'offset_group': 'john_position_OGP',
                             'connection_group': 'john_position_CGP'},
-                           {'name': 'john'}, {'childtype': 'position'})
+                           {'name': 'john'},
+                           {'childtype': 'position'})

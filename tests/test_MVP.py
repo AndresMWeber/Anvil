@@ -11,13 +11,11 @@ class TestBaseRig(TestBase):
     @classmethod
     def build_dependencies(cls):
         super(TestBaseRig, cls).build_dependencies()
-        test_rig = nt.Rig(meta_data=cls.name_tokens)
-        sub_rig = test_rig.register_sub_rig('eyeball', meta_data={'name': 'eyeball'})
+        test_rig = nt.Rig(name_tokens=cls.name_tokens)
+        sub_rig = test_rig.register_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
         test_rig.build()
-        sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints, meta_data=cls.name_tokens)
-        sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, meta_data=cls.name_tokens,
-                           shape='sphere')
-
+        sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints)
+        sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, shape='sphere')
         anvil.runtime.dcc.connections.parent(sub_rig.joint_eye, sub_rig.control_eye.connection_group)
         test_rig.rename()
         cls.test_sub_rig = sub_rig

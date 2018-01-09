@@ -1,9 +1,13 @@
 from six import string_types, iteritems
 from functools import wraps
 import config as cfg
+import log
+
+LOG = log.obtainLogger(__name__)
 
 
 class MetaData(object):
+
     def __init__(self, *input_dicts, **meta_data_kwargs):
         self.protected_fields = self._cast_input_to_list(meta_data_kwargs.pop('protected_fields', None))
         self.data = self.merge_dicts(*input_dicts, **meta_data_kwargs)
@@ -35,9 +39,7 @@ class MetaData(object):
         keep_originals = self._cast_input_to_list(input_kwargs.pop('keep_originals', False))
         if keep_originals:
             ignore_keys = ignore_keys + list(self.data)
-        self.data.update(self.merge_dicts(ignore_keys=ignore_keys,
-                                          *input_dicts,
-                                          **input_kwargs))
+        self.data.update(self.merge_dicts(ignore_keys=ignore_keys, *input_dicts, **input_kwargs))
         return self.data
 
     def serialize(self, ignore_keys=None):
@@ -56,6 +58,9 @@ class MetaData(object):
             except:
                 pass
         return data
+
+    def update(self, other):
+        self.merge(other)
 
     @staticmethod
     def _cast_input_to_list(string_or_none_or_list):
@@ -137,27 +142,24 @@ def cls_merge_name_tokens_and_meta_data(pre=True):
     def outer(function):
         @wraps(function)
         def inner(cls_or_self, *args, **kwargs):
-            name_tokens = kwargs.pop(cfg.NAME_TOKENS, {})
-            meta_data = kwargs.pop(cfg.NAME_TOKENS, {})
-
             for meta_attr in [cfg.META_DATA, cfg.NAME_TOKENS]:
                 if not hasattr(cls_or_self, meta_attr):
                     setattr(cls_or_self, meta_attr, MetaData())
+
+            name_tokens = kwargs.pop(cfg.NAME_TOKENS, {})
+            meta_data = kwargs.pop(cfg.META_DATA, {})
 
             if pre:
                 cls_or_self.name_tokens.merge(name_tokens)
                 cls_or_self.meta_data.merge(meta_data)
 
             function_result = function(cls_or_self, *args, **kwargs)
-            '''
-            if args:
-            else:
-                function_result = function(cls_or_self, **kwargs)
-            '''
+
             if not pre:
                 cls_or_self.name_tokens.merge(name_tokens)
                 cls_or_self.meta_data.merge(meta_data)
-
+            LOG.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s' % (
+            cls_or_self, name_tokens, meta_data, pre))
             return function_result
 
         return inner

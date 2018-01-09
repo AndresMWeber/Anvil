@@ -61,7 +61,10 @@ class TestBase(unittest2.TestCase):
         cls.LOG.info('Deleting objects %s' % objects)
         for object in objects:
             if anvil.runtime.dcc.scene.exists(object):
-                anvil.runtime.dcc.scene.delete(object, hierarchy=True)
+                try:
+                    anvil.runtime.dcc.scene.delete(object, hierarchy=True)
+                except ValueError:
+                    anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object+'*'), hierarchy=True)
 
     @classmethod
     def deep_sort(cls, obj):

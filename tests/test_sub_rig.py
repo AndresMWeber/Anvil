@@ -43,6 +43,7 @@ class TestSubRigBuild(TestBaseSubRig):
         sub_rig.build(parent=parent)
         self.assertEquals(sub_rig.root.getParent(), parent)
 
+
 class TestSubRigBuildPoleVector(TestBase):
     def build_dependencies(cls):
         cls.sub_rig = nt.SubRig()
@@ -58,3 +59,79 @@ class TestSubRigBuildPoleVector(TestBase):
     @TestBase.delete_created_nodes
     def test_build(self):
         self.sub_rig.build_pole_vector_control(self.joint_chain, self.handle)
+
+
+class TestSubRigNameTokensIntact(TestBase):
+    @TestBase.delete_created_nodes
+    def test_register_previously_created_with_name_tokens(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build()
+        b = nt.Joint.build(name_tokens={'name': 'bob'})
+        self.sub_rig.register_node('test', b, name_tokens=None)
+        self.assertDictEqual(b.name_tokens, {'name': 'bob'})
+        self.assertDictEqual(b.meta_data, {})
+
+    @TestBase.delete_created_nodes
+    def test_register_previously_created_with_name_tokens_overwrite(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build()
+        b = nt.Joint.build(name_tokens={'name': 'bob'})
+        self.sub_rig.register_node('test', b, name_tokens={'name': 'silvia'})
+        self.assertDictEqual(b.name_tokens, {'name': 'silvia'})
+        self.assertDictEqual(b.meta_data, {})
+
+    @TestBase.delete_created_nodes
+    def test_register_previously_created_add_name_tokens(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build()
+        b = nt.Joint.build()
+        self.sub_rig.register_node('test', b, name_tokens={'name': 'silvia'})
+        self.assertDictEqual(b.name_tokens, {'name': 'silvia'})
+
+    @TestBase.delete_created_nodes
+    def test_build_with_sub_rig_init_name_tokens_and_build_name_tokens(self):
+        self.sub_rig = nt.SubRig(name_tokens={'name': 'silvia'})
+        self.sub_rig.build()
+        self.sub_rig.build_node(nt.Joint, 'test', name_tokens={'blah': 'meta'})
+        self.assertDictEqual(self.sub_rig.test.name_tokens, {'name': 'silvia', 'blah': 'meta'})
+
+    @TestBase.delete_created_nodes
+    def test_build_with_sub_rig_previous_name_tokens(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build(name_tokens={'name': 'silvia'})
+        self.sub_rig.build_node(nt.Joint, 'test')
+        self.assertDictEqual(self.sub_rig.test.name_tokens, {'name': 'silvia'})
+
+    @TestBase.delete_created_nodes
+    def test_build_with_sub_rig_previous_name_tokens_and_build_name_tokens(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build(name_tokens={'name': 'silvia'})
+        self.sub_rig.build_node(nt.Joint, 'test', name_tokens={'blah': 'meta'})
+        self.assertDictEqual(self.sub_rig.test.name_tokens, {'name': 'silvia', 'blah': 'meta'})
+
+    @TestBase.delete_created_nodes
+    def test_build_add_name_tokens(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build()
+        self.sub_rig.build_node(nt.Joint, 'test', name_tokens={'name': 'silvia'}, meta_data=None)
+        self.assertDictEqual(self.sub_rig.test.name_tokens, {'name': 'silvia'})
+
+
+class TestSubRigMetaDataIntact(TestBase):
+    @TestBase.delete_created_nodes
+    def test_register_previously_created_with_meta_data(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build()
+        b = nt.Joint.build(meta_data={'name': 'bob'})
+        self.sub_rig.register_node('test', b, meta_data=None)
+        self.assertDictEqual(b.meta_data, {'name': 'bob'})
+        self.assertDictEqual(b.name_tokens, {})
+
+    @TestBase.delete_created_nodes
+    def test_register_previously_created_with_meta_data_overwrite(self):
+        self.sub_rig = nt.SubRig()
+        self.sub_rig.build()
+        b = nt.Joint.build(meta_data={'name': 'bob'})
+        self.sub_rig.register_node('test', b, meta_data={'name': 'silvia'})
+        self.assertDictEqual(b.meta_data, {'name': 'silvia'})
+        self.assertDictEqual(b.name_tokens, {})

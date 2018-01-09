@@ -21,8 +21,8 @@ class Control(base.AbstractGrouping):
         self.register_node(cfg.CONNECTION_GROUP, connection_group)
 
     @classmethod
-    def build(cls, reference_object=None, name_tokens=None, parent=None, **kwargs):
-        name_tokens = MetaData(name_tokens)
+    def build(cls, reference_object=None, parent=None, **kwargs):
+        name_tokens = MetaData(kwargs.pop(cfg.NAME_TOKENS, {}))
         instance = cls(
             ob.Curve.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
             ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
