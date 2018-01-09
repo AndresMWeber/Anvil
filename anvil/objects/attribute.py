@@ -230,25 +230,31 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         return super(Attribute, self).__getattr__(item)
 
 
-DISPLAY_KWARGS = {cfg.ATTRIBUTE: cfg.ENUM,
+DISPLAY_KWARGS = {cfg.ATTRIBUTE_TYPE: cfg.ENUM,
                   cfg.ENUM_NAME: cfg.DISPLAY_ENUM,
                   cfg.KEYABLE: True,
                   cfg.DEFAULT_VALUE: 0}
 
-PM_1_KWARGS = {cfg.ATTRIBUTE: cfg.FLOAT,
+PM_1_KWARGS = {cfg.ATTRIBUTE_TYPE: cfg.FLOAT,
                cfg.KEYABLE: True,
                cfg.MIN_VALUE: -1,
                cfg.MAX_VALUE: 1,
                cfg.DEFAULT_VALUE: 0}
 
-PM_10_KWARGS = {cfg.ATTRIBUTE: cfg.FLOAT,
+PM_10_KWARGS = {cfg.ATTRIBUTE_TYPE: cfg.FLOAT,
                 cfg.KEYABLE: True,
                 cfg.MIN_VALUE: -10,
                 cfg.MAX_VALUE: 10,
                 cfg.DEFAULT_VALUE: 0}
 
-RANGE_10_KWARGS = {cfg.ATTRIBUTE: cfg.FLOAT,
+RANGE_10_KWARGS = {cfg.ATTRIBUTE_TYPE: cfg.FLOAT,
                    cfg.KEYABLE: True,
                    cfg.MIN_VALUE: 0,
                    cfg.MAX_VALUE: 10,
                    cfg.DEFAULT_VALUE: 0}
+
+ZERO_TO_ONE_KWARGS = {cfg.ATTRIBUTE_TYPE: cfg.FLOAT,
+                      cfg.MIN_VALUE: 0,
+                      cfg.MAX_VALUE: 1,
+                      cfg.DEFAULT_VALUE: 0,
+                      cfg.KEYABLE: True}

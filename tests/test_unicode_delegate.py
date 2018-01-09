@@ -10,12 +10,12 @@ class TestBaseUnicodeDelegate(TestBase):
 class TestUnicodeDelegateBuild(TestBaseUnicodeDelegate):
     @TestBase.delete_created_nodes
     def test_empty_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, None)
+        self.assertRaises(NotImplementedError, nt.DagNode.build)
 
     @TestBase.delete_created_nodes
     def test_full_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, None)
+        self.assertRaises(NotImplementedError, nt.DagNode.build)
 
     @TestBase.delete_created_nodes
     def test_partial_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, None)
+        self.assertRaises(NotImplementedError, nt.DagNode.build)

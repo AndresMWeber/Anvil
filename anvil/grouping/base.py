@@ -16,7 +16,7 @@ class AbstractGrouping(object):
     LOG = anvil.log.obtainLogger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
     BUILT_IN_META_DATA = MetaData()
-    BUILT_IN_NAME = MetaData({cfg.TYPE: ANVIL_TYPE})
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'})
     BUILT_IN_ATTRIBUTES = MetaData({})
     RENDERING_ATTRIBUTES = MetaData({
         '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,
@@ -32,7 +32,7 @@ class AbstractGrouping(object):
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_kwargs = MetaData(kwargs)
-        self.name_tokens = self.BUILT_IN_NAME
+        self.name_tokens = self.BUILT_IN_NAME_TOKENS
         self.meta_data = self.BUILT_IN_META_DATA
 
         self._nomenclate = nomenclate.Nom(self.name_tokens.data)
@@ -116,7 +116,8 @@ class AbstractGrouping(object):
     def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
         kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
-        self.LOG.info('build_node %r.%s = %s(%s)...parent name tokens: %s' % (self, node_key, node_class, kwargs, self.name_tokens))
+        _ = (self, node_key, node_class, kwargs, self.name_tokens)
+        self.LOG.info('Grouping %r is building node: %s = %s(%s)...parent name tokens: %s' % _)
         dag_node = getattr(node_class, build_fn)(*args, **kwargs)
         self.register_node(node_key, dag_node)
         return dag_node
@@ -173,5 +174,6 @@ class AbstractGrouping(object):
             return super(AbstractGrouping, self).__str__()
 
     def __repr__(self):
-        formatted_properties = ' root=%s children=%d>' % (self.root, len(list(self.hierarchy)))
+        _ = (self.root, len(list(self.hierarchy)), self.meta_data, self.name_tokens)
+        formatted_properties = ' root=%s children=%d meta_data=%s name_tokens=%s>' % _
         return super(AbstractGrouping, self).__repr__().replace('>', formatted_properties)

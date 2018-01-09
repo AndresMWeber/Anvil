@@ -30,12 +30,19 @@ LOWER = 'lower'
 RIG_FORMAT = 'character_rig_subrig_side_location_nameDecoratorVar_childtype_purpose_type'
 DISPLAY_ENUM = 'off:on:template:reference'
 
+# COMPLEX TYPES
+RIG_TYPE = 'rig'
+SUB_RIG_TYPE = 'sub_rig'
+CONTROL_TYPE = 'control'
+HIERARCHY_TYPE = 'hierarchy'
+
 # RIG CONCEPTS
-RIG = 'rig'
-SUB_RIG = 'sub_rig'
 SUBRIG = 'subrig'
 NAME_TOKENS = 'name_tokens'
 META_DATA= 'meta_data'
+UNIVERSAL = 'universal'
+TOP_GROUP = 'group_top'
+UNIVERSAL_CONTROL = '%s_%s' % (CONTROL_TYPE, UNIVERSAL)
 ARM = 'arm'
 LEG = 'leg'
 HAND = 'hand'
@@ -53,13 +60,9 @@ OFFSET_GROUP = 'offset_group'
 CONNECTION_GROUP = 'connection_group'
 QUERY = 'query'
 
-# COMPLEX TYPES
-CONTROL_TYPE = 'control'
-HIERARCHY_TYPE = 'hierarchy'
-meta_data_TYPE = 'meta_data'
 
 # DATA TYPES
-ATTRIBUTE = 'attributeType'
+ATTRIBUTE_TYPE = 'attributeType'
 DEFAULT_VALUE = 'defaultValue'
 FLOAT = 'double'
 INTEGER = 'integer'

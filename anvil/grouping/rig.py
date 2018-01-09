@@ -5,7 +5,7 @@ from anvil.meta_data import MetaData, cls_merge_name_tokens_and_meta_data
 import anvil.config as cfg
 import anvil.objects as ot
 import sub_rig
-import control
+import control as ct
 import inspect
 from collections import OrderedDict
 
@@ -15,15 +15,18 @@ class Rig(base.AbstractGrouping):
         require it to give a performance.  A collection of SubRig(s)
     """
     LOG = anvil.log.obtainLogger(__name__)
-    BUILT_IN_NAME = MetaData({cfg.RIG: cfg.RIG}, base.AbstractGrouping.BUILT_IN_NAME)
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.RIG_TYPE: cfg.RIG_TYPE}, base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []
     SUB_GROUPINGS = ['extras', 'model', 'sub_rigs']
 
+    ROOT_NAME_TOKENS = {cfg.RIG_TYPE: cfg.RIG_TYPE, cfg.TYPE: cfg.GROUP_TYPE}
+    UNIV_NAME_TOKENS = {cfg.CHILD_TYPE: cfg.UNIVERSAL}
+
     def __init__(self, character_name=None, sub_rig_dict=None, **kwargs):
         super(Rig, self).__init__(**kwargs)
-        self.name_tokens[cfg.CHARACTER] = character_name or 'robert'
+        self.name_tokens[cfg.CHARACTER] = character_name or 'untitled'
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
         self.register_sub_rigs_from_dict(sub_rig_dict)
 
@@ -75,37 +78,29 @@ class Rig(base.AbstractGrouping):
         for key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.auto_color()
 
-    @cls_merge_name_tokens_and_meta_data()
-    def build(self, parent=None, **kwargs):
+    @cls_merge_name_tokens_and_meta_data(pre=True)
+    def build(self, parent=None, name_tokens=None, **kwargs):
         anvil.LOG.info('Building rig %r' % self)
-        if not self.root:
-            self.build_node(ot.Transform,
-                            'group_top',
-                            name_tokens={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE},
-                            **kwargs)
 
-        self.build_node(control.Control,
-                        '%s_universal' % cfg.CONTROL_TYPE,
-                        parent=self.group_top,
-                        shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
-                        scale=5,
-                        name_tokens={cfg.CHILD_TYPE: 'universal'})
+        if not self.root:
+            self.build_node(ot.Transform, cfg.TOP_GROUP, name_tokens=self.ROOT_NAME_TOKENS, **kwargs)
+
+        self.build_node(ct.Control, cfg.UNIVERSAL_CONTROL, parent=self.group_top, shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
+                        scale=5, name_tokens=self.UNIV_NAME_TOKENS, **kwargs)
 
         for main_group_type in self.SUB_GROUPINGS:
             group_name = '%s_%s' % (cfg.GROUP_TYPE, main_group_type)
-            self.build_node(ot.Transform,
-                            group_name,
-                            parent=self.control_universal.connection_group,
+            self.build_node(ot.Transform, group_name, parent=getattr(self.control_universal, cfg.CONNECTION_GROUP),
                             name_tokens={cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE})
 
         self.root = self.group_top
+
         anvil.LOG.info('Building sub rigs on rig %r(%d): %s' % (self, len(list(self.sub_rigs)), list(self.sub_rigs)))
         self.build_sub_rigs()
         self.initialize_sub_rig_attributes(self.control_universal.control)
         self.connect_rendering_delegate(self.control_universal.control)
 
-        if parent:
-            self.parent(parent)
+        self.parent(parent)
         self.rename()
         self.auto_color()
 

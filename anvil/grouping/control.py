@@ -1,4 +1,4 @@
-from anvil.meta_data import MetaData
+from anvil.meta_data import MetaData, cls_merge_name_tokens_and_meta_data
 import anvil.config as cfg
 import anvil.objects as ob
 import anvil.runtime as rt
@@ -21,37 +21,36 @@ class Control(base.AbstractGrouping):
         self.register_node(cfg.CONNECTION_GROUP, connection_group)
 
     @classmethod
-    def build(cls, reference_object=None, parent=None, **kwargs):
-        name_tokens = MetaData(kwargs.pop(cfg.NAME_TOKENS, {}))
+    @cls_merge_name_tokens_and_meta_data(pre=True)
+    def build(cls, reference_object=None, parent=None, name_tokens=None, **kwargs):
+        name_tokens = MetaData(name_tokens)
         instance = cls(
             ob.Curve.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
             ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
             ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
-            name_tokens=name_tokens,
             **kwargs)
         instance.build_layout()
         instance.match_position(reference_object)
-        if parent:
-            instance.parent(parent)
+        instance.parent(parent)
         return instance
 
     @classmethod
     def build_pole_vector(cls, joints, ik_handle,
-                          up_vector=None, aim_vector=None, up_object=None, move_by=None,**kwargs):
+                          up_vector=None, aim_vector=None, up_object=None, move_by=None, **kwargs):
         joints = gc.to_list(joints)
-        start = joints[0]
-        end = joints[-1]
+        start, end = joints[0], joints[-1]
 
         control = cls.build(**kwargs)
-        control.offset_group.match_position([start, end])
-        control.offset_group.aim_at(joints,
-                                    aim_vector=aim_vector or cls.PV_AIM_DEFAULT,
-                                    up_vector=up_vector or cls.PV_UP_DEFAULT,
-                                    up_object=up_object or start)
-        control.offset_group.translate_node(move_by or cls.PV_MOVE_DEFAULT, **cls.LOCAL_MOVE_KWARGS.data)
-        control.offset_group.rotate.set([0, 0, 0])
+        offset = getattr(control, cfg.OFFSET_GROUP)
+        offset.match_position([start, end])
+        offset.aim_at(joints,
+                      aim_vector=aim_vector or cls.PV_AIM_DEFAULT,
+                      up_vector=up_vector or cls.PV_UP_DEFAULT,
+                      up_object=up_object or start)
+        offset.translate_node(move_by or cls.PV_MOVE_DEFAULT, **cls.LOCAL_MOVE_KWARGS.data)
+        offset.rotate.set([0, 0, 0])
 
-        rt.dcc.connections.pole_vector(control.connection_group, ik_handle)
+        rt.dcc.connections.pole_vector(getattr(control, cfg.CONNECTION_GROUP), ik_handle)
         return control
 
     def match_position(self, reference_object):
@@ -61,8 +60,8 @@ class Control(base.AbstractGrouping):
             self.control.match_transform(reference_object)
 
     def build_layout(self):
-        rt.dcc.scene.parent(self.control, self.offset_group)
-        rt.dcc.scene.parent(self.connection_group, self.control)
+        rt.dcc.scene.parent(getattr(self, cfg.CONTROL_TYPE), getattr(self, cfg.OFFSET_GROUP))
+        rt.dcc.scene.parent(getattr(self, cfg.CONNECTION_GROUP), getattr(self, cfg.CONTROL_TYPE))
 
     def colorize(self, rgb_or_index):
         self.control.colorize(rgb_or_index)

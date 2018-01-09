@@ -9,19 +9,16 @@ from anvil.meta_data import MetaData
 
 
 class SubRig(base.AbstractGrouping):
-    BUILT_IN_NAME = MetaData({cfg.SUBRIG: cfg.SUBRIG}, base.AbstractGrouping.BUILT_IN_NAME)
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.SUBRIG: cfg.SUBRIG}, base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     LOG = lg.obtainLogger(__name__)
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
-
-    def __init__(self, *args, **kwargs):
-        super(SubRig, self).__init__(*args, **kwargs)
 
     def build(self, parent=None, **kwargs):
         super(SubRig, self).build(**kwargs)
         if self.root is None:
             self.build_node(Transform, '%s_%s' % (cfg.GROUP_TYPE, 'top'),
                             meta_data=self.meta_data,
-                            name_tokens=self.name_tokens + {cfg.RIG: cfg.SUB_RIG, cfg.TYPE: cfg.GROUP_TYPE},
+                            name_tokens=self.name_tokens + {cfg.RIG_TYPE: cfg.SUB_RIG_TYPE, cfg.TYPE: cfg.GROUP_TYPE},
                             **self.build_kwargs)
             self.root = self.group_top
 

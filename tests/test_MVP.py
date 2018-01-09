@@ -1,5 +1,6 @@
 from six import iteritems
 import anvil
+import anvil.config as cfg
 import anvil.node_types as nt
 from base_test import TestBase
 
@@ -16,7 +17,7 @@ class TestBaseRig(TestBase):
         test_rig.build()
         sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints)
         sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, shape='sphere')
-        anvil.runtime.dcc.connections.parent(sub_rig.joint_eye, sub_rig.control_eye.connection_group)
+        anvil.runtime.dcc.connections.parent(sub_rig.joint_eye, getattr(sub_rig.control_eye, cfg.CONNECTION_GROUP))
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig

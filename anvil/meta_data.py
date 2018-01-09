@@ -146,20 +146,21 @@ def cls_merge_name_tokens_and_meta_data(pre=True):
                 if not hasattr(cls_or_self, meta_attr):
                     setattr(cls_or_self, meta_attr, MetaData())
 
-            name_tokens = kwargs.pop(cfg.NAME_TOKENS, {})
-            meta_data = kwargs.pop(cfg.META_DATA, {})
+            name_tokens = MetaData(kwargs.pop(cfg.NAME_TOKENS, {}))
+            meta_data = MetaData(kwargs.pop(cfg.META_DATA, {}))
 
             if pre:
-                cls_or_self.name_tokens.merge(name_tokens)
-                cls_or_self.meta_data.merge(meta_data)
+                kwargs[cfg.NAME_TOKENS] = name_tokens + getattr(cls_or_self, cfg.NAME_TOKENS)
+                kwargs[cfg.META_DATA] = meta_data + getattr(cls_or_self, cfg.META_DATA)
 
             function_result = function(cls_or_self, *args, **kwargs)
 
             if not pre:
                 cls_or_self.name_tokens.merge(name_tokens)
                 cls_or_self.meta_data.merge(meta_data)
-            LOG.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s' % (
-            cls_or_self, name_tokens, meta_data, pre))
+
+            _ = (cls_or_self, name_tokens, meta_data, pre)
+            LOG.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s' % _)
             return function_result
 
         return inner

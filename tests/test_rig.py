@@ -18,13 +18,13 @@ class TestRigRename(TestBaseRig):
     def test_default_names(self):
         test_rig = nt.Rig()
         test_rig.build()
-        print(test_rig.group_top)
-        print(test_rig.control_universal)
-        print(test_rig.control_universal.control)
-        print(test_rig.control_universal.connection_group)
-        print(test_rig.control_universal.offset_group)
+        self.assertEqual(str(test_rig.group_top), "untitled_rig_GRP")
+        self.assertEqual(str(test_rig.control), "untitled_universal_rig_CTR")
+        self.assertEqual(str(test_rig.connection_group), "untitled_universal_rig_CGP")
+        self.assertEqual(str(test_rig.offset_group), "untitled_universal_rig_OGP")
+        self.assertEqual(str(test_rig.control_universal), str(test_rig.control_universal.offset_group))
         for node in test_rig.SUB_GROUPINGS:
-            print(getattr('%s_%s' % (cfg.GROUP_TYPE, node)))
+            print(node, getattr('%s_%s' % (cfg.GROUP_TYPE, node)))
         """
         self.build_node(ot.Transform,
                         'group_top',

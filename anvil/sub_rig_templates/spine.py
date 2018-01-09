@@ -1,13 +1,11 @@
 from base import SubRigTemplate
 import anvil.node_types as nt
-import anvil.runtime as rt
+from anvil.meta_data import MetaData
+import anvil.config as cfg
 
 
 class Spine(SubRigTemplate):
-    BUILT_IN_META_DATA = {'name': 'spine'}
-
-    def __init__(self, *args, **kwargs):
-        super(Spine, self).__init__(*args, **kwargs)
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.SUBRIG: cfg.SUBRIG}, SubRigTemplate.BUILT_IN_NAME_TOKENS)
 
     def build(self, parent=None, meta_data=None, **kwargs):
         if len(self.layout_joints) < 4:

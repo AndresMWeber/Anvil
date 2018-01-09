@@ -4,7 +4,7 @@ from limb import Limb
 
 
 class Digit(Limb):
-    BUILT_IN_NAME = MetaData({"name": "finger"}, Limb.BUILT_IN_NAME)
+    BUILT_IN_NAME_TOKENS = MetaData({"name": "finger"}, Limb.BUILT_IN_NAME_TOKENS)
 
     def __init__(self, *args, **kwargs):
         """ General class for the digit of a Plantigrade animal.  Assumes X axis is down.
