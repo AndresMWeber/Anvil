@@ -6,7 +6,7 @@ import anvil.config as cfg
 
 
 class SubRigTemplate(nt.SubRig):
-    BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES + {cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS}
+    BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES.merge({cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS}, new=True)
 
     def __init__(self, *args, **kwargs):
         super(SubRigTemplate, self).__init__(*args, **kwargs)

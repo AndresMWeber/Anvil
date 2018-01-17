@@ -10,7 +10,7 @@ class MetaData(object):
 
     def __init__(self, *input_dicts, **meta_data_kwargs):
         self.protected_fields = self._cast_input_to_list(meta_data_kwargs.pop('protected_fields', None))
-        self.data = self.merge_dicts(*input_dicts, **meta_data_kwargs)
+        self.data = self.merge_dicts(*[d.data if isinstance(d, self.__class__) else d for d in input_dicts], **meta_data_kwargs)
 
     @staticmethod
     def merge_dicts(*input_dicts, **input_kwargs):
@@ -35,12 +35,16 @@ class MetaData(object):
         return data
 
     def merge(self, *input_dicts, **input_kwargs):
+        new = input_kwargs.pop('new', False)
         ignore_keys = self._cast_input_to_list(input_kwargs.pop('ignore_keys', None)) + self.protected_fields
         keep_originals = self._cast_input_to_list(input_kwargs.pop('keep_originals', False))
         if keep_originals:
             ignore_keys = ignore_keys + list(self.data)
-        self.data.update(self.merge_dicts(ignore_keys=ignore_keys, *input_dicts, **input_kwargs))
-        return self.data
+        if new:
+            return self.__class__(self.data, ignore_keys=ignore_keys, *input_dicts, **input_kwargs)
+        else:
+            self.data.update(self.merge_dicts(ignore_keys=ignore_keys, *input_dicts, **input_kwargs))
+            return self.data
 
     def serialize(self, ignore_keys=None):
         ignore_fields = self._cast_input_to_list(ignore_keys)
@@ -61,6 +65,7 @@ class MetaData(object):
 
     def update(self, other):
         self.merge(other)
+        return self
 
     @staticmethod
     def _cast_input_to_list(string_or_none_or_list):
@@ -160,7 +165,8 @@ def cls_merge_name_tokens_and_meta_data(pre=True):
                 cls_or_self.meta_data.merge(meta_data)
 
             _ = (cls_or_self, name_tokens, meta_data, pre)
-            LOG.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s' % _)
+            if not 'Attribute' in repr(cls_or_self):
+                LOG.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s' % _)
             return function_result
 
         return inner

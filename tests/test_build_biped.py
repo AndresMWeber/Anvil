@@ -54,3 +54,9 @@ class TestBuildBiped(TestBaseTemplateRigs):
             parent = nt.Transform.build(name='test')
             rig_instance = self.from_template_file(self.APOSE, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+
+    def test_sub_rigs(self):
+        with base_test.cleanup_nodes():
+            parent = nt.Transform.build(name='test')
+            rig_instance = self.from_template_file(self.APOSE, parent=parent)
+            print(rig_instance.sub_rigs)

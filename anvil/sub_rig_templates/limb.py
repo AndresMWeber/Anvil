@@ -3,7 +3,7 @@ import anvil.config as cfg
 
 
 class Limb(SubRigTemplate):
-    BUILT_IN_META_DATA = {'name': 'limb'}
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({'name': 'limb'}, new=True)
 
     def __init__(self, *args, **kwargs):
         super(Limb, self).__init__(*args, **kwargs)
@@ -13,7 +13,6 @@ class Limb(SubRigTemplate):
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **kwargs)
-        self.prep_joint_chain_for_rigging(self.layout_joints)
 
         # Build IK/FK chains from the initial layout joints
         if build_fk:

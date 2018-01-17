@@ -27,7 +27,7 @@ UPPER = 'upper'
 LOWER = 'lower'
 
 # NAME FORMATS
-RIG_FORMAT = 'character_rig_subrig_side_location_nameDecoratorVar_childtype_purpose_type'
+RIG_FORMAT = 'character_rig_side_location_nameDecoratorVar_childtype_purpose_type'
 DISPLAY_ENUM = 'off:on:template:reference'
 
 # COMPLEX TYPES

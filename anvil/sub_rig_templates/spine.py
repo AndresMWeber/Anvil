@@ -5,7 +5,7 @@ import anvil.config as cfg
 
 
 class Spine(SubRigTemplate):
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.SUBRIG: cfg.SUBRIG}, SubRigTemplate.BUILT_IN_NAME_TOKENS)
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({'name': 'spine'}, new=True)
 
     def build(self, parent=None, meta_data=None, **kwargs):
         if len(self.layout_joints) < 4:

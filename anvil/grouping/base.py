@@ -26,14 +26,16 @@ class AbstractGrouping(object):
         '%s' % cfg.LOD: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
     })
 
-    @cls_merge_name_tokens_and_meta_data(pre=False)
-    def __init__(self, layout_joints=None, parent=None, top_node=None, **kwargs):
+    def __init__(self, layout_joints=None, parent=None, top_node=None, name_tokens=None, meta_data=None, **kwargs):
         self.hierarchy = {}
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_kwargs = MetaData(kwargs)
-        self.name_tokens = self.BUILT_IN_NAME_TOKENS
-        self.meta_data = self.BUILT_IN_META_DATA
+        self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
+        self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
+
+        _ =(self, top_node, parent, self.name_tokens, self.meta_data, kwargs)
+        self.LOG.info('Processed: %r.__init__(top_node=%s, parent=%s, name_tokens=%s, meta_data=%s, kwargs=%s)' % _)
 
         self._nomenclate = nomenclate.Nom(self.name_tokens.data)
         self.chain_nomenclate = nomenclate.Nom()
@@ -43,7 +45,6 @@ class AbstractGrouping(object):
             namer.var.case = cfg.UPPER
 
         self.parent(parent)
-        self.LOG.info('%r.__init__(top_node=%s, parent=%s)' % (self, top_node, parent))
 
     @property
     def is_built(self):
@@ -105,7 +106,6 @@ class AbstractGrouping(object):
                 variation_kwargs = {'decorator': 'End'}
             rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
 
-    @cls_merge_name_tokens_and_meta_data()
     def rename(self, *input_dicts, **kwargs):
         self.name_tokens.merge(*input_dicts, **kwargs)
         self._nomenclate.merge_dict(**self.name_tokens.data)

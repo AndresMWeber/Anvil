@@ -7,6 +7,7 @@ import anvil.objects.attribute as at
 
 
 class Hand(SubRigTemplate):
+    BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({"name": "hand"}, new=True)
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
     BUILT_IN_ATTRIBUTES = {
         "curl_bias": at.PM_1_KWARGS,

@@ -9,34 +9,21 @@ class TestBaseRig(TestBase):
 
 class TestRigBuild(TestBaseRig):
     @TestBase.delete_created_nodes
-    def test_default(self):
-        # self.test_rig.hierarchy)
-        pass
+    def test_hierarchy_length(self):
+        test_rig = nt.Rig()
+        test_rig.build()
+        self.assertEqual(len(list(test_rig.hierarchy)), 5)
+
 
 class TestRigRename(TestBaseRig):
     @TestBase.delete_created_nodes
     def test_default_names(self):
         test_rig = nt.Rig()
         test_rig.build()
-        self.assertEqual(str(test_rig.group_top), "untitled_rig_GRP")
-        self.assertEqual(str(test_rig.control), "untitled_universal_rig_CTR")
-        self.assertEqual(str(test_rig.connection_group), "untitled_universal_rig_CGP")
-        self.assertEqual(str(test_rig.offset_group), "untitled_universal_rig_OGP")
-        self.assertEqual(str(test_rig.control_universal), str(test_rig.control_universal.offset_group))
+        self.assertEqual(str(test_rig.group_top), "rig_untitled_GRP")
+        self.assertEqual(str(test_rig.control_universal.control), "untitled_universal_CTR")
+        self.assertEqual(str(test_rig.control_universal.connection_group), "untitled_universal_CGP")
+        self.assertEqual(str(test_rig.control_universal.offset_group), "untitled_universal_OGP")
+
         for node in test_rig.SUB_GROUPINGS:
-            print(node, getattr('%s_%s' % (cfg.GROUP_TYPE, node)))
-        """
-        self.build_node(ot.Transform,
-                        'group_top',
-                        name_tokens={cfg.RIG: cfg.RIG, cfg.TYPE: cfg.GROUP_TYPE},
-                        **kwargs)
-
-        self.build_node(control.Control,
-                    '%s_universal' % cfg.CONTROL_TYPE,
-                    parent=self.group_top,
-                    shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
-                    scale=5,
-                    name_tokens={cfg.CHILD_TYPE: 'universal'})
-
-        name_tokens={cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE})
-        """
+            self.assertEqual(getattr(test_rig, '%s_%s' % (cfg.GROUP_TYPE, node)), 'untitled_%s_GRP' % node)

@@ -15,7 +15,7 @@ class Rig(base.AbstractGrouping):
         require it to give a performance.  A collection of SubRig(s)
     """
     LOG = anvil.log.obtainLogger(__name__)
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.RIG_TYPE: cfg.RIG_TYPE}, base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
+    BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []
@@ -24,10 +24,10 @@ class Rig(base.AbstractGrouping):
     ROOT_NAME_TOKENS = {cfg.RIG_TYPE: cfg.RIG_TYPE, cfg.TYPE: cfg.GROUP_TYPE}
     UNIV_NAME_TOKENS = {cfg.CHILD_TYPE: cfg.UNIVERSAL}
 
-    def __init__(self, character_name=None, sub_rig_dict=None, **kwargs):
-        super(Rig, self).__init__(**kwargs)
-        self.name_tokens[cfg.CHARACTER] = character_name or 'untitled'
+    def __init__(self, character=None, sub_rig_dict=None, *args, **kwargs):
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
+        super(Rig, self).__init__(*args, **kwargs)
+        self.name_tokens[cfg.CHARACTER] = character or self.name_tokens.get(cfg.CHARACTER, '')
         self.register_sub_rigs_from_dict(sub_rig_dict)
 
     def rename(self, *input_dicts, **name_tokens):
@@ -43,17 +43,21 @@ class Rig(base.AbstractGrouping):
         :param sub_rig_dict: dict, key must be in SUB_RIG_BUILD_TABLE and value must be dict or list of joints.
         """
         if sub_rig_dict is None or not isinstance(sub_rig_dict, dict):
-            self.LOG.info('Empty sub rig dict...pass.')
+            self.LOG.info('Empty or invalid sub rig dict %s...pass.' % sub_rig_dict)
             return
 
-        for sub_rig_name, sub_rig_construction_data in iteritems(self.SUB_RIG_BUILD_TABLE):
-            if sub_rig_dict.get(sub_rig_name):
+        for sub_rig_name, sub_rig_data in iteritems(sub_rig_dict):
+            try:
+                sub_rig_construction_data = self.SUB_RIG_BUILD_TABLE.get(sub_rig_name)
+                self.LOG.info('Registering sub rig %s: %s.')
                 sub_rig_class, default_name_tokens = sub_rig_construction_data
-                sub_rig_kwargs = sub_rig_dict.get(sub_rig_name)
-                sub_rig_kwargs = sub_rig_kwargs if isinstance(sub_rig_kwargs, dict) else {cfg.LAYOUT: sub_rig_kwargs}
-                self.register_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
+                sub_rig_kwargs = sub_rig_data if isinstance(sub_rig_data, dict) else {cfg.LAYOUT: sub_rig_data}
+                self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
+            except TypeError:
+                self.LOG.warning('Sub rig table entry %s not found in input dict %s' % (self.SUB_RIG_BUILD_TABLE,
+                                                                                        sub_rig_dict))
 
-    def register_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, **kwargs):
+    def build_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, **kwargs):
         """ Initializes the given sub rig candidate class with kwargs and stores it in property sub_rigs under the key.
 
         :param sub_rig_key: str, key to store the sub rig under on the rig.
@@ -78,15 +82,23 @@ class Rig(base.AbstractGrouping):
         for key, sub_rig in iteritems(self.sub_rigs):
             sub_rig.auto_color()
 
-    @cls_merge_name_tokens_and_meta_data(pre=True)
     def build(self, parent=None, name_tokens=None, **kwargs):
-        anvil.LOG.info('Building rig %r' % self)
+        _ = (self.__class__.__name__, self, parent, name_tokens, kwargs)
+        anvil.LOG.info('Building %s(%r) with parent: %s, name_tokens: %s, and kwargs: %s' % _)
+        self.name_tokens.update(name_tokens)
 
-        if not self.root:
-            self.build_node(ot.Transform, cfg.TOP_GROUP, name_tokens=self.ROOT_NAME_TOKENS, **kwargs)
+        self.build_node(ot.Transform,
+                        cfg.TOP_GROUP,
+                        name_tokens=self.ROOT_NAME_TOKENS,
+                        **kwargs)
 
-        self.build_node(ct.Control, cfg.UNIVERSAL_CONTROL, parent=self.group_top, shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
-                        scale=5, name_tokens=self.UNIV_NAME_TOKENS, **kwargs)
+        self.build_node(ct.Control,
+                        cfg.UNIVERSAL_CONTROL,
+                        parent=self.group_top,
+                        shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
+                        scale=5,
+                        name_tokens=self.UNIV_NAME_TOKENS,
+                        **kwargs)
 
         for main_group_type in self.SUB_GROUPINGS:
             group_name = '%s_%s' % (cfg.GROUP_TYPE, main_group_type)

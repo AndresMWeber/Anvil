@@ -2,4 +2,5 @@ from base import SubRigTemplate
 
 
 class Neck(SubRigTemplate):
-    pass
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({'name': 'neck'}, new=True)
+

@@ -6,14 +6,14 @@ from base_test import TestBase
 
 
 class TestBaseRig(TestBase):
-    name_tokens = {'name': 'eye', 'purpose': 'mvp'}
+    name_tokens = {'name': 'eye', 'purpose': 'mvp', 'character': 'bert'}
     test_rig = None
 
     @classmethod
     def build_dependencies(cls):
         super(TestBaseRig, cls).build_dependencies()
         test_rig = nt.Rig(name_tokens=cls.name_tokens)
-        sub_rig = test_rig.register_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
+        sub_rig = test_rig.build_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
         test_rig.build()
         sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints)
         sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, shape='sphere')
@@ -64,18 +64,18 @@ class TestRigEyeBuild(TestBaseRig):
 class TestRigRename(TestBaseRig):
     @TestBase.delete_created_nodes
     def test_universal_control_name(self):
-        self.assertEqual(str(self.test_rig.control_universal.control), 'eye_universal_mvp_CTR')
+        self.assertEqual(str(self.test_rig.control_universal.control), 'bert_eye_universal_mvp_CTR')
 
     @TestBase.delete_created_nodes
     def test_root_name(self):
-        self.assertEqual(str(self.test_rig.root), 'eye_mvp_rig_GRP')
+        self.assertEqual(str(self.test_rig.root), 'bert_rig_eye_mvp_GRP')
 
     @TestBase.delete_created_nodes
     def test_sub_groups(self):
-        self.assertListSame(['eye_mvp_rig_GRP',
-                             'eye_sub_rigs_mvp_GRP',
-                             'eye_universal_mvp_OGP',
-                             'eyeball_mvp_OGP',
-                             'eye_extras_mvp_GRP',
-                             'eye_model_mvp_GRP'],
-                            [str(self.test_rig.hierarchy[node]) for node in self.test_rig.hierarchy])
+        print(sorted([str(self.test_rig.hierarchy[node]) for node in self.test_rig.hierarchy]))
+        self.assertListSame(sorted(['bert_rig_eye_mvp_GRP',
+                                    'bert_eye_sub_rigs_mvp_GRP',
+                                    'bert_eye_universal_mvp_OGP',
+                                    'bert_eye_extras_mvp_GRP',
+                                    'bert_eye_model_mvp_GRP']),
+                            sorted([str(self.test_rig.hierarchy[node]) for node in self.test_rig.hierarchy]))

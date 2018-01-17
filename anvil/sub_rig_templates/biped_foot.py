@@ -11,7 +11,7 @@ class BipedFoot(SubRigTemplate):
     HEEL = 'heel'
     OUTSOLE = 'outsole'
     INSOLE = 'insole'
-    BUILT_IN_META_DATA = MetaData(SubRigTemplate.BUILT_IN_META_DATA + {'name': 'foot'})
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({'name': 'foot'}, new=True)
 
     def __init__(self, heel, outsole=None, insole=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
