@@ -1,7 +1,7 @@
 from six import iteritems
 from functools import wraps
-import config
-import runtime as rt
+import anvil.config as cfg
+import anvil.runtime as rt
 
 
 def verify_inputs(filterers=None, validators=None):
@@ -68,11 +68,11 @@ def filter_list_type(query_input, chain_type):
 
 
 def filter_list_joints(query_input):
-    return filter_list_type(query_input, config.JOINT_TYPE)
+    return filter_list_type(query_input, cfg.JOINT_TYPE)
 
 
 def filter_list_transforms(query_input):
-    return filter_list_type(query_input, config.TRANSFORM_TYPE)
+    return filter_list_type(query_input, cfg.TRANSFORM_TYPE)
 
 
 def verify_joint_chain_ready(joint_chain):

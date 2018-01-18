@@ -1,19 +1,18 @@
 from base import SubRigTemplate
 import anvil.node_types as nt
 import anvil.config as cfg
-from anvil.meta_data import MetaData
 
 
 class BipedFoot(SubRigTemplate):
-    TOE = 'toe'
-    BALL = 'ball'
-    ANKLE = 'ankle'
-    HEEL = 'heel'
-    OUTSOLE = 'outsole'
-    INSOLE = 'insole'
-    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({'name': 'foot'}, new=True)
+    TOE_TOKEN = 'toe'
+    BALL_TOKEN = 'ball'
+    ANKLE_TOKEN = 'ankle'
+    HEEL_TOKEN = 'heel'
+    OUTSOLE_TOKEN = 'outsole'
+    INSOLE_TOKEN = 'insole'
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({cfg.NAME: cfg.FOOT}, new=True)
 
-    def __init__(self, heel, outsole=None, insole=None, *args, **kwargs):
+    def __init__(self, heel=None, outsole=None, insole=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
         self.ankle, self.ball, self.toe, self.toe_end = self.layout_joints
         self.heel = heel
@@ -24,7 +23,7 @@ class BipedFoot(SubRigTemplate):
         super(BipedFoot, self).build(meta_data=meta_data, parent=parent, **kwargs)
         last = self.group_controls
         for reference_object, label in zip([self.ankle, self.ball, self.toe, self.heel],
-                                           [self.ANKLE, self.BALL, self.TOE, self.HEEL]):
+                                           [self.ANKLE_TOKEN, self.BALL_TOKEN, self.TOE_TOKEN, self.HEEL_TOKEN]):
             shape = '%s_%s' % (cfg.CIRCLE, cfg.X) if not label == self.ANKLE else '_'.join(
                 [s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
 
@@ -32,8 +31,9 @@ class BipedFoot(SubRigTemplate):
                                       shape=shape,
                                       reference_object=reference_object,
                                       parent=last,
-                                      meta_data=self.meta_data + {cfg.NAME: label})
-            # if label == self.ANKLE:
+                                      name_tokens=self.name_tokens + {cfg.NAME: label},
+                                      meta_data=self.meta_data)
+            # if label == self.ANKLE_TOKEN:
             # control.offset_group.translate_node(absolute=True)
             last = control.connection_group
 

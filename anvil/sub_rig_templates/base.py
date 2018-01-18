@@ -8,9 +8,6 @@ import anvil.config as cfg
 class SubRigTemplate(nt.SubRig):
     BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES.merge({cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS}, new=True)
 
-    def __init__(self, *args, **kwargs):
-        super(SubRigTemplate, self).__init__(*args, **kwargs)
-
     def build_fk_chain(self, layout_joints, **kwargs):
         self.fk_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
         kwargs[cfg.PARENT] = self.group_controls
