@@ -20,12 +20,15 @@ NOMENCLATE = nomenclate.Nom()
 class TestBase(unittest2.TestCase):
     LOG = obtainLogger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
+
     APOSE = 'APOSE'
     TPOSE = 'TPOSE'
+    FOOT = 'FOOT'
     EXTERNALA = 'EXTERNALA'
     TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
                       TPOSE: 'test_skeleton_t_pose.ma',
                       EXTERNALA: 'test_skeleton_externalA.ma',
+                      FOOT: 'test_skeleton_biped_foot.ma'
                       }
 
     @classmethod

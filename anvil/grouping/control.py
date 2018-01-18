@@ -21,16 +21,18 @@ class Control(base.AbstractGrouping):
         self.register_node(cfg.CONNECTION_GROUP, connection_group)
 
     @classmethod
-    @cls_merge_name_tokens_and_meta_data(pre=True)
-    def build(cls, reference_object=None, parent=None, name_tokens=None, **kwargs):
-        name_tokens = MetaData(name_tokens)
+    def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
+        kwargs[cfg.META_DATA] = cls.BUILT_IN_META_DATA.merge(getattr(cls, cfg.META_DATA, {}), meta_data, new=True)
+        name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(getattr(cls, cfg.NAME_TOKENS, {}), name_tokens, new=True)
+
         instance = cls(
             ob.Curve.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
             ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
             ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
-            **kwargs)
+            **name_tokens.merge(kwargs, new=True))
+
         instance.build_layout()
-        instance.match_position(reference_object)
+        instance.match_position(reference_object, **kwargs)
         instance.parent(parent)
         return instance
 
@@ -53,11 +55,12 @@ class Control(base.AbstractGrouping):
         rt.dcc.connections.pole_vector(getattr(control, cfg.CONNECTION_GROUP), ik_handle)
         return control
 
-    def match_position(self, reference_object):
+    def match_position(self, reference_object, rotate=True, translate=True, **kwargs):
         try:
-            self.offset_group.match_transform(reference_object)
+            target = self.offset_group
         except AttributeError:
-            self.control.match_transform(reference_object)
+            target = self.control
+        target.match_transform(reference_object, rotate=True, translate=True)
 
     def build_layout(self):
         rt.dcc.scene.parent(getattr(self, cfg.CONTROL_TYPE), getattr(self, cfg.OFFSET_GROUP))

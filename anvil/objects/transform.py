@@ -100,11 +100,16 @@ class Transform(dag_node.DagNode):
                 constraint = None
             return constraint
 
-    def match_transform(self, reference_objects, keep_constraint=False, **kwargs):
+    def match_transform(self, reference_objects, translate=True, rotate=True, keep_constraint=False, **kwargs):
         reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
         self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
-            constraint = rt.dcc.connections.parent(reference_objects, self, maintainOffset=False, **kwargs)
+            if translate and not rotate:
+                constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
+            elif rotate and not translate:
+                constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
+            else:
+                constraint = rt.dcc.connections.parent(reference_objects, self, maintainOffset=False, **kwargs)
             if not keep_constraint:
                 rt.dcc.scene.delete(constraint)
                 constraint = None

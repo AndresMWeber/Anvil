@@ -114,8 +114,8 @@ class AbstractGrouping(log.LogMixin):
                                  lambda n: n.rename(self.name_tokens, n.name_tokens))
 
     def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
-        kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
-        kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
+        kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
+        kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
         self.info('Grouping %r is building node: %s = %s(%s)...parent name tokens: %s',
                   self, node_key, node_class, kwargs, self.name_tokens)
         dag_node = getattr(node_class, build_fn)(*args, **kwargs)
