@@ -42,8 +42,7 @@ class SubRigTemplate(nt.SubRig):
             self.build_pole_vector_control(self.ik_chain, self.ik_handle,
                                            '%s_%s_%s' % (cfg.CONTROL_TYPE, cfg.IK, cfg.POLE_VECTOR),
                                            **(kwargs + {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
-                                                        cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK},
-                                                        cfg.PURPOSE: cfg.POLE_VECTOR}))
+                                                        cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.POLE_VECTOR}}))
 
         rt.dcc.connections.translate(self.control_ik.connection_group, self.ik_handle)
 

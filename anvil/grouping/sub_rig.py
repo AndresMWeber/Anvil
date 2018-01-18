@@ -10,7 +10,7 @@ from anvil.meta_data import MetaData
 
 class SubRig(base.AbstractGrouping):
     BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
-    ROOT_NAME_TOKENS = {cfg.RIG_TYPE: cfg.SUBRIG, cfg.TYPE: cfg.GROUP_TYPE}
+    ROOT_NAME_TOKENS = {cfg.RIG_TYPE: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.GROUP_TYPE}
     LOG = lg.obtainLogger(__name__)
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 
@@ -61,6 +61,9 @@ class SubRig(base.AbstractGrouping):
         pv_line, clusters = Curve.build_line_indicator(mid_joint, control.control, **kwargs)
         self.register_node(node_key, control)
         self.register_node(node_key + '_line', pv_line)
-        for cluster in clusters + [pv_line]:
+
+        for cluster in clusters:
+            cluster.visibility.set(False)
             cluster.parent(self.group_nodes)
+        pv_line.parent(self.group_controls)
         return control

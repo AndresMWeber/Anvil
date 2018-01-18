@@ -37,7 +37,7 @@ CONTROL_TYPE = 'control'
 HIERARCHY_TYPE = 'hierarchy'
 
 # RIG CONCEPTS
-SUBRIG = 'subrig'
+SUB_RIG_TOKEN = 'sub'
 NAME_TOKENS = 'name_tokens'
 META_DATA= 'meta_data'
 UNIVERSAL = 'universal'

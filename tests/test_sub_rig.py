@@ -70,7 +70,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig.register_node('test', b, name_tokens=None)
         self.assertDictEqual(b.name_tokens,
                              {'name': 'bob',
-                              cfg.SUBRIG: cfg.SUBRIG,
+                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
         self.assertDictEqual(b.meta_data, {})
 
@@ -79,10 +79,10 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(name_tokens={'name': 'bob'})
-        self.sub_rig.register_node('test', b, name_tokens={'name': 'silvia', cfg.SUBRIG: 'muggle'})
+        self.sub_rig.register_node('test', b, name_tokens={'name': 'silvia', cfg.SUB_RIG_TOKEN: 'muggle'})
         self.assertDictEqual(b.name_tokens,
                              {'name': 'silvia',
-                              cfg.SUBRIG: 'muggle',
+                              cfg.SUB_RIG_TOKEN: 'muggle',
                               cfg.TYPE: cfg.JOINT_TYPE})
         self.assertDictEqual(b.meta_data, {})
 
@@ -94,7 +94,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig.register_node('test', b, name_tokens={'name': 'silvia'})
         self.assertDictEqual(b.name_tokens,
                              {'name': 'silvia',
-                              cfg.SUBRIG: cfg.SUBRIG,
+                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
     @TestBase.delete_created_nodes
@@ -105,7 +105,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.assertDictEqual(self.sub_rig.test.name_tokens,
                              {'name': 'silvia',
                               'blah': 'meta',
-                              cfg.SUBRIG: cfg.SUBRIG,
+                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.GROUP_TYPE})
 
     @TestBase.delete_created_nodes
@@ -115,7 +115,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig.build_node(nt.Joint, 'test')
         self.assertDictEqual(self.sub_rig.test.name_tokens,
                              {'name': 'silvia',
-                              cfg.SUBRIG: cfg.SUBRIG,
+                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.GROUP_TYPE})
 
     @TestBase.delete_created_nodes
@@ -126,7 +126,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.assertDictEqual(self.sub_rig.test.name_tokens,
                              {'name': 'silvia',
                               'blah': 'meta',
-                              cfg.SUBRIG: cfg.SUBRIG,
+                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.GROUP_TYPE})
 
     @TestBase.delete_created_nodes
@@ -136,7 +136,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig.build_node(nt.Joint, 'test', name_tokens={'name': 'silvia'}, meta_data=None)
         self.assertDictEqual(self.sub_rig.test.name_tokens,
                              {'name': 'silvia',
-                              cfg.SUBRIG: cfg.SUBRIG,
+                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.GROUP_TYPE})
 
 
@@ -157,6 +157,6 @@ class TestSubRigMetaDataIntact(TestBase):
         b = nt.Joint.build(meta_data={'name': 'bob'})
         self.sub_rig.register_node('test', b, meta_data={'name': 'silvia'})
         self.assertDictEqual(b.meta_data, {'name': 'silvia',
-                                           cfg.SUBRIG: cfg.SUBRIG,
+                                           cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                                            cfg.TYPE: cfg.GROUP_TYPE})
         self.assertDictEqual(b.name_tokens, {})
