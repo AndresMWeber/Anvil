@@ -7,7 +7,7 @@ import anvil.utils.generic as gc
 from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 
 
-class UnicodeDelegate(object):
+class UnicodeDelegate(log.LogMixin):
     LOG = log.obtainLogger(__name__)
     dcc_type = None
     BUILTIN_METADATA = {cfg.TYPE: dcc_type}
@@ -21,8 +21,8 @@ class UnicodeDelegate(object):
         :param kwargs: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
-        _ = (self.__class__, node_pointer, name_tokens, meta_data, kwargs)
-        self.LOG.info('Initializing node %s with ID %s, name_tokens=%s, meta_data=%s, %s' % _)
+        self.debug('Initializing node %s with ID %s, name_tokens=%s, meta_data=%s, %s',
+                   self.__class__, node_pointer, name_tokens, meta_data, kwargs)
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
         self.meta_data = MetaData(meta_data)
         self.name_tokens = MetaData(name_tokens)
@@ -51,7 +51,7 @@ class UnicodeDelegate(object):
 
     @classmethod
     def build(cls, **kwargs):
-        cls.LOG.info('Building node %s: %s(%s)' % (cls.__name__, cls.dcc_type, kwargs))
+        cls.info('Building node %s: %s(%s)', cls.__name__, cls.dcc_type, kwargs)
         dcc_instance = cls.create_engine_instance(**kwargs)
         instance = cls(dcc_instance, **kwargs)
 

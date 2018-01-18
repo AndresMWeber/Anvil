@@ -1,14 +1,15 @@
 from six import iteritems
+import nomenclate.core.tools as ts
 import anvil
+import anvil.log as log
 import anvil.config as cfg
-import anvil.utils.generic as gc
-import anvil.utils.scene as sc
 import anvil.runtime as rt
 import anvil.objects as ob
-import nomenclate.core.tools as ts
+import anvil.utils.generic as gc
+import anvil.utils.scene as sc
 
-
-class HierarchyChain(object):
+class HierarchyChain(log.LogMixin):
+    LOG = log.obtainLogger(__name__)
     UP = 'up'
     DOWN = 'down'
 
@@ -23,7 +24,7 @@ class HierarchyChain(object):
     def mid(self):
         """ Should only be used with non-branching chains as it will create false positives.
         """
-        return self.get_hierarchy_as_list()[self.depth() / 2]
+        return self.get_hierarchy(as_list=True)[self.depth() / 2]
 
     def find_child(self, child):
         if isinstance(child, int):
@@ -89,7 +90,7 @@ class HierarchyChain(object):
         if sc.objects_exist([self.head, new_parent]):
             rt.dcc.scene.parent(self.head, new_parent)
         else:
-            anvil.LOG.warning('Tried to parent %s to non existent object %s' % (self.head, new_parent))
+            self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)
 
     def duplicate_chain(self, top_node, end_node=None):
         """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain
@@ -104,9 +105,9 @@ class HierarchyChain(object):
                 # This is the case if no end was specified so we will duplicate the entire chain.
                 nodes = top_node
                 duplicate_kwargs.pop('parentOnly')
-        anvil.LOG.info('Duplicating chain %s from %s->%s, kwargs: %s' % (nodes, top_node, end_node, duplicate_kwargs))
+        self.info('Duplicating chain %s from %s->%s, kwargs: %s', nodes, top_node, end_node, duplicate_kwargs)
         duplicates = rt.dcc.scene.duplicate(nodes, **duplicate_kwargs)
-        anvil.LOG.info('Duplicates of %s are %s' % (nodes, duplicates))
+        self.info('Duplicates of %s are %s', nodes, duplicates)
         if len(duplicates) == 1:
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
         return str(duplicates[0]), str(duplicates[-1])

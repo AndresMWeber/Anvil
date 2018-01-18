@@ -5,10 +5,14 @@ import meta_data
 import log
 import version
 
-LOG = log.obtainLogger(__name__)
+
+class AnvilLog(log.LogMixin):
+    LOG = log.obtainLogger(__name__)
+
+
+LOG = AnvilLog
 
 import runtime
-import validation
 import plugins
 import utils
 import objects
@@ -17,8 +21,8 @@ import node_types
 import sub_rig_templates
 import rig_templates
 
-LOG.info('Anvil environment has been set to %s' % config.ENV)
-LOG.info('Successfully initiated Anvil %s.' % version.__version__)
+LOG.info('Anvil environment has been set to %s', config.ENV)
+LOG.info('Successfully initiated Anvil %s.', version.__version__)
 
 EXISTING_ENCAPSULATIONS = {}
 
@@ -26,7 +30,7 @@ EXISTING_ENCAPSULATIONS = {}
 def check_for_encapsulation(dag_path):
     for node_index, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
-            LOG.debug('Found previous encapsulation for %s: %r. Using instead.' % (dag_path, node_encapsulation))
+            LOG.debug('Found previous encapsulation for %s: %r. Using instead.', dag_path, node_encapsulation)
             return node_encapsulation
     else:
         return None
@@ -57,7 +61,7 @@ def factory(dag_path):
         encapsulation_class = objects.Transform
 
     encapsulation = encapsulation_class(dag_path)
-    LOG.debug('Encapsulating %s with node type %s as %s' % (dag_path, encapsulation_class, encapsulation))
+    LOG.debug('Encapsulating %s with node type %s as %s', dag_path, encapsulation_class, encapsulation)
     register_encapsulation(encapsulation)
     return encapsulation
 
@@ -89,7 +93,6 @@ def is_aobject(node):
 
 __all__ = ['config',
            'meta_data',
-           'validation',
            'plugins',
            'log',
            'version',

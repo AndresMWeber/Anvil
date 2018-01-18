@@ -32,13 +32,13 @@ class DagNode(unicode_delegate.UnicodeDelegate):
         self.attr(cfg.OVERRIDE_ENABLED).set(True)
 
         if isinstance(rgb_or_index, int):
-            self.LOG.info('Setting display as index on %s from %s' % (self, rgb_or_index))
+            self.info('Setting display as index on %s from %s', self, rgb_or_index)
             self.attr(cfg.OVERRIDE_RGB).set(False)
             self.attr(cfg.OVERRIDE_COLOR_INDEX).set(rgb_or_index)
 
         elif len(rgb_or_index) == 3:
             rgb_or_index = RGB(*rgb_or_index) if isinstance(rgb_or_index, (list, tuple)) else rgb_or_index
-            self.LOG.info('Setting display as rgb on %s from %s' % (self, rgb_or_index))
+            self.info('Setting display as rgb on %s from %s', self, rgb_or_index)
             self.attr(cfg.OVERRIDE_RGB).set(True)
             self.attr(cfg.OVERRIDE_COLOR_RGB).set(rgb_or_index.as_rgb_normalized())
 

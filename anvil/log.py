@@ -6,6 +6,50 @@ import os
 import datetime
 import config as cfg
 
+
+def obtainLogger(name, json_output=False):
+    """Get's a logger and attaches the correct DCC compatible Handler.
+    Args:
+        name (str): Name of the logger to get / create.
+    Returns:
+        Logger: Logger.
+    """
+    logger = structlog.get_logger(name)
+
+    if json_output:
+        format_str = '%(message)%(levelname)%(name)%(asctime)'
+        # formatter = jslog.JsonFormatter(format_str)
+        # for handler in logger.handlers:
+        #    handler.setFormatter(formatter)
+        pass
+
+    return logger
+
+
+class LogMixin(object):
+    LOG = obtainLogger(__name__ + '.LogMixin')
+
+    @classmethod
+    def info(cls, msg, *args):
+        cls.LOG.info(msg % args)
+
+    @classmethod
+    def debug(cls, msg, *args):
+        cls.LOG.debug(msg % args)
+
+    @classmethod
+    def warning(cls, msg, *args):
+        cls.LOG.warning(msg % args)
+
+    @classmethod
+    def critical(cls, msg, *args):
+        cls.LOG.critical(msg % args)
+
+    @classmethod
+    def error(cls, msg, *args):
+        cls.LOG.error(msg % args)
+
+
 structlog.configure(
     processors=[
         structlog.stdlib.filter_by_level,
@@ -28,9 +72,10 @@ structlog.configure(
 )
 
 
-class LogInitializer(object):
+class LogInitializer(LogMixin):
     HANDLERS = 'handlers'
     LOGGERS = 'loggers'
+    LOG = obtainLogger(__name__)
     DEFAULT_LEVEL = logging.DEBUG
     LOG_DIR = cfg.DEFAULT_LOG_DIR
     ENV_KEY = cfg.LOG_ENV_KEY
@@ -47,7 +92,7 @@ class LogInitializer(object):
         cls.set_config_from_path()
         cls.set_log_directory()
         cls.set_from_dict()
-        LOG.info('Loaded logger config file %s successfully, writing to: %s' % (cls.CFG_FILE, cls.CFG_DICT))
+        cls.info('Loaded logger config file %s successfully, writing to: %s', cls.CFG_FILE, cls.CFG_DICT)
         return cls.CFG_FILE, cls.CFG_DICT
 
     @classmethod
@@ -64,12 +109,12 @@ class LogInitializer(object):
     @classmethod
     def set_config_file_path(cls, file_path=None):
         cls.CFG_FILE = file_path or cls.CFG_FILE or cls.get_env_dir() or {}
-        LOG.info('Set config file path as %s' % cls.CFG_FILE)
+        cls.info('Set config file path as %s', cls.CFG_FILE)
 
     @classmethod
     def set_config_from_path(cls, file_path=None):
         cls.CFG_DICT = cls._read_yml_file(file_path or cls.CFG_FILE)
-        LOG.info('Set config data as %s' % cls.CFG_DICT)
+        cls.info('Set config data as %s', cls.CFG_DICT)
 
     @classmethod
     def set_from_dict(cls, config_dict=None):
@@ -108,39 +153,19 @@ class LogInitializer(object):
         initial = handler_entry.get(key, None)
         if initial:
             handler_entry[key] = value
-            LOG.info('Handler %s.%s overwritten %s -> %s' % (handler_entry, key, initial, value))
+            cls.info('Handler %s.%s overwritten %s -> %s', handler_entry, key, initial, value)
 
-    @staticmethod
-    def _read_yml_file(file_path):
+    @classmethod
+    def _read_yml_file(cls, file_path):
         if os.path.exists(file_path):
             with open(file_path, 'rt') as f:
-                LOG.info('Loading log config file %s.' % (file_path))
+                cls.info('Loading log config file %s.', file_path)
                 return yaml.safe_load(f.read())
         else:
-            LOG.info('Default log config file %s could not be found.' % (file_path))
+            cls.info('Default log config file %s could not be found.', file_path)
         return {}
 
 
-def obtainLogger(name, json_output=False):
-    """Get's a logger and attaches the correct DCC compatible Handler.
-    Args:
-        name (str): Name of the logger to get / create.
-    Returns:
-        Logger: Logger.
-    """
-    logger = structlog.get_logger(name)
-
-    if json_output:
-        format_str = '%(message)%(levelname)%(name)%(asctime)'
-        # formatter = jslog.JsonFormatter(format_str)
-        # for handler in logger.handlers:
-        #    handler.setFormatter(formatter)
-        pass
-
-    return logger
-
-
-LOG = obtainLogger(__name__)
 LogInitializer.load_from_current_state()
 
 

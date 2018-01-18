@@ -25,7 +25,7 @@ class Transform(dag_node.DagNode):
             return parents
 
     def parent(self, new_parent):
-        self.LOG.debug('Parenting %s to %s' % (self, new_parent))
+        self.debug('Parenting %s to %s', self, new_parent)
         top_node, new_parent = self, new_parent
         nodes_exist = [rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node != None]
         if all(nodes_exist or [False]):
@@ -69,7 +69,7 @@ class Transform(dag_node.DagNode):
     def aim_at(self, reference_objects, up_vector=None, aim_vector=None, up_object=None, keep_constraint=False,
                **kwargs):
         reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
-        self.LOG.info('Aiming %s at %s' % (self, reference_objects))
+        self.info('Aiming %s at %s', self, reference_objects)
         if reference_objects:
             kwargs.update(
                 {k: v for k, v in [['upObject', up_object], ['upVector', up_vector], ['aimVector', aim_vector]] if v})
@@ -82,7 +82,7 @@ class Transform(dag_node.DagNode):
 
     def match_rotation(self, reference_objects, keep_constraint=False, **kwargs):
         reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
-        self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
+        self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
             constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
             if not keep_constraint:
@@ -92,7 +92,7 @@ class Transform(dag_node.DagNode):
 
     def match_position(self, reference_objects, keep_constraint=False, **kwargs):
         reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
-        self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
+        self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
             constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
             if not keep_constraint:
@@ -102,7 +102,7 @@ class Transform(dag_node.DagNode):
 
     def match_transform(self, reference_objects, keep_constraint=False, **kwargs):
         reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
-        self.LOG.info('Matching position of %s to %s' % (self, reference_objects))
+        self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
             constraint = rt.dcc.connections.parent(reference_objects, self, maintainOffset=False, **kwargs)
             if not keep_constraint:

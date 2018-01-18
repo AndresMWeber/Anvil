@@ -34,7 +34,7 @@ class SubRig(base.AbstractGrouping):
         self.initialize_sub_rig_attributes()
         self.connect_rendering_delegate()
 
-        anvil.LOG.info('Built %s: %s' % (self.__class__.__name__, self))
+        self.info('Built %s: %s', self.__class__.__name__, self)
 
     def build_pole_vector_control(self, joints, ik_handle, node_key='',
                                   up_vector=None,

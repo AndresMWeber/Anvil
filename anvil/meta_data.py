@@ -3,29 +3,31 @@ from functools import wraps
 import config as cfg
 import log
 
-LOG = log.obtainLogger(__name__)
 
+class MetaData(log.LogMixin):
+    LOG = log.obtainLogger(__name__)
+    PROTECTED = 'protected_fields'
+    IGNORED = 'ignore_keys'
+    NEW = 'new'
 
-class MetaData(object):
+    def __init__(self, *args, **kwargs):
+        self.protected_fields = self._cast_input_to_list(kwargs.pop(self.PROTECTED, None))
+        self.data = self.merge_dicts(*[d.data if isinstance(d, self.__class__) else d for d in args], **kwargs)
 
-    def __init__(self, *input_dicts, **meta_data_kwargs):
-        self.protected_fields = self._cast_input_to_list(meta_data_kwargs.pop('protected_fields', None))
-        self.data = self.merge_dicts(*[d.data if isinstance(d, self.__class__) else d for d in input_dicts], **meta_data_kwargs)
-
-    @staticmethod
-    def merge_dicts(*input_dicts, **input_kwargs):
+    @classmethod
+    def merge_dicts(cls, *args, **kwargs):
         """ Merges metadata for every dict that has been input.  Starts with dict args then input kwargs
             Overwrites data if there are conflicts from left to right.
 
         :param protected_fields: list, fields that the metadata should keep and ignore on merge.
-        :param input_dicts: (dict), tuple of input dictionaries
-        :param input_kwargs: dict, input kwargs to merge
+        :param args: (dict), tuple of input dictionaries
+        :param kwargs: dict, input kwargs to merge
         :return: dict, combined data.
         """
-        ignore_keys = input_kwargs.pop('ignore_keys', None) or []
+        ignore_keys = kwargs.pop(cls.IGNORED, None) or []
         data = {}
 
-        for input_dict in [d for d in input_dicts if isinstance(d, dict)] + [input_kwargs]:
+        for input_dict in [d for d in args if isinstance(d, dict)] + [kwargs]:
             for key in ignore_keys:
                 try:
                     input_dict.pop(key)
@@ -34,16 +36,16 @@ class MetaData(object):
             data.update(input_dict)
         return data
 
-    def merge(self, *input_dicts, **input_kwargs):
-        new = input_kwargs.pop('new', False)
-        ignore_keys = self._cast_input_to_list(input_kwargs.pop('ignore_keys', None)) + self.protected_fields
-        keep_originals = self._cast_input_to_list(input_kwargs.pop('keep_originals', False))
+    def merge(self, *args, **kwargs):
+        new = kwargs.pop(self.NEW, False)
+        ignore_keys = self._cast_input_to_list(kwargs.pop('ignore_keys', None)) + self.protected_fields
+        keep_originals = self._cast_input_to_list(kwargs.pop('keep_originals', False))
         if keep_originals:
             ignore_keys = ignore_keys + list(self.data)
         if new:
-            return self.__class__(self.data, ignore_keys=ignore_keys, *input_dicts, **input_kwargs)
+            return self.__class__(self.data, ignore_keys=ignore_keys, *args, **kwargs)
         else:
-            self.data.update(self.merge_dicts(ignore_keys=ignore_keys, *input_dicts, **input_kwargs))
+            self.data.update(self.merge_dicts(ignore_keys=ignore_keys, *args, **kwargs))
             return self.data
 
     def serialize(self, ignore_keys=None):
@@ -133,8 +135,8 @@ class MetaData(object):
     def dict_compare(d1, d2):
         """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
         """
-        d1_keys = set(d1.keys())
-        d2_keys = set(d2.keys())
+        d1_keys = set(list(d1))
+        d2_keys = set(list(d2))
         intersect_keys = d1_keys.intersection(d2_keys)
         added = d1_keys - d2_keys
         removed = d2_keys - d1_keys
@@ -164,9 +166,9 @@ def cls_merge_name_tokens_and_meta_data(pre=True):
                 cls_or_self.name_tokens.merge(name_tokens)
                 cls_or_self.meta_data.merge(meta_data)
 
-            _ = (cls_or_self, name_tokens, meta_data, pre)
             if not 'Attribute' in repr(cls_or_self):
-                LOG.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s' % _)
+                MetaData.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s',
+                              cls_or_self, name_tokens, meta_data, pre)
             return function_result
 
         return inner

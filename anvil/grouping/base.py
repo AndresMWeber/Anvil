@@ -1,19 +1,19 @@
 from six import iteritems
 import nomenclate
 import anvil
-from anvil.meta_data import MetaData
+import anvil.log as log
 import anvil.runtime as rt
 import anvil.config as cfg
 import anvil.objects.attribute as at
-from anvil.meta_data import cls_merge_name_tokens_and_meta_data
+from anvil.meta_data import MetaData
 
 
-class AbstractGrouping(object):
+class AbstractGrouping(log.LogMixin):
     """ A fully functional and self-contained rig with all requirements implemented that
         are required to give a performance.
 
     """
-    LOG = anvil.log.obtainLogger(__name__)
+    LOG = log.obtainLogger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
     BUILT_IN_META_DATA = MetaData()
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'})
@@ -34,8 +34,8 @@ class AbstractGrouping(object):
         self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
         self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
 
-        _ =(self, top_node, parent, self.name_tokens, self.meta_data, kwargs)
-        self.LOG.info('Processed: %r.__init__(top_node=%s, parent=%s, name_tokens=%s, meta_data=%s, kwargs=%s)' % _)
+        self.info('Processed: %r.__init__(top_node=%s, parent=%s, name_tokens=%s, meta_data=%s, kwargs=%s)',
+                  self, top_node, parent, self.name_tokens, self.meta_data, kwargs)
 
         self._nomenclate = nomenclate.Nom(self.name_tokens.data)
         self.chain_nomenclate = nomenclate.Nom()
@@ -54,8 +54,8 @@ class AbstractGrouping(object):
         self.build_kwargs.merge(kwargs)
         self.meta_data.merge(meta_data)
         self.name_tokens.merge(name_tokens)
-        _ = (self.__class__.__name__, self.meta_data, self.build_kwargs, self.layout_joints)
-        anvil.LOG.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s' % _)
+        self.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s',
+                  self.__class__.__name__, self.meta_data, self.build_kwargs, self.layout_joints)
 
     def build_layout(self):
         raise NotImplementedError
@@ -64,7 +64,7 @@ class AbstractGrouping(object):
         # TODO: API Attribute dependent...dangerous.
         assignee = anvil.factory(assignee) if assignee is not None else self.root
 
-        self.LOG.info('Assigning/Connecting display attributes to %s' % assignee)
+        self.info('Assigning/Connecting display attributes to %s', assignee)
         for attr, attr_kwargs in iteritems(self.RENDERING_ATTRIBUTES):
             attr_name = '%s_rendering' % attr
             group_name = 'group_%s' % attr
@@ -76,28 +76,28 @@ class AbstractGrouping(object):
                 target_group.overrideEnabled.set(1)
                 rendering_attribute.connect(target_group.visibility, force=True)
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
-        self.LOG.info('Display attributes connected to %s' % assignee)
+        self.info('Display attributes connected to %s', assignee)
 
     def initialize_sub_rig_attributes(self, controller=None, attr_dict=None):
         attr_dict = self.BUILT_IN_ATTRIBUTES if attr_dict is None else attr_dict
         if attr_dict:
             controller = self.root if controller is None else anvil.factory(controller)
-            self.LOG.info('Assigning %s with sub-rig attributes %s' % (controller, attr_dict))
+            self.info('Assigning %s with sub-rig attributes %s', controller, attr_dict)
             for attr, attr_kwargs in iteritems(attr_dict):
                 controller.add_attr(attr, **attr_kwargs)
 
     def parent(self, new_parent):
         nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]
         if all(nodes_exist or [False]):
-            self.LOG.info('Parenting root of %r to %s' % (self, new_parent))
+            self.info('Parenting root of %r to %s', self, new_parent)
             rt.dcc.scene.parent(self.root, new_parent)
             return True
         else:
-            self.LOG.warning('Parent(%s) -> %r does not exist.' % (new_parent, self.root))
+            self.warning('Parent(%s) -> %r does not exist.', new_parent, self.root)
             return False
 
     def rename_chain(self, objects, use_end_naming=False, **name_tokens):
-        self.LOG.info('Renaming chain %s for parent %s' % (objects, self))
+        self.info('Renaming chain %s for parent %s', objects, self)
         self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
 
         for index, object in enumerate(objects):
@@ -109,22 +109,22 @@ class AbstractGrouping(object):
     def rename(self, *input_dicts, **kwargs):
         self.name_tokens.merge(*input_dicts, **kwargs)
         self._nomenclate.merge_dict(**self.name_tokens.data)
-        self.LOG.info('Renaming %r...with name tokens %s' % (self, self.name_tokens))
+        self.info('Renaming %r...with name tokens %s', self, self.name_tokens)
         self._cascading_function(lambda n: n.rename(self._nomenclate.get(**n.name_tokens.copy_dict_as_strings())),
                                  lambda n: n.rename(self.name_tokens, n.name_tokens))
 
     def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
         kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
-        _ = (self, node_key, node_class, kwargs, self.name_tokens)
-        self.LOG.info('Grouping %r is building node: %s = %s(%s)...parent name tokens: %s' % _)
+        self.info('Grouping %r is building node: %s = %s(%s)...parent name tokens: %s',
+                  self, node_key, node_class, kwargs, self.name_tokens)
         dag_node = getattr(node_class, build_fn)(*args, **kwargs)
         self.register_node(node_key, dag_node)
         return dag_node
 
     def register_node(self, node_key, dag_node, overwrite=True, name_tokens=None, meta_data=None):
         if dag_node is None:
-            self.LOG.warning('Attempted register node %s with key %s but it does not exist' % (dag_node, node_key))
+            self.warning('Attempted register node %s with key %s but it does not exist', dag_node, node_key)
             return
         try:
             anvil.factory(dag_node)
@@ -151,13 +151,15 @@ class AbstractGrouping(object):
 
     def _cascading_function(self, object_function, grouping_function):
         for sub_node_key, sub_node in iteritems(self.hierarchy):
-            log_tuple = (sub_node, sub_node.name_tokens, self.name_tokens)
-            self.LOG.info('Renaming sub_node %r based on tokens %s with parent tokens %s' % log_tuple)
+
+            self.info('Renaming sub_node %r based on tokens %s with parent tokens %s',
+                      sub_node, sub_node.name_tokens, self.name_tokens)
             if anvil.is_agrouping(sub_node):
                 grouping_function(sub_node)
             elif anvil.is_aobject(sub_node):
                 object_function(sub_node)
-            self.LOG.info('Renamed sub_node to %s based on tokens %s with parent tokens %s' % log_tuple)
+            self.info('Renamed sub_node to %s based on tokens %s with parent tokens %s',
+                      sub_node, sub_node.name_tokens, self.name_tokens)
 
     def __getattr__(self, item):
         try:

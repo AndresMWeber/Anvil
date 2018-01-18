@@ -51,7 +51,7 @@ class Curve(transform.Transform):
         return instance
 
     def auto_color(self, override_color=None):
-        self.LOG.info('Auto coloring %s based on name_tokens side: %s' % (self, self.name_tokens.get(cfg.SIDE)))
+        self.info('Auto coloring %s based on name_tokens side: %s', self, self.name_tokens.get(cfg.SIDE))
         color = override_color or cfg.RIG_COLORS.get(self.name_tokens.get(cfg.SIDE, None) or cfg.DEFAULT)
         self.colorize(color)
         return color
@@ -94,7 +94,7 @@ class Curve(transform.Transform):
         api_function = getattr(rt.dcc.ENGINE_API, shape_constructor, None)
 
         if callable(api_function):
-            cls.LOG.debug('Obtained shape constructor from yml: %s(%s)' % (api_function, shape_entry))
+            cls.debug('Obtained shape constructor from yml: %s(%s)', api_function, shape_entry)
             return lambda: api_function(**shape_entry)
 
     @classmethod
@@ -106,7 +106,7 @@ class Curve(transform.Transform):
             try:
                 cls.SHAPE_CACHE = yaml.load(open(shape_file, "r"))
             except IOError:
-                cls.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
+                cls.error('Missing file %s, please reinstall or locate', shape_file)
                 cls.SHAPE_CACHE = {}
 
     @staticmethod
@@ -144,10 +144,10 @@ class Curve(transform.Transform):
 
             with io.open(shape_file, 'w') as f:
                 self._ordered_dump(shapes_data, stream=f, encoding='utf-8', default_flow_style=None)
-                self.LOG.info('Successfully wrote shape data %s to file %s' % (shape_name, f))
+                self.info('Successfully wrote shape data %s to file %s', shape_name, f)
 
         except IOError:
-            self.LOG.error('Missing file %s, please reinstall or locate' % shape_file)
+            self.error('Missing file %s, please reinstall or locate', shape_file)
 
     @classmethod
     def _build_all_controls(cls):
