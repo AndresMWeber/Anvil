@@ -1,11 +1,11 @@
 import base
-import anvil
 import anvil.log as lg
 import anvil.config as cfg
-from control import Control
 from anvil.objects.curve import Curve
 from anvil.objects.transform import Transform
 from anvil.meta_data import MetaData
+from control import Control
+from traversal import HierarchyChain
 
 
 class SubRig(base.AbstractGrouping):
@@ -35,6 +35,28 @@ class SubRig(base.AbstractGrouping):
         self.connect_rendering_delegate()
 
         self.info('Built %s: %s', self.__class__.__name__, self)
+
+    def build_fk_controls(self, chain_start=None, chain_end=None, shape_list=None, parent=None,
+                          name_tokens=None, meta_data=None, **kwargs):
+        chain = HierarchyChain(chain_start, chain_end)
+        last_node = parent
+        controls = []
+
+        # Ensure there are enough shapes in the shape list to pair with the chain
+        if not len(shape_list) == len(chain) and shape_list:
+            shape_list.append(shape_list[-1] * (len(chain) - len(shape_list)))
+        elif shape_list is None:
+            shape_list = [cfg.DEFAULT_FK_SHAPE] * len(chain)
+
+        for node, shape in zip(chain, shape_list):
+            last_node = Control.build(reference_object=node,
+                                      shape=shape,
+                                      parent=last_node,
+                                      name_tokens=self.name_tokens.merge(self.name_tokens, name_tokens, new=True),
+                                      meta_data=self.meta_data.merge(self.meta_data, meta_data, new=True),
+                                      **kwargs)
+            controls.append(last_node)
+        return controls
 
     def build_pole_vector_control(self, joints, ik_handle, node_key='',
                                   up_vector=None,

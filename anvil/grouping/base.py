@@ -107,11 +107,15 @@ class AbstractGrouping(log.LogMixin):
             rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
 
     def rename(self, *input_dicts, **kwargs):
-        self.name_tokens.merge(*input_dicts, **kwargs)
+        new_tokens = MetaData(*input_dicts, **kwargs)
+        self.name_tokens.merge(new_tokens)
         self._nomenclate.merge_dict(**self.name_tokens.data)
-        self.info('Renaming %r...with name tokens %s', self, self.name_tokens)
-        self._cascading_function(lambda n: n.rename(self._nomenclate.get(**n.name_tokens.copy_dict_as_strings())),
-                                 lambda n: n.rename(self.name_tokens, n.name_tokens))
+        print(['%s: %s' % (node, node.name_tokens) for key, node in iteritems(self.hierarchy)])
+        self.info('Renaming %r...with name tokens %s and new tokens %s', self, self.name_tokens, new_tokens)
+        self._cascading_function(lambda n:
+                                 n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
+                                 lambda n:
+                                 n.rename(self.name_tokens, n.name_tokens))
 
     def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
         kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
@@ -151,14 +155,15 @@ class AbstractGrouping(log.LogMixin):
 
     def _cascading_function(self, object_function, grouping_function):
         for sub_node_key, sub_node in iteritems(self.hierarchy):
-
-            self.info('Renaming sub_node %r based on tokens %s with parent tokens %s',
-                      sub_node, sub_node.name_tokens, self.name_tokens)
             if anvil.is_agrouping(sub_node):
+                self.info('Renaming sub_grouping %s:%r based on tokens %s',
+                          sub_node_key, sub_node, sub_node.name_tokens)
                 grouping_function(sub_node)
             elif anvil.is_aobject(sub_node):
+                self.info('Renaming sub_node %s:%r based on tokens %s',
+                          sub_node_key, sub_node, sub_node.name_tokens)
                 object_function(sub_node)
-            self.info('Renamed sub_node to %s based on tokens %s with parent tokens %s',
+            self.info('Renamed sub_node %r based on tokens %s with parent tokens %s',
                       sub_node, sub_node.name_tokens, self.name_tokens)
 
     def __getattr__(self, item):

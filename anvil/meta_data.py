@@ -27,7 +27,7 @@ class MetaData(log.LogMixin):
         ignore_keys = kwargs.pop(cls.IGNORED, None) or []
         data = {}
 
-        for input_dict in [d for d in args if isinstance(d, dict)] + [kwargs]:
+        for input_dict in [dict(d) for d in args if d] + [kwargs]:
             for key in ignore_keys:
                 try:
                     input_dict.pop(key)
@@ -42,10 +42,12 @@ class MetaData(log.LogMixin):
         keep_originals = self._cast_input_to_list(kwargs.pop('keep_originals', False))
         if keep_originals:
             ignore_keys = ignore_keys + list(self.data)
+
+        input_dict = self.merge_dicts(ignore_keys=ignore_keys, *args, **kwargs)
         if new:
-            return self.__class__(self.data, ignore_keys=ignore_keys, *args, **kwargs)
+            return self.__class__(self.data, input_dict, ignore_keys=ignore_keys)
         else:
-            self.data.update(self.merge_dicts(ignore_keys=ignore_keys, *args, **kwargs))
+            self.data.update(input_dict)
             return self.data
 
     def serialize(self, ignore_keys=None):
@@ -56,7 +58,7 @@ class MetaData(log.LogMixin):
         except:
             raise UnicodeError('Could not cast metadata to string for metadata %s' % self.data)
 
-    def copy_dict_as_strings(self):
+    def to_str_dict(self):
         data = {}
         for k, v in iteritems(self.data):
             try:

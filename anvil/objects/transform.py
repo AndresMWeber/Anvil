@@ -102,8 +102,9 @@ class Transform(dag_node.DagNode):
 
     def match_transform(self, reference_objects, translate=True, rotate=True, keep_constraint=False, **kwargs):
         reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
-        self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
+            self.info('Matching position of %s to %s with translate=%s and rotate=%s',
+                      self, reference_objects, translate, rotate)
             if translate and not rotate:
                 constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
             elif rotate and not translate:

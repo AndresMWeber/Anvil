@@ -49,12 +49,12 @@ class TestControlRename(TestBaseControl):
     def test_dict_input(self):
         _ = 'larry'
         self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
-                           {'name': 'larry', 't ype': 'group'})
+                           {'name': 'larry', 'childtype': 'group'})
 
     def test_dict_input_extra(self):
         _ = 'maybe'
         self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
-                           {'name': 'maybe', 'type': 'group', 'face': 'pretty'})
+                           {'name': 'maybe', 'childtype': 'group', 'face': 'pretty'})
 
     def test_dict_input_only_extra(self):
         _ = 'untitled'
@@ -75,19 +75,19 @@ class TestControlRename(TestBaseControl):
         self.rename_runner(None, fame='test', mild='hier', rotten='tomato')
 
     def test_combined_input(self):
-        _ = 'john'
+        _ = 'john_blah'
         self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
-                           {'name': 'john'}, type='group')
+                           {'name': 'john'}, childtype='blah')
 
     def test_combined_input_extra_kwarg(self):
         _ = 'johnny'
         self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
-                           {'name': 'johnny'}, type='group', face='bat')
+                           {'name': 'johnny'}, childtype='group', face='bat')
 
     def test_combined_input_extra_dict_key(self):
         _ = 'april'
         self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
-                           {'name': 'april', 'face': 'bat'}, type='group', face='bat')
+                           {'name': 'april', 'face': 'bat'}, childtype='group', face='bat')
 
     def test_combined_input_overlapping(self):
         _ = 'sarah'

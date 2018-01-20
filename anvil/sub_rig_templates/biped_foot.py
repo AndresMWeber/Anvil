@@ -25,8 +25,9 @@ class BipedFoot(SubRigTemplate):
         last = self.group_controls
         for reference_object, label in zip([self.ankle, self.ball, self.toe, self.heel],
                                            [self.ANKLE_TOKEN, self.BALL_TOKEN, self.TOE_TOKEN, self.HEEL_TOKEN]):
-            shape = '%s_%s' % (cfg.CIRCLE, cfg.X) if not label == self.ANKLE_TOKEN else '_'.join(
-                [s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
+            shape = '%s_%s' % (cfg.CIRCLE, cfg.X)
+            if label == self.ANKLE_TOKEN:
+                shape = '_'.join([s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
 
             control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, label),
                                       shape=shape,
@@ -34,13 +35,16 @@ class BipedFoot(SubRigTemplate):
                                       parent=last,
                                       rotate=False,
                                       name_tokens={cfg.NAME: label})
-            # if label == self.ANKLE_TOKEN:
-            # control.offset_group.translate_node(absolute=True)
             last = control.connection_group
 
-        toe_ball_chain = nt.HierarchyChain(*self.layout_joints[1:], node_filter=cfg.JOINT_TYPE)
-        ball_handle, ball_effector = toe_ball_chain.build_ik(solver=cfg.IK_SC_SOLVER)
-        self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_HANDLE), ball_handle)
-        self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_EFFECTOR), ball_effector)
+        self.control_ankle.control.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
+
+        toe_ball_chain = nt.HierarchyChain(self.toe, node_filter=cfg.JOINT_TYPE)
+        ball_handle, ball_effector = toe_ball_chain.build_ik(solver=cfg.IK_SC_SOLVER, parent=self.group_nodes)
+
+        self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_HANDLE), ball_handle,
+                           name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_HANDLE})
+        self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_EFFECTOR), ball_effector,
+                           name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_EFFECTOR})
 
         self.rename()
