@@ -2,7 +2,7 @@ import dag_node
 import anvil
 import anvil.runtime as rt
 import anvil.config as cfg
-import anvil.utils.generic as gc
+from anvil.utils.scene import check_exist_to_list
 
 
 class Transform(dag_node.DagNode):
@@ -68,7 +68,7 @@ class Transform(dag_node.DagNode):
 
     def aim_at(self, reference_objects, up_vector=None, aim_vector=None, up_object=None, keep_constraint=False,
                **kwargs):
-        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
+        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
         self.info('Aiming %s at %s', self, reference_objects)
         if reference_objects:
             kwargs.update(
@@ -81,7 +81,7 @@ class Transform(dag_node.DagNode):
             return constraint
 
     def match_rotation(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
+        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
         self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
             constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
@@ -91,7 +91,7 @@ class Transform(dag_node.DagNode):
             return constraint
 
     def match_position(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
+        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
         self.info('Matching position of %s to %s', self, reference_objects)
         if reference_objects:
             constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
@@ -101,7 +101,7 @@ class Transform(dag_node.DagNode):
             return constraint
 
     def match_transform(self, reference_objects, translate=True, rotate=True, keep_constraint=False, **kwargs):
-        reference_objects = gc.validate_and_cast_to_list_of_type(reference_objects, anvil.factory)
+        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
         if reference_objects:
             self.info('Matching position of %s to %s with translate=%s and rotate=%s',
                       self, reference_objects, translate, rotate)

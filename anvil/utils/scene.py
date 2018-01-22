@@ -1,5 +1,7 @@
+import anvil
 import anvil.runtime as rt
 import anvil.config as cfg
+from generic import to_list
 
 
 def is_exact_type(node, typename):
@@ -66,3 +68,30 @@ def get_scene_tree():
         return tree
 
     return recurse_scene_nodes(top_level_transforms)
+
+
+def get_node_hierarchy_as_dict(node_or_nodes, tree=None, node_filter=None):
+    nodes = to_list(node_or_nodes)
+
+    if tree is None:
+        tree = dict()
+
+    for tree_child in nodes:
+        anvil_node = anvil.factory(tree_child)
+        try:
+            relative_tree = tree[anvil_node]
+        except KeyError:
+            tree[anvil_node] = dict()
+            relative_tree = tree[anvil_node]
+
+        node_filter_kwargs = {cfg.TYPE: node_filter} if node_filter else {}
+        children = rt.dcc.scene.list_relatives(tree_child, fullPath=True, children=True, **node_filter_kwargs) or []
+        if children:
+            get_node_hierarchy_as_dict(children, relative_tree, node_filter=node_filter)
+    return tree
+
+
+def check_exist_to_list(reference_objects, cast_type=str):
+    reference_objects = to_list(reference_objects)
+    return [cast_type(reference_object) for reference_object in reference_objects if
+            reference_object is not None and rt.dcc.scene.exists(reference_object)]

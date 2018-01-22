@@ -6,6 +6,7 @@ import anvil.runtime as rt
 import anvil.config as cfg
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
+from anvil.utils.generic import merge_dicts
 
 
 class AbstractGrouping(log.LogMixin):
@@ -20,10 +21,10 @@ class AbstractGrouping(log.LogMixin):
     BUILT_IN_ATTRIBUTES = MetaData({})
     RENDERING_ATTRIBUTES = MetaData({
         '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,
-        '%ss' % cfg.JOINT_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 2}),
+        '%ss' % cfg.JOINT_TYPE: merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 2}),
         '%ss' % cfg.NODE_TYPE: at.DISPLAY_KWARGS,
-        '%ss' % cfg.CONTROL_TYPE: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 1}),
-        '%s' % cfg.LOD: MetaData.merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
+        '%ss' % cfg.CONTROL_TYPE: merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 1}),
+        '%s' % cfg.LOD: merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
     })
 
     def __init__(self, layout_joints=None, parent=None, top_node=None, name_tokens=None, meta_data=None, **kwargs):
@@ -110,7 +111,7 @@ class AbstractGrouping(log.LogMixin):
         new_tokens = MetaData(*input_dicts, **kwargs)
         self.name_tokens.merge(new_tokens)
         self._nomenclate.merge_dict(**self.name_tokens.data)
-        print(['%s: %s' % (node, node.name_tokens) for key, node in iteritems(self.hierarchy)])
+        print(['%s: %s\n' % (node, node.name_tokens) for key, node in iteritems(self.hierarchy)])
         self.info('Renaming %r...with name tokens %s and new tokens %s', self, self.name_tokens, new_tokens)
         self._cascading_function(lambda n:
                                  n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
@@ -154,14 +155,12 @@ class AbstractGrouping(log.LogMixin):
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
 
     def _cascading_function(self, object_function, grouping_function):
-        for sub_node_key, sub_node in iteritems(self.hierarchy):
+        for sub_key, sub_node in iteritems(self.hierarchy):
             if anvil.is_agrouping(sub_node):
-                self.info('Renaming sub_grouping %s:%r based on tokens %s',
-                          sub_node_key, sub_node, sub_node.name_tokens)
+                self.info('Renaming sub_grouping %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 grouping_function(sub_node)
             elif anvil.is_aobject(sub_node):
-                self.info('Renaming sub_node %s:%r based on tokens %s',
-                          sub_node_key, sub_node, sub_node.name_tokens)
+                self.info('Renaming sub_node %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 object_function(sub_node)
             self.info('Renamed sub_node %r based on tokens %s with parent tokens %s',
                       sub_node, sub_node.name_tokens, self.name_tokens)

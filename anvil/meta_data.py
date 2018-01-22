@@ -1,85 +1,70 @@
-from six import string_types, iteritems
+from six import iteritems
 from functools import wraps
 import config as cfg
 import log
+from utils.generic import to_list, to_str_dict, pop_dict_keys, merge_dicts, dict_compare
 
 
 class MetaData(log.LogMixin):
     LOG = log.obtainLogger(__name__)
-    PROTECTED = 'protected_fields'
-    IGNORED = 'ignore_keys'
-    NEW = 'new'
+    PROTECTED_KWARG = 'protected'
+    IGNORED_KWARG = 'ignored'
+    FORCE_KWARG = 'force'
+    NEW_KWARG = 'new'
 
     def __init__(self, *args, **kwargs):
-        self.protected_fields = self._cast_input_to_list(kwargs.pop(self.PROTECTED, None))
-        self.data = self.merge_dicts(*[d.data if isinstance(d, self.__class__) else d for d in args], **kwargs)
+        """ By default 'type' is always a protected field.
 
-    @classmethod
-    def merge_dicts(cls, *args, **kwargs):
-        """ Merges metadata for every dict that has been input.  Starts with dict args then input kwargs
-            Overwrites data if there are conflicts from left to right.
-
-        :param protected_fields: list, fields that the metadata should keep and ignore on merge.
+        :param protected: (list or str), a string list of fields that are protected.  If you want to
+                                         set them after protecting you need use the keyword "force".
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
-        :return: dict, combined data.
         """
-        ignore_keys = kwargs.pop(cls.IGNORED, None) or []
-        data = {}
-
-        for input_dict in [dict(d) for d in args if d] + [kwargs]:
-            for key in ignore_keys:
-                try:
-                    input_dict.pop(key)
-                except KeyError:
-                    pass
-            data.update(input_dict)
-        return data
+        self.protected = to_list(kwargs.pop(self.PROTECTED_KWARG, None)) + [cfg.TYPE]
+        self.data = {}
+        self.merge(force=True, *args, **kwargs)
 
     def merge(self, *args, **kwargs):
-        new = kwargs.pop(self.NEW, False)
-        ignore_keys = self._cast_input_to_list(kwargs.pop('ignore_keys', None)) + self.protected_fields
-        keep_originals = self._cast_input_to_list(kwargs.pop('keep_originals', False))
-        if keep_originals:
-            ignore_keys = ignore_keys + list(self.data)
+        """ Merge the incoming dictionaries into the current MetaData instance.  If the user passes a list of
+            ignore_keys then these keys will be ignored...however the user can permanently set them as protected_fields.
 
-        input_dict = self.merge_dicts(ignore_keys=ignore_keys, *args, **kwargs)
+        :param force: (bool), whether or not to use both ignore_keys and the protected_fields.
+        :param new: (bool), merge will return a new MetaData from the merge and leave the current one unchanged.
+        :param args: (dict), tuple of input dictionaries
+        :param kwargs: dict, input kwargs to merge
+        :return: (MetaData or dict), depending on the new kwarg will return the updated dictionary or a new MetaData.
+        """
+        new, force = kwargs.pop(self.NEW_KWARG, False), kwargs.pop(self.FORCE_KWARG, False)
+        ignore_keys = to_list(kwargs.pop(self.IGNORED_KWARG, None)) + getattr(self, self.PROTECTED_KWARG)
+        processed_data = merge_dicts(*self._process_args(args), **kwargs)
+
+        if not force:
+            pop_dict_keys(processed_data, ignore_keys)
+
         if new:
-            return self.__class__(self.data, input_dict, ignore_keys=ignore_keys)
+            return self.__class__(self.data, processed_data, protected=ignore_keys or None)
         else:
-            self.data.update(input_dict)
+            self.data.update(processed_data)
             return self.data
 
-    def serialize(self, ignore_keys=None):
-        ignore_fields = self._cast_input_to_list(ignore_keys)
-        try:
-            return '{%s}' % (', '.join(['%s: %s' % (str(key), str(value)) for key, value in iteritems(self.data) if
-                                        key not in ignore_fields]))
-        except:
-            raise UnicodeError('Could not cast metadata to string for metadata %s' % self.data)
+    def set_protected(self, key_or_keys):
+        """ Update the internal protected keys list permanently and protect those keys!
 
-    def to_str_dict(self):
-        data = {}
-        for k, v in iteritems(self.data):
-            try:
-                data.update({str(k): str(v)})
-            except:
-                pass
-        return data
+        :param args: (dict), tuple of input dictionaries
+        :param kwargs: dict, input kwargs to merge
+        :param key_or_keys: (str or list(str)): list of strings or string representing keys we want to write-protect.
+        """
+        self.protected_fields + to_list(key_or_keys)
 
-    def update(self, other):
-        self.merge(other)
+    def update(self, *args, **kwargs):
+        """ For ease of use to act like a dictionary.
+            Instead of the frustrating NON return of dicts, returns self while merge returns the self.data dictionary
+        :param args: (dict), tuple of input dictionaries
+        :param kwargs: dict, input kwargs to merge
+        :return: (MetaData), updated instance
+        """
+        self.merge(*args, **kwargs)
         return self
-
-    @staticmethod
-    def _cast_input_to_list(string_or_none_or_list):
-        if not isinstance(string_or_none_or_list, list):
-            string_or_none_or_list = []
-
-        elif isinstance(string_or_none_or_list, string_types):
-            string_or_none_or_list = [string_or_none_or_list]
-
-        return string_or_none_or_list
 
     def get(self, item, *args, **kwargs):
         return self.data.get(item, *args, **kwargs)
@@ -89,6 +74,15 @@ class MetaData(log.LogMixin):
 
     def iteritems(self):
         return iteritems(self.data)
+
+    def _process_args(self, args):
+        return tuple(arg.data if isinstance(arg, self.__class__) else arg for arg in args)
+
+    def __serialize__(self):
+        try:
+            return str(to_str_dict(self.data))
+        except:
+            raise UnicodeError('Could not cast metadata to string for metadata %s' % self.data)
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -103,11 +97,11 @@ class MetaData(log.LogMixin):
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
-            return self.merge_dicts(self.data, other.data, ignore_keys=None)
+            return self.merge(other.data, new=True)
         if isinstance(other, dict):
-            return self.merge_dicts(self.data, other, ignore_keys=None)
+            return self.merge(other, new=True)
         if other is None:
-            return self.data
+            return self
         else:
             raise ValueError('Addition for %s and %s types unsupported.' % (self.__class__, type(other)))
 
@@ -115,36 +109,31 @@ class MetaData(log.LogMixin):
         return self.data[key]
 
     def __len__(self):
-        return len(list(self.data))
+        return len(self.keys())
 
     def __setitem__(self, key, value):
         self.data[key] = value
 
-    def __repr__(self):
-        return self.serialize()
-
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            other = other.data
+        other = other.data if isinstance(other, self.__class__) else other
         if isinstance(other, dict):
-            return self.dict_compare(self.data, other)
+            return dict_compare(self.data, other)
         return False
 
     def __iter__(self):
         return iter(self.data)
 
-    @staticmethod
-    def dict_compare(d1, d2):
-        """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
-        """
-        d1_keys = set(list(d1))
-        d2_keys = set(list(d2))
-        intersect_keys = d1_keys.intersection(d2_keys)
-        added = d1_keys - d2_keys
-        removed = d2_keys - d1_keys
-        modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
-        same = set(o for o in intersect_keys if d1[o] == d2[o])
-        return added, removed, modified, same
+    def __repr__(self):
+        return '<{MODULE}.{CLASS}(data={DATA}, protected={PROTECTED}) at {ID}>'.format(MODULE=self.__class__.__module__,
+                                                                                       CLASS=self.__class__.__name__,
+                                                                                       DATA=self.data,
+                                                                                       PROTECTED=self.protected_fields,
+                                                                                       ID=hex(id(self)))
+
+    def __str__(self):
+        return '{CLASS}({DATA}, protected={PROTECTED})'.format(CLASS=self.__class__.__name__,
+                                                               DATA=self.data,
+                                                               PROTECTED=self.protected)
 
 
 def cls_merge_name_tokens_and_meta_data(pre=True):

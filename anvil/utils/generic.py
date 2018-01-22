@@ -1,12 +1,11 @@
-import anvil
-import anvil.config as cfg
-import anvil.runtime as rt
 from six import iteritems
 
 
 def to_list(query):
     if isinstance(query, list):
         return query
+    elif query is None:
+        return list()
     try:
         return list(query)
     except TypeError:
@@ -34,27 +33,6 @@ def get_dict_key_matches(key, dictionary):
             return get_dict_key_matches(key, v)
 
 
-def get_node_hierarchy_as_dict(node_or_nodes, tree=None, node_filter=None):
-    nodes = to_list(node_or_nodes)
-
-    if tree is None:
-        tree = dict()
-
-    for tree_child in nodes:
-        anvil_node = anvil.factory(tree_child)
-        try:
-            relative_tree = tree[anvil_node]
-        except KeyError:
-            tree[anvil_node] = dict()
-            relative_tree = tree[anvil_node]
-
-        node_filter_kwargs = {cfg.TYPE: node_filter} if node_filter else {}
-        children = rt.dcc.scene.list_relatives(tree_child, fullPath=True, children=True, **node_filter_kwargs) or []
-        if children:
-            get_node_hierarchy_as_dict(children, relative_tree, node_filter=node_filter)
-    return tree
-
-
 def dict_to_keys_list(d, keys=None):
     keys = keys if keys is not None else []
     if isinstance(d, dict):
@@ -66,7 +44,47 @@ def dict_to_keys_list(d, keys=None):
     return keys
 
 
-def validate_and_cast_to_list_of_type(reference_objects, cast_type=str):
-    reference_objects = to_list(reference_objects)
-    return [cast_type(reference_object) for reference_object in reference_objects if
-            reference_object is not None and rt.dcc.scene.exists(reference_object)]
+def to_str_dict(d):
+    data = {}
+    for k, v in iteritems(d):
+        try:
+            data.update({str(k): str(v)})
+        except:
+            pass
+    return data
+
+
+def pop_dict_keys(d, keys):
+    popped = []
+    for key in keys:
+        try:
+            popped.append(d.pop(key))
+        except KeyError:
+            pass
+    return popped
+
+
+def merge_dicts(*args, **kwargs):
+    """ Outputs a merged dictionary from inputs. Overwrites data if there are conflicts from left to right.
+
+    :param args: (dict), tuple of input dictionaries
+    :param kwargs: dict, input kwargs to merge
+    :return: dict, combined data.
+    """
+    data = {}
+    for input_dict in [arg for arg in args if isinstance(arg, dict)] + [kwargs]:
+        data.update(input_dict)
+    return data
+
+
+def dict_compare(d1, d2):
+    """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
+    """
+    d1_keys = set(list(d1))
+    d2_keys = set(list(d2))
+    intersect_keys = d1_keys.intersection(d2_keys)
+    added = d1_keys - d2_keys
+    removed = d2_keys - d1_keys
+    modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
+    same = set(o for o in intersect_keys if d1[o] == d2[o])
+    return added, removed, modified, same
