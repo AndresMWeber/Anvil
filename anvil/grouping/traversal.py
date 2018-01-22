@@ -38,7 +38,7 @@ class HierarchyChain(log.LogMixin):
         raise IndexError('Child not found in hierarchy %s' % list(self))
 
     def get_hierarchy(self, node_filter=None, as_list=False):
-        hierarchy = gc.get_node_hierarchy_as_dict(self.head, node_filter=node_filter or self.node_filter)
+        hierarchy = sc.get_node_hierarchy_as_dict(self.head, node_filter=node_filter or self.node_filter)
         if as_list:
             hierarchy = gc.dict_to_keys_list(hierarchy)
         return hierarchy

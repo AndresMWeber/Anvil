@@ -8,11 +8,15 @@ import base
 
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = cfg.CONTROL_TYPE
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     PV_MOVE_DEFAULT = [0, 0, 3]
     PV_AIM_DEFAULT = [0, 0, 1]
     PV_UP_DEFAULT = [0, 1, 0]
     LOCAL_MOVE_KWARGS = MetaData({cfg.RELATIVE: True, cfg.OBJECT_SPACE: True, cfg.WORLD_SPACE_DISTANCE: True})
     SHAPE_PARENT_KWARGS = {cfg.RELATIVE: True, cfg.ABSOLUTE: False, cfg.SHAPE: True}
+    CTRL_NAME_TOKENS = {cfg.TYPE: cfg.CONTROL_TYPE}
+    OFFSET_NAME_TOKENS = {cfg.TYPE: cfg.OFFSET_GROUP}
+    CON_NAME_TOKENS = {cfg.TYPE: cfg.CONNECTION_GROUP}
 
     def __init__(self, control=None, offset_group=None, connection_group=None, **kwargs):
         super(Control, self).__init__(top_node=offset_group or control, **kwargs)
@@ -22,14 +26,18 @@ class Control(base.AbstractGrouping):
 
     @classmethod
     def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
-        kwargs[cfg.META_DATA] = cls.BUILT_IN_META_DATA.merge(getattr(cls, cfg.META_DATA, {}), meta_data, new=True)
-        name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(getattr(cls, cfg.NAME_TOKENS, {}), name_tokens, new=True)
+        meta_data = cls.BUILT_IN_META_DATA.merge(meta_data, new=True)
+        meta_data.set_protected(cls.BUILT_IN_META_DATA.protected)
+        name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
+        name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS)
 
+        kwargs[cfg.META_DATA] = meta_data
         instance = cls(
-            ob.Curve.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONTROL_TYPE}, **kwargs),
-            ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.OFFSET_GROUP}, **kwargs),
-            ob.Transform.build(name_tokens=name_tokens + {cfg.TYPE: cfg.CONNECTION_GROUP}, **kwargs),
-            **name_tokens.merge(kwargs, new=True))
+            ob.Curve.build(name_tokens=name_tokens.merge(cls.CTRL_NAME_TOKENS, new=True, force=True), **kwargs),
+            ob.Transform.build(name_tokens=name_tokens.merge(cls.OFFSET_NAME_TOKENS, new=True, force=True), **kwargs),
+            ob.Transform.build(name_tokens=name_tokens.merge(cls.CON_NAME_TOKENS, new=True, force=True), **kwargs),
+            name_tokens=name_tokens,
+            **kwargs)
 
         instance.build_layout()
         instance.match_position(reference_object, **kwargs)

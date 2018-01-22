@@ -10,7 +10,8 @@ from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 class UnicodeDelegate(log.LogMixin):
     LOG = log.obtainLogger(__name__)
     dcc_type = None
-    BUILTIN_METADATA = {cfg.TYPE: dcc_type}
+    BUILTIN_METADATA = MetaData({})
+    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
 
     @cls_merge_name_tokens_and_meta_data(pre=True)
     def __init__(self, node_pointer, meta_data=None, name_tokens=None, **kwargs):
@@ -24,8 +25,13 @@ class UnicodeDelegate(log.LogMixin):
         self.info('Initializing node %s with ID %s, name_tokens=%s, meta_data=%s, %s',
                    self.__class__, node_pointer, name_tokens, meta_data, kwargs)
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
-        self.meta_data = MetaData(meta_data)
-        self.name_tokens = MetaData(name_tokens)
+
+        self.meta_data = self.BUILTIN_METADATA.merge(meta_data, new=True)
+        self.meta_data.set_protected(self.BUILTIN_METADATA)
+
+        self.name_tokens = self.BUILTIN_NAME_TOKENS.merge(name_tokens, new=True)
+        self.name_tokens.set_protected(self.BUILTIN_NAME_TOKENS)
+
         self.build_kwargs = MetaData(kwargs)
 
         try:

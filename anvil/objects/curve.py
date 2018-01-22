@@ -11,6 +11,7 @@ from six import iteritems
 
 class Curve(transform.Transform):
     dcc_type = 'nurbsCurve'
+    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 

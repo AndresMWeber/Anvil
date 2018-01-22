@@ -16,8 +16,8 @@ class AbstractGrouping(log.LogMixin):
     """
     LOG = log.obtainLogger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     BUILT_IN_META_DATA = MetaData()
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'})
     BUILT_IN_ATTRIBUTES = MetaData({})
     RENDERING_ATTRIBUTES = MetaData({
         '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,

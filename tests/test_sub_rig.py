@@ -69,9 +69,7 @@ class TestSubRigNameTokensIntact(TestBase):
         b = nt.Joint.build(name_tokens={'name': 'bob'})
         self.sub_rig.register_node('test', b, name_tokens=None)
         self.assertDictEqual(b.name_tokens,
-                             {'name': 'bob',
-                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
-                              cfg.TYPE: cfg.JOINT_TYPE})
+                             {'name': 'bob', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
         self.assertDictEqual(b.meta_data, {})
 
     @TestBase.delete_created_nodes

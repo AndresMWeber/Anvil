@@ -26,9 +26,9 @@ class MetaData(log.LogMixin):
 
     def merge(self, *args, **kwargs):
         """ Merge the incoming dictionaries into the current MetaData instance.  If the user passes a list of
-            ignore_keys then these keys will be ignored...however the user can permanently set them as protected_fields.
+            ignore_keys then these keys will be ignored...however the user can permanently set them as protected.
 
-        :param force: (bool), whether or not to use both ignore_keys and the protected_fields.
+        :param force: (bool), whether or not to use both ignore_keys and the protected keys.
         :param new: (bool), merge will return a new MetaData from the merge and leave the current one unchanged.
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
@@ -54,7 +54,7 @@ class MetaData(log.LogMixin):
         :param kwargs: dict, input kwargs to merge
         :param key_or_keys: (str or list(str)): list of strings or string representing keys we want to write-protect.
         """
-        self.protected_fields + to_list(key_or_keys)
+        self.protected + to_list(key_or_keys)
 
     def update(self, *args, **kwargs):
         """ For ease of use to act like a dictionary.
@@ -127,7 +127,7 @@ class MetaData(log.LogMixin):
         return '<{MODULE}.{CLASS}(data={DATA}, protected={PROTECTED}) at {ID}>'.format(MODULE=self.__class__.__module__,
                                                                                        CLASS=self.__class__.__name__,
                                                                                        DATA=self.data,
-                                                                                       PROTECTED=self.protected_fields,
+                                                                                       PROTECTED=self.protected,
                                                                                        ID=hex(id(self)))
 
     def __str__(self):

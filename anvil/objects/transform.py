@@ -3,10 +3,12 @@ import anvil
 import anvil.runtime as rt
 import anvil.config as cfg
 from anvil.utils.scene import check_exist_to_list
+from anvil.meta_data import MetaData
 
 
 class Transform(dag_node.DagNode):
     dcc_type = cfg.TRANSFORM_TYPE
+    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
     MODE_LOOKUP = {
         cfg.SCALE: cfg.SCALE,
         cfg.TRANSLATE: cfg.TRANSLATION,
