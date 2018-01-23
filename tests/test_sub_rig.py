@@ -1,6 +1,7 @@
 import anvil.node_types as nt
 import anvil.config as cfg
 from base_test import TestBase
+import unittest
 
 
 class TestBaseSubRig(TestBase):
@@ -157,4 +158,4 @@ class TestSubRigMetaDataIntact(TestBase):
         self.assertDictEqual(b.meta_data, {'name': 'silvia',
                                            cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                                            cfg.TYPE: cfg.GROUP_TYPE})
-        self.assertDictEqual(b.name_tokens, {})
+        self.assertDictEqual(b.name_tokens, {cfg.TYPE: cfg.GROUP_TYPE})

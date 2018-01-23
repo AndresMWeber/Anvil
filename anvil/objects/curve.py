@@ -75,7 +75,7 @@ class Curve(Transform):
             rt.dcc.scene.position(self.cvs(), **transform_kwargs)
 
     def generate_clusters(self):
-        return [transform.Transform(rt.dcc.rigging.cluster(cv)[1]) for cv in self.cvs()]
+        return [Transform(rt.dcc.rigging.cluster(cv)[1]) for cv in self.cvs()]
 
     def swap_shape(self, new_shape, maintain_position=False):
         self.SHAPE_PARENT_KWARGS[cfg.RELATIVE] = not maintain_position
