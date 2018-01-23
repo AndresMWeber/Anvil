@@ -1,12 +1,12 @@
 import anvil.config as cfg
 import anvil.runtime as rt
-import transform
-from anvil.meta_data import MetaData
+from transform import Transform
 
 
-class Joint(transform.Transform):
-    dcc_type = cfg.JOINT_TYPE
-    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
+class Joint(Transform):
+    DCC_TYPE = cfg.JOINT_TYPE
+    ANVIL_TYPE = cfg.JOINT_TYPE
+    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: ANVIL_TYPE}, force=True, new=True)
 
     @staticmethod
     def create_engine_instance(**kwargs):

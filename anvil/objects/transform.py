@@ -1,14 +1,14 @@
-import dag_node
+from dag_node import DagNode
 import anvil
 import anvil.runtime as rt
 import anvil.config as cfg
 from anvil.utils.scene import check_exist_to_list
-from anvil.meta_data import MetaData
 
 
-class Transform(dag_node.DagNode):
-    dcc_type = cfg.TRANSFORM_TYPE
-    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
+class Transform(DagNode):
+    DCC_TYPE = cfg.TRANSFORM_TYPE
+    ANVIL_TYPE = cfg.GROUP_TYPE
+    BUILT_IN_NAME_TOKENS = DagNode.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: ANVIL_TYPE}, force=True, new=True)
     MODE_LOOKUP = {
         cfg.SCALE: cfg.SCALE,
         cfg.TRANSLATE: cfg.TRANSLATION,

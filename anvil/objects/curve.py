@@ -3,15 +3,16 @@ from collections import OrderedDict
 import anvil
 import anvil.config as cfg
 import anvil.runtime as rt
-import transform
+from transform import Transform
 import io
 from anvil.meta_data import MetaData
 from six import iteritems
 
 
-class Curve(transform.Transform):
-    dcc_type = 'nurbsCurve'
-    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
+class Curve(Transform):
+    DCC_TYPE = 'nurbsCurve'
+    ANVIL_TYPE = 'curve'
+    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: ANVIL_TYPE}, force=True, new=True)
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
@@ -26,7 +27,7 @@ class Curve(transform.Transform):
         instance = super(Curve, cls).build(**kwargs)
 
         # Just in case we are using PyMEL and it has returned the actual shape node instead of the transform.
-        if rt.dcc.scene.get_type(str(instance)) == cls.dcc_type and instance.get_parent():
+        if rt.dcc.scene.get_type(str(instance)) == cls.DCC_TYPE and instance.get_parent():
             instance._dcc_id = rt.dcc.scene.get_persistent_id(str(instance.get_parent()))
 
         instance.transform_shape(scale, mode=cfg.SCALE)

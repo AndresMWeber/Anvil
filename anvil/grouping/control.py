@@ -8,7 +8,6 @@ import base
 
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = cfg.CONTROL_TYPE
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     PV_MOVE_DEFAULT = [0, 0, 3]
     PV_AIM_DEFAULT = [0, 0, 1]
     PV_UP_DEFAULT = [0, 1, 0]

@@ -157,12 +157,12 @@ class AbstractGrouping(log.LogMixin):
     def _cascading_function(self, object_function, grouping_function):
         for sub_key, sub_node in iteritems(self.hierarchy):
             if anvil.is_agrouping(sub_node):
-                self.info('Renaming sub_grouping %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
+                self.debug('Renaming sub_grouping %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 grouping_function(sub_node)
             elif anvil.is_aobject(sub_node):
-                self.info('Renaming sub_node %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
+                self.debug('Renaming sub_node %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 object_function(sub_node)
-            self.info('Renamed sub_node %r based on tokens %s with parent tokens %s',
+            self.debug('Renamed sub_node %r based on tokens %s with parent tokens %s',
                       sub_node, sub_node.name_tokens, self.name_tokens)
 
     def __getattr__(self, item):

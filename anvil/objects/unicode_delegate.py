@@ -4,16 +4,15 @@ import anvil.log as log
 from anvil.meta_data import MetaData
 import anvil.runtime as rt
 import anvil.utils.generic as gc
-from anvil.meta_data import cls_merge_name_tokens_and_meta_data
 
 
 class UnicodeDelegate(log.LogMixin):
     LOG = log.obtainLogger(__name__)
-    dcc_type = None
-    BUILTIN_METADATA = MetaData({})
-    BUILTIN_NAME_TOKENS = MetaData({cfg.TYPE: dcc_type}, protected=cfg.TYPE)
+    DCC_TYPE = None
+    ANVIL_TYPE = 'unicode'
+    BUILT_IN_METADATA = MetaData({})
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
 
-    @cls_merge_name_tokens_and_meta_data(pre=True)
     def __init__(self, node_pointer, meta_data=None, name_tokens=None, **kwargs):
         """ All nodes must be initialized with a string representation that the encompassing platform
             uses as DAG path representation for the object.
@@ -22,15 +21,15 @@ class UnicodeDelegate(log.LogMixin):
         :param kwargs: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
-        self.info('Initializing node %s with ID %s, name_tokens=%s, meta_data=%s, %s',
-                   self.__class__, node_pointer, name_tokens, meta_data, kwargs)
+        self.debug('Initializing node %s with ID %s, name_tokens=%s, meta_data=%s, %s',
+                  self.__class__, node_pointer, name_tokens, meta_data, kwargs)
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
 
-        self.meta_data = self.BUILTIN_METADATA.merge(meta_data, new=True)
-        self.meta_data.set_protected(self.BUILTIN_METADATA)
+        self.meta_data = self.BUILT_IN_METADATA.merge(meta_data, new=True)
+        self.meta_data.set_protected(self.BUILT_IN_METADATA)
 
-        self.name_tokens = self.BUILTIN_NAME_TOKENS.merge(name_tokens, new=True)
-        self.name_tokens.set_protected(self.BUILTIN_NAME_TOKENS)
+        self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
+        self.name_tokens.set_protected(self.BUILT_IN_NAME_TOKENS)
 
         self.build_kwargs = MetaData(kwargs)
 
@@ -57,7 +56,7 @@ class UnicodeDelegate(log.LogMixin):
 
     @classmethod
     def build(cls, **kwargs):
-        cls.info('Building node %s: %s(%s)', cls.__name__, cls.dcc_type, kwargs)
+        cls.info('Building node %s: %s(%s)', cls.__name__, cls.DCC_TYPE, kwargs)
         dcc_instance = cls.create_engine_instance(**kwargs)
         instance = cls(dcc_instance, **kwargs)
 
