@@ -25,13 +25,37 @@ jobs:
             yum remove -y git
             yum install -y epel-release
             yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-            yum install -y git2u libpng
-            yum install upgrade -y gcc gcc-c++
+            yum install -y git2u
+
+      - run:
+          name: set up maya dependencies
+          command: |
+            wget https://sourceforge.net/projects/libpng/files/lib png15/1.5.30/libpng-1.5.30.tar.xz
+            yum install -y zlib-devel xz
+            unxz libpng-1.5.30.tar.xz
+            tar -xvf libpng-1.5.30.tar
+            cd libpng-1.5.30
+            ./configure --prefix=/usr/local/libpng
+            make install
+            ln -s /usr/local/libpng/lib/libpng15.so.15 /usr/autodesk/maya2017/lib/llibpng15.so.15
             export PYTHONHOME=/usr/autodesk/maya2017/bin
             export PATH=$PATH:$PYTHONHOME
             echo '/usr/autodesk/maya2017/lib/' >> /etc/ld.so.conf
             ldconfig
-
+            cd ~
+      - run:
+          name: update GCC
+          command:
+            mkdir ~/glibc_install
+            cd ~/glibc_install
+            wget http://ftp.gnu.org/gnu/glibc/glibc-2.14.tar.gz
+            tar zxvf glibc-2.14.tar.gz
+            cd glibc-2.14
+            mkdir build
+            cd build
+            ../configure --prefix=/opt/glibc-2.14
+            make -j4
+            make install
       - checkout
 
       # Download and cache dependencies
@@ -42,15 +66,11 @@ jobs:
           - v1-dependencies-
 
       - run:
-          name: set up mayapy
+          name: set up mayapy and install deps
           command: |
             wget https://bootstrap.pypa.io/get-pip.py
             mayapy get-pip.py
             chmod -x $(find tests/ -name '*.py')
-
-      - run:
-          name: install dependencies
-          command: |
             mayapy -m pip install -r requirements.txt
             mayapy -m pip install docker-compose coveralls
 
