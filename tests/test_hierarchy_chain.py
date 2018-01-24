@@ -2,7 +2,6 @@ import anvil.node_types as nt
 import anvil.runtime as rt
 import anvil
 from base_test import TestBase
-from pprint import pprint
 import anvil.config as cfg
 
 
@@ -31,7 +30,6 @@ class TestBaseHierarchyChain(TestBase):
         cls.group = group
         cls.joints_third = cls.joints_third
         cls.joints_total = cls.joints_second + [group] + cls.joints_third
-        pprint(rt.dcc.scene.get_scene_tree())
 
 
 class TestHierarchyChainInit(TestBaseHierarchyChain):

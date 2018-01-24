@@ -4,7 +4,6 @@ import anvil.node_types as nt
 import anvil.sub_rig_templates.spine as spine
 import anvil.sub_rig_templates.biped_arm as biped_arm
 import base_test
-from pprint import pprint
 
 
 class TestBaseTemplates(base_test.TestBase):
@@ -32,7 +31,6 @@ class TestBaseTemplates(base_test.TestBase):
         print(joints, template_flags)
         sub_rig_instance = cls.TEMPLATE_CLASS(joints)
         sub_rig_instance.build(**template_flags)
-        pprint(anvil.runtime.dcc.scene.get_scene_tree())
         return sub_rig_instance
 
 

@@ -72,7 +72,6 @@ class TestRigRename(TestBaseRig):
 
     @TestBase.delete_created_nodes
     def test_sub_groups(self):
-        print(sorted([str(self.test_rig.hierarchy[node]) for node in self.test_rig.hierarchy]))
         self.assertListSame(sorted(['bert_rig_eye_mvp_GRP',
                                     'bert_eye_sub_rigs_mvp_GRP',
                                     'bert_eye_universal_mvp_OGP',

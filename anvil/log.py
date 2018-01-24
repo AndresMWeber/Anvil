@@ -7,6 +7,7 @@ import datetime
 import config as cfg
 
 
+
 def obtainLogger(name, json_output=False):
     """Get's a logger and attaches the correct DCC compatible Handler.
     Args:
@@ -81,6 +82,7 @@ class LogInitializer(LogMixin):
     ENV_KEY = cfg.LOG_ENV_KEY
     CFG_FILE = cfg.DEFAULT_CONFIG_PATH
     CFG_DICT = {}
+    STATE = True
 
     def __init__(self, log_directory, cfg_file=None):
         self.LOG_DIR = log_directory
@@ -135,6 +137,11 @@ class LogInitializer(LogMixin):
             cls._override_dict_config_settings(logger, key, value)
 
     @classmethod
+    def toggle_loggers(cls, key, value):
+        for logger in cls.CFG_DICT[cls.LOGGERS]:
+            cls._override_dict_config_settings(logger, key, value)
+
+    @classmethod
     def _format_log_filenames(cls):
         for handler in cls.CFG_DICT[cls.HANDLERS]:
             filename = cls.CFG_DICT[cls.HANDLERS][handler].get('filename')
@@ -169,6 +176,11 @@ class LogInitializer(LogMixin):
 LogInitializer.load_from_current_state()
 
 
-def quiet_loggers(level=logging.ERROR):
+def toggle_loggers():
+    LogInitializer.STATE = not LogInitializer.STATE
+    LogInitializer.override_all_loggers('disabled', LogInitializer.STATE)
+    LogInitializer.set_from_dict()
+
+def set_all_log_levels(level=logging.ERROR):
     LogInitializer.override_all_loggers('level', level)
     LogInitializer.set_from_dict()

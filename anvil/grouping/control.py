@@ -8,14 +8,17 @@ import base
 
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = cfg.CONTROL_TYPE
-    PV_MOVE_DEFAULT = [0, 0, 3]
-    PV_AIM_DEFAULT = [0, 0, 1]
-    PV_UP_DEFAULT = [0, 1, 0]
-    LOCAL_MOVE_KWARGS = MetaData({cfg.RELATIVE: True, cfg.OBJECT_SPACE: True, cfg.WORLD_SPACE_DISTANCE: True})
-    SHAPE_PARENT_KWARGS = {cfg.RELATIVE: True, cfg.ABSOLUTE: False, cfg.SHAPE: True}
+
     CTRL_NAME_TOKENS = {cfg.TYPE: cfg.CONTROL_TYPE}
     OFFSET_NAME_TOKENS = {cfg.TYPE: cfg.OFFSET_GROUP}
     CON_NAME_TOKENS = {cfg.TYPE: cfg.CONNECTION_GROUP}
+
+    PV_MOVE_DEFAULT = [0, 0, 3]
+    PV_AIM_DEFAULT = [0, 0, 1]
+    PV_UP_DEFAULT = [0, 1, 0]
+
+    LOCAL_MOVE_KWARGS = {cfg.RELATIVE: True, cfg.OBJECT_SPACE: True, cfg.WORLD_SPACE_DISTANCE: True}
+    SHAPE_PARENT_KWARGS = {cfg.RELATIVE: True, cfg.ABSOLUTE: False, cfg.SHAPE: True}
 
     def __init__(self, control=None, offset_group=None, connection_group=None, **kwargs):
         super(Control, self).__init__(top_node=offset_group or control, **kwargs)
@@ -56,7 +59,7 @@ class Control(base.AbstractGrouping):
                       aim_vector=aim_vector or cls.PV_AIM_DEFAULT,
                       up_vector=up_vector or cls.PV_UP_DEFAULT,
                       up_object=up_object or start)
-        offset.translate_node(move_by or cls.PV_MOVE_DEFAULT, **cls.LOCAL_MOVE_KWARGS.data)
+        offset.translate_node(move_by or cls.PV_MOVE_DEFAULT, **cls.LOCAL_MOVE_KWARGS)
         offset.rotate.set([0, 0, 0])
 
         rt.dcc.connections.pole_vector(getattr(control, cfg.CONNECTION_GROUP), ik_handle)

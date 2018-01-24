@@ -111,8 +111,7 @@ class AbstractGrouping(log.LogMixin):
         new_tokens = MetaData(*input_dicts, **kwargs)
         self.name_tokens.merge(new_tokens)
         self._nomenclate.merge_dict(**self.name_tokens.data)
-        print(['%s: %s\n' % (node, node.name_tokens) for key, node in iteritems(self.hierarchy)])
-        self.info('Renaming %r...with name tokens %s and new tokens %s', self, self.name_tokens, new_tokens)
+        self.debug('Renaming %r...with name tokens %s and new tokens %s', self, self.name_tokens, new_tokens)
         self._cascading_function(lambda n:
                                  n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
                                  lambda n:
