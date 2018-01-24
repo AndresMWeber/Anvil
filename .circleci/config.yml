@@ -27,7 +27,6 @@ jobs:
             yum install -y https://centos6.iuscommunity.org/ius-release.rpm
             yum install -y git2u
             yum install upgrade -y gcc gcc-c++
-            LDFLAGS="-L/usr/autodesk/maya2017/lib/" make
 
       - checkout
 
