@@ -29,6 +29,8 @@ jobs:
             yum install upgrade -y gcc gcc-c++
             echo '/usr/autodesk/maya2017/lib/' >> /etc/ld.so.conf
             ldconfig
+            export PYTHONHOME=/usr/autodesk/maya2017
+            export PATH=$PATH:$PYTHONHOME
 
       - checkout
 
