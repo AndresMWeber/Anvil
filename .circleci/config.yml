@@ -41,8 +41,8 @@ jobs:
           command: |
             wget https://bootstrap.pypa.io/get-pip.py
             mayapy get-pip.py
-            mayapy -m pip install -r ~/requirements.txt
-            chmod -x $(find ~/Anvil/tests/ -name '*.py')
+            mayapy -m pip install -r requirements.txt
+            chmod -x $(find tests/ -name '*.py')
 
       - run:
           name: install dependencies
@@ -59,7 +59,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            mayapy -m nose --with-coverage --cover-package=forge
+            mayapy -m nose --with-coverage --cover-package=anvil
             coveralls
 
       - store_artifacts:
