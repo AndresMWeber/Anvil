@@ -46,14 +46,13 @@ jobs:
           command: |
             wget https://bootstrap.pypa.io/get-pip.py
             mayapy get-pip.py
-            mayapy -m pip install -r requirements.txt
             chmod -x $(find tests/ -name '*.py')
 
       - run:
           name: install dependencies
           command: |
             mayapy -m pip install -r requirements.txt
-            pip install docker-compose coveralls
+            mayapy -m pip install docker-compose coveralls
 
       - save_cache:
           paths:
