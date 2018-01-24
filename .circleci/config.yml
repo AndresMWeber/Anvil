@@ -27,6 +27,8 @@ jobs:
             yum install -y https://centos6.iuscommunity.org/ius-release.rpm
             yum install -y git2u
             yum install upgrade -y gcc gcc-c++
+            echo '/usr/autodesk/bin/' >> /etc/ld.so.conf
+            ldconfig
 
       - checkout
 
