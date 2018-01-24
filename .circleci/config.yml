@@ -25,11 +25,11 @@ jobs:
             yum remove -y git
             yum install -y epel-release
             yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-            yum install -y git2u
+            yum install -y git2u libpng
             yum install upgrade -y gcc gcc-c++
             echo '/usr/autodesk/maya2017/lib/' >> /etc/ld.so.conf
             ldconfig
-            export PYTHONHOME=/usr/autodesk/maya2017
+            export PYTHONHOME=/usr/autodesk/maya2017/bin
             export PATH=$PATH:$PYTHONHOME
 
       - checkout
@@ -63,7 +63,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            mayapy -m nose --with-coverage --cover-package=anvil
+            mayapy -m nose --with-coverage --cover-package=anvil --nologcapture
             coveralls
 
       - store_artifacts:
