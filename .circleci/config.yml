@@ -1,7 +1,7 @@
 # Python CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
-#d
+#
 version: 2
 
 jobs:
@@ -12,6 +12,7 @@ jobs:
     working_directory: ~/Anvil
       - checkout
 
+    steps:
       # Download and cache dependencies
       - restore_cache:
           keys:
