@@ -10,9 +10,9 @@ jobs:
       - image: mottosso/maya:2017
 
     working_directory: ~/Anvil
-      - checkout
 
     steps:
+      - checkout
       # Download and cache dependencies
       - restore_cache:
           keys:
