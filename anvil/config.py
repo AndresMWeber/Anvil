@@ -163,7 +163,7 @@ DEFAULT_PV_SHAPE = TRIANGLE
 BASE_DIR = os.path.dirname(os.path.abspath(anvil.__file__))
 SHAPES_FILE = os.path.join(BASE_DIR, 'objects', 'curve_shapes.yml')
 DEFAULT_CONFIG_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '.log.yml')
-DEFAULT_LOG_DIR = os.path.join(os.path.expanduser('~'), 'anvil')
+DEFAULT_LOG_DIR = os.path.join(os.path.expanduser('~'), '.anvil')
 
 # ENV PATCHING
 ENV = {MODE_ENV_KEY: DEV}

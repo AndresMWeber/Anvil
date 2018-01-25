@@ -51,8 +51,8 @@ jobs:
             coveralls
 
       - store_artifacts:
-          path: test-reports
+          path: .anvil
           destination: test-reports
-        
+
       - store_test_results:
           path: test-reports
