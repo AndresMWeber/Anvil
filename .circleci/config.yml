@@ -18,14 +18,14 @@ jobs:
 
     working_directory: ~/Anvil
 
-    steps:
-      - run:
-          name: update git and gcc and libpython path
-          command: |
-            yum remove -y git
-            yum install -y epel-release
-            yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-            yum install -y git2u
+    #steps:
+    #  - run:
+    #      name: update git and gcc and libpython path
+    #      command: |
+    #        yum remove -y git
+    #        yum install -y epel-release
+    #        yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+    #        yum install -y git2u
 
       #- run:
       #    name: set up maya dependencies
@@ -72,7 +72,7 @@ jobs:
             mayapy get-pip.py
             chmod -x $(find tests/ -name '*.py')
             mayapy -m pip install -r requirements.txt
-            mayapy -m pip install docker-compose coveralls
+            mayapy -m pip install coveralls
 
       - save_cache:
           paths:
