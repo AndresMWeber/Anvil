@@ -1,12 +1,12 @@
 from tests.base_test import cleanup_nodes
 import test_build_biped
-from pycallgraph.output import GraphvizOutput
-
 
 class TestProfileBiped(test_build_biped.TestBaseTemplateRigs):
     def test_pycall_graph(self):
         try:
             from pycallgraph import PyCallGraph
+            from pycallgraph.output import GraphvizOutput
+
             with cleanup_nodes():
                 with PyCallGraph(output=GraphvizOutput()):
                     self.from_template_file(self.TPOSE)
