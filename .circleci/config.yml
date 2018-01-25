@@ -13,12 +13,13 @@ jobs:
 
     steps:
       - run:
-          name: update git for checkout
+          name: update git for checkout and make reports dir
           command: |
             yum remove -y git
             yum install -y epel-release
             yum install -y https://centos6.iuscommunity.org/ius-release.rpm
             yum install -y git2u
+            mkdir ~/test-reports
 
       - checkout
 
@@ -52,7 +53,7 @@ jobs:
 
       - store_artifacts:
           path: .anvil
-          destination: test-reports
+          destination: ~/test-reports
 
       - store_test_results:
-          path: test-reports
+          path: ~/test-reports

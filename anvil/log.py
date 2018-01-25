@@ -94,7 +94,6 @@ class LogInitializer(LogMixin):
         cls.set_config_from_path()
         cls.set_log_directory()
         cls.set_from_dict()
-        cls.info('Loaded logger config file %s successfully, writing to: %s', cls.CFG_FILE, cls.CFG_DICT)
         return cls.CFG_FILE, cls.CFG_DICT
 
     @classmethod

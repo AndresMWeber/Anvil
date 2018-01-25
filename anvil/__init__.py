@@ -21,6 +21,8 @@ import node_types
 import sub_rig_templates
 import rig_templates
 
+LOG.info('Loaded logger config file %s successfully, writing to: %s',
+         log.LogInitializer.CFG_FILE, log.LogInitializer.LOG_DIR)
 LOG.info('Anvil environment has been set to %s', config.ENV)
 LOG.info('Successfully initiated Anvil %s.', version.__version__)
 
