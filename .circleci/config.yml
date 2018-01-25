@@ -48,12 +48,13 @@ jobs:
       - run:
           name: run tests
           command: |
-            mayapy -m nose --with-coverage --cover-package=anvil --nologcapture
+            mayapy -m nose --with-coverage --cover-package=anvil --nologcapture > ~/test-reports/nose.txt 2>&1
             coveralls
-
-      - store_artifacts:
-          path: .anvil
-          destination: ~/test-reports
 
       - store_test_results:
           path: ~/test-reports
+
+      - store_artifacts:
+          path: ~/.anvil
+          destination: ~/test-reports
+
