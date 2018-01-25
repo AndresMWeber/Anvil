@@ -85,9 +85,9 @@ class TestControlRename(TestBaseControl):
                            {'name': 'johnny'}, childtype='group', face='bat')
 
     def test_combined_input_extra_dict_key(self):
-        _ = 'april'
+        _ = 'april_child'
         self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
-                           {'name': 'april', 'face': 'bat'}, childtype='group', face='bat')
+                           {'name': 'april', 'face': 'bat'}, childtype='child', face='bat')
 
     def test_combined_input_overlapping(self):
         _ = 'sarah'
