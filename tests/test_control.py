@@ -47,50 +47,55 @@ class TestControlRename(TestBaseControl):
         self.rename_runner(None)
 
     def test_dict_input(self):
-        self.rename_runner({'control': 'larry_CTR', 'offset_group': 'larry_OGP', 'connection_group': 'larry_CGP'},
-                           {'name': 'larry', 'type': 'group'})
+        _ = 'larry'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
+                           {'name': 'larry', 'childtype': 'group'})
 
     def test_dict_input_extra(self):
-        self.rename_runner({'control': 'maybe_CTR', 'offset_group': 'maybe_OGP', 'connection_group': 'maybe_CGP'},
-                           {'name': 'maybe', 'type': 'group', 'face': 'pretty'})
+        _ = 'maybe'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
+                           {'name': 'maybe', 'childtype': 'group', 'face': 'pretty'})
 
     def test_dict_input_only_extra(self):
-        self.rename_runner({'control': 'CTR', 'offset_group': 'OGP', 'connection_group': 'CGP'},
+        _ = 'untitled'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
                            {'blah': 'face'})
 
     def test_kwargs_input(self):
-        self.rename_runner({'control': 'test_joint_CTR',
-                            'offset_group': 'test_joint_OGP',
-                            'connection_group': 'test_joint_CGP'},
+        _ = 'test_joint'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
                            name='test', childtype='joint')
 
     def test_kwargs_input_extra(self):
-        self.rename_runner({'control': 'test_mountain_CTR',
-                            'offset_group': 'test_mountain_OGP',
-                            'connection_group': 'test_mountain_CGP'},
+        _ = 'test_mountain'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
                            name='test', childtype='mountain', rotten='tomato')
 
     def test_kwargs_input_only_extra(self):
         self.rename_runner(None, fame='test', mild='hier', rotten='tomato')
 
     def test_combined_input(self):
-        self.rename_runner({'control': 'john_CTR', 'offset_group': 'john_OGP', 'connection_group': 'john_CGP'},
-                           {'name': 'john'}, type='group')
+        _ = 'john_blah'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
+                           {'name': 'john'}, childtype='blah')
 
     def test_combined_input_extra_kwarg(self):
-        self.rename_runner({'control': 'johnny_CTR', 'offset_group': 'johnny_OGP', 'connection_group': 'johnny_CGP'},
-                           {'name': 'johnny'}, type='group', face='bat')
+        _ = 'johnny'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
+                           {'name': 'johnny'}, childtype='group', face='bat')
 
     def test_combined_input_extra_dict_key(self):
-        self.rename_runner({'control': 'april_CTR', 'offset_group': 'april_OGP', 'connection_group': 'april_CGP'},
-                           {'name': 'april', 'face': 'bat'}, type='group', face='bat')
+        _ = 'april'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
+                           {'name': 'april', 'face': 'bat'}, childtype='group', face='bat')
 
     def test_combined_input_overlapping(self):
-        self.rename_runner({'control': 'sarah_CTR', 'offset_group': 'sarah_OGP', 'connection_group': 'sarah_CGP'},
+        _ = 'sarah'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
                            {'name': 'oneil'}, name='sarah')
 
     def test_multi_dict(self):
-        self.rename_runner({'control': 'john_position_CTR',
-                            'offset_group': 'john_position_OGP',
-                            'connection_group': 'john_position_CGP'},
-                           {'name': 'john'}, {'childtype': 'position'})
+        _ = 'john_position'
+        self.rename_runner({'control': '%s_CTR' % _, 'offset_group': '%s_OGP' % _, 'connection_group': '%s_CGP' % _},
+                           {'name': 'john'},
+                           {'childtype': 'position'})

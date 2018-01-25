@@ -1,33 +1,93 @@
-import anvil.objects as objects
+from anvil.meta_data import MetaData
+import anvil.config as cfg
+import anvil.objects as ob
 import anvil.runtime as rt
+import anvil.utils.generic as gc
 import base
 
 
 class Control(base.AbstractGrouping):
-    ANVIL_TYPE = 'control'
+    ANVIL_TYPE = cfg.CONTROL_TYPE
 
-    def __init__(self, control=None, offset_group=None, connection_group=None, **flags):
-        super(Control, self).__init__(top_node=offset_group or control, **flags)
-        self.register_node('control', control)
-        self.register_node('offset_group', offset_group)
-        self.register_node('connection_group', connection_group)
+    CTRL_NAME_TOKENS = {cfg.TYPE: cfg.CONTROL_TYPE}
+    OFFSET_NAME_TOKENS = {cfg.TYPE: cfg.OFFSET_GROUP}
+    CON_NAME_TOKENS = {cfg.TYPE: cfg.CONNECTION_GROUP}
+
+    PV_MOVE_DEFAULT = [0, 0, 3]
+    PV_AIM_DEFAULT = [0, 0, 1]
+    PV_UP_DEFAULT = [0, 1, 0]
+
+    LOCAL_MOVE_KWARGS = {cfg.RELATIVE: True, cfg.OBJECT_SPACE: True, cfg.WORLD_SPACE_DISTANCE: True}
+    SHAPE_PARENT_KWARGS = {cfg.RELATIVE: True, cfg.ABSOLUTE: False, cfg.SHAPE: True}
+
+    def __init__(self, control=None, offset_group=None, connection_group=None, **kwargs):
+        super(Control, self).__init__(top_node=offset_group or control, **kwargs)
+        self.register_node(cfg.CONTROL_TYPE, control)
+        self.register_node(cfg.OFFSET_GROUP, offset_group)
+        self.register_node(cfg.CONNECTION_GROUP, connection_group)
 
     @classmethod
-    def build(cls, meta_data=None, **flags):
-        instance = cls(control=objects.Curve.build(meta_data={'type': 'control'}, **flags),
-                       offset_group=objects.Transform.build(meta_data={'type': 'offset_group'}, **flags),
-                       connection_group=objects.Transform.build(meta_data={'type': 'connection_group'}, **flags),
-                       meta_data=meta_data, **flags)
+    def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
+        meta_data = cls.BUILT_IN_META_DATA.merge(meta_data, new=True)
+        meta_data.set_protected(cls.BUILT_IN_META_DATA.protected)
+        name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
+        name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS)
+
+        kwargs[cfg.META_DATA] = meta_data
+        instance = cls(
+            ob.Curve.build(name_tokens=name_tokens.merge(cls.CTRL_NAME_TOKENS, new=True, force=True), **kwargs),
+            ob.Transform.build(name_tokens=name_tokens.merge(cls.OFFSET_NAME_TOKENS, new=True, force=True), **kwargs),
+            ob.Transform.build(name_tokens=name_tokens.merge(cls.CON_NAME_TOKENS, new=True, force=True), **kwargs),
+            name_tokens=name_tokens,
+            **kwargs)
+
         instance.build_layout()
+        instance.match_position(reference_object, **kwargs)
+        instance.parent(parent)
         return instance
 
+    @classmethod
+    def build_pole_vector(cls, joints, ik_handle,
+                          up_vector=None, aim_vector=None, up_object=None, move_by=None, **kwargs):
+        joints = gc.to_list(joints)
+        start, end = joints[0], joints[-1]
+
+        control = cls.build(**kwargs)
+        offset = getattr(control, cfg.OFFSET_GROUP)
+        offset.match_position([start, end])
+        offset.aim_at(joints,
+                      aim_vector=aim_vector or cls.PV_AIM_DEFAULT,
+                      up_vector=up_vector or cls.PV_UP_DEFAULT,
+                      up_object=up_object or start)
+        offset.translate_node(move_by or cls.PV_MOVE_DEFAULT, **cls.LOCAL_MOVE_KWARGS)
+        offset.rotate.set([0, 0, 0])
+
+        rt.dcc.connections.pole_vector(getattr(control, cfg.CONNECTION_GROUP), ik_handle)
+        return control
+
+    def match_position(self, reference_object, rotate=True, translate=True, **kwargs):
+        try:
+            target = self.offset_group
+        except AttributeError:
+            target = self.control
+        target.match_transform(reference_object, rotate=rotate, translate=translate)
+
     def build_layout(self):
-        if self.flags.get('parent'):
-            self.parent(self.flags.get('parent'))
-        print(self, self.control, self.offset_group, self.connection_group)
-        rt.dcc.scene.parent(str(self.control), str(self.offset_group))
-        rt.dcc.scene.parent(str(self.connection_group), str(self.control))
+        rt.dcc.scene.parent(getattr(self, cfg.CONTROL_TYPE), getattr(self, cfg.OFFSET_GROUP))
+        rt.dcc.scene.parent(getattr(self, cfg.CONNECTION_GROUP), getattr(self, cfg.CONTROL_TYPE))
 
-    def colorize(self, color_id=None, color_tuple=None):
-        self.control.colorize(color_tuple or color_id)
+    def colorize(self, rgb_or_index):
+        self.control.colorize(rgb_or_index)
 
+    def scale_shape(self, value=1.0, relative=False):
+        self.control.transform_shape(value, relative=relative, mode=cfg.SCALE)
+
+    def rotate_shape(self, value=90.0, relative=False):
+        self.control.transform_shape(value, relative=relative, mode=cfg.ROTATE)
+
+    def translate_shape(self, value=0.0, relative=False):
+        self.control.transform_shape(value, relative=relative, mode=cfg.TRANSLATE)
+
+    def swap_shape(self, new_shape, maintain_position=False):
+        self.control.swap_shape(new_shape, maintain_position=maintain_position)
+        self.rename()

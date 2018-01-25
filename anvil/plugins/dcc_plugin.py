@@ -6,11 +6,22 @@ class DCCPlugin(object):
     ENGINE = None
 
     def __init__(self, dcc_module):
+        self.ENGINE = dcc_module.__name__
         self.ENGINE_API = dcc_module.dependencies.API or {}
+
         self.scene = dcc_module.scene
         self.create = dcc_module.create
-        self.constrain = dcc_module.connections
-        self.ENGINE = dcc_module.__name__
+        self.connections = dcc_module.connections
+        self.rigging = dcc_module.rigging
+        self.animation = dcc_module.animation
+
+    def copy_weights(self, source, targets):
+        if not isinstance(targets, list):
+            targets = [targets]
+
+        for target in targets:
+            self.rigging.copy_skin_weights(source, target, noMirror=True, surfaceAssociation='closestPoint',
+                                           influenceAssociation='closestJoint')
 
     def __str__(self):
         return '%s(%s, API=%s)' % (self.__class__.__name__, self.ENGINE, self.ENGINE_API)

@@ -2,7 +2,7 @@ version: 1
 disable_existing_loggers: False
 formatters:
     simple:
-        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format: "%(message)s"
     api:
         format: "%(message)s"
     structlog:
@@ -17,7 +17,7 @@ handlers:
 
     info_file_handler:
         class: logging.handlers.RotatingFileHandler
-        level: INFO
+        level: DEBUG
         formatter: structlog
         filename: session.log
         maxBytes: 10485760 # 10MB
@@ -27,43 +27,44 @@ handlers:
 loggers:
     anvil:
         level: INFO
-        handlers: [info_file_handler, console]
-        propagate: no
+        handlers: [info_file_handler]
+        propagate: yes
 
     anvil.log:
         level: INFO
-        handlers: [console]
-        propagate: no
+        handlers: [info_file_handler]
+        propagate: yes
 
     anvil.grouping.base:
         level: INFO
-        handlers: [info_file_handler, console]
-        propagate: no
+        handlers: [info_file_handler]
+        propagate: yes
 
     anvil.grouping.rig:
         level: INFO
-        handlers: [info_file_handler, console]
-        propagate: no
+        handlers: [info_file_handler]
+        propagate: yes
 
     anvil.grouping.sub_rig:
         level: INFO
-        handlers: [info_file_handler, console]
-        propagate: no
+        handlers: [info_file_handler]
+        propagate: yes
 
     anvil.plugins.base.api_proxy:
         level: INFO
-        handlers: [info_file_handler, console]
+        handlers: [info_file_handler]
         propagate: no
 
     anvil.plugins.base.api_proxy.api_calls:
         level: INFO
-        handlers: [info_file_handler, console]
+        handlers: [info_file_handler]
         propagate: no
 
-    testing:
+    anvil.tests:
         level: INFO
-        handlers: [info_file_handler, console]
-        propagate: no
+        handlers: [info_file_handler]
+        propagate: yes
+
 
 root:
     level: INFO

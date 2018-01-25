@@ -1,0 +1,64 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: mottosso/maya:2017
+
+    working_directory: ~/Anvil
+
+    steps:
+      - run:
+          name: update git for checkout and make reports dir
+          command: |
+            yum remove -y git
+            yum install -y epel-release
+            yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+            yum install -y git2u
+            mkdir ~/test-reports
+
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: set up mayapy and install deps
+          command: |
+            wget https://bootstrap.pypa.io/get-pip.py
+            mayapy get-pip.py
+            chmod -x $(find tests/ -name '*.py')
+            mayapy -m pip install -r requirements.txt
+            mayapy -m pip install coveralls
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=/root/test-reports/noselog.xml --cover-package=anvil
+
+      - run:
+          name: upload coverage
+          command: |
+            coveralls
+
+      - store_test_results:
+          path: ~/test-reports
+
+      - store_artifacts:
+          path: ~/.anvil
+          destination: ~/test-reports
+

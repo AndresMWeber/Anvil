@@ -1,6 +1,26 @@
 from six import iteritems
+from functools import wraps
 import anvil
+import anvil.config as cfg
 from jsonschema import validate
+
+DEFAULT_SCHEMA = {cfg.TYPE: ["object", "null"], "properties": {}}
+BOOL_TYPE = {cfg.TYPE: cfg.BOOLEAN}
+FLOAT_TYPE = {cfg.TYPE: cfg.NUMBER}
+INT_TYPE = {cfg.TYPE: cfg.INTEGER}
+STR_TYPE = {cfg.TYPE: cfg.STRING}
+NUM_TYPE = {cfg.TYPE: cfg.NUMBER}
+
+STR_LIST_TYPE = {cfg.TYPE: cfg.ARRAY, "items": STR_TYPE}
+POSITION_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 3, "maxItems": 3}
+POSITION_LIST = {cfg.TYPE: cfg.ARRAY, "items": POSITION_TYPE}
+POSITION_WEIGHT_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 4, "maxItems": 4}
+QUERYABLE_POSITION = {"anyOf": [POSITION_TYPE, BOOL_TYPE]}
+MATRIX_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 16, "maxItems": 16}
+QUERYABLE_MATRIX = {"anyOf": [MATRIX_TYPE, BOOL_TYPE]}
+LINEAR_ANGLE_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 2, "maxItems": 2}
+LINEAR_STRING_TYPE = {cfg.TYPE: cfg.ARRAY, "items": STR_TYPE, "minItems": 2, "maxItems": 2}
+STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
 
 
 class APIProxy(object):
@@ -11,60 +31,72 @@ class APIProxy(object):
     @classmethod
     def _validate_function(cls, schema, api, function_name):
         def to_validate(function):
+            @wraps(function)
             def validator(*args, **kwargs):
-                cls.LOG.info(
-                    'Validating call for %s.%s(%s, %s) against schema %s' % (api.__name__, function_name, args, kwargs, schema))
+                cls.LOG.debug('Validating call for %s.%s(args=%s, kwargs=%s) against schema %s' % (
+                    api.__name__, function_name, ', '.join([repr(a) for a in args]),
+                    ', '.join(['%s=%s' % (k, v) for k, v in iteritems(kwargs)]),
+                    list(schema['properties'])))
                 validate(kwargs, schema)
-                flags = cls._initialize_and_filter_flags(kwargs, schema)
-                return cls._log_and_run_api_call(api, function_name, *args, **flags)
+                kwargs = cls._initialize_and_filter_flags(kwargs, schema)
+                return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
 
-            validator.__name__ = function.__name__
             return validator
 
         return to_validate
 
     @classmethod
     def _initialize_and_filter_flags(cls, flags, schema):
-        if flags is None or flags == {}:
-            return {}
-        else:
-            new_flags = flags.copy()
-            schema_properties = [key for key in list(schema.get('properties'))]
-            cls.LOG.debug('Filtering flags %s for the schema properties %s' % (new_flags, schema_properties))
-            for flag_key in list(new_flags):
-                if flag_key not in schema_properties:
-                    cls.LOG.warning('  Flag %s not in schema...removing from flags' % (flag_key))
-                    new_flags.pop(flag_key)
-            return new_flags
+        new_flags = {} if flags is None else flags.copy()
 
-    @staticmethod
-    def is_anvil_type(obj):
-        return issubclass(type(obj), (anvil.grouping.AbstractGrouping, anvil.objects.UnicodeDelegate))
+        schema_properties = list(schema.get('properties'))
+        cls.LOG.debug('Filtering flags %s for the schema properties %s' % (new_flags, schema_properties))
+
+        for flag_key in list(new_flags):
+            if flag_key not in schema_properties:
+                cls.LOG.debug('Flag %s not in schema...removing from flags' % (flag_key))
+                new_flags.pop(flag_key)
+
+        for schema_property in schema_properties:
+            default = schema['properties'][schema_property].get(cfg.DEFAULT)
+            if default is not None and new_flags.get(schema_property) is None:
+                cls.LOG.debug('Setting flag %s from default value %s in schema ' % (schema_property, default))
+                new_flags[schema_property] = default
+
+        return new_flags
 
     @classmethod
     def _log_and_run_api_call(cls, api, function_name, *args, **kwargs):
-        args = [arg for arg in args if arg not in ['None', None]]
-        parametrized_function_call = cls._compose_api_call(api, function_name, *args, **kwargs)
-        # if args and kwargs:
-        print('function %s with %s and %s' % (function_name, args, kwargs))
-        cls.API_LOG.info(parametrized_function_call)
+        # Pre-process all Anvil nodes to str
+        args = [str(arg) if anvil.is_anvil(arg) else arg for arg in args if arg not in ['None', None]]
+
+        if kwargs:
+            flags = kwargs.pop('flags', {})
+            kwargs.update(flags)
+            for key, node in iteritems(kwargs):
+                if anvil.is_anvil(node):
+                    kwargs[key] = str(node)
+
+        cls.API_LOG.info(cls._compose_api_call(api, function_name, *args, **kwargs))
         return getattr(api, function_name)(*args, **kwargs)
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):
-        formatted_args = ', '.join([repr(str(arg)) for arg in args]) if args else ''
-        formatted_kwargs = ', '.join('%s=%r' % (key, str(node)) for key, node in iteritems(kwargs)) if kwargs else ''
-        formatted_flags = ', '.join(
-            '%s=%r' % (key, str(node)) for key, node in iteritems(kwargs.get('flags', {}))) if kwargs else ''
-        formatted_parameters = ', '.join([arg for arg in [formatted_args, formatted_kwargs, formatted_flags] if arg])
-        return '%s.%s(%s)' % (api.__name__, function_name, formatted_parameters)
+        formatted_args = ', '.join([repr(a) for a in args]) if args else ''
+
+        flags = kwargs.pop('flags', {})
+        kwargs.update(flags)
+        if kwargs is not None and kwargs != {}:
+            formatted_args += ''.join(', %s=%r' % (key, node) for key, node in iteritems(kwargs))
+
+        return '%s.%s(%s)' % (api.__name__, function_name, formatted_args)
 
     @staticmethod
     def _convert_anvil_nodes_to_string(func):
         def wrapper(*args, **kwargs):
-            args = tuple(str(arg) if APIProxy.is_anvil_type(arg) else arg for arg in args)
+            args = tuple(str(arg) if anvil.is_anvil(arg) else arg for arg in args)
             for k, v in iteritems(kwargs):
-                if APIProxy.is_anvil_type(v):
+                if anvil.is_anvil(v):
                     kwargs[k] = str(v)
 
             result = func(*args, **kwargs)

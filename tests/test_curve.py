@@ -43,7 +43,6 @@ class TestCurveBuild(TestBaseCurve):
     @TestBase.delete_created_nodes
     def test_shape_input(self):
         curve = nt.Curve.build(shape='jack')
-        print(nt.Curve.SHAPE_CACHE)
         try:
             self.assertEqual(curve.getShape().numCVs(), len(nt.Curve.SHAPE_CACHE['jack']['point']))
         except AttributeError:

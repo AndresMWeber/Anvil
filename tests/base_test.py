@@ -1,23 +1,44 @@
 import os
-import unittest
+import unittest2
 from deepdiff import DeepDiff
 from six import iteritems, string_types
-
+from functools import wraps
 os.environ['ANVIL_MODE'] = 'TEST'
 import anvil
 from anvil.log import obtainLogger
 import logging
 from collections import Iterable
 from collections import OrderedDict
+
+from contextlib import contextmanager
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
 
 
 
-class TestBase(unittest.TestCase):
+class TestBase(unittest2.TestCase):
     LOG = obtainLogger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
+
+    APOSE = 'APOSE'
+    TPOSE = 'TPOSE'
+    FOOT = 'FOOT'
+    EXTERNALA = 'EXTERNALA'
+    TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
+                      TPOSE: 'test_skeleton_t_pose.ma',
+                      EXTERNALA: 'test_skeleton_externalA.ma',
+                      FOOT: 'test_skeleton_biped_foot.ma'
+                      }
+
+    @classmethod
+    def import_template_files(cls, template_file):
+        import pymel.core as pm
+        import os
+        file_path = os.path.join(os.path.dirname(__file__), 'acceptance', cls.TEMPLATE_FILES[template_file])
+        cls.LOG.info('Importing file %s from anvil/tests dir' % file_path)
+        pm.importFile(file_path, ignoreVersion=True)
+        cls.LOG.info('Successfully imported file.')
 
     @classmethod
     def build_dependencies(cls):
@@ -43,7 +64,10 @@ class TestBase(unittest.TestCase):
         cls.LOG.info('Deleting objects %s' % objects)
         for object in objects:
             if anvil.runtime.dcc.scene.exists(object):
-                anvil.runtime.dcc.scene.delete(object, hierarchy=True)
+                try:
+                    anvil.runtime.dcc.scene.delete(object, hierarchy=True)
+                except ValueError:
+                    anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object+'*'), hierarchy=True)
 
     @classmethod
     def deep_sort(cls, obj):
@@ -51,7 +75,6 @@ class TestBase(unittest.TestCase):
         https://stackoverflow.com/questions/18464095/how-to-achieve-assertdictequal-with-assertsequenceequal-applied-to-values
         Recursively sort list or dict nested lists
         """
-
         if isinstance(obj, dict):
             _sorted = OrderedDict()
             for key in sorted(list(obj)):
@@ -94,77 +117,75 @@ class TestBase(unittest.TestCase):
         TestBase.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
         cls.delete_objects(preexisting_nodes)
 
+    def post_hook(self):
+        created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+        self.LOG.info('Scene state after: %s' % created_scene_tree)
+        return created_scene_tree
+
+    def pre_hook(self):
+        initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
+        self.LOG.info(initial_scene_tree)
+        return initial_scene_tree
+
+    def process_scene_tree_diff(self, initial_scene_tree, post_scene_tree):
+        diff = DeepDiff(initial_scene_tree, post_scene_tree)
+        created_nodes = []
+        deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
+        for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
+            deep_path = self.tokenize_deep_diff_string(dict_item)
+            created_nodes.append(self.dict_item_from_path(post_scene_tree, deep_path))
+        return created_nodes
+
+    def dict_item_from_path(self, dict_to_query, query_path):
+        """
+        item_from_path = dict_to_query
+        TestBase.LOG.info('Attempting to get item from path %s in dict %s' % (query_path, dict_to_query))
+        for path in query_path:
+            try:
+                item_from_path = item_from_path.get(path)
+            except AttributeError:
+                pass
+        return list(item_from_path)
+        """
+        return query_path[-1]
+
+    def tokenize_deep_diff_string(self, deep_diff_path_string):
+        full_path = [item.replace(']', '') for item in deep_diff_path_string.split('[')]
+        full_path.remove('root')
+        deep_path = []
+        for item in full_path:
+            try:
+                deep_path.append(
+                    item.strip('\"').strip("\'") if '\"' in item or '\'' in item or item == 'root' else int(item))
+            except ValueError:
+                deep_path.append(str(item))
+        return deep_path
+
     @classmethod
     def delete_created_nodes(cls, func):
-        def pre_hook():
-            initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            TestBase.LOG.info(initial_scene_tree)
-            return initial_scene_tree
-
-        def post_hook():
-            created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-            TestBase.LOG.info('Scene state after running function %s:' % (func.__name__))
-            TestBase.LOG.info(created_scene_tree)
-            return created_scene_tree
-
-        def process(initial_scene_tree, post_scene_tree):
-            diff = DeepDiff(initial_scene_tree, post_scene_tree)
-            # TestBase.LOG.info('Unprocessed DeepDiff:\n%s' % pformat(diff, indent=2))
-            created_nodes = []
-            deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
-            for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
-                deep_path = tokenize_deep_diff_string(dict_item)
-                created_nodes.append(dict_item_from_path(post_scene_tree, deep_path))
-
-            return created_nodes
-
-        def dict_item_from_path(dict_to_query, query_path):
-            """
-            item_from_path = dict_to_query
-            TestBase.LOG.info('Attempting to get item from path %s in dict %s' % (query_path, dict_to_query))
-            for path in query_path:
-                try:
-                    item_from_path = item_from_path.get(path)
-                except AttributeError:
-                    pass
-            return list(item_from_path)
-            """
-            return query_path[-1]
-
-        def tokenize_deep_diff_string(deep_diff_path_string):
-            full_path = [item.replace(']', '') for item in deep_diff_path_string.split('[')]
-            full_path.remove('root')
-            deep_path = []
-            for item in full_path:
-                try:
-                    deep_path.append(
-                        item.strip('\"').strip("\'") if '\"' in item or '\'' in item or item == 'root' else int(item))
-                except ValueError:
-                    deep_path.append(str(item))
-            return deep_path
-
+        @wraps(func)
         def wrapped(self, *args, **kwargs):
-            cls.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
-            cls.LOG.info('THIS IS BULLSHIT')
+            self.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
             self.sanitize_scene()
-
-            if getattr(self, 'build_dependencies', None):
+            if hasattr(self, 'build_dependencies'):
                 self.build_dependencies()
 
-            initial_scene_tree = pre_hook()
+            initial_scene_tree = self.pre_hook()
 
-            cls.LOG.info('Initial scene state is:\n%s' % initial_scene_tree)
+            self.LOG.info('Pre-scene: %s' % initial_scene_tree)
+            self.LOG.info('Running Test: %s(%s, %s)' % (func, args, kwargs))
             func_return = func(self, *args, **kwargs)
-
-            created_scene_tree = post_hook()
-            created_nodes = process(initial_scene_tree, created_scene_tree)
-
-            cls.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
-            cls.LOG.info('Scene state is:\n%s' % created_scene_tree)
-            cls.LOG.info('After deletion scene state is:\n%s' % created_scene_tree)
-            cls.sanitize_scene()
+            created_scene_tree = self.post_hook()
+            created_nodes = self.process_scene_tree_diff(initial_scene_tree, created_scene_tree)
+            self.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
+            self.LOG.info('Post-scene: %s' % created_scene_tree)
+            self.sanitize_scene()
 
             return func_return
-
-        wrapped.__name__ = func.__name__
         return wrapped
+
+@contextmanager
+def cleanup_nodes():
+    TestBase.sanitize_scene()
+    yield
+    TestBase.sanitize_scene()
