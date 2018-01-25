@@ -3,8 +3,10 @@ import test_build_biped
 from pycallgraph import PyCallGraph
 from pycallgraph.output import GraphvizOutput
 import cProfile as profile
+import unittest
 
 
+@unittest.skip
 class TestProfileBiped(test_build_biped.TestBaseTemplateRigs):
     def test_pycall_graph(self):
         with base_test.cleanup_nodes():
