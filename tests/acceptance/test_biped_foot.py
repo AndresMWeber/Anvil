@@ -1,10 +1,10 @@
 from six import iteritems
 import anvil.node_types as nt
 from anvil.sub_rig_templates import BipedFoot
-import base_test
+from tests.base_test import TestBase, cleanup_nodes
 
 
-class TestBaseTemplateRigs(base_test.TestBase):
+class TestBaseTemplateRigs(TestBase):
     name_tokens = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
     TEMPLATE_CLASS = None
@@ -20,24 +20,24 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
         return rig_instance
 
     def test_build_no_kwargs(self):
-        with base_test.cleanup_nodes():
+        with cleanup_nodes():
             self.from_template_file(self.FOOT)
 
     def test_build_with_parent(self):
-        with base_test.cleanup_nodes():
+        with cleanup_nodes():
             parent = nt.Transform.build(name='test')
             rig_instance = self.from_template_file(self.FOOT, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
     def test_number_of_controls(self):
-        with base_test.cleanup_nodes():
+        with cleanup_nodes():
             parent = nt.Transform.build(name='test')
             rig_instance = self.from_template_file(self.FOOT, parent=parent)
             self.assertEqual(
                 len(list([node for key, node in iteritems(rig_instance.hierarchy) if isinstance(node, nt.Control)])), 4)
 
     def test_control_positions_match(self):
-        with base_test.cleanup_nodes():
+        with cleanup_nodes():
             parent = nt.Transform.build(name='test')
             rig_instance = self.from_template_file(self.FOOT, parent=parent)
             components = [BipedFoot.TOE_TOKEN, BipedFoot.BALL_TOKEN, BipedFoot.ANKLE_TOKEN, BipedFoot.HEEL_TOKEN]

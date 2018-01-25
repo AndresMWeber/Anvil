@@ -2,7 +2,7 @@ from six import iteritems
 import anvil
 import anvil.config as cfg
 import anvil.node_types as nt
-from base_test import TestBase
+from tests.base_test import TestBase, cleanup_nodes
 
 
 class TestBaseRig(TestBase):
