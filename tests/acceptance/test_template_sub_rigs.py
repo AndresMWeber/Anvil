@@ -1,12 +1,11 @@
-import anvil
 import anvil.runtime as rt
 import anvil.node_types as nt
 import anvil.sub_rig_templates.spine as spine
 import anvil.sub_rig_templates.biped_arm as biped_arm
-import base_test
+from tests.base_test import TestBase, cleanup_nodes
 
 
-class TestBaseTemplates(base_test.TestBase):
+class TestBaseTemplates(TestBase):
     name_tokens = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
     TEMPLATE_CLASS = None
@@ -40,11 +39,11 @@ class TestBuildSpine(TestBaseTemplates):
     def test_build(self):
         self.runner()
 
-    @base_test.TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        parent = nt.Transform.build(name='test')
-        sub_rig_instance = self.runner(template_flags={'parent': parent})
-        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        with cleanup_nodes():
+            parent = nt.Transform.build(name='test')
+            sub_rig_instance = self.runner(template_flags={'parent': parent})
+            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
 
 class TestBuildBipedArm(TestBaseTemplates):
@@ -59,21 +58,21 @@ class TestBuildBipedArm(TestBaseTemplates):
         r_sub_rig_instance = cls.runner(template_args=r_arm, template_flags={'meta_data': {'side': 'right'}})
         return l_sub_rig_instance, r_sub_rig_instance
 
-    @base_test.TestBase.delete_created_nodes
     def test_build(self):
-        rig = self.runner()
-        self.assertIsNotNone(rig)
+        with cleanup_nodes():
+            rig = self.runner()
+            self.assertIsNotNone(rig)
 
-    @base_test.TestBase.delete_created_nodes
     def test_build_with_parent(self):
-        parent = nt.Transform.build(name='test')
-        sub_rig_instance = self.runner(template_flags={'parent': parent})
-        self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+        with cleanup_nodes():
+            parent = nt.Transform.build(name='test')
+            sub_rig_instance = self.runner(template_flags={'parent': parent})
+            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
-    @base_test.TestBase.delete_created_nodes
     def test_build_with_imported_skeleton_t_pose(self):
-        l_arm, r_arm = self.from_template_file(self.TPOSE)
+        with cleanup_nodes():
+            l_arm, r_arm = self.from_template_file(self.TPOSE)
 
-    @base_test.TestBase.delete_created_nodes
     def test_build_with_imported_skeleton_a_pose(self):
-        l_arm, r_arm = self.from_template_file(self.APOSE)
+        with cleanup_nodes():
+            l_arm, r_arm = self.from_template_file(self.APOSE)
