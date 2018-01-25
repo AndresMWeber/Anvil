@@ -48,7 +48,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            mayapy -m nose --with-coverage --cover-package=anvil --nologcapture > ~/test-reports/nose.txt 2>&1
+            mayapy -m nose -s --with-coverage --cover-package=anvil --nologcapture > ~/test-reports/nose.txt 2>&1
             coveralls
 
       - store_test_results:
