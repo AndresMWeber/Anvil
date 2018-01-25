@@ -49,6 +49,10 @@ jobs:
           name: run tests
           command: |
             mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=/root/test-reports/noselog.xml --cover-package=anvil
+
+      - run:
+          name: upload coverage
+          command: |
             coveralls
 
       - store_test_results:
