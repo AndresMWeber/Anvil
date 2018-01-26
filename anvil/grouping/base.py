@@ -162,7 +162,7 @@ class AbstractGrouping(log.LogMixin):
                 self.debug('Renaming sub_node %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 object_function(sub_node)
             self.debug('Renamed sub_node %r based on tokens %s with parent tokens %s',
-                      sub_node, sub_node.name_tokens, self.name_tokens)
+                       sub_node, sub_node.name_tokens, self.name_tokens)
 
     def __getattr__(self, item):
         try:
@@ -182,3 +182,6 @@ class AbstractGrouping(log.LogMixin):
         _ = (self.root, len(list(self.hierarchy)), self.meta_data, self.name_tokens)
         formatted_properties = ' root=%s children=%d meta_data=%s name_tokens=%s>' % _
         return super(AbstractGrouping, self).__repr__().replace('>', formatted_properties)
+
+    def __dir__(self):
+        return dir(super(AbstractGrouping, self)) + list(self.hierarchy)

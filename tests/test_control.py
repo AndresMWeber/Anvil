@@ -12,6 +12,7 @@ class TestBaseControl(TestBase):
 class TestControlInit(TestBaseControl):
     pass
 
+
 class TestControlBuild(TestBaseControl):
     def test_empty_input(self):
         with cleanup_nodes():
@@ -49,22 +50,21 @@ class TestControlBuild(TestBaseControl):
 
     def test_hierarchy_name_tokens_control_preexisting_name_tokens(self):
         with cleanup_nodes():
-            control = nt.Control.build(name_tokens={cfg.NAME:'bob', cfg.CHILD_TYPE:'lisa'})
+            control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
             self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
             self.assertEqual(control.control.name_tokens.get(cfg.NAME), 'bob')
             self.assertEqual(control.control.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
 
-
     def test_hierarchy_name_tokens_offset_preexisting_name_tokens(self):
         with cleanup_nodes():
-            control = nt.Control.build(name_tokens={cfg.NAME:'bob', cfg.CHILD_TYPE:'lisa'})
+            control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
             self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
             self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'bob')
             self.assertEqual(control.offset_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
 
     def test_hierarchy_name_tokens_connection_preexisting_name_tokens(self):
         with cleanup_nodes():
-            control = nt.Control.build(name_tokens={cfg.NAME:'bob', cfg.CHILD_TYPE:'lisa'})
+            control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
             self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
             self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'bob')
             self.assertEqual(control.connection_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
@@ -78,10 +78,11 @@ class TestControlBuild(TestBaseControl):
 
     def test_hierarchy_name_token_type_preexisting(self):
         with cleanup_nodes():
-            control = nt.Control.build(name_tokens={'name':'bob', 'childtype':'lisa'})
+            control = nt.Control.build(name_tokens={'name': 'bob', 'childtype': 'lisa'})
             self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
             self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
             self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+
 
 class TestControlRename(TestBaseControl):
     def rename_runner(self, desired_output, *input_dicts, **input_kwargs):
