@@ -49,7 +49,6 @@ jobs:
       - run:
           name: run tests
           command: |
-            test_path = ~/test-results
             mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=$TEST_PATH/noselog.xml --cover-package=anvil
 
       - run:
