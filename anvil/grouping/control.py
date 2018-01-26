@@ -11,7 +11,7 @@ class Control(base.AbstractGrouping):
 
     CTRL_NAME_TOKENS = {cfg.TYPE: cfg.CONTROL_TYPE}
     OFFSET_NAME_TOKENS = {cfg.TYPE: cfg.OFFSET_GROUP}
-    CON_NAME_TOKENS = {cfg.TYPE: cfg.CONNECTION_GROUP}
+    CONN_NAME_TOKENS = {cfg.TYPE: cfg.CONNECTION_GROUP}
 
     PV_MOVE_DEFAULT = [0, 0, 3]
     PV_AIM_DEFAULT = [0, 0, 1]
@@ -25,19 +25,22 @@ class Control(base.AbstractGrouping):
         self.register_node(cfg.CONTROL_TYPE, control)
         self.register_node(cfg.OFFSET_GROUP, offset_group)
         self.register_node(cfg.CONNECTION_GROUP, connection_group)
+        getattr(self, cfg.CONTROL_TYPE).name_tokens.merge(self.CTRL_NAME_TOKENS, force=True)
+        getattr(self, cfg.OFFSET_GROUP).name_tokens.merge(self.OFFSET_NAME_TOKENS, force=True)
+        getattr(self, cfg.CONNECTION_GROUP).name_tokens.merge(self.CONN_NAME_TOKENS, force=True)
 
     @classmethod
     def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
         meta_data = cls.BUILT_IN_META_DATA.merge(meta_data, new=True)
         meta_data.set_protected(cls.BUILT_IN_META_DATA.protected)
         name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
-        name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS)
+        name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS.protected)
 
         kwargs[cfg.META_DATA] = meta_data
         instance = cls(
-            ob.Curve.build(name_tokens=name_tokens.merge(cls.CTRL_NAME_TOKENS, new=True, force=True), **kwargs),
-            ob.Transform.build(name_tokens=name_tokens.merge(cls.OFFSET_NAME_TOKENS, new=True, force=True), **kwargs),
-            ob.Transform.build(name_tokens=name_tokens.merge(cls.CON_NAME_TOKENS, new=True, force=True), **kwargs),
+            ob.Curve.build(name_tokens=name_tokens, **kwargs),
+            ob.Transform.build(name_tokens=name_tokens, **kwargs),
+            ob.Transform.build(name_tokens=name_tokens, **kwargs),
             name_tokens=name_tokens,
             **kwargs)
 
