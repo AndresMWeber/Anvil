@@ -19,7 +19,7 @@ jobs:
             yum install -y epel-release
             yum install -y https://centos6.iuscommunity.org/ius-release.rpm
             yum install -y git2u
-            mkdir /root/test-results
+            mkdir ~/test-results
 
       - checkout
 
@@ -48,7 +48,8 @@ jobs:
       - run:
           name: run tests
           command: |
-            mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=/root/nose/noselog.xml --cover-package=anvil
+            test_path = ~/test-results
+            mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=$test_path/noselog.xml --cover-package=anvil
 
       - run:
           name: upload coverage
@@ -56,9 +57,9 @@ jobs:
             coveralls
 
       - store_test_results:
-          path: /root/test-results
+          path: ~/test-results
 
       - store_artifacts:
           path: ~/.anvil
-          destination: /root/test-results
+          destination: ~/test-results
 
