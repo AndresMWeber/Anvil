@@ -44,12 +44,13 @@ jobs:
             - /usr/autodesk/maya2017/Python/Lib/site-packages
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
+      - run:  echo export TEST_PATH=~/test-results >> "$BASH_ENV"
       # run tests!
       - run:
           name: run tests
           command: |
             test_path = ~/test-results
-            mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=$test_path/noselog.xml --cover-package=anvil
+            mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=$TEST_PATH/noselog.xml --cover-package=anvil
 
       - run:
           name: upload coverage
