@@ -33,11 +33,8 @@ class Control(base.AbstractGrouping):
     def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
         meta_data = cls.BUILT_IN_META_DATA.merge(meta_data, new=True)
         meta_data.set_protected(cls.BUILT_IN_META_DATA.protected)
-        print(repr(name_tokens))
         name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
-        print(repr(name_tokens))
         name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS.protected)
-        print(repr(name_tokens))
         kwargs[cfg.META_DATA] = meta_data
         instance = cls(
             ob.Curve.build(name_tokens=name_tokens, **kwargs),
@@ -45,9 +42,6 @@ class Control(base.AbstractGrouping):
             ob.Transform.build(name_tokens=name_tokens, **kwargs),
             name_tokens=name_tokens,
             **kwargs)
-        print(repr(instance.offset_group.name_tokens))
-        print(repr(instance.control.name_tokens))
-        print(repr(instance.connection_group.name_tokens))
         instance.build_layout()
         instance.match_position(reference_object, **kwargs)
         instance.parent(parent)
