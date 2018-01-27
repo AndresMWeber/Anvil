@@ -49,7 +49,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            mayapy -m nose --with-coverage --nologcapture --with-xunit --xunit-file=$TEST_PATH/noselog.xml --cover-package=anvil
+            mayapy -m nose -c tests/.noserc --with-xunit --xunit-file=$TEST_PATH/noselog.xml
 
       - run:
           name: upload coverage

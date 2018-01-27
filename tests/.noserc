@@ -1,0 +1,7 @@
+[nosetests]
+where=.
+with-coverage=1
+cover-package=anvil
+cover-erase=1
+nologcapture=1
+with-xunit=1
