@@ -2,7 +2,7 @@ from six import iteritems
 import anvil
 import anvil.config as cfg
 import anvil.node_types as nt
-from tests.base_test import TestBase, cleanup_nodes
+from tests.base_test import TestBase
 
 
 class TestBaseRig(TestBase):
@@ -71,12 +71,18 @@ class TestRigEyeBuild(TestBaseRig):
 
 class TestRigRename(TestBaseRig):
     def test_universal_control_name(self):
+        if not getattr(self, 'test_sub_rig', None):
+            self.build_dependencies()
         self.assertEqual(str(self.test_rig.control_universal.control), 'bert_eye_universal_mvp_CTR')
 
     def test_root_name(self):
+        if not getattr(self, 'test_sub_rig', None):
+            self.build_dependencies()
         self.assertEqual(str(self.test_rig.root), 'bert_rig_eye_mvp_GRP')
 
     def test_sub_groups(self):
+        if not getattr(self, 'test_sub_rig', None):
+            self.build_dependencies()
         self.assertListSame(sorted(['bert_rig_eye_mvp_GRP',
                                     'bert_eye_sub_rigs_mvp_GRP',
                                     'bert_eye_universal_mvp_OGP',
