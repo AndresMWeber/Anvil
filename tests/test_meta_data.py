@@ -129,7 +129,7 @@ class TestProtection(TestBaseMetaData):
 
     def test_add_protection_manually(self):
         meta_data_object = md.MetaData(self.test_combined)
-        meta_data_object.protected.append('bar')
+        meta_data_object.protected |= {'bar'}
         meta_data_object.merge(self.test_other_meta_data_overwrite)
         self.assertEquals(meta_data_object, self.test_combined)
 
