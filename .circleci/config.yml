@@ -6,47 +6,49 @@ version: 2
 
 defaults: &defaults
   working_directory: ~/Anvil
-  steps:
-      - restore_cache:
-          keys:
-              -a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
-              -a2-dependencies-
 
-      - run:
-          name: update git
-          command: |
-              yum remove -y git
-              yum install -y epel-release
-              yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-              yum install -y git2u
-              yum install -y python27
-              mkdir ~/test-results
+default-steps: &default-steps
+    restore_cache:
+        keys:
+            -a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
+            -a2-dependencies-
 
-      - save_cache:
-          paths:
-              - /usr/lib64/python2.7
-              - /usr/lib/python2.7
-              - /usr/include/python2.7
-              - /usr/bin/python2.7
-          key: a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
+    run:
+        name: update git
+        command: |
+            yum remove -y git
+            yum install -y epel-release
+            yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+            yum install -y git2u
+            yum install -y python27
+            mkdir ~/test-results
 
-      - checkout
+    save_cache:
+        paths:
+            - /usr/lib64/python2.7
+            - /usr/lib/python2.7
+            - /usr/include/python2.7
+            - /usr/bin/python2.7
+        key: a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
 
-      - restore_cache:
-          keys:
-              - a1-dependencies-{{ checksum "requirements.txt" }}
-              - a1-dependencies-
+    run:
+        checkout
 
-      - run:
-          name: set up mayapy and install deps
-          command: make install-deps
+    restore_cache:
+        keys:
+            - a1-dependencies-{{ checksum "requirements.txt" }}
+            - a1-dependencies-
 
-      - save_cache:
-          paths:
-            - ~/venv/
-          key: a1-dependencies-{{ checksum "requirements.txt" }}
+    run:
+        name: set up mayapy and install deps
+        command: make install-deps
 
-      - run:  echo export TEST_PATH=~/test-results >> "$BASH_ENV"
+    save_cache:
+        paths:
+          - ~/venv/
+        key: a1-dependencies-{{ checksum "requirements.txt" }}
+
+    run:  echo export TEST_PATH=~/test-results >> "$BASH_ENV"
 
 post-job: &post-job
     - store_test_results:
@@ -56,57 +58,67 @@ post-job: &post-job
         path: ~/.anvil
         destination: ~/test-results
 
+maya-2017-steps: &maya-2017-steps
+  run:
+      name: run tests
+      command: |
+        MAYA_VERSION=2017
+        export MAYA_VERSION >> "$BASH_ENV"
+        TEST_PATH=~/test-results
+        export TEST_PATH >> "$BASH_ENV"
+        make test-unit
+
+  run:
+      name: upload coverage
+      command: make upload-coverage
+
+maya-2016-steps: &maya-2016-steps
+  run:
+      name: run tests
+      command: |
+        MAYA_VERSION=2015
+        export MAYA_VERSION >> "$BASH_ENV"
+        TEST_PATH=~/test-results
+        export TEST_PATH >> "$BASH_ENV"
+        make test-unit
+
+maya-2015-steps: &maya-2015-steps
+  run:
+      name: run tests
+      command: |
+        MAYA_VERSION=2015
+        export MAYA_VERSION >> "$BASH_ENV"
+        TEST_PATH=~/test-results
+        export TEST_PATH >> "$BASH_ENV"
+        make test-unit
+
 jobs:
   build:
     docker:
       - image: mottosso/maya:2017
     <<: *defaults
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            MAYA_VERSION=2017
-            export MAYA_VERSION >> "$BASH_ENV"
-            TEST_PATH=~/test-results
-            export TEST_PATH >> "$BASH_ENV"
-            make test-unit
-
-      - run:
-          name: upload coverage
-          command: make upload-coverage
+    steps:
+      <<: *default-steps
+      <<: *maya-2017-steps
     <<: *post-job
-
 
   maya2016:
     docker:
       - image: mottosso/maya:2016
     <<: *defaults
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            MAYA_VERSION=2015
-            export MAYA_VERSION >> "$BASH_ENV"
-            TEST_PATH=~/test-results
-            export TEST_PATH >> "$BASH_ENV"
-            make test-unit
+    steps:
+      <<: *default-steps
+      <<: *maya-2016-steps
     <<: *post-job
 
   maya2015:
     docker:
       - image: mottosso/maya:2015
     <<: *defaults
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            MAYA_VERSION=2015
-            export MAYA_VERSION >> "$BASH_ENV"
-            TEST_PATH=~/test-results
-            export TEST_PATH >> "$BASH_ENV"
-            make test-unit
+    steps:
+      <<: *default-steps
+      <<: *maya-2015-steps
     <<: *post-job
-
 
 workflows:
   version: 2
