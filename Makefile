@@ -34,13 +34,6 @@ upload-to-pypi:
 	. ~/nvenv/bin/activate
 	~/nvenv/bin/twine upload dist/*
 
-update-git:
-	yum remove -y git
-	yum install -y epel-release
-	yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-	yum install -y git2u
-	mkdir ~/test-results
-
 mayapy-install-deps-and-pip:
 	wget https://bootstrap.pypa.io/get-pip.py
 	mayapy get-pip.py

@@ -111,7 +111,12 @@ jobs:
     working_directory: ~/Anvil
 
     steps:
-      - run: make update-git
+      - run:
+          yum remove -y git
+          yum install -y epel-release
+          yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+          yum install -y git2u
+          mkdir ~/test-results
 
       - checkout
 
