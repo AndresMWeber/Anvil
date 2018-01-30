@@ -1,27 +1,20 @@
 from tests.base_test import cleanup_nodes
 import test_build_biped
+import os
+import unittest
+
 
 class TestProfileBiped(test_build_biped.TestBaseTemplateRigs):
+    @unittest.skipIf(os.getenv('ANVIL_PYCALLGRAPH'), 'Env var ANVIL_PYCALLGRAPH not set.')
     def test_pycall_graph(self):
-        try:
-            from pycallgraph import PyCallGraph
-            from pycallgraph.output import GraphvizOutput
+        from pycallgraph import PyCallGraph
+        from pycallgraph.output import GraphvizOutput
+        with cleanup_nodes():
+            with PyCallGraph(output=GraphvizOutput()):
+                self.from_template_file(self.TPOSE)
 
-            with cleanup_nodes():
-                with PyCallGraph(output=GraphvizOutput()):
-                    self.from_template_file(self.TPOSE)
-        except ImportError:
-            pass
-
+    @unittest.skipIf(os.getenv('ANVIL_CPROFILE'), 'Env var ANVIL_CPROFILE not set.')
     def test_cprofiler(self):
-        try:
-            import cProfile as profile
-
-            with cleanup_nodes():
-                profile.runctx('self.from_template_file(self.TPOSE)', globals(), locals())
-        except ImportError:
-            pass
-
-    # def test_cprofiler_quiet_logging(self):
-    #    with cleanup_nodes():
-    #        cProfile.run('self.from_template_file(self.TPOSE)')
+        import cProfile as profile
+        with cleanup_nodes():
+            profile.runctx('self.from_template_file(self.TPOSE)', globals(), locals())
