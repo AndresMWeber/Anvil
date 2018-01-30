@@ -65,10 +65,6 @@ loggers:
         handlers: [info_file_handler]
         propagate: no
 
-    testing:
-        level: INFO
-        propagate: no
-
 root:
     level: INFO
     handlers: [console]

@@ -36,12 +36,11 @@ class Control(base.AbstractGrouping):
         name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
         name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS.protected)
         kwargs[cfg.META_DATA] = meta_data
-        instance = cls(
-            ob.Curve.build(name_tokens=name_tokens, **kwargs),
-            ob.Transform.build(name_tokens=name_tokens, **kwargs),
-            ob.Transform.build(name_tokens=name_tokens, **kwargs),
-            name_tokens=name_tokens,
-            **kwargs)
+        instance = cls(ob.Curve.build(name_tokens=name_tokens, **kwargs),
+                       ob.Transform.build(name_tokens=name_tokens, **kwargs),
+                       ob.Transform.build(name_tokens=name_tokens, **kwargs),
+                       name_tokens=name_tokens,
+                       **kwargs)
         instance.build_layout()
         instance.match_position(reference_object, **kwargs)
         instance.parent(parent)
