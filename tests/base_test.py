@@ -20,6 +20,7 @@ NOMENCLATE = nomenclate.Nom()
 class TestBase(unittest2.TestCase):
     LOG = obtainLogger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
+    LOG.setLevel(logging.CRITICAL)
 
     APOSE = 'APOSE'
     TPOSE = 'TPOSE'

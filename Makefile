@@ -3,35 +3,21 @@ update-and-push:
 
 nvenv: make-venv
 
-nvenv3: make-venv3
-
 make-venv:
 	pip install virtualenv
 	python -m virtualenv ~/nvenv
-
-make-venv3:
-	python3 -m venv ~/nvenv
 
 install-deps: make-venv
 	~/nvenv/bin/pip install -Ur requirements.txt
 	~/nvenv/bin/pip install coveralls nose
 
-install-deps3: make-venv3
-	~/nvenv/bin/pip3 install -Ur requirements.txt
-	~/nvenv/bin/pip3 install coveralls nose
-
 test-unit:
 	. ~/nvenv/bin/activate
-	~/nvenv/bin/python -m nose -c tests/.noserc --with-xunit --xunit-file=$(TEST_PATH)/noselog$(PYTHON_VERSION).xml
-
-test-unit3:
-	. ~/nvenv/bin/activate
-	~/nvenv/bin/python3 -m nose -c tests/.noserc --with-xunit --xunit-file=$(TEST_PATH)/noselog$(PYTHON_VERSION).xml
+	mayapy -m nose -c tests/.noserc --xunit-file=$(TEST_PATH)/noselog$(PYTHON_VERSION).xml
 
 upload-coverage:
 	. ~/nvenv/bin/activate
 	~/nvenv/bin/coveralls
-
 
 verify-git-tag: make-venv
 	. ~/nvenv/bin/activate
@@ -47,3 +33,17 @@ dist:
 upload-to-pypi:
 	. ~/nvenv/bin/activate
 	~/nvenv/bin/twine upload dist/*
+
+update-git:
+    yum remove -y git
+    yum install -y epel-release
+    yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+    yum install -y git2u
+    mkdir ~/test-results
+
+mayapy-install-deps-and-pip:
+    wget https://bootstrap.pypa.io/get-pip.py
+    mayapy get-pip.py
+    chmod -x $(find tests/ -name '*.py')
+    mayapy -m pip install -r requirements.txt
+    mayapy -m pip install coveralls

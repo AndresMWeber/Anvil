@@ -12,49 +12,40 @@ jobs:
     working_directory: ~/Anvil
 
     steps:
-      - run:
-          name: update git for checkout and make reports dir
-          command: |
-            yum remove -y git
-            yum install -y epel-release
-            yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-            yum install -y git2u
-            mkdir ~/test-results
+      - run: make update-git
 
       - checkout
 
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
+          - a1-dependencies-{{ checksum "requirements.txt" }}
           # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          - a1-dependencies-
 
       - run:
           name: set up mayapy and install deps
-          command: |
-            wget https://bootstrap.pypa.io/get-pip.py
-            mayapy get-pip.py
-            chmod -x $(find tests/ -name '*.py')
-            mayapy -m pip install -r requirements.txt
-            mayapy -m pip install coveralls
+          command: make install-deps
 
       - save_cache:
           paths:
-            - /usr/autodesk/maya2017/Python/Lib/site-packages
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+            - ~/venv/
+          key: a1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:  echo export TEST_PATH=~/test-results >> "$BASH_ENV"
       # run tests!
       - run:
           name: run tests
           command: |
-            mayapy -m nose -c tests/.noserc --with-xunit --xunit-file=$TEST_PATH/noselog.xml
+            PYTHON_VERSION=26
+            export PYTHON_VERSION >> "$BASH_ENV"
+            TEST_PATH=~/test-results
+            export TEST_PATH >> "$BASH_ENV"
+            make test-unit
 
       - run:
           name: upload coverage
-          command: |
-            coveralls
+          command: make upload-coverage
 
       - store_test_results:
           path: ~/test-results
