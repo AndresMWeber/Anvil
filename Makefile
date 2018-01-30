@@ -4,7 +4,7 @@ update-and-push:
 nvenv: make-venv
 
 make-venv:
-	pip install virtualenv
+	pip2.6 install virtualenv
 	python -m virtualenv ~/nvenv
 
 install-deps: make-venv
