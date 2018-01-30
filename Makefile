@@ -4,8 +4,10 @@ update-and-push:
 nvenv: make-venv
 
 make-venv:
-	pip2.6 install virtualenv
-	python -m virtualenv ~/nvenv
+	wget https://bootstrap.pypa.io/get-pip.py
+	python2.7 get-pip.py
+	pip2.7 install virtualenv
+	python2.7 -m virtualenv ~/nvenv
 
 install-deps: make-venv
 	~/nvenv/bin/pip install -Ur requirements.txt
@@ -13,7 +15,7 @@ install-deps: make-venv
 
 test-unit:
 	. ~/nvenv/bin/activate
-	mayapy -m nose -c tests/.noserc --xunit-file=$(TEST_PATH)/noselog$(PYTHON_VERSION).xml
+	mayapy -m nose -c tests/.noserc --xunit-file=$(TEST_PATH)/noselog$(MAYA_VERSION).xml
 
 upload-coverage:
 	. ~/nvenv/bin/activate
@@ -33,10 +35,3 @@ dist:
 upload-to-pypi:
 	. ~/nvenv/bin/activate
 	~/nvenv/bin/twine upload dist/*
-
-mayapy-install-deps-and-pip:
-	wget https://bootstrap.pypa.io/get-pip.py
-	mayapy get-pip.py
-	chmod -x $(find tests/ -name '*.py')
-	mayapy -m pip install -r requirements.txt
-	mayapy -m pip install coveralls
