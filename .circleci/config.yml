@@ -54,3 +54,108 @@ jobs:
           path: ~/.anvil
           destination: ~/test-results
 
+
+  maya2016:
+    docker:
+      - image: mottosso/maya:2016
+
+    working_directory: ~/Anvil
+
+    steps:
+      - run: make update-git
+
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - a1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - a1-dependencies-
+
+      - run:
+          name: set up mayapy and install deps
+          command: make install-deps
+
+      - save_cache:
+          paths:
+            - ~/venv/
+          key: a1-dependencies-{{ checksum "requirements.txt" }}
+
+      - run:  echo export TEST_PATH=~/test-results >> "$BASH_ENV"
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            PYTHON_VERSION=26
+            export PYTHON_VERSION >> "$BASH_ENV"
+            TEST_PATH=~/test-results
+            export TEST_PATH >> "$BASH_ENV"
+            make test-unit
+
+      - run:
+          name: upload coverage
+          command: make upload-coverage
+
+      - store_test_results:
+          path: ~/test-results
+
+      - store_artifacts:
+          path: ~/.anvil
+          destination: ~/test-results
+
+  maya2015:
+    docker:
+      - image: mottosso/maya:2015
+
+    working_directory: ~/Anvil
+
+    steps:
+      - run: make update-git
+
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - a1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - a1-dependencies-
+
+      - run:
+          name: set up mayapy and install deps
+          command: make install-deps
+
+      - save_cache:
+          paths:
+            - ~/venv/
+          key: a1-dependencies-{{ checksum "requirements.txt" }}
+
+      - run:  echo export TEST_PATH=~/test-results >> "$BASH_ENV"
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            PYTHON_VERSION=26
+            export PYTHON_VERSION >> "$BASH_ENV"
+            TEST_PATH=~/test-results
+            export TEST_PATH >> "$BASH_ENV"
+            make test-unit
+
+      - run:
+          name: upload coverage
+          command: make upload-coverage
+
+      - store_test_results:
+          path: ~/test-results
+
+      - store_artifacts:
+          path: ~/.anvil
+          destination: ~/test-results
+
+
+workflows:
+  version: 2
+  test_maya_versions:
+    jobs:
+      - build

@@ -35,15 +35,15 @@ upload-to-pypi:
 	~/nvenv/bin/twine upload dist/*
 
 update-git:
-    yum remove -y git
-    yum install -y epel-release
-    yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-    yum install -y git2u
-    mkdir ~/test-results
+	yum remove -y git
+	yum install -y epel-release
+	yum install -y https://centos6.iuscommunity.org/ius-release.rpm
+	yum install -y git2u
+	mkdir ~/test-results
 
 mayapy-install-deps-and-pip:
-    wget https://bootstrap.pypa.io/get-pip.py
-    mayapy get-pip.py
-    chmod -x $(find tests/ -name '*.py')
-    mayapy -m pip install -r requirements.txt
-    mayapy -m pip install coveralls
+	wget https://bootstrap.pypa.io/get-pip.py
+	mayapy get-pip.py
+	chmod -x $(find tests/ -name '*.py')
+	mayapy -m pip install -r requirements.txt
+	mayapy -m pip install coveralls
