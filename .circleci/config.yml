@@ -7,8 +7,8 @@ version: 2
 defaults: &defaults
   working_directory: ~/Anvil
   environment:
-      TEST_PATH: $HOME/test-results
-      PYTHONPATH: $HOME/nvenv/lib/python2.7/site-packages
+      TEST_PATH: $(HOME)/test-results
+      PYTHONPATH: $(HOME)/nvenv/lib/python2.7/site-packages
 
 d-update-git: &d-update-git
     name: update git
