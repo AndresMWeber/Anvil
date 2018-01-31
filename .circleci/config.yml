@@ -1,7 +1,7 @@
 # Python CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
-#
+# f
 version: 2
 
 defaults: &defaults
@@ -23,11 +23,11 @@ d-save_cache: &d-save-cache
         - /usr/lib/python2.7
         - /usr/include/python2.7
         - /usr/bin/python2.7
-    key: a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
+    key: a2-dependencies-{{ checksum /usr/bin/python2.7 }}
 
 d-restore-cache: &d-restore-cache
     keys:
-        -a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
+        -a2-dependencies-{{ checksum /usr/bin/python2.7 }}
         -a2-dependencies-
 
 d2-restore_cache: &d2-restore-cache
