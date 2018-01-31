@@ -1,4 +1,4 @@
-FROM mottosso/maya:2017
+FROM mottosso/maya:2016
 
 MAINTAINER andresmweber@gmail.com
 
