@@ -44,13 +44,12 @@ d2-save-cache: &d2-save-cache
       - ~/venv/
     key: a1-dependencies-{{ checksum "requirements.txt" }}
 
-post-job: &post-job
-    - store_test_results:
-        path: ~/test-results
+store-results: &store-results
+    path: ~/test-results
 
-    - store_artifacts:
-        path: ~/.anvil
-        destination: ~/test-results
+store-artifacts: &store-artifacts
+    path: ~/.anvil
+    destination: ~/test-results
 
 maya-2017-run: &maya-2017-run
     name: run tests
@@ -95,7 +94,9 @@ jobs:
           *d-update-git
       - save-cache:
           *d-save-cache
+
       - checkout
+
       - restore-cache:
           *d2-restore-cache
       - run:
@@ -106,7 +107,10 @@ jobs:
           *maya-2017-run
       - run:
           *maya-2017-upload
-    <<: *post-job
+      - store_test_results:
+          *store-results
+      - store_artifacts:
+          *store-artifacts
 
   maya2016:
     docker:
@@ -119,7 +123,9 @@ jobs:
           *d-update-git
       - save-cache:
           *d-save-cache
+
       - checkout
+
       - restore-cache:
           *d2-restore-cache
       - run:
@@ -128,7 +134,10 @@ jobs:
           *d2-save-cache
       - run:
           *maya-2016-run
-    <<: *post-job
+      - store_test_results:
+          *store-results
+      - store_artifacts:
+          *store-artifacts
 
   maya2015:
     docker:
@@ -141,7 +150,9 @@ jobs:
           *d-update-git
       - save-cache:
           *d-save-cache
+
       - checkout
+
       - restore-cache:
           *d2-restore-cache
       - run:
@@ -150,7 +161,10 @@ jobs:
           *d2-save-cache
       - run:
           *maya-2015-run
-    <<: *post-job
+      - store_test_results:
+          *store-results
+      - store_artifacts:
+          *store-artifacts
 
 workflows:
   version: 2
