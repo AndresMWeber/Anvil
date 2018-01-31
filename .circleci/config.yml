@@ -51,8 +51,8 @@ maya-2017-run: &maya-2017-run
         export MAYA_VERSION >> "$BASH_ENV"
         TEST_PATH=~/test-results
         export TEST_PATH >> "$BASH_ENV"
-        PYTHON_PATH=~/nvenv/lib/python2.7/site-packages
-        export PYTHON_PATH >> "$BASH_ENV"
+        PYTHONPATH=~/nvenv/lib/python2.7/site-packages
+        export PYTHONPATH >> "$BASH_ENV"
         make test-unit
 
 maya-2016-run: &maya-2016-run
@@ -62,8 +62,8 @@ maya-2016-run: &maya-2016-run
         export MAYA_VERSION >> "$BASH_ENV"
         TEST_PATH=~/test-results
         export TEST_PATH >> "$BASH_ENV"
-        PYTHON_PATH=~/nvenv/lib/python2.7/site-packages
-        export PYTHON_PATH >> "$BASH_ENV"
+        PYTHONPATH=~/nvenv/lib/python2.7/site-packages
+        export PYTHONPATH >> "$BASH_ENV"
         make test-unit
 
 maya-2015-run: &maya-2015-run
@@ -73,8 +73,8 @@ maya-2015-run: &maya-2015-run
       export MAYA_VERSION >> "$BASH_ENV"
       TEST_PATH=~/test-results
       export TEST_PATH >> "$BASH_ENV"
-      PYTHON_PATH=~/nvenv/lib/python2.7/site-packages
-      export PYTHON_PATH >> "$BASH_ENV"
+      PYTHONPATH=~/nvenv/lib/python2.7/site-packages
+      export PYTHONPATH >> "$BASH_ENV"
       make test-unit
 
 upload-coverage: &upload-coverage
