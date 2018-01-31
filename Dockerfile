@@ -6,6 +6,8 @@ ENV TEST_PATH=$HOME/test-results
 ENV PYTHONPATH=$HOME/nvenv/lib/python2.7/site-packages
 ENV MAYA_VERSION=2017
 
+RUN yum remove -y git
+
 RUN yum install -y \
     epel-release \
     https://centos6.iuscommunity.org/ius-release.rpm \
