@@ -6,6 +6,9 @@ version: 2
 
 defaults: &defaults
   working_directory: ~/Anvil
+  environment:
+      TEST_PATH: ~/test-results
+      PYTHONPATH: ~/nvenv/lib/python2.7/site-packages
 
 d-update-git: &d-update-git
     name: update git
@@ -49,10 +52,6 @@ maya-2017-run: &maya-2017-run
     command: |
         MAYA_VERSION=2017
         export MAYA_VERSION >> "$BASH_ENV"
-        TEST_PATH=~/test-results
-        export TEST_PATH >> "$BASH_ENV"
-        PYTHONPATH=~/nvenv/lib/python2.7/site-packages
-        export PYTHONPATH >> "$BASH_ENV"
         make test-unit
 
 maya-2016-run: &maya-2016-run
@@ -60,10 +59,6 @@ maya-2016-run: &maya-2016-run
     command: |
         MAYA_VERSION=2016
         export MAYA_VERSION >> "$BASH_ENV"
-        TEST_PATH=~/test-results
-        export TEST_PATH >> "$BASH_ENV"
-        PYTHONPATH=~/nvenv/lib/python2.7/site-packages
-        export PYTHONPATH >> "$BASH_ENV"
         make test-unit
 
 maya-2015-run: &maya-2015-run
@@ -71,10 +66,6 @@ maya-2015-run: &maya-2015-run
     command: |
       MAYA_VERSION=2015
       export MAYA_VERSION >> "$BASH_ENV"
-      TEST_PATH=~/test-results
-      export TEST_PATH >> "$BASH_ENV"
-      PYTHONPATH=~/nvenv/lib/python2.7/site-packages
-      export PYTHONPATH >> "$BASH_ENV"
       make test-unit
 
 upload-coverage: &upload-coverage
