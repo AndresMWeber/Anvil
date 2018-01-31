@@ -75,5 +75,9 @@ workflows:
   test_maya_versions:
     jobs:
       - build
-      - maya2016
-      - maya2015
+      - maya2016:
+          requires:
+              - build
+      - maya2015:
+          requires:
+              - build
