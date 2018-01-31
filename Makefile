@@ -4,7 +4,7 @@ update-and-push:
 nvenv: make-venv
 
 make-venv:
-	pip uninstall nose
+	pip uninstall -y nose
 	wget https://bootstrap.pypa.io/get-pip.py
 	python2.7 get-pip.py
 	pip2.7 install virtualenv
