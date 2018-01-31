@@ -4,6 +4,7 @@ MAINTAINER andresmweber@gmail.com
 
 ENV TEST_PATH=$HOME/test-results
 ENV PYTHONPATH=$HOME/nvenv/lib/python2.7/site-packages
+ENV MAYA_VERSION=2016
 
 RUN yum install -y \
     epel-release \
