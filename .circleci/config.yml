@@ -98,7 +98,8 @@ jobs:
       - checkout
       - restore-cache:
           *d2-restore-cache
-      - *d-set-up-mayapy
+      - run:
+          *d-set-up-mayapy
       - save-cache:
           *d2-save-cache
       - run:
