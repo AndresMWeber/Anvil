@@ -1,35 +1,58 @@
 import sys
 import os
 import cProfile, pstats, StringIO
+import unittest
+
+drive, path = os.path.splitdrive(os.path.abspath(__file__))
+paths = path.split('\\')
+anvil_path = os.path.join(*[drive, '\\'] + paths[:-3])
+anvil_tests_path = os.path.join(*[drive, '\\'] + paths[:-2])
+env_path = os.path.join(os.getenv('HOME'), 'Envs\\anvil\\Lib\\site-packages')
+
+sys.path.append(anvil_path)
+sys.path.append(env_path)
+sys.path.append(anvil_tests_path)
+
+import anvil
+anvil.log.set_all_log_levels(anvil.log.logging.CRITICAL)
+
+import click
 
 
-def main():
-    drive, path = os.path.splitdrive(os.path.abspath(__file__))
-    paths = path.split('\\')
-    anvil_path = os.path.join(*[drive, '\\'] + paths[:-3])
-    anvil_tests_path = os.path.join(*[drive, '\\'] + paths[:-2])
-    env_path = os.path.join(os.getenv('HOME'), 'Envs\\anvil\\Lib\\site-packages')
-    sys.path.append(anvil_path)
-    sys.path.append(env_path)
-    sys.path.append(anvil_tests_path)
-    print('\n\nAdded paths:\n\n%s\n%s\n%s\n\n' % (anvil_path, env_path, anvil_tests_path))
-
-    import anvil
-    import tests
-    import tests.acceptance.test_biped_average_time as t
-    anvil.log.set_all_log_levels(anvil.log.logging.CRITICAL)
-
+@click.command()
+@click.option('--test_runner', default='biped', help='Which suite to run (control, biped, mvp')
+def main(test_runner):
     pr = cProfile.Profile()
     pr.enable()
 
-    # r.TestBaseRig.build_dependencies()
-    t.TestProfileBiped.from_template_file(t.TestProfileBiped.TPOSE)
+    eval('{}_{}()'.format('run', test_runner))
 
     pr.disable()
     s = StringIO.StringIO()
     ps = pstats.Stats(pr, stream=s).sort_stats('cumulative')
     ps.print_stats(20)
     ps.dump_stats(os.path.join(os.getenv('HOME'), 'anvil', 'runstats.prof'))
+
+
+def run_control():
+    import tests.test_control as tc
+    suite = unittest.TestSuite()
+    suite.addTest(tc.TestControlBuild('test_full_input'))
+    unittest.TextTestRunner().run(suite)
+
+
+def run_biped():
+    import tests.acceptance.test_build_biped as t
+    suite = unittest.TestSuite()
+    suite.addTest(t.TestBuildBiped('test_build_with_parent_t_pose'))
+    unittest.TextTestRunner().run(suite)
+
+
+def run_mvp():
+    import tests.acceptance.test_MVP as tm
+    suite = unittest.TestSuite()
+    suite.addTest(tm.TestRigEyeBuild('test_control_created'))
+    unittest.TextTestRunner().run(suite)
 
 
 if __name__ == '__main__':

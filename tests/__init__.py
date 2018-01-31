@@ -11,6 +11,7 @@ import test_rig
 import test_sub_rig
 import test_transform
 import test_unicode_delegate
+import acceptance
 
 __all__ = [
     base_test,
@@ -26,4 +27,5 @@ __all__ = [
     test_sub_rig,
     test_transform,
     test_unicode_delegate,
+    acceptance
 ]

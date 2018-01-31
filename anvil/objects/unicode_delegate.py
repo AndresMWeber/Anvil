@@ -29,7 +29,7 @@ class UnicodeDelegate(log.LogMixin):
         self.meta_data.set_protected(self.BUILT_IN_METADATA)
 
         self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
-        self.name_tokens.set_protected(self.BUILT_IN_NAME_TOKENS)
+        self.name_tokens.set_protected(self.BUILT_IN_NAME_TOKENS.protected)
 
         self.build_kwargs = MetaData(kwargs)
 

@@ -2,12 +2,22 @@ from six import iteritems
 import anvil
 import anvil.config as cfg
 import anvil.node_types as nt
-from tests.base_test import TestBase, cleanup_nodes
+from tests.base_test import TestBase
 
 
 class TestBaseRig(TestBase):
     name_tokens = {'name': 'eye', 'purpose': 'mvp', 'character': 'bert'}
     test_rig = None
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestBaseRig, cls).setUpClass()
+        cls.build_dependencies()
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestBaseRig, cls).tearDownClass()
+        cls.sanitize_scene()
 
     @classmethod
     def build_dependencies(cls):

@@ -20,6 +20,7 @@ NOMENCLATE = nomenclate.Nom()
 class TestBase(unittest2.TestCase):
     LOG = obtainLogger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
+    LOG.setLevel(logging.CRITICAL)
 
     APOSE = 'APOSE'
     TPOSE = 'TPOSE'
@@ -119,12 +120,10 @@ class TestBase(unittest2.TestCase):
 
     def post_hook(self):
         created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-        self.LOG.info('Scene state after: %s' % created_scene_tree)
         return created_scene_tree
 
     def pre_hook(self):
         initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-        self.LOG.info(initial_scene_tree)
         return initial_scene_tree
 
     def process_scene_tree_diff(self, initial_scene_tree, post_scene_tree):
@@ -165,22 +164,15 @@ class TestBase(unittest2.TestCase):
     def delete_created_nodes(cls, func):
         @wraps(func)
         def wrapped(self, *args, **kwargs):
-            self.LOG.info('RUNNING UNITTEST ----------- %s' % func.__name__)
-            self.sanitize_scene()
-            if hasattr(self, 'build_dependencies'):
-                self.build_dependencies()
-
-            initial_scene_tree = self.pre_hook()
-
-            self.LOG.info('Pre-scene: %s' % initial_scene_tree)
-            self.LOG.info('Running Test: %s(%s, %s)' % (func, args, kwargs))
-            func_return = func(self, *args, **kwargs)
-            created_scene_tree = self.post_hook()
-            created_nodes = self.process_scene_tree_diff(initial_scene_tree, created_scene_tree)
-            self.LOG.info('<%s> created nodes: %s' % (self, created_nodes))
-            self.LOG.info('Post-scene: %s' % created_scene_tree)
-            self.sanitize_scene()
-
+            self.LOG.info('RUNNING UNITTEST ----------- %s(%s, %s)' % (func.__name__, args, kwargs))
+            with cleanup_nodes():
+                if hasattr(self, 'build_dependencies'):
+                    self.build_dependencies()
+                    initial_scene_tree = self.pre_hook()
+                    self.LOG.info('Pre-scene: %s' % initial_scene_tree)
+                func_return = func(self, *args, **kwargs)
+                created_scene_tree = self.post_hook()
+                self.LOG.info('Post-scene: %s' % created_scene_tree)
             return func_return
         return wrapped
 

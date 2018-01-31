@@ -42,7 +42,6 @@ class TestBaseTemplateRigs(TestBase):
 
 
 class TestBuildBiped(TestBaseTemplateRigs):
-
     def test_build_with_parent_t_pose(self):
         with cleanup_nodes():
             parent = nt.Transform.build(name='test')

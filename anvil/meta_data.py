@@ -20,7 +20,7 @@ class MetaData(log.LogMixin):
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
         """
-        self.protected = to_list(kwargs.pop(self.PROTECTED_KWARG, None)) + [cfg.TYPE]
+        self.protected = set(to_list(kwargs.pop(self.PROTECTED_KWARG, None)) + [cfg.TYPE])
         self.data = {}
         self.merge(force=True, *args, **kwargs)
 
@@ -35,7 +35,7 @@ class MetaData(log.LogMixin):
         :return: (MetaData or dict), depending on the new kwarg will return the updated dictionary or a new MetaData.
         """
         new, force = kwargs.pop(self.NEW_KWARG, False), kwargs.pop(self.FORCE_KWARG, False)
-        ignore_keys = to_list(kwargs.pop(self.IGNORED_KWARG, None)) + getattr(self, self.PROTECTED_KWARG)
+        ignore_keys = set(to_list(kwargs.pop(self.IGNORED_KWARG, None))).union(getattr(self, self.PROTECTED_KWARG))
         processed_data = merge_dicts(*self._process_args(args), **kwargs)
 
         if not force:
@@ -54,7 +54,7 @@ class MetaData(log.LogMixin):
         :param kwargs: dict, input kwargs to merge
         :param key_or_keys: (str or list(str)): list of strings or string representing keys we want to write-protect.
         """
-        self.protected + to_list(key_or_keys)
+        self.protected = self.protected.union(set(to_list(key_or_keys)))
 
     def update(self, *args, **kwargs):
         """ For ease of use to act like a dictionary.
