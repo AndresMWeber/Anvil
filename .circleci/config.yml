@@ -7,11 +7,6 @@ version: 2
 defaults: &defaults
   working_directory: ~/Anvil
 
-d-restore-cache: &d-restore-cache
-    keys:
-        -a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
-        -a2-dependencies-
-
 d-update-git: &d-update-git
     name: update git
     command: |
@@ -30,6 +25,11 @@ d-save_cache: &d-save-cache
         - /usr/bin/python2.7
     key: a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
 
+d-restore-cache: &d-restore-cache
+    keys:
+        -a2-dependencies-{{ checksum "/usr/bin/python2.7" }}
+        -a2-dependencies-
+
 d2-restore_cache: &d2-restore-cache
     keys:
         - a1-dependencies-{{ checksum "requirements.txt" }}
@@ -44,13 +44,6 @@ d2-save-cache: &d2-save-cache
       - ~/venv/
     key: a1-dependencies-{{ checksum "requirements.txt" }}
 
-store-results: &store-results
-    path: ~/test-results
-
-store-artifacts: &store-artifacts
-    path: ~/.anvil
-    destination: ~/test-results
-
 maya-2017-run: &maya-2017-run
     name: run tests
     command: |
@@ -60,14 +53,10 @@ maya-2017-run: &maya-2017-run
         export TEST_PATH >> "$BASH_ENV"
         make test-unit
 
-maya-2017-upload: &maya-2017-upload
-    name: upload coverage
-    command: make upload-coverage
-
 maya-2016-run: &maya-2016-run
     name: run tests
     command: |
-        MAYA_VERSION=2015
+        MAYA_VERSION=2016
         export MAYA_VERSION >> "$BASH_ENV"
         TEST_PATH=~/test-results
         export TEST_PATH >> "$BASH_ENV"
@@ -81,6 +70,18 @@ maya-2015-run: &maya-2015-run
       TEST_PATH=~/test-results
       export TEST_PATH >> "$BASH_ENV"
       make test-unit
+
+upload-coverage: &upload-coverage
+    name: upload coverage
+    command: make upload-coverage
+
+store-results: &store-results
+    path: ~/test-results
+
+store-artifacts: &store-artifacts
+    path: ~/.anvil
+    destination: ~/test-results
+
 
 jobs:
   build:
@@ -106,7 +107,7 @@ jobs:
       - run:
           *maya-2017-run
       - run:
-          *maya-2017-upload
+          *upload-coverage
       - store_test_results:
           *store-results
       - store_artifacts:
