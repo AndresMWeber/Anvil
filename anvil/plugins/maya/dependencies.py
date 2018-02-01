@@ -25,17 +25,21 @@ def exit_maya():
         import maya.standalone as ms
         import sys
         sys.stdout.write('Anvil is exiting Standalone Maya.')
+
         mc.file(new=True, force=True)
         sys.stdout.write('.')
         sys.stdout.flush()
-        ms.uninitialize()
-        sys.stdout.write('.')
-        sys.stdout.flush()
+
+        from pymel import versions
+        if not str(versions.current()).startswith('2016'):
+            ms.uninitialize()
+            sys.stdout.write('.')
+            sys.stdout.flush()
     except:
         pass
 
     finally:
-        sys.stdout.write('Success...exiting.')
+        sys.stdout.write('Success...exiting.\n')
         sys.stdout.flush()
         import os
         os._exit(0)
