@@ -22,7 +22,10 @@ install_requires = [
     'PyYAML',
     'six',
     'jsonschema',
-    'nomenclate'
+    'nomenclate',
+    'colorama',
+    'deepdiff',
+    'structlog'
 ]
 
 tests_requires = [
