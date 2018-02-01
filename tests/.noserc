@@ -5,3 +5,4 @@ cover-package=anvil
 cover-erase=1
 nologcapture=1
 with-xunit=1
+verbose=1

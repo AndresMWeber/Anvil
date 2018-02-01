@@ -3,6 +3,7 @@ import unittest2
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 from functools import wraps
+
 os.environ['ANVIL_MODE'] = 'TEST'
 import anvil
 from anvil.log import obtainLogger
@@ -14,7 +15,6 @@ from contextlib import contextmanager
 import nomenclate
 
 NOMENCLATE = nomenclate.Nom()
-
 
 
 class TestBase(unittest2.TestCase):
@@ -68,7 +68,7 @@ class TestBase(unittest2.TestCase):
                 try:
                     anvil.runtime.dcc.scene.delete(object, hierarchy=True)
                 except ValueError:
-                    anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object+'*'), hierarchy=True)
+                    anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object + '*'), hierarchy=True)
 
     @classmethod
     def deep_sort(cls, obj):
@@ -174,7 +174,9 @@ class TestBase(unittest2.TestCase):
                 created_scene_tree = self.post_hook()
                 self.LOG.info('Post-scene: %s' % created_scene_tree)
             return func_return
+
         return wrapped
+
 
 @contextmanager
 def cleanup_nodes():
