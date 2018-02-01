@@ -1,5 +1,8 @@
-Anvil: Just another autorigger
-###################################################################################################
+Anvil
+-----
+Just another autorigger
+=======================
+
 `Online Documentation (ReadTheDocs) <http://riganvil.readthedocs.io/en/latest/>`_
 
 .. image:: https://badge.fury.io/py/Anvil.svg
