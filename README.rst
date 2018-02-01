@@ -1,5 +1,8 @@
-Anvil: Just another autorigger
-###################################################################################################
+Anvil
+-----
+Just another autorigger
+=======================
+
 `Online Documentation (ReadTheDocs) <http://riganvil.readthedocs.io/en/latest/>`_
 
 .. image:: https://badge.fury.io/py/Anvil.svg
@@ -15,6 +18,9 @@ Anvil: Just another autorigger
     :target: https://landscape.io/github/AndresMWeber/Anvil/master
     :alt: Code Health
 
+.. image:: https://api.codacy.com/project/badge/Grade/ef864a0c79984322b7809d64e3f036c8
+    :target: https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AndresMWeber/Anvil&amp;utm_campaign=Badge_Grade
+
 .. contents::
 
 .. section-numbering::
@@ -27,12 +33,24 @@ My Autorigger.  Ain't yo business..yet!
 Features
 --------
 -  Caching
--  Uses automated naming conventions as read in config.yml
--  Up to date with online help docs
+-  Automated naming conventions
+-  YAML Config
+-  Online Documentation
 -  Temp file generator
 -  JSON file output
 -  CLI access
 -  Dict output
+-  Automated Custom Docker Image Builds
+-  Test suite automation using CircleCI
+-  Automated testing in Maya versions 2015, 2016, 2017
+
+Prerequisites
+=============
+To run Anvil locally you must have these installed:
+
+- Maya (2015-2017)
+- Python2.7 (or sudo access to pip install via mayapy)
+
 
 Installation
 ============
@@ -47,8 +65,7 @@ A universal installation method (that works on Windows, Mac OS X, Linux, …, an
     $ pip install Anvil
 
 
-(If ``pip`` installation fails for some reason, you can try
-``easy_install anvil`` as a fallback.)
+(If ``pip`` installation fails for some reason, you can try ``easy_install anvil`` as a fallback.)
 
 Usage
 =============
@@ -62,7 +79,10 @@ Use this tool via package level functions
     import anvil
     anvil.lorem_ipsum()
 
-
 Version Support
 ===============
-This package supports the Maya 2015, 2016 and 2017 so far so please be aware.
+This package supports only Maya 2015, 2016 and 2017 so far so please be aware...plans for 2018 are in the works.
+
+Acknowledgments
+===============
+-  Marcus Ottosson - Without him I would not have been able to complete the docker side of things.

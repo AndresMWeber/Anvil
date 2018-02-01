@@ -2,13 +2,16 @@ FROM mottosso/maya:2017
 
 MAINTAINER andresmweber@gmail.com
 
-ENV TEST_PATH=$HOME/test-results
+ENV TEST_PATH /root/test-results
+ENV PYTHONPATH /root/nvenv/lib/python2.7/site-packages
+ENV MAYA_VERSION 2017
 
-ENV PYTHONPATH=$HOME/nvenv/lib/python2.7/site-packages
+RUN yum remove -y git
 
-RUN yum install -y epel-release \
-    yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-    yum install -y git2u
+RUN yum install -y \
+    epel-release \
+    https://centos6.iuscommunity.org/ius-release.rpm \
+    git2u
 
 RUN yum install -y python27
 

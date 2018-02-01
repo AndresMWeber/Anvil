@@ -1,100 +1,49 @@
 # Python CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
-# f
+#
 version: 2
 
 defaults: &defaults
   working_directory: ~/Anvil
-  environment:
-      TEST_PATH: $(HOME)/test-results
-      PYTHONPATH: $(HOME)/nvenv/lib/python2.7/site-packages
-
-d-update-git: &d-update-git
-    name: update git
-    command: |
-        yum remove -y git
-        yum install -y epel-release
-        yum install -y https://centos6.iuscommunity.org/ius-release.rpm
-        yum install -y git2u
-        yum install -y python27
-        mkdir ~/test-results
-
-d-save_cache: &d-save-cache
-    paths:
-        - /usr/lib64/python2.7
-        - /usr/lib/python2.7
-        - /usr/include/python2.7
-        - /usr/bin/python2.7
-    key: a2-dependencies-{{ checksum /usr/bin/python2.7 }}
-
-d-restore-cache: &d-restore-cache
-    keys:
-        -a2-dependencies-{{ checksum /usr/bin/python2.7 }}
-        -a2-dependencies-
-
-d2-restore_cache: &d2-restore-cache
-    keys:
-        - a1-dependencies-{{ checksum "requirements.txt" }}
-        - a1-dependencies-
-
-d-set-up-mayapy: &d-set-up-mayapy
-    name: set up mayapy and install deps
-    command: make install-deps
-
-d2-save-cache: &d2-save-cache
-    paths:
-      - ~/venv/
-    key: a1-dependencies-{{ checksum "requirements.txt" }}
-
-maya-2017-run: &maya-2017-run
-    name: run tests
-    command: |
-        MAYA_VERSION=2017
-        export MAYA_VERSION >> "$BASH_ENV"
-        make test-unit
-
-maya-2016-run: &maya-2016-run
-    name: run tests
-    command: |
-        MAYA_VERSION=2016
-        export MAYA_VERSION >> "$BASH_ENV"
-        make test-unit
-
-maya-2015-run: &maya-2015-run
-    name: run tests
-    command: |
-      MAYA_VERSION=2015
-      export MAYA_VERSION >> "$BASH_ENV"
-      make test-unit
 
 upload-coverage: &upload-coverage
     name: upload coverage
-    command: make upload-coverage
+    command: |
+        yum install -y git
+        make upload-coverage
 
-store-results: &store-results
-    path: ~/test-results
-
-store-artifacts: &store-artifacts
-    path: ~/.anvil
-    destination: ~/test-results
+default-run: &default-run
+    steps:
+        - checkout
+        - restore-cache: &d2-restore-cache
+            keys:
+                - a1-dependencies-{{ checksum "requirements.txt" }}
+                - a1-dependencies-
+        - run: &d-set-up-mayapy
+            name: set up mayapy and install deps
+            command: make install-deps
+        - save-cache: &d2-save-cache
+            paths:
+              - ~/venv/
+            key: a1-dependencies-{{ checksum "requirements.txt" }}
+        - run: &run-tests
+            name: run tests
+            command: make test-unit
+        - store_test_results: &store-results
+            path: ~/test-results
+        - store_artifacts: &store-artifacts
+            path: ~/.anvil
+            destination: ~/test-results
 
 
 jobs:
   build:
     docker:
-      - image: mottosso/maya:2017
+      - image: daemonecles/anvil:maya2017
     <<: *defaults
     steps:
-      - restore-cache:
-          *d-restore-cache
-      - run:
-          *d-update-git
-      - save-cache:
-          *d-save-cache
-
       - checkout
-
       - restore-cache:
           *d2-restore-cache
       - run:
@@ -102,7 +51,7 @@ jobs:
       - save-cache:
           *d2-save-cache
       - run:
-          *maya-2017-run
+          *run-tests
       - run:
           *upload-coverage
       - store_test_results:
@@ -112,60 +61,25 @@ jobs:
 
   maya2016:
     docker:
-      - image: mottosso/maya:2016
+      - image: daemonecles/anvil:maya2016
     <<: *defaults
-    steps:
-      - restore-cache:
-          *d-restore-cache
-      - run:
-          *d-update-git
-      - save-cache:
-          *d-save-cache
-
-      - checkout
-
-      - restore-cache:
-          *d2-restore-cache
-      - run:
-          *d-set-up-mayapy
-      - save-cache:
-          *d2-save-cache
-      - run:
-          *maya-2016-run
-      - store_test_results:
-          *store-results
-      - store_artifacts:
-          *store-artifacts
+    <<: *default-run
 
   maya2015:
     docker:
-      - image: mottosso/maya:2015
+      - image: daemonecles/anvil:maya2015
     <<: *defaults
-    steps:
-      - restore-cache:
-          *d-restore-cache
-      - run:
-          *d-update-git
-      - save-cache:
-          *d-save-cache
+    <<: *default-run
 
-      - checkout
-
-      - restore-cache:
-          *d2-restore-cache
-      - run:
-          *d-set-up-mayapy
-      - save-cache:
-          *d2-save-cache
-      - run:
-          *maya-2015-run
-      - store_test_results:
-          *store-results
-      - store_artifacts:
-          *store-artifacts
 
 workflows:
   version: 2
   test_maya_versions:
     jobs:
       - build
+      - maya2016:
+          requires:
+              - build
+      - maya2015:
+          requires:
+              - build
