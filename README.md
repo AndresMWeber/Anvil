@@ -93,6 +93,7 @@ This package supports only Maya 2015, 2016 and 2017 so far so please be aware...
 
 Acknowledgments
 ===============
+-  Stu Schwartz - For being my constant sounding board and advice giver.
 -  Marcus Ottosson - Without him I would not have been able to complete the docker side of things.
 
 

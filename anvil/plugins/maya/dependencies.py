@@ -23,16 +23,19 @@ def exit_maya():
     # https://groups.google.com/forum/#!topic/python_inside_maya/chpuSyLbryI
     try:
         import maya.standalone as ms
-        import os
         import sys
         sys.stdout.write('Anvil is exiting Standalone Maya.')
-        sys.stdout.write('.')
         mc.file(new=True, force=True)
         sys.stdout.write('.')
+        sys.stdout.flush()
         ms.uninitialize()
         sys.stdout.write('.')
-        os._exit(0)
-        sys.stdout.write('Success')
-
+        sys.stdout.flush()
     except:
         pass
+
+    finally:
+        sys.stdout.write('Success...exiting.')
+        sys.stdout.flush()
+        import os
+        os._exit(0)

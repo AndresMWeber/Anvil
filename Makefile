@@ -14,6 +14,7 @@ install-deps: make-venv
 	~/nvenv/bin/pip install coveralls nose
 
 test-unit:
+	. ~/nvenv/bin/activate
 	mayapy -m nose -c tests/.noserc --xunit-file=$(TEST_PATH)/noselog$(MAYA_VERSION).xml
 
 upload-coverage:
