@@ -10,8 +10,8 @@ defaults: &defaults
 upload-coverage: &upload-coverage
     name: upload coverage
     command: |
-    	yum install -y coveralls
-	    make upload-coverage
+        yum install -y coveralls
+        make upload-coverage
 
 default-run: &default-run
     steps:
