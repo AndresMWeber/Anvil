@@ -2,8 +2,8 @@ FROM mottosso/maya:2017
 
 MAINTAINER andresmweber@gmail.com
 
-ENV TEST_PATH=$HOME/test-results
-ENV PYTHONPATH=$HOME/nvenv/lib/python2.7/site-packages
+ENV TEST_PATH /root/test-results
+ENV PYTHONPATH /root/nvenv/lib/python2.7/site-packages
 ENV MAYA_VERSION=2017
 
 RUN yum remove -y git
