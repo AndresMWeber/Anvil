@@ -20,6 +20,7 @@ import atexit
 @atexit.register
 def exit_maya():
     # If we are in standalone we need to make a new file and uninitialize then os._exit to properly exit Maya.
+    # https://groups.google.com/forum/#!topic/python_inside_maya/chpuSyLbryI
     try:
         import maya.standalone as ms
         import os
