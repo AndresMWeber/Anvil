@@ -24,9 +24,15 @@ def exit_maya():
     try:
         import maya.standalone as ms
         import os
-        print('Anvil is exiting Standalone Maya.')
+        import sys
+        sys.stdout.write('Anvil is exiting Standalone Maya.')
+        sys.stdout.write('.')
         mc.file(new=True, force=True)
+        sys.stdout.write('.')
         ms.uninitialize()
+        sys.stdout.write('.')
         os._exit(0)
-    except TypeError:
+        sys.stdout.write('Success')
+
+    except:
         pass
