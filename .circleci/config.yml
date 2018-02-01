@@ -10,7 +10,7 @@ defaults: &defaults
 upload-coverage: &upload-coverage
     name: upload coverage
     command: |
-        yum install -y coveralls
+        yum install -y git
         make upload-coverage
 
 default-run: &default-run
