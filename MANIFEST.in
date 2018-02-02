@@ -2,11 +2,10 @@
 exclude .gitignore
 exclude .coverage
 exclude .circleci/config.yml
-include README.rst
-include setup.cfg
 prune .cache
+prune .circleci
 prune .git
 prune build
 prune dist
 recursive-exclude *.egg-info *
-recursive-exclude tests
+recursive-exclude tests *
