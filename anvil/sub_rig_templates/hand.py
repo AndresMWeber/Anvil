@@ -6,7 +6,7 @@ import digits
 import anvil.objects.attribute as at
 
 
-class Hand(SubRigTemplate):
+class Hand(digits.Digit):
     BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({"name": "hand"}, new=True)
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
     BUILT_IN_ATTRIBUTES = {
@@ -32,13 +32,21 @@ class Hand(SubRigTemplate):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
         anvil.LOG.info('Building %s: %r with %d digits' % (self.__class__.__name__, self, len(self.layout_joints)))
 
-        base_names = self.get_finger_base_names()
-        for layout_joints, base_name in zip(self.layout_joints, base_names):
-            digit_instance = digits.Digit(layout_joints, meta_data=self.meta_data + {cfg.NAME: base_name})
-            digit_instance.build(parent=self.group_controls, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
-            self.digits.append(digit_instance)
+        for layout_joints, base_name in zip(self.layout_joints,  self.get_finger_base_names()):
+            self.build_digit(layout_joints, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
 
         self.rename()
+
+    def build_digit(self,digit_joints, build_ik=True, build_fk=True, parent=None, **kwargs):
+        if build_fk:
+            self.build_kwargs['shape'] = 'pyramid_pin'
+            self.build_fk_chain(digit_joints, **self.build_kwargs)
+
+        if build_ik:
+            self.build_kwargs['shape'] = 'cube'
+            self.build_ik_chain(digit_joints, **self.build_kwargs)
+
+        self.build_blend_chain(digit_joints, **self.build_kwargs)
 
     def get_finger_base_names(self):
         num_fingers = len(self.layout_joints)
@@ -52,7 +60,6 @@ class Hand(SubRigTemplate):
         super(Hand, self).rename(*input_dicts, **name_tokens)
 
         for digit in self.digits:
-            digit.meta_data.merge(self.meta_data, ignore_keys=cfg.NAME)
             digit.rename()
 
     def set_up_fist_pose(self):

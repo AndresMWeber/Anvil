@@ -31,6 +31,7 @@ class AbstractGrouping(log.LogMixin):
         self.hierarchy = {}
         self.root = top_node
         self.layout_joints = layout_joints
+        self.build_joints = None
         self.build_kwargs = MetaData(kwargs)
         self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
         self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
@@ -51,10 +52,12 @@ class AbstractGrouping(log.LogMixin):
     def is_built(self):
         return all([self.root])
 
-    def build(self, meta_data=None, name_tokens=None, **kwargs):
+    def build(self, joints=None, meta_data=None, name_tokens=None, **kwargs):
         self.build_kwargs.merge(kwargs)
         self.meta_data.merge(meta_data)
         self.name_tokens.merge(name_tokens)
+        self.build_joints = joints or self.layout_joints
+
         self.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s',
                   self.__class__.__name__, self.meta_data, self.build_kwargs, self.layout_joints)
 
