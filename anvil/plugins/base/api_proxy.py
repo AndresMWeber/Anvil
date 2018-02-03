@@ -33,16 +33,10 @@ class APIProxy(object):
         def to_validate(function):
             @wraps(function)
             def validator(*args, **kwargs):
-                cls.LOG.debug('Validating call for %s.%s(args=%s, kwargs=%s) against schema %s' % (
-                    api.__name__, function_name, ', '.join([repr(a) for a in args]),
-                    ', '.join(['%s=%s' % (k, v) for k, v in iteritems(kwargs)]),
-                    list(schema['properties'])))
                 validate(kwargs, schema)
                 kwargs = cls._initialize_and_filter_flags(kwargs, schema)
                 return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
-
             return validator
-
         return to_validate
 
     @classmethod
@@ -50,17 +44,14 @@ class APIProxy(object):
         new_flags = {} if flags is None else flags.copy()
 
         schema_properties = list(schema.get('properties'))
-        cls.LOG.debug('Filtering flags %s for the schema properties %s' % (new_flags, schema_properties))
 
         for flag_key in list(new_flags):
             if flag_key not in schema_properties:
-                cls.LOG.debug('Flag %s not in schema...removing from flags' % (flag_key))
                 new_flags.pop(flag_key)
 
         for schema_property in schema_properties:
             default = schema['properties'][schema_property].get(cfg.DEFAULT)
             if default is not None and new_flags.get(schema_property) is None:
-                cls.LOG.debug('Setting flag %s from default value %s in schema ' % (schema_property, default))
                 new_flags[schema_property] = default
 
         return new_flags

@@ -12,8 +12,8 @@ class AnvilLog(log.LogMixin):
 
 LOG = AnvilLog
 
-import runtime
 import plugins
+import runtime
 import utils
 import objects
 import grouping

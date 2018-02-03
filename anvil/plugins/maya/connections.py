@@ -33,7 +33,7 @@ aim_schema = {
 
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': {'ignoreUnitConversion': api_proxy.BOOL_TYPE}}),
-    API, 'mute')
+    DEFAULT_API, 'mute')
 def connected_attr(attribute_dag_path_1, attribute_dag_path_2, **kwargs):
     pass
 
@@ -43,7 +43,7 @@ def connected_attr(attribute_dag_path_1, attribute_dag_path_2, **kwargs):
                           {'properties':
                                {'disable': api_proxy.BOOL_TYPE,
                                 'force': api_proxy.BOOL_TYPE}}),
-    API, 'mute')
+    DEFAULT_API, 'mute')
 def mute(attribute_dag_path, **kwargs):
     pass
 
@@ -53,7 +53,7 @@ def mute(attribute_dag_path, **kwargs):
                           {'properties':
                                {'connection': api_proxy.BOOL_TYPE,
                                 'datablock': api_proxy.BOOL_TYPE}}),
-    API, 'isDirty')
+    DEFAULT_API, 'isDirty')
 def dirty_attr(attribute_dag_path, **kwargs):
     pass
 
@@ -67,7 +67,7 @@ def dirty_attr(attribute_dag_path, **kwargs):
                                 'isExactDestination': api_proxy.BOOL_TYPE, 'isExactSource': api_proxy.BOOL_TYPE,
                                 'isLocked': api_proxy.BOOL_TYPE, 'isSource': api_proxy.BOOL_TYPE,
                                 'sourceFromDestination': api_proxy.BOOL_TYPE}}),
-    API, 'connectionInfo')
+    DEFAULT_API, 'connectionInfo')
 def connection_info(attribute_dag_path, **kwargs):
     pass
 
@@ -81,7 +81,7 @@ def connection_info(attribute_dag_path, **kwargs):
                                 'logicalAnd': api_proxy.BOOL_TYPE, 'multi': api_proxy.BOOL_TYPE,
                                 'short': api_proxy.BOOL_TYPE, 'type': api_proxy.STR_TYPE,
                                 'userInterface': api_proxy.BOOL_TYPE, 'writable': api_proxy.BOOL_TYPE}}),
-    API, 'attributeInfo')
+    DEFAULT_API, 'attributeInfo')
 def info_attr(attribute_dag_path, **kwargs):
     pass
 
@@ -95,7 +95,7 @@ def info_attr(attribute_dag_path, **kwargs):
                                 'groupLevels': api_proxy.BOOL_TYPE, 'historyAttr': api_proxy.BOOL_TYPE,
                                 'interestLevel': api_proxy.INT_TYPE, 'leaf': api_proxy.BOOL_TYPE,
                                 'levels': api_proxy.INT_TYPE, 'pruneDagObjects': api_proxy.BOOL_TYPE}}),
-    API, 'listHistory')
+    DEFAULT_API, 'listHistory')
 def list_history(dag_path, **kwargs):
     pass
 
@@ -107,7 +107,7 @@ def list_history(dag_path, **kwargs):
                                           'shapes': api_proxy.BOOL_TYPE, 'skipConversionNodes': api_proxy.BOOL_TYPE,
                                           'source': api_proxy.BOOL_TYPE, 'type': api_proxy.STR_TYPE}
                            }),
-    API, 'listConnections')
+    DEFAULT_API, 'listConnections')
 def list_connections(attribute_dag_path, **kwargs):
     pass
 
@@ -117,7 +117,7 @@ def list_connections(attribute_dag_path, **kwargs):
                           {'properties': {
                               'remove': api_proxy.BOOL_TYPE,
                               'query': api_proxy.BOOL_TYPE}}),
-    API, 'aliasAttr')
+    DEFAULT_API, 'aliasAttr')
 def alias_attr(attribute_dag_path, **kwargs):
     pass
 
@@ -150,7 +150,7 @@ def alias_attr(attribute_dag_path, **kwargs):
                               'typeExact': api_proxy.STR_TYPE, 'usedAsColor': api_proxy.BOOL_TYPE,
                               'usedAsFilename': api_proxy.BOOL_TYPE, 'usesMultiBuilder': api_proxy.BOOL_TYPE,
                               'worldspace': api_proxy.BOOL_TYPE, 'writable': api_proxy.BOOL_TYPE}}),
-    API, 'attributeQuery')
+    DEFAULT_API, 'attributeQuery')
 def query_attr(attribute, **kwargs):
     pass
 
@@ -186,7 +186,7 @@ def query_attr(attribute, **kwargs):
                               'userDefined': api_proxy.BOOL_TYPE,
                               'visible': api_proxy.BOOL_TYPE,
                               'write': api_proxy.BOOL_TYPE}}),
-    API, 'listAttr')
+    DEFAULT_API, 'listAttr')
 def list_attr(node, *args, **kwargs):
     pass
 
@@ -196,7 +196,7 @@ def list_attr(node, *args, **kwargs):
                           {'properties': {
                               'attribute': api_proxy.STR_TYPE,
                               'name': api_proxy.STR_TYPE}}),
-    API, 'deleteAttr')
+    DEFAULT_API, 'deleteAttr')
 def delete_attr(attribute_dag_path_or_node, **kwargs):
     pass
 
@@ -216,7 +216,7 @@ def delete_attr(attribute_dag_path_or_node, **kwargs):
                               'size': api_proxy.BOOL_TYPE,
                               'time': api_proxy.NUM_TYPE,
                               'type': api_proxy.BOOL_TYPE}}),
-    API, 'getAttr')
+    DEFAULT_API, 'getAttr')
 def get_attr(attribute_dag_path, *args, **kwargs):
     pass
 
@@ -233,7 +233,7 @@ def get_attr(attribute_dag_path, *args, **kwargs):
                               'lock': api_proxy.BOOL_TYPE,
                               'size': api_proxy.NUM_TYPE,
                               'type': api_proxy.STR_TYPE}}),
-    API, 'setAttr')
+    DEFAULT_API, 'setAttr')
 def set_attr(attribute, **kwargs):
     pass
 
@@ -260,7 +260,7 @@ def set_attr(attribute, **kwargs):
                               'usedAsFilename': api_proxy.BOOL_TYPE, 'usedAsProxy': api_proxy.BOOL_TYPE,
                               'writable': api_proxy.BOOL_TYPE
                           }}),
-    API, 'addAttr')
+    DEFAULT_API, 'addAttr')
 def add_attr(attribute, **kwargs):
     pass
 
@@ -272,14 +272,14 @@ def add_attr(attribute, **kwargs):
                               'lock': api_proxy.BOOL_TYPE,
                               'nextAvailable': api_proxy.STR_TYPE,
                               'referenceDest': api_proxy.STR_TYPE}}),
-    API, 'connectAttr')
+    DEFAULT_API, 'connectAttr')
 def connect_attr(source_attribute, destination_attribute, **kwargs):
     pass
 
 
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': {'nextAvailable': api_proxy.BOOL_TYPE}}),
-    API, 'disconnectAttr')
+    DEFAULT_API, 'disconnectAttr')
 def disconnect_attr(*attributes, **kwargs):
     pass
 
@@ -287,7 +287,7 @@ def disconnect_attr(*attributes, **kwargs):
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, offset_schema)}),
-    API, 'pointConstraint')
+    DEFAULT_API, 'pointConstraint')
 def translate(source, targets, **flags):
     pass
 
@@ -295,7 +295,7 @@ def translate(source, targets, **flags):
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, offset_schema, cacheable_schema)}),
-    API, 'orientConstraint')
+    DEFAULT_API, 'orientConstraint')
 def rotate(source, targets, **flags):
     pass
 
@@ -303,7 +303,7 @@ def rotate(source, targets, **flags):
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, offset_schema, aim_schema)}),
-    API, 'aimConstraint')
+    DEFAULT_API, 'aimConstraint')
 def aim(source, targets, **flags):
     pass
 
@@ -314,7 +314,7 @@ def aim(source, targets, **flags):
                                                                {"scaleCompensate": api_proxy.BOOL_TYPE,
                                                                 "targetList": api_proxy.BOOL_TYPE},
                                                                offset_schema)}),
-    API, 'scaleConstraint')
+    DEFAULT_API, 'scaleConstraint')
 def scale(source, targets, **flags):
     pass
 
@@ -328,7 +328,7 @@ def scale(source, targets, **flags):
                                                                 },
                                                                offset_schema,
                                                                cacheable_schema)}),
-    API, 'parentConstraint')
+    DEFAULT_API, 'parentConstraint')
 def parent(source, targets, **flags):
     pass
 
@@ -336,14 +336,14 @@ def parent(source, targets, **flags):
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, aim_schema)}),
-    API, 'tangentConstraint')
+    DEFAULT_API, 'tangentConstraint')
 def tangent(source, targets, **flags):
     pass
 
 
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': api_proxy.merge_dicts(default_properties)}),
-    API, 'geometryConstraint')
+    DEFAULT_API, 'geometryConstraint')
 def geometry_point(source, targets, **flags):
     pass
 
@@ -351,13 +351,13 @@ def geometry_point(source, targets, **flags):
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, aim_schema)}),
-    API, 'normalConstraint')
+    DEFAULT_API, 'normalConstraint')
 def geometry_normal(source, targets, **flags):
     pass
 
 
 @api_proxy.APIProxy._validate_function(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': api_proxy.merge_dicts(default_properties)}),
-    API, 'poleVectorConstraint')
+    DEFAULT_API, 'poleVectorConstraint')
 def pole_vector(source, targets, **flags):
     pass

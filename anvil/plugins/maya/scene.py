@@ -1,7 +1,125 @@
 from anvil.plugins.maya.dependencies import *
-import anvil
 import anvil.config as cfg
 import anvil.plugins.base.api_proxy as api_proxy
+
+
+@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+                                        "properties": {
+                                            "activate": api_proxy.BOOL_TYPE,
+                                            "activeProxy": api_proxy.BOOL_TYPE,
+                                            "add": api_proxy.BOOL_TYPE,
+                                            "anyModified": api_proxy.BOOL_TYPE,
+                                            "applyTo": api_proxy.STR_TYPE,
+                                            "buildLoadSettings": api_proxy.BOOL_TYPE,
+                                            "channels": api_proxy.BOOL_TYPE,
+                                            "cleanReference": api_proxy.STR_TYPE,
+                                            "command": api_proxy.LINEAR_STRING_TYPE,
+                                            "compress": api_proxy.BOOL_TYPE,
+                                            "constraints": api_proxy.BOOL_TYPE,
+                                            "constructionHistory": api_proxy.BOOL_TYPE,
+                                            "copyNumberList": api_proxy.BOOL_TYPE,
+                                            "defaultExtensions": api_proxy.BOOL_TYPE,
+                                            "defaultNamespace": api_proxy.BOOL_TYPE,
+                                            "deferReference": api_proxy.BOOL_TYPE,
+                                            "editCommand": api_proxy.STR_TYPE,
+                                            "errorStatus": api_proxy.BOOL_TYPE,
+                                            "executeScriptNodes": api_proxy.BOOL_TYPE,
+                                            "exists": api_proxy.BOOL_TYPE,
+                                            "expandName": api_proxy.BOOL_TYPE,
+                                            "exportAll": api_proxy.BOOL_TYPE,
+                                            "exportAnim": api_proxy.BOOL_TYPE,
+                                            "exportAnimFromReference": api_proxy.BOOL_TYPE,
+                                            "exportAsReference": api_proxy.BOOL_TYPE,
+                                            "exportAsSegment": api_proxy.BOOL_TYPE,
+                                            "exportSelected": api_proxy.BOOL_TYPE,
+                                            "exportSelectedAnim": api_proxy.BOOL_TYPE,
+                                            "exportSelectedAnimFromReference": api_proxy.BOOL_TYPE,
+                                            "exportSelectedNoReference": api_proxy.BOOL_TYPE,
+                                            "exportSelectedStrict": api_proxy.BOOL_TYPE,
+                                            "exportUnloadedReferences": api_proxy.BOOL_TYPE,
+                                            "expressions": api_proxy.BOOL_TYPE,
+                                            "fileMetaData": api_proxy.BOOL_TYPE,
+                                            "flushReference": api_proxy.STR_TYPE,
+                                            "force": api_proxy.BOOL_TYPE,
+                                            "groupLocator": api_proxy.BOOL_TYPE,
+                                            "groupName": api_proxy.STR_TYPE,
+                                            "groupReference": api_proxy.BOOL_TYPE,
+                                            "i": api_proxy.BOOL_TYPE,
+                                            "ignoreVersion": api_proxy.BOOL_TYPE,
+                                            "importFrameRate": api_proxy.BOOL_TYPE,
+                                            "importReference": api_proxy.BOOL_TYPE,
+                                            "importTimeRange": api_proxy.STR_TYPE,
+                                            "lastFileOption": api_proxy.BOOL_TYPE,
+                                            "lastTempFile": api_proxy.BOOL_TYPE,
+                                            "list": api_proxy.BOOL_TYPE,
+                                            "loadAllDeferred": api_proxy.BOOL_TYPE,
+                                            "loadAllReferences": api_proxy.BOOL_TYPE,
+                                            "loadNoReferences": api_proxy.BOOL_TYPE,
+                                            "loadReference": api_proxy.STR_TYPE,
+                                            "loadReferenceDepth": api_proxy.STR_TYPE,
+                                            "loadReferencePreview": api_proxy.STR_TYPE,
+                                            "loadSettings": api_proxy.STR_TYPE,
+                                            "location": api_proxy.BOOL_TYPE,
+                                            "lockContainerUnpublished": api_proxy.BOOL_TYPE,
+                                            "lockFile": api_proxy.BOOL_TYPE,
+                                            "lockReference": api_proxy.BOOL_TYPE,
+                                            "mapPlaceHolderNamespace": api_proxy.LINEAR_STRING_TYPE,
+                                            "mergeNamespaceWithParent": api_proxy.BOOL_TYPE,
+                                            "mergeNamespaceWithRoot": api_proxy.BOOL_TYPE,
+                                            "mergeNamespacesOnClash": api_proxy.BOOL_TYPE,
+                                            "modified": api_proxy.BOOL_TYPE,
+                                            "moveSelected": api_proxy.BOOL_TYPE,
+                                            "namespace": api_proxy.STR_TYPE,
+                                            "newFile": api_proxy.BOOL_TYPE,
+                                            "open": api_proxy.BOOL_TYPE,
+                                            "options": api_proxy.STR_TYPE,
+                                            "parentNamespace": api_proxy.BOOL_TYPE,
+                                            "postSaveScript": api_proxy.STR_TYPE,
+                                            "preSaveScript": api_proxy.STR_TYPE,
+                                            "preserveName": api_proxy.BOOL_TYPE,
+                                            "preserveReferences": api_proxy.BOOL_TYPE,
+                                            "preview": api_proxy.BOOL_TYPE,
+                                            "prompt": api_proxy.BOOL_TYPE,
+                                            "proxyManager": api_proxy.STR_TYPE,
+                                            "proxyTag": api_proxy.STR_TYPE,
+                                            "reference": api_proxy.BOOL_TYPE,
+                                            "referenceDepthInfo": api_proxy.INT_TYPE,
+                                            "referenceNode": api_proxy.STR_TYPE,
+                                            "relativeNamespace": api_proxy.STR_TYPE,
+                                            "removeDuplicateNetworks": api_proxy.BOOL_TYPE,
+                                            "removeReference": api_proxy.BOOL_TYPE,
+                                            "rename": api_proxy.STR_TYPE,
+                                            "renameAll": api_proxy.BOOL_TYPE,
+                                            "renameToSave": api_proxy.BOOL_TYPE,
+                                            "renamingPrefix": api_proxy.STR_TYPE,
+                                            "renamingPrefixList": api_proxy.BOOL_TYPE,
+                                            "replaceName": api_proxy.LINEAR_STRING_TYPE,
+                                            "resetError": api_proxy.BOOL_TYPE,
+                                            "returnNewNodes": api_proxy.BOOL_TYPE,
+                                            "save": api_proxy.BOOL_TYPE,
+                                            "saveDiskCache": api_proxy.STR_TYPE,
+                                            "saveReference": api_proxy.BOOL_TYPE,
+                                            "saveReferencesUnloaded": api_proxy.BOOL_TYPE,
+                                            "saveTextures": api_proxy.STR_TYPE,
+                                            "sceneName": api_proxy.BOOL_TYPE,
+                                            "segment": api_proxy.STR_TYPE,
+                                            "selectAll": api_proxy.BOOL_TYPE,
+                                            "shader": api_proxy.BOOL_TYPE,
+                                            "sharedNodes": api_proxy.STR_TYPE,
+                                            "sharedReferenceFile": api_proxy.BOOL_TYPE,
+                                            "shortName": api_proxy.BOOL_TYPE,
+                                            "strict": api_proxy.BOOL_TYPE,
+                                            "swapNamespace": api_proxy.LINEAR_STRING_TYPE,
+                                            "type": api_proxy.STR_TYPE,
+                                            "uiConfiguration": api_proxy.BOOL_TYPE,
+                                            "unloadReference": api_proxy.STR_TYPE,
+                                            "unresolvedName": api_proxy.BOOL_TYPE,
+                                            "usingNamespaces": api_proxy.BOOL_TYPE,
+                                            "withoutCopyNumber": api_proxy.BOOL_TYPE,
+                                            "writable": api_proxy.BOOL_TYPE}},
+                                       APIs['cmds'], 'file')
+def fileop(file, **kwargs):
+    pass
 
 
 @api_proxy.APIProxy._validate_function({"type": ["object", "null"],
@@ -11,7 +129,7 @@ import anvil.plugins.base.api_proxy as api_proxy
                                             "tagFromType": api_proxy.STR_TYPE,
                                             "typeFromTag": api_proxy.NUM_TYPE,
                                             "typeTag": api_proxy.BOOL_TYPE, }},
-                                       API, 'objectType')
+                                       DEFAULT_API, 'objectType')
 def get_type(node, **kwargs):
     pass
 
@@ -22,7 +140,7 @@ def get_type(node, **kwargs):
                                             "derived": api_proxy.BOOL_TYPE,
                                             "inherited": api_proxy.BOOL_TYPE,
                                             "isTypeName": api_proxy.BOOL_TYPE}},
-                                       API, 'nodeType')
+                                       DEFAULT_API, 'nodeType')
 def node_type(node, apiType="", **kwargs):
     pass
 
@@ -85,14 +203,14 @@ def node_type(node, apiType="", **kwargs):
                                             "untemplated": api_proxy.BOOL_TYPE,
                                             "uuid": api_proxy.BOOL_TYPE,
                                             "visible": api_proxy.BOOL_TYPE}},
-                                       API, 'ls')
+                                       DEFAULT_API, 'ls')
 def list_scene(*args, **kwargs):
     pass
 
 
 @api_proxy.APIProxy._validate_function({"type": ["object", "null"],
                                         "properties": {}},
-                                       API, 'objExists')
+                                       DEFAULT_API, 'objExists')
 def exists(node):
     pass
 
@@ -101,7 +219,7 @@ def exists(node):
                                         "properties": {
                                             "ignoreShape": api_proxy.BOOL_TYPE,
                                             "uuid": api_proxy.BOOL_TYPE}},
-                                       API, 'rename')
+                                       DEFAULT_API, 'rename')
 def rename(node_dag, name, **flags):
     pass
 
@@ -116,7 +234,7 @@ def rename(node_dag, name, **flags):
                                             "returnRootsOnly": api_proxy.BOOL_TYPE,
                                             "smartTransform": api_proxy.BOOL_TYPE,
                                             "upstreamNodes": api_proxy.BOOL_TYPE}},
-                                       API, 'duplicate')
+                                       DEFAULT_API, 'duplicate')
 def duplicate(parent_only=True, *node_dags, **flags):
     pass
 
@@ -132,7 +250,7 @@ def duplicate(parent_only=True, *node_dags, **flags):
                                             "path": api_proxy.BOOL_TYPE,
                                             "shapes": api_proxy.BOOL_TYPE,
                                             "type": api_proxy.STR_OR_STR_LIST_TYPE}},
-                                       API, 'listRelatives')
+                                       DEFAULT_API, 'listRelatives')
 def list_relatives(node_dag, **flags):
     pass
 
@@ -147,7 +265,7 @@ def list_relatives(node_dag, **flags):
                                             "removeObject": api_proxy.BOOL_TYPE,
                                             "shape": api_proxy.BOOL_TYPE,
                                             "world": api_proxy.BOOL_TYPE, }},
-                                       API, 'parent')
+                                       DEFAULT_API, 'parent')
 def parent(node_dags, new_parent_dag=None, **flags):
     pass
 
@@ -167,7 +285,7 @@ def parent(node_dags, new_parent_dag=None, **flags):
                                             "staticChannels": api_proxy.BOOL_TYPE,
                                             "timeAnimationCurves": api_proxy.BOOL_TYPE,
                                             "unitlessAnimationCurves": api_proxy.BOOL_TYPE}},
-                                       API, 'delete')
+                                       DEFAULT_API, 'delete')
 def delete(*node_dags, **flags):
     pass
 
@@ -208,7 +326,7 @@ def delete(*node_dags, **flags):
                                             "worldSpaceDistance": api_proxy.BOOL_TYPE,
                                             "zeroTransformPivots": api_proxy.BOOL_TYPE,
                                             "query": api_proxy.BOOL_TYPE}},
-                                       API, 'xform')
+                                       DEFAULT_API, 'xform')
 def position(*node_dags, **flags):
     pass
 
@@ -248,7 +366,7 @@ def list_scene_nodes(object_type='transform', has_shape=False):
             if not node.getShape().type() == 'camera':
                 nodes.append(node)
             else:
-                if not API.camera(node.getShape(), startupCamera=True, q=True):
+                if not DEFAULT_API.camera(node.getShape(), startupCamera=True, q=True):
                     nodes.append(node)
 
     return nodes
@@ -256,7 +374,7 @@ def list_scene_nodes(object_type='transform', has_shape=False):
 
 def get_scene_tree():
     startup_cams = [list_relatives(c, parent=True) for c in list_scene(cameras=True)
-                    if API.camera(c, q=True, startupCamera=True)]
+                    if DEFAULT_API.camera(c, q=True, startupCamera=True)]
 
     top_level_transforms = [node for node in list_scene(assemblies=True)
                             if node not in startup_cams]
@@ -299,4 +417,4 @@ def get_path_from_api_object(mobject):
     return om.MDagPath.getAPathTo(mobject)
 
 
-APIWrapper = API.PyNode
+APIWrapper = DEFAULT_API.PyNode

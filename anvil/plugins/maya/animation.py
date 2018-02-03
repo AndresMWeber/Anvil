@@ -13,6 +13,6 @@ import anvil.plugins.base.api_proxy as api_proxy
                                 'insertBlend': api_proxy.BOOL_TYPE, 'minimizeRotation': api_proxy.BOOL_TYPE,
                                 'outTangentType': api_proxy.STR_TYPE, 'shape': api_proxy.BOOL_TYPE,
                                 'time': api_proxy.NUM_TYPE, 'value': api_proxy.NUM_TYPE}}),
-    API, 'setKeyframe')
+    DEFAULT_API, 'setKeyframe')
 def set_keyframe(*objects, **kwargs):
     pass

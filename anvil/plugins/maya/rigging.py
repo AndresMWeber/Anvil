@@ -32,7 +32,7 @@ import anvil.plugins.base.api_proxy as api_proxy
                                             "sticky": api_proxy.STR_TYPE,
                                             "twistType": api_proxy.STR_TYPE,
                                             "weight": api_proxy.NUM_TYPE}},
-                                       API, 'ikHandle')
+                                       DEFAULT_API, 'ikHandle')
 def ik_handle(node, **kwargs):
     pass
 
@@ -51,7 +51,7 @@ def ik_handle(node, **kwargs):
                                             "sourceSkin": api_proxy.STR_TYPE,
                                             "surfaceAssociation": api_proxy.STR_TYPE,
                                             "uvSpace": api_proxy.LINEAR_STRING_TYPE}},
-                                       API, 'copySkinWeights')
+                                       DEFAULT_API, 'copySkinWeights')
 def copy_skin_weights(source, destination, **kwargs):
     pass
 
@@ -108,7 +108,7 @@ def copy_skin_weights(source, destination, **kwargs):
                                             "weight": api_proxy.FLOAT_TYPE,
                                             "weightDistribution": api_proxy.INT_TYPE,
                                             "weightedInfluence": api_proxy.BOOL_TYPE}},
-                                       API, 'skinCluster')
+                                       DEFAULT_API, 'skinCluster')
 def skin_cluster(objects):
     pass
 
@@ -128,6 +128,6 @@ def skin_cluster(objects):
                                                        'resetGeometry': api_proxy.BOOL_TYPE,
                                                        'split': api_proxy.BOOL_TYPE,
                                                        'weightedNode': api_proxy.LINEAR_STRING_TYPE}},
-                                       API, 'cluster')
+                                       DEFAULT_API, 'cluster')
 def cluster(objects, **kwargs):
     pass

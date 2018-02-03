@@ -9,7 +9,7 @@ import anvil.config as cfg
                                             "parent": api_proxy.STR_TYPE,
                                             "shared": api_proxy.BOOL_TYPE,
                                             "skipSelect": api_proxy.BOOL_TYPE, }},
-                                       API, 'createNode')
+                                       DEFAULT_API, 'createNode')
 def create_node(*args, **kwargs):
     if args is None:
         raise KeyError('Node type %s is unsupported at this time' % args)
@@ -30,7 +30,7 @@ def create_node(*args, **kwargs):
                                             "pointWeight": api_proxy.POSITION_WEIGHT_TYPE,
                                             "replace": api_proxy.BOOL_TYPE,
                                             "worldSpace": api_proxy.BOOL_TYPE, }},
-                                       API, 'curve')
+                                       DEFAULT_API, 'curve')
 def create_curve(*args, **kwargs):
     pass
 
@@ -43,7 +43,7 @@ def create_curve(*args, **kwargs):
                                             "empty": {cfg.TYPE: cfg.BOOLEAN, cfg.DEFAULT: True},
                                             "relative": api_proxy.BOOL_TYPE,
                                             "absolute": api_proxy.BOOL_TYPE}},
-                                       API, 'group')
+                                       DEFAULT_API, 'group')
 def create_transform(*args, **flags):
     pass
 
@@ -84,6 +84,6 @@ def create_transform(*args, **flags):
                                             "symmetry": api_proxy.BOOL_TYPE,
                                             "symmetryAxis": api_proxy.STR_TYPE,
                                             "zeroScaleOrient": api_proxy.BOOL_TYPE}},
-                                       API, 'joint')
+                                       DEFAULT_API, 'joint')
 def create_joint(**flags):
     pass

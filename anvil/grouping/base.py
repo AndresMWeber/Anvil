@@ -5,6 +5,7 @@ import anvil.log as log
 import anvil.runtime as rt
 import anvil.config as cfg
 import anvil.objects.attribute as at
+import anvil.objects as ot
 from anvil.meta_data import MetaData
 from anvil.utils.generic import merge_dicts
 
@@ -36,9 +37,6 @@ class AbstractGrouping(log.LogMixin):
         self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
         self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
 
-        self.info('Processed: %r.__init__(top_node=%s, parent=%s, name_tokens=%s, meta_data=%s, kwargs=%s)',
-                  self, top_node, parent, self.name_tokens, self.meta_data, kwargs)
-
         self._nomenclate = nomenclate.Nom(self.name_tokens.data)
         self.chain_nomenclate = nomenclate.Nom()
 
@@ -58,9 +56,6 @@ class AbstractGrouping(log.LogMixin):
         self.name_tokens.merge(name_tokens)
         self.build_joints = joints or self.layout_joints
 
-        self.info('Building sub-rig %s(joints=%s, meta_data=%s, kwargs=%s',
-                  self.__class__.__name__, self.meta_data, self.build_kwargs, self.layout_joints)
-
     def build_layout(self):
         raise NotImplementedError
 
@@ -68,7 +63,6 @@ class AbstractGrouping(log.LogMixin):
         # TODO: API Attribute dependent...dangerous.
         assignee = anvil.factory(assignee) if assignee is not None else self.root
 
-        self.info('Assigning/Connecting display attributes to %s', assignee)
         for attr, attr_kwargs in iteritems(self.RENDERING_ATTRIBUTES):
             attr_name = '%s_rendering' % attr
             group_name = 'group_%s' % attr
@@ -80,20 +74,17 @@ class AbstractGrouping(log.LogMixin):
                 target_group.overrideEnabled.set(1)
                 rendering_attribute.connect(target_group.visibility, force=True)
                 assignee.buffer_connect(attr_name, target_group.overrideDisplayType, -1, force=True)
-        self.info('Display attributes connected to %s', assignee)
 
     def initialize_sub_rig_attributes(self, controller=None, attr_dict=None):
         attr_dict = self.BUILT_IN_ATTRIBUTES if attr_dict is None else attr_dict
         if attr_dict:
             controller = self.root if controller is None else anvil.factory(controller)
-            self.info('Assigning %s with sub-rig attributes %s', controller, attr_dict)
             for attr, attr_kwargs in iteritems(attr_dict):
                 controller.add_attr(attr, **attr_kwargs)
 
     def parent(self, new_parent):
         nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]
         if all(nodes_exist or [False]):
-            self.info('Parenting root of %r to %s', self, new_parent)
             rt.dcc.scene.parent(self.root, new_parent)
             return True
         else:
@@ -101,7 +92,6 @@ class AbstractGrouping(log.LogMixin):
             return False
 
     def rename_chain(self, objects, use_end_naming=False, **name_tokens):
-        self.info('Renaming chain %s for parent %s', objects, self)
         self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
 
         for index, object in enumerate(objects):
@@ -114,7 +104,6 @@ class AbstractGrouping(log.LogMixin):
         new_tokens = MetaData(*input_dicts, **kwargs)
         self.name_tokens.merge(new_tokens)
         self._nomenclate.merge_dict(**self.name_tokens.data)
-        self.debug('Renaming %r...with name tokens %s and new tokens %s', self, self.name_tokens, new_tokens)
         self._cascading_function(lambda n:
                                  n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
                                  lambda n:
@@ -123,11 +112,17 @@ class AbstractGrouping(log.LogMixin):
     def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
         kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
-        self.info('Grouping %r is building node: %s = %s(%s)...parent name tokens: %s',
-                  self, node_key, node_class, kwargs, self.name_tokens)
         dag_node = getattr(node_class, build_fn)(*args, **kwargs)
         self.register_node(node_key, dag_node)
         return dag_node
+
+    def insert_transform_buffer(self, node_to_buffer, **kwargs):
+        name_tokens = kwargs.get(cfg.NAME_TOKENS) or node_to_buffer.name_tokens
+        buffer = ot.Transform.build(parent=node_to_buffer, name_tokens=name_tokens, **kwargs)
+        buffer.transform.set((0,0,0))
+        buffer.parent(node_to_buffer.get_parent())
+        return buffer
+
 
     def register_node(self, node_key, dag_node, overwrite=True, name_tokens=None, meta_data=None):
         if dag_node is None:
@@ -159,13 +154,9 @@ class AbstractGrouping(log.LogMixin):
     def _cascading_function(self, object_function, grouping_function):
         for sub_key, sub_node in iteritems(self.hierarchy):
             if anvil.is_agrouping(sub_node):
-                self.debug('Renaming sub_grouping %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 grouping_function(sub_node)
             elif anvil.is_aobject(sub_node):
-                self.debug('Renaming sub_node %s:%r based on tokens %s', sub_key, sub_node, sub_node.name_tokens)
                 object_function(sub_node)
-            self.debug('Renamed sub_node %r based on tokens %s with parent tokens %s',
-                       sub_node, sub_node.name_tokens, self.name_tokens)
 
     def __getattr__(self, item):
         try:

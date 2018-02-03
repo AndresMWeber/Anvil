@@ -1,12 +1,10 @@
 import string
-import anvil
 import anvil.config as cfg
 from base import SubRigTemplate
-import digits
 import anvil.objects.attribute as at
 
 
-class Hand(digits.Digit):
+class Hand(SubRigTemplate):
     BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({"name": "hand"}, new=True)
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
     BUILT_IN_ATTRIBUTES = {
@@ -17,7 +15,7 @@ class Hand(digits.Digit):
         "cup": at.PM_10_KWARGS,
     }
 
-    def __init__(self, has_thumb=False, finger_joints=None, **kwargs):
+    def __init__(self, build_ik=True, build_fk=True, has_thumb=False, finger_joints=None, **kwargs):
         """ General class for a hand.
 
         :param has_thumb: bool or int, if this is true will use the first digit as a thumb, if int uses that index
@@ -26,35 +24,29 @@ class Hand(digits.Digit):
         super(Hand, self).__init__(**kwargs)
         self.layout_joints = finger_joints or []
         self.has_thumb = has_thumb
+        self.build_ik = build_ik
+        self.build_fk = build_fk
         self.digits = []
 
-    def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
+    def build(self, parent=None, use_layout=True,  solver=None, meta_data=None, **kwargs):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
-        anvil.LOG.info('Building %s: %r with %d digits' % (self.__class__.__name__, self, len(self.layout_joints)))
+        solver = solver or cfg.IK_SC_SOLVER
 
-        for layout_joints, base_name in zip(self.layout_joints,  self.get_finger_base_names()):
-            self.build_digit(layout_joints, solver=cfg.IK_SC_SOLVER, **self.build_kwargs)
+        for layout_joints, base_name in zip(self.layout_joints, self.get_finger_base_names()):
+            self.build_digit(layout_joints, usolver=solver, name_tokens={cfg.NAME: base_name}, **self.build_kwargs)
 
         self.rename()
 
-    def build_digit(self,digit_joints, build_ik=True, build_fk=True, parent=None, **kwargs):
-        if build_fk:
-            self.build_kwargs['shape'] = 'pyramid_pin'
-            self.build_fk_chain(digit_joints, **self.build_kwargs)
-
-        if build_ik:
-            self.build_kwargs['shape'] = 'cube'
-            self.build_ik_chain(digit_joints, **self.build_kwargs)
-
-        self.build_blend_chain(digit_joints, **self.build_kwargs)
+    def build_digit(self, digit_joints, **kwargs):
+        if self.build_fk:
+            self.build_fk_chain(digit_joints, shape='pyramid_pin', **kwargs)
+        if self.build_ik:
+            self.build_ik_chain(digit_joints, shape='cube', **kwargs)
+        self.build_blend_chain(digit_joints, **kwargs)
 
     def get_finger_base_names(self):
         num_fingers = len(self.layout_joints)
-        if num_fingers == 5:
-            names = self.DEFAULT_NAMES
-        else:
-            names = [cfg.FINGER + letter for letter in string.uppercase[:num_fingers]]
-        return names
+        return self.DEFAULT_NAMES if num_fingers == 5 else [cfg.FINGER + c for c in string.uppercase[:num_fingers]]
 
     def rename(self, *input_dicts, **name_tokens):
         super(Hand, self).rename(*input_dicts, **name_tokens)
@@ -73,3 +65,9 @@ class Hand(digits.Digit):
     def set_up_curl_pose(self):
         # for now just hook it up to the controls
         pass
+
+    def connect_curl_fist(self, control, axis=cfg.X):
+        phalanges = self.fk_chain if hasattr(self, '%s_chain' % cfg.FK) else self.blend_chain
+        control.add_attr('curl', defaultValue=0, attributeType=cfg.FLOAT)
+        for phalanges in phalanges[:-1]:
+            pass
