@@ -46,7 +46,7 @@ class SubRigTemplate(nt.SubRig):
 
         rt.dcc.connections.translate(self.control_ik.connection_group, self.ik_handle)
 
-    def build_blend_chain(self, layout_joints, use_layout, source_chains=None, **kwargs):
+    def build_blend_chain(self, layout_joints, source_chains=None, use_layout=False, **kwargs):
         if source_chains is None:
             source_chains = [getattr(self, chain) for chain in ['%s_chain' % cfg.IK, '%s_chain' % cfg.FK] if
                              hasattr(self, chain)]
