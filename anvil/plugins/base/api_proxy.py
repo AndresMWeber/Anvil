@@ -21,6 +21,7 @@ QUERYABLE_MATRIX = {"anyOf": [MATRIX_TYPE, BOOL_TYPE]}
 LINEAR_ANGLE_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 2, "maxItems": 2}
 LINEAR_STRING_TYPE = {cfg.TYPE: cfg.ARRAY, "items": STR_TYPE, "minItems": 2, "maxItems": 2}
 STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
+POSITION_OR_STR_TYPE = {"anyOf": [STR_TYPE, POSITION_LIST]}
 
 
 class APIProxy(object):

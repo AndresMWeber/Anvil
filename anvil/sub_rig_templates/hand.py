@@ -16,7 +16,7 @@ class Hand(SubRigTemplate):
         cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS,
     }
 
-    def __init__(self, layout_joints, build_ik=True, build_fk=True, has_thumb=True, **kwargs):
+    def __init__(self, layout_joints, has_ik=True, has_fk=True, has_thumb=True, **kwargs):
         """ General class for a hand.
 
         :param has_thumb: bool or int, if this is true will use the first digit as a thumb, if int uses that index
@@ -24,8 +24,8 @@ class Hand(SubRigTemplate):
         """
         super(Hand, self).__init__(layout_joints=layout_joints, **kwargs)
         self.has_thumb = has_thumb
-        self.build_ik = build_ik
-        self.build_fk = build_fk
+        self.has_ik = has_ik
+        self.has_fk = has_fk
         self.digits = []
 
     def build(self, parent=None, use_layout=True, solver=None, meta_data=None, **kwargs):
@@ -33,16 +33,17 @@ class Hand(SubRigTemplate):
         solver = solver or cfg.IK_SC_SOLVER
 
         for layout_joints, base_name in zip(self.layout_joints, self.get_finger_base_names()):
-            self.build_digit(layout_joints, usolver=solver, name_tokens={cfg.NAME: base_name}, **self.build_kwargs)
+            self.build_digit(layout_joints, solver=solver, name_tokens={cfg.NAME: base_name}, **self.build_kwargs)
 
         self.rename()
 
     def build_digit(self, digit_joints, **kwargs):
-        if self.build_fk:
-            self.build_fk_chain(digit_joints, shape='pyramid_pin', **kwargs)
-        if self.build_ik:
-            self.build_ik_chain(digit_joints, shape='cube', **kwargs)
-        self.build_blend_chain(digit_joints, **kwargs)
+        if self.has_fk:
+            fk_results = self.build_fk_chain(digit_joints, shape='pyramid_pin', **kwargs)
+        if self.has_ik:
+            ik_results = self.build_ik_chain(digit_joints, shape='cube', **kwargs)
+        if self.has_fk and self.has_ik:
+            self.build_blend_chain(digit_joints, [ik_results[cfg.JOINT_TYPE], fk_results[cfg.JOINT_TYPE]], **kwargs)
 
     def get_finger_base_names(self):
         num_fingers = len(self.layout_joints)
@@ -53,9 +54,6 @@ class Hand(SubRigTemplate):
 
     def rename(self, *input_dicts, **name_tokens):
         super(Hand, self).rename(*input_dicts, **name_tokens)
-
-        for digit in self.digits:
-            digit.rename()
 
     def set_up_fist_pose(self):
         # for now just hook it up to the controls

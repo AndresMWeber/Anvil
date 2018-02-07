@@ -112,17 +112,6 @@ class HierarchyChain(log.LogMixin):
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
         return str(duplicates[0]), str(duplicates[-1])
 
-    def build_ik(self, chain_start=None, chain_end=None, solver=cfg.IK_RP_SOLVER, parent=None, **kwargs):
-        chain_start = chain_start if chain_start is not None else self.head
-        chain_end = chain_end if chain_end is not None else self.tail
-
-        kwargs.update({'endEffector': str(chain_end), 'solver': solver})
-        handle, effector = rt.dcc.rigging.ik_handle(str(chain_start), **kwargs)
-        if parent:
-            rt.dcc.scene.parent(handle, parent)
-
-        return (anvil.factory(handle), anvil.factory(effector))
-
     def _process_top_node(self, top_node, end_node, duplicate=False):
         if isinstance(top_node, list) and end_node is None:
             top_node, end_node = top_node[0], top_node[-1]

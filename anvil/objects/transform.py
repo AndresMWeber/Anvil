@@ -26,6 +26,9 @@ class Transform(DagNode):
         except IndexError:
             return parents
 
+    def get_children(self, **kwargs):
+        return rt.dcc.scene.list_relatives(self.name(), children=True, **kwargs)
+
     def parent(self, new_parent):
         self.debug('Parenting %s to %s', self, new_parent)
         top_node, new_parent = self, new_parent

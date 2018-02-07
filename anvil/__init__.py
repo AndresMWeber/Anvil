@@ -38,7 +38,7 @@ def check_for_encapsulation(dag_path):
         return None
 
 
-def factory(dag_path):
+def factory(dag_path, **kwargs):
     if dag_path is None:
         raise IOError('Tried to factory encapsulate None.')
     if is_anvil(dag_path):
@@ -62,7 +62,7 @@ def factory(dag_path):
     else:
         encapsulation_class = objects.Transform
 
-    encapsulation = encapsulation_class(dag_path)
+    encapsulation = encapsulation_class(dag_path, **kwargs)
     LOG.debug('Encapsulating %s with node type %s as %s', dag_path, encapsulation_class, encapsulation)
     register_encapsulation(encapsulation)
     return encapsulation

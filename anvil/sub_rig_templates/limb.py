@@ -1,5 +1,6 @@
 from base import SubRigTemplate
 import anvil.config as cfg
+from anvil.meta_data import MetaData
 
 
 class Limb(SubRigTemplate):
@@ -13,17 +14,16 @@ class Limb(SubRigTemplate):
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **kwargs)
-
-        # Build IK/FK chains from the initial layout joints
         if build_fk:
-            self.LOG.info('Building FK chain on %r from layout joints %r.' % (self, self.layout_joints))
-            self.build_fk_chain(self.layout_joints, **self.build_kwargs)
+            fk_results = self.build_fk_chain(self.layout_joints, **self.build_kwargs)
 
         if build_ik:
-            self.LOG.info('Building IK chain on %r from layout joints %r.' % (self, self.layout_joints))
-            self.build_ik_chain(self.layout_joints, **self.build_kwargs)
+            ik_results = self.build_ik_chain(self.layout_joints, **self.build_kwargs)
 
-        self.build_blend_chain(self.layout_joints, use_layout=use_layout, **self.build_kwargs)
+        if build_fk and build_ik:
+            blend_results = self.build_blend_chain(self.layout_joints,
+                                                   [fk_results[cfg.JOINT_TYPE], ik_results[cfg.JOINT_TYPE]],
+                                                   use_layout=use_layout, **self.build_kwargs)
         self.rename()
 
     def rename(self, *input_dicts, **name_tokens):

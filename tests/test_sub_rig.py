@@ -45,23 +45,6 @@ class TestSubRigBuild(TestBaseSubRig):
         self.assertEquals(sub_rig.root.getParent(), parent)
 
 
-class TestSubRigBuildPoleVector(TestBase):
-    def build_dependencies(cls):
-        cls.sub_rig = nt.SubRig()
-        cls.sub_rig.build()
-        b = nt.Joint.build()
-        c = nt.Joint.build()
-        d = nt.Joint.build()
-        c.translate_node([0, 2.5, 0])
-        d.translate_node([0, 5, 0])
-        cls.joint_chain = nt.HierarchyChain(b, d)
-        cls.handle, cls.effector = cls.joint_chain.build_ik()
-
-    @TestBase.delete_created_nodes
-    def test_build(self):
-        self.sub_rig.build_pole_vector_control(self.joint_chain, self.handle)
-
-
 class TestSubRigNameTokensIntact(TestBase):
     @TestBase.delete_created_nodes
     def test_register_previously_created_with_name_tokens(self):
@@ -134,7 +117,6 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         self.sub_rig.build_node(nt.Joint, 'test', name_tokens={'name': 'silvia'}, meta_data=None)
-        print(self.sub_rig.test.name_tokens)
         self.assertDictEqual(self.sub_rig.test.name_tokens,
                              {cfg.NAME: 'untitled', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
 
