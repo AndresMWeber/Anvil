@@ -2,19 +2,19 @@ from six import iteritems
 import anvil.node_types as nt
 from anvil.sub_rig_templates import Hand
 from tests.base_test import TestBase, cleanup_nodes
-import anvil.runtime as rt
 import string
-import pdb
-import os
 
 
 class TestHandBase(TestBase):
     name_tokens = {'name': 'hoof', 'purpose': 'mvp'}
-    HAND_MERC = {'file': "test_skeleton_hand.fbx",
-                 'joints': ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']}
+    HAND_MERC = "test_skeleton_hand.ma"
+    TEMPLATE_FILES = {"HAND_MERC": HAND_MERC}
+    HAND_MERC_JOINTS = ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']
 
     @classmethod
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
+        """
+
         rt.dcc.scene.fileop(template_file,
                             i=True,
                             type="FBX",
@@ -23,6 +23,8 @@ class TestHandBase(TestBase):
                             mergeNamespacesOnClash=False,
                             options="fbx",
                             pr=True)
+        """
+        cls.import_template_files(template_file)
 
         finger_joints = []
         for finger in finger_start_joints:
@@ -38,35 +40,36 @@ class TestBuildHand(TestHandBase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestHandBase, cls).setUpClass()
-        cls.rig = cls.from_template_file(os.path.join(os.path.dirname(__file__), cls.HAND_MERC['file']),
-                                         cls.HAND_MERC['joints'])
+        super(TestBuildHand, cls).setUpClass()
+        cls.rig = cls.from_template_file("HAND_MERC", cls.HAND_MERC_JOINTS)
 
     def test_build_no_kwargs_no_errors(self):
         self.assertIsNotNone(self.rig)
 
+    def test_number_of_controls(self):
+        controls = [node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)]
+        self.assertEqual(len(controls), 0)
+
+    def test_number_of_joint_chains(self):
+        self.assertEqual(len(self.rig.group_joints.get_children()), 0)
+
+
+class TestBuildDefaultHand(TestHandBase):
     def test_build_with_parent(self):
         with cleanup_nodes():
             parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file(self.HAND_MERC['file'], self.HAND_MERC['joints'], parent=parent)
+            rig_instance = self.from_template_file("HAND_MERC", self.HAND_MERC_JOINTS, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
-
-    def test_number_of_controls(self):
-        controls = [node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)]
-        self.assertEqual(len(controls), 15)
-
-    def test_number_of_joint_chains(self):
-        self.assertEqual(len(iteritems(self.rig.group_joints.get_children())), 24)
 
 
 class TestGetFingerBaseNames(TestHandBase):
     @classmethod
     def setUpClass(cls):
-        super(TestHandBase, cls).setUpClass()
-        cls.hand = Hand(cls.HAND_MERC['joints'])
+        super(TestGetFingerBaseNames, cls).setUpClass()
+        cls.hand = Hand(cls.HAND_MERC_JOINTS)
 
     def test_default_with_thumb_from_fbx(self):
-        self.hand.layout_joints = self.HAND_MERC['joints']
+        self.hand.layout_joints = self.HAND_MERC_JOINTS
         self.hand.has_thumb = True
         self.assertEqual(self.hand.get_finger_base_names(), Hand.DEFAULT_NAMES)
 
