@@ -111,12 +111,6 @@ class MetaData(log.LogMixin):
     def __len__(self):
         return len(self.keys())
 
-    def __setattr__(self, key, value):
-        if not key in list(self.__dict__):
-            self.data['key'] = value
-        else:
-            super(MetaData, self).__setattr__(key, value)
-
     def __setitem__(self, key, value):
         self.data[key] = value
 
