@@ -11,11 +11,13 @@ class SubRigTemplate(nt.SubRig):
     BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES.merge({cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS}, new=True)
     DEFAULT_FK_SHAPE = cfg.DEFAULT_FK_SHAPE
 
-    def build_ik(self, hierarchy, solver=cfg.IK_RP_SOLVER, parent=None, **kwargs):
-        kwargs.update({'endEffector': str(hierarchy.tail), 'solver': solver})
-        handle, effector = rt.dcc.rigging.ik_handle(str(hierarchy.head), **kwargs)
+    @classmethod
+    def build_ik(cls, hierarchy, solver=cfg.IK_RP_SOLVER, sticky=True, parent=None, **kwargs):
+        kwargs.update({'startJoint': str(hierarchy.head), 'endEffector': str(hierarchy.tail), 'solver': solver})
+        handle, effector = rt.dcc.rigging.ik_handle(**kwargs)
         if parent:
             rt.dcc.scene.parent(handle, parent)
+        handle.stickiness.set(sticky)
         return {cfg.NODE_TYPE: [anvil.factory(handle, **kwargs), anvil.factory(effector, **kwargs)]}
 
     def build_blend_chain(self, layout_joints, source_chains, duplicate=True, **kwargs):

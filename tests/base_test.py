@@ -29,10 +29,12 @@ class TestBase(unittest2.TestCase):
     FOOT = 'FOOT'
     EXTERNALA = 'EXTERNALA'
     HAND_MERC = "HAND_MERC"
+    FOOT_WITH_LEG = 'FOOT_WITH_LEG'
     TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
                       TPOSE: 'test_skeleton_t_pose.ma',
                       EXTERNALA: 'test_skeleton_externalA.ma',
                       FOOT: 'test_skeleton_biped_foot.ma',
+                      FOOT_WITH_LEG: 'test_skeleton_biped_foot_with_leg.ma',
                       HAND_MERC: "test_skeleton_hand.ma"
                       }
 

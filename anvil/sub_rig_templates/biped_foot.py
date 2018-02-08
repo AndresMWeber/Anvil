@@ -24,7 +24,7 @@ class BipedFoot(SubRigTemplate):
                       cfg.RIGHT: '_'.join([cfg.LEFT, cfg.RIGHT])},
     }
 
-    def __init__(self, heel=None, outsole=None, insole=None, has_ik=False, leg_ik=None, *args, **kwargs):
+    def __init__(self, heel=None, outsole=None, insole=None, has_ik=True, leg_ik=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
         self.ankle, self.ball, self.toe = self.layout_joints
         self.heel = heel
@@ -46,14 +46,16 @@ class BipedFoot(SubRigTemplate):
 
     def build(self, duplicate=True, **kwargs):
         super(BipedFoot, self).build(**kwargs)
-        joints = self.layout_joints[0].duplicate(all_children=True)
+        if duplicate:
+            self.ankle, self.ball, self.toe = nt.HierarchyChain(self.layout_joints[0].duplicate(all_children=True))
 
-        last = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, self.ANKLE_TOKEN),
-                               shape=self.get_control_shape(self.ANKLE_TOKEN),
-                               reference_object=self.ankle,
-                               parent=self.group_controls,
-                               rotate=False,
-                               name_tokens={cfg.PURPOSE: self.ANKLE_TOKEN})
+        ankle_control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, self.ANKLE_TOKEN),
+                                        shape=self.get_control_shape(self.ANKLE_TOKEN),
+                                        reference_object=self.ankle,
+                                        parent=self.group_controls,
+                                        rotate=False,
+                                        name_tokens={cfg.PURPOSE: self.ANKLE_TOKEN})
+        last = ankle_control.connection_group
 
         for reference_object, label in zip([self.heel, self.toe, self.ball],
                                            [self.HEEL_TOKEN, self.TOE_TOKEN, self.BALL_TOKEN]):
@@ -75,13 +77,22 @@ class BipedFoot(SubRigTemplate):
         self.rename()
 
     def build_ik_toe(self):
-        toe_ball_chain = nt.HierarchyChain(self.toe, node_filter=cfg.JOINT_TYPE)
-        result = self.build_ik(toe_ball_chain, solver=cfg.IK_SC_SOLVER, parent=self.group_nodes)
-        handle, effector = result[cfg.NODE_TYPE]
+        foot_ball_result = self.build_ik(nt.HierarchyChain(self.ankle, self.ball, node_filter=cfg.JOINT_TYPE),
+                                         solver=cfg.IK_SC_SOLVER, parent=self.control_ball.connection_group)
+        handle, effector = foot_ball_result[cfg.NODE_TYPE]
+        self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_HANDLE), handle,
+                           name_tokens={cfg.NAME: self.ANKLE_TOKEN, cfg.TYPE: cfg.IK_HANDLE})
+        self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_EFFECTOR), effector,
+                           name_tokens={cfg.NAME: self.ANKLE_TOKEN, cfg.TYPE: cfg.IK_EFFECTOR})
+
+        ball_toe_result = self.build_ik(nt.HierarchyChain(self.ball, self.toe, node_filter=cfg.JOINT_TYPE),
+                                        solver=cfg.IK_SC_SOLVER, parent=self.control_toe.connection_group)
+        handle, effector = ball_toe_result[cfg.NODE_TYPE]
         self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_HANDLE), handle,
                            name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_HANDLE})
         self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_EFFECTOR), effector,
                            name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_EFFECTOR})
+
         if self.leg_ik:
             self.leg_ik.parent(self.ball)
 
@@ -91,4 +102,4 @@ class BipedFoot(SubRigTemplate):
                                 name_tokens={cfg.PURPOSE: 'cancel',
                                              cfg.TYPE: cfg.MULT_DIV_TYPE,
                                              'protected': cfg.TYPE})
-        #md.input1D.connect()
+        # md.input1D.connect()

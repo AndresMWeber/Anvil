@@ -2,20 +2,22 @@ from six import iteritems
 import anvil.node_types as nt
 from anvil.sub_rig_templates import BipedFoot
 from tests.base_test import TestBase, cleanup_nodes
+import anvil.config as cfg
 
 
 class TestBaseTemplateRigs(TestBase):
     name_tokens = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
-    TEMPLATE_CLASS = None
+    TEMPLATE_CLASS = BipedFoot
 
 
 class TestBuildBipedFoot(TestBaseTemplateRigs):
     @classmethod
-    def from_template_file(cls, template_file, **kwargs):
-        cls.import_template_files(template_file)
-        rig_instance = BipedFoot(layout_joints=[nt.Transform(n) for n in ['foot', 'ball', 'toe', 'end']],
-                                 heel=nt.Transform('heel'))
+    def from_template_file(cls, template_file, skip_import=False, **kwargs):
+        if not skip_import:
+            cls.import_template_files(template_file)
+        rig_instance = cls.TEMPLATE_CLASS(layout_joints=[nt.Transform(n) for n in ['foot', 'ball', 'toe']],
+                                          heel=nt.Transform('heel'))
         rig_instance.build(**kwargs)
         return rig_instance
 
@@ -29,6 +31,17 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
             rig_instance = self.from_template_file(self.FOOT, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
+    def test_build_with_leg_ik(self):
+        with cleanup_nodes():
+            parent = nt.Transform.build(name='test')
+            self.import_template_files(self.FOOT_WITH_LEG)
+            foot_ball_result = self.TEMPLATE_CLASS.build_ik(
+                nt.HierarchyChain('hip', 'foot', node_filter=cfg.JOINT_TYPE),
+                solver=cfg.IK_RP_SOLVER)
+            handle, effector = foot_ball_result[cfg.NODE_TYPE]
+            rig_instance = self.from_template_file(None, leg_ik=handle, skip_import=True, parent=parent)
+            self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+
 
 class TestBuildBipedFootHierarchy(TestBaseTemplateRigs):
     @classmethod
@@ -40,7 +53,10 @@ class TestBuildBipedFootHierarchy(TestBaseTemplateRigs):
             len(list([node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)])), 4)
 
     def test_control_positions_match(self):
-        components = [BipedFoot.TOE_TOKEN, BipedFoot.BALL_TOKEN, BipedFoot.ANKLE_TOKEN, BipedFoot.HEEL_TOKEN]
+        components = [self.TEMPLATE_CLASS.TOE_TOKEN,
+                      self.TEMPLATE_CLASS.BALL_TOKEN,
+                      self.TEMPLATE_CLASS.ANKLE_TOKEN,
+                      self.TEMPLATE_CLASS.HEEL_TOKEN]
         for component in components:
             control = getattr(self.rig, 'control_%s' % component)
             joint = getattr(self.rig, component)
