@@ -1,10 +1,10 @@
 from tests.base_test import cleanup_nodes
-import test_build_biped
+import test_biped
 import os
 import unittest
 
 
-class TestProfileBiped(test_build_biped.TestBaseTemplateRigs):
+class TestProfileBiped(test_biped.TestBaseTemplateRigs):
     @unittest.skipIf(os.getenv('ANVIL_PYCALLGRAPH') is None, 'Env var ANVIL_PYCALLGRAPH not set.')
     def test_pycall_graph(self):
         from pycallgraph import PyCallGraph

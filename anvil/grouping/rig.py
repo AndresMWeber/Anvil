@@ -66,15 +66,14 @@ class Rig(base.AbstractGrouping):
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
             self.info('Registering %s.[%s] = %s(%s)', self, sub_rig_key, sub_rig_candidate.__name__, kwargs)
-            self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)
+            layout_joints = kwargs.pop('layout_joints')
+            self.sub_rigs[sub_rig_key] = sub_rig_candidate(layout_joints, **kwargs)
             return self.sub_rigs[sub_rig_key]
 
     def build_sub_rigs(self):
         for sub_rig_key, sub_rig_member in iteritems(self.sub_rigs):
-            if not sub_rig_member.is_built:
-                self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
-                sub_rig_member.build()
-            anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
+            self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
+            sub_rig_member.build(parent=self.group_sub_rigs)
 
     def auto_color(self):
         super(Rig, self).auto_color()

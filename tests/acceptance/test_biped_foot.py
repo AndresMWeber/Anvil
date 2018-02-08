@@ -29,20 +29,20 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
             rig_instance = self.from_template_file(self.FOOT, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
+
+class TestBuildBipedFootHierarchy(TestBaseTemplateRigs):
+    @classmethod
+    def setUpClass(cls):
+        cls.rig = cls.from_template_file(cls.FOOT)
+
     def test_number_of_controls(self):
-        with cleanup_nodes():
-            parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file(self.FOOT, parent=parent)
-            self.assertEqual(
-                len(list([node for key, node in iteritems(rig_instance.hierarchy) if isinstance(node, nt.Control)])), 4)
+        self.assertEqual(
+            len(list([node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)])), 4)
 
     def test_control_positions_match(self):
-        with cleanup_nodes():
-            parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file(self.FOOT, parent=parent)
-            components = [BipedFoot.TOE_TOKEN, BipedFoot.BALL_TOKEN, BipedFoot.ANKLE_TOKEN, BipedFoot.HEEL_TOKEN]
-            for component in components:
-                control = getattr(rig_instance, 'control_%s' % component)
-                joint = getattr(rig_instance, component)
-                self.assertEqual([round(p, 5) for p in control.offset_group.get_world_position()],
-                                 [round(p, 5) for p in joint.get_world_position()])
+        components = [BipedFoot.TOE_TOKEN, BipedFoot.BALL_TOKEN, BipedFoot.ANKLE_TOKEN, BipedFoot.HEEL_TOKEN]
+        for component in components:
+            control = getattr(self.rig, 'control_%s' % component)
+            joint = getattr(self.rig, component)
+            self.assertEqual([round(p, 5) for p in control.offset_group.get_world_position()],
+                             [round(p, 5) for p in joint.get_world_position()])
