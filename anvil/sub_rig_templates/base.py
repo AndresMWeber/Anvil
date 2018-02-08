@@ -61,7 +61,6 @@ class SubRigTemplate(nt.SubRig):
         chain = nt.HierarchyChain(chain_start, chain_end, duplicate=duplicate, parent=self.group_joints)
 
         # Ensure there are enough shapes in the shape list to pair with the chain
-
         controls = []
         last_node = parent or self.group_controls
         for node, shape in zip(chain, self.get_shape_list(len(chain), shape)):
@@ -72,6 +71,7 @@ class SubRigTemplate(nt.SubRig):
                                        meta_data=self.meta_data.merge(self.meta_data, meta_data, new=True),
                                        **kwargs)
             controls.append(control)
+            rt.dcc.connections.parent(control.connection_group, node, maintainOffset=True)
             last_node = control.connection_group
         return {cfg.CONTROL_TYPE: controls, cfg.JOINT_TYPE: chain}
 

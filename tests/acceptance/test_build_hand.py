@@ -37,15 +37,11 @@ class TestHandBase(TestBase):
 class TestBuildHand(TestHandBase):
     rig = None
 
-    # @classmethod
-    # def setUpClass(cls):
-    #    super(TestBuildHand, cls).setUpClass()
-    #    cls.rig = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
-
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(TestBuildHand, cls).setUpClass()
         try:
-            if self.rig is None:
-                self.rig = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS)
+            cls.rig = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
         except IndexError:
             print_scene_tree()
 
