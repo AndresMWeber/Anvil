@@ -13,6 +13,7 @@ POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
 ADD_SUB_TYPE = 'plusMinusAverage'
+MULT_DIV_TYPE = 'multiplyDivide'
 
 # NAME METADATA
 LEFT = 'left'

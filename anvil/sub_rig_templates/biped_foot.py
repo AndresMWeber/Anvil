@@ -2,6 +2,8 @@ from base import SubRigTemplate
 import anvil.node_types as nt
 import anvil.config as cfg
 import anvil.runtime as rt
+import anvil
+
 
 class BipedFoot(SubRigTemplate):
     BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({cfg.NAME: cfg.FOOT}, new=True)
@@ -42,13 +44,18 @@ class BipedFoot(SubRigTemplate):
                 pass
         return shape
 
-    def build(self, **kwargs):
+    def build(self, duplicate=True, **kwargs):
         super(BipedFoot, self).build(**kwargs)
+        foot_duplicate = self.layout_joints
+        last = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, self.ANKLE_TOKEN),
+                               shape=self.get_control_shape(self.ANKLE_TOKEN),
+                               reference_object=self.ankle,
+                               parent=self.group_controls,
+                               rotate=False,
+                               name_tokens={cfg.PURPOSE: self.ANKLE_TOKEN})
 
-        last = self.group_controls
-
-        for reference_object, label in zip([self.ankle, self.heel, self.toe, self.ball],
-                                           [self.ANKLE_TOKEN, self.HEEL_TOKEN, self.TOE_TOKEN, self.BALL_TOKEN]):
+        for reference_object, label in zip([self.heel, self.toe, self.ball],
+                                           [self.HEEL_TOKEN, self.TOE_TOKEN, self.BALL_TOKEN]):
             control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, label),
                                       shape=self.get_control_shape(label),
                                       reference_object=reference_object,
@@ -62,7 +69,8 @@ class BipedFoot(SubRigTemplate):
         # self.control_ankle.control.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
         if self.has_ik:
             self.build_ik_toe()
-
+        else:
+            self.build_fk_toe()
         self.rename()
 
     def build_ik_toe(self):
@@ -75,3 +83,11 @@ class BipedFoot(SubRigTemplate):
                            name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_EFFECTOR})
         if self.leg_ik:
             self.leg_ik.parent(self.ball)
+
+    def build_fk_toe(self):
+        md = self.register_node('ball_rotation_cancel_out',
+                                rt.dcc.create.create_node(cfg.MULT_DIV_TYPE),
+                                name_tokens={cfg.PURPOSE: 'cancel',
+                                             cfg.TYPE: cfg.MULT_DIV_TYPE,
+                                             'protected': cfg.TYPE})
+        #md.input1D.connect()
