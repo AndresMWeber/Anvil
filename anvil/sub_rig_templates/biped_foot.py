@@ -26,7 +26,7 @@ class BipedFoot(SubRigTemplate):
 
     def __init__(self, heel=None, outsole=None, insole=None, has_ik=False, leg_ik=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
-        self.ankle, self.ball, self.toe, self.toe_end = self.layout_joints
+        self.ankle, self.ball, self.toe = self.layout_joints
         self.heel = heel
         self.outsole = outsole
         self.insole = insole
@@ -46,7 +46,8 @@ class BipedFoot(SubRigTemplate):
 
     def build(self, duplicate=True, **kwargs):
         super(BipedFoot, self).build(**kwargs)
-        foot_duplicate = self.layout_joints
+        joints = self.layout_joints[0].duplicate(all_children=True)
+
         last = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, self.ANKLE_TOKEN),
                                shape=self.get_control_shape(self.ANKLE_TOKEN),
                                reference_object=self.ankle,

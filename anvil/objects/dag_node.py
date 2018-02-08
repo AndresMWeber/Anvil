@@ -21,7 +21,7 @@ class DagNode(unicode_delegate.UnicodeDelegate):
         kwargs['parentOnly'] = include_children
         kwargs['renameChildren'] = rename_children
         kwargs['upstreamNodes'] = include_parents
-        return self.__class__(rt.dcc.scene.duplicate(self.name(), **kwargs))
+        return self.__class__(rt.dcc.scene.duplicate(self.name(), **kwargs)[0])
 
     def add_attr(self, attribute, **kwargs):
         rt.dcc.connections.add_attr(self, longName=attribute, **kwargs)
