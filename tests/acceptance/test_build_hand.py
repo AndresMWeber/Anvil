@@ -1,5 +1,6 @@
 from six import iteritems
 import anvil.node_types as nt
+from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
 from tests.base_test import TestBase, cleanup_nodes
 import string
@@ -7,8 +8,6 @@ import string
 
 class TestHandBase(TestBase):
     name_tokens = {'name': 'hoof', 'purpose': 'mvp'}
-    HAND_MERC = "test_skeleton_hand.ma"
-    TEMPLATE_FILES = {"HAND_MERC": HAND_MERC}
     HAND_MERC_JOINTS = ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']
 
     @classmethod
@@ -38,10 +37,17 @@ class TestHandBase(TestBase):
 class TestBuildHand(TestHandBase):
     rig = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestBuildHand, cls).setUpClass()
-        cls.rig = cls.from_template_file("HAND_MERC", cls.HAND_MERC_JOINTS)
+    # @classmethod
+    # def setUpClass(cls):
+    #    super(TestBuildHand, cls).setUpClass()
+    #    cls.rig = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
+
+    def setUp(self):
+        try:
+            if self.rig is None:
+                self.rig = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS)
+        except IndexError:
+            print_scene_tree()
 
     def test_build_no_kwargs_no_errors(self):
         self.assertIsNotNone(self.rig)
@@ -50,15 +56,21 @@ class TestBuildHand(TestHandBase):
         controls = [node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)]
         self.assertEqual(len(controls), 0)
 
+    def test_number_of_control_top_groups(self):
+        self.assertEqual(len(self.rig.group_controls.get_children()), 10)
+
     def test_number_of_joint_chains(self):
-        self.assertEqual(len(self.rig.group_joints.get_children()), 0)
+        self.assertEqual(len(self.rig.group_joints.get_children()), 15)
+
+    def test_number_of_nodes(self):
+        self.assertEqual(len(self.rig.group_nodes.get_children()), 5)
 
 
 class TestBuildDefaultHand(TestHandBase):
     def test_build_with_parent(self):
         with cleanup_nodes():
             parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file("HAND_MERC", self.HAND_MERC_JOINTS, parent=parent)
+            rig_instance = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
 
@@ -66,6 +78,7 @@ class TestGetFingerBaseNames(TestHandBase):
     @classmethod
     def setUpClass(cls):
         super(TestGetFingerBaseNames, cls).setUpClass()
+        cleanup_nodes()
         cls.hand = Hand(cls.HAND_MERC_JOINTS)
 
     def test_default_with_thumb_from_fbx(self):
@@ -91,7 +104,6 @@ class TestGetFingerBaseNames(TestHandBase):
     def test_no_thumb_over_5(self):
         self.hand.layout_joints = ['a' * x for x in range(10)]
         self.has_thumb = False
-
         self.assertEqual(self.hand.get_finger_base_names(),
                          ['finger' + string.ascii_uppercase[i] for i in range(10)])
 

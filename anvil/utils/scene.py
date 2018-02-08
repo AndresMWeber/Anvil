@@ -2,6 +2,7 @@ import anvil
 import anvil.runtime as rt
 import anvil.config as cfg
 from generic import to_list
+from pprint import pprint
 
 
 def is_exact_type(node, typename):
@@ -47,7 +48,7 @@ def list_scene_nodes(object_type=cfg.TRANSFORM_TYPE, has_shape=False):
 
 def get_scene_tree():
     startup_cams = [rt.dcc.scene.list_relatives(c, parent=True) for c in rt.dcc.scene.list_scene(cameras=True)
-                    if rt.dcc.scene.API.camera(c, q=True, startupCamera=True)]
+                    if rt.dcc.scene.DEFAULT_API.camera(c, q=True, startupCamera=True)]
 
     top_level_transforms = [node for node in rt.dcc.scene.list_scene(assemblies=True)
                             if node not in startup_cams]
@@ -68,6 +69,10 @@ def get_scene_tree():
         return tree
 
     return recurse_scene_nodes(top_level_transforms)
+
+
+def print_scene_tree():
+    pprint(get_scene_tree())
 
 
 def get_node_hierarchy_as_dict(node_or_nodes, tree=None, node_filter=None):

@@ -136,7 +136,8 @@ class HierarchyChain(log.LogMixin):
         node_filter = node_filter if node_filter is not None else self.node_filter
         all_descendants = self._traverse_down_linear_tree(upstream_node)
         if not str(downstream_node) in all_descendants:
-            raise IndexError('Node %r is a descendant of %s --> %s' % (downstream_node, upstream_node, all_descendants))
+            raise IndexError('Node %r is not a descendant of %s --> %s (filter=%s)' %
+                             (downstream_node, upstream_node, all_descendants, self.node_filter))
 
         current_node = anvil.factory(downstream_node)
         chain_path = [current_node]

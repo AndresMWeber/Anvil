@@ -18,22 +18,22 @@ class SubRigTemplate(nt.SubRig):
             rt.dcc.scene.parent(handle, parent)
         return {cfg.NODE_TYPE: [anvil.factory(handle, **kwargs), anvil.factory(effector, **kwargs)]}
 
-    def build_blend_chain(self, layout_joints, source_chains, use_layout=False, **kwargs):
-        blend_chain = nt.HierarchyChain(layout_joints, duplicate=not use_layout, parent=self.group_joints)
+    def build_blend_chain(self, layout_joints, source_chains, duplicate=True, **kwargs):
+        blend_chain = nt.HierarchyChain(layout_joints, duplicate=duplicate, parent=self.group_joints)
 
-        for bl, source_chains in zip(blend_chain, zip(*source_chains)):
+        for bl, source_chain in zip(blend_chain, zip(*source_chains)):
             blender = rt.dcc.create.create_node(cfg.BLEND_NODE)
             blender.output.connect(bl.rotate)
 
-            for index, source_chain in enumerate(source_chains):
-                source_chain.rotate.connect(blender.attr('color%d' % (index + 1)))
+            for index, joint in enumerate(source_chain):
+                joint.rotate.connect(blender.attr('color%d' % (index + 1)))
 
             getattr(self.root, cfg.IKFK_BLEND).connect(blender.blender)
         return {cfg.JOINT_TYPE: blend_chain}
 
-    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, **kwargs):
+    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, duplicate=True, **kwargs):
         kwargs = MetaData(kwargs)
-        ik_chain = nt.HierarchyChain(layout_joints, duplicate=True, parent=self.group_joints)
+        ik_chain = nt.HierarchyChain(layout_joints, duplicate=duplicate, parent=self.group_joints)
         results = self.build_ik(ik_chain, chain_end=ik_chain[ik_end_index], parent=self.group_nodes, **kwargs)
         handle, effector = results[cfg.NODE_TYPE]
         # register ik handle and ik effector for passing metadata
@@ -56,23 +56,23 @@ class SubRigTemplate(nt.SubRig):
         rt.dcc.connections.translate(controls[0].connection_group, handle)
         return {cfg.JOINT_TYPE: ik_chain, cfg.CONTROL_TYPE: controls, cfg.NODE_TYPE: [handle, effector]}
 
-    def build_fk_chain(self, chain_start=None, chain_end=None, shape=None, parent=None,
+    def build_fk_chain(self, chain_start=None, chain_end=None, shape=None, duplicate=True, parent=None,
                        name_tokens=None, meta_data=None, **kwargs):
-        chain = nt.HierarchyChain(chain_start, chain_end)
+        chain = nt.HierarchyChain(chain_start, chain_end, duplicate=duplicate, parent=self.group_joints)
 
         # Ensure there are enough shapes in the shape list to pair with the chain
 
         controls = []
         last_node = parent or self.group_controls
         for node, shape in zip(chain, self.get_shape_list(len(chain), shape)):
-            last_node = nt.Control.build(reference_object=node,
-                                         shape=shape,
-                                         parent=last_node,
-                                         name_tokens=self.name_tokens.merge(self.name_tokens, name_tokens, new=True),
-                                         meta_data=self.meta_data.merge(self.meta_data, meta_data, new=True),
-                                         **kwargs)
-            rt.dcc.connections.parent(last_node.connection_group, node)
-            controls.append(last_node)
+            control = nt.Control.build(reference_object=node,
+                                       shape=shape,
+                                       parent=last_node,
+                                       name_tokens=self.name_tokens.merge(self.name_tokens, name_tokens, new=True),
+                                       meta_data=self.meta_data.merge(self.meta_data, meta_data, new=True),
+                                       **kwargs)
+            controls.append(control)
+            last_node = control.connection_group
         return {cfg.CONTROL_TYPE: controls, cfg.JOINT_TYPE: chain}
 
     def build_pole_vector_control(self, joints, ik_handle,

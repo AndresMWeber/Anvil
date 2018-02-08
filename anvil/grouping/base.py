@@ -85,7 +85,7 @@ class AbstractGrouping(log.LogMixin):
     def parent(self, new_parent):
         nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]
         if all(nodes_exist or [False]):
-            rt.dcc.scene.parent(self.root, new_parent)
+            self.root.parent(new_parent)
             return True
         else:
             self.warning('Parent(%s) -> %r does not exist.', new_parent, self.root)

@@ -3,6 +3,8 @@ import unittest2
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 from functools import wraps
+import anvil.runtime as rt
+from pprint import pprint
 
 os.environ['ANVIL_MODE'] = 'TEST'
 import anvil
@@ -26,10 +28,12 @@ class TestBase(unittest2.TestCase):
     TPOSE = 'TPOSE'
     FOOT = 'FOOT'
     EXTERNALA = 'EXTERNALA'
+    HAND_MERC = "HAND_MERC"
     TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
                       TPOSE: 'test_skeleton_t_pose.ma',
                       EXTERNALA: 'test_skeleton_externalA.ma',
-                      FOOT: 'test_skeleton_biped_foot.ma'
+                      FOOT: 'test_skeleton_biped_foot.ma',
+                      HAND_MERC: "test_skeleton_hand.ma"
                       }
 
     @classmethod

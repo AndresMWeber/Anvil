@@ -19,7 +19,10 @@ class Hand(SubRigTemplate):
     def __init__(self, layout_joints, has_ik=True, has_fk=True, has_thumb=True, **kwargs):
         """ General class for a hand.
 
+        :param layout_joints: anvil.node_types.Hierarchy, hierarchy chain of joints to use.
         :param has_thumb: bool or int, if this is true will use the first digit as a thumb, if int uses that index
+        :param has_fk: bool or int, if this is true will build fk setup
+        :param has_ik: bool or int, if this is true will build ik setup
         :param finger_joints: [nt.HierarchyChain or str]: list joint chains to build the fingers on.
         """
         super(Hand, self).__init__(layout_joints=layout_joints, **kwargs)
@@ -38,12 +41,15 @@ class Hand(SubRigTemplate):
         self.rename()
 
     def build_digit(self, digit_joints, **kwargs):
+        digit_nodes = {}
         if self.has_fk:
-            fk_results = self.build_fk_chain(digit_joints, shape='pyramid_pin', **kwargs)
+            digit_nodes[cfg.FK] = self.build_fk_chain(digit_joints, shape='pyramid_pin', **kwargs)
         if self.has_ik:
-            ik_results = self.build_ik_chain(digit_joints, shape='cube', **kwargs)
+            digit_nodes[cfg.IK] = self.build_ik_chain(digit_joints, shape='cube', **kwargs)
         if self.has_fk and self.has_ik:
-            self.build_blend_chain(digit_joints, [ik_results[cfg.JOINT_TYPE], fk_results[cfg.JOINT_TYPE]], **kwargs)
+            self.build_blend_chain(digit_joints,
+                                   [digit_nodes[cfg.IK][cfg.JOINT_TYPE], digit_nodes[cfg.FK][cfg.JOINT_TYPE]],
+                                   **kwargs)
 
     def get_finger_base_names(self):
         num_fingers = len(self.layout_joints)
