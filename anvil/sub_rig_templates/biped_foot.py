@@ -2,7 +2,6 @@ from base import SubRigTemplate
 import anvil.node_types as nt
 import anvil.config as cfg
 import anvil.runtime as rt
-import anvil
 
 
 class BipedFoot(SubRigTemplate):
@@ -45,10 +44,8 @@ class BipedFoot(SubRigTemplate):
         return shape
 
     def build(self, duplicate=True, leg_ik=None, **kwargs):
-        print(leg_ik, kwargs)
         super(BipedFoot, self).build(**kwargs)
         self.leg_ik = leg_ik or self.leg_ik
-
         if duplicate:
             self.ankle, self.ball, self.toe = nt.HierarchyChain(self.layout_joints[0].duplicate(all_children=True))
 
@@ -95,11 +92,17 @@ class BipedFoot(SubRigTemplate):
                            name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_HANDLE})
         self.register_node('%s_%s' % (self.name_tokens.name, cfg.IK_EFFECTOR), effector,
                            name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_EFFECTOR})
-
         if self.leg_ik:
             self.leg_ik.parent(self.control_ball.connection_group)
         else:
             rt.dcc.connections.parent(self.control_ball.connection_group, self.ankle)
+
+    def insert_pivot_buffer(self, pivot_label, **kwargs):
+        try:
+            pivot_reference_node = getattr(self, pivot_label)
+
+        except AttributeError:
+            self.warning('%r does not have pivot attribute %s...skipping' % (self, pivot_label))
 
     def build_fk_toe(self):
         md = self.register_node('ball_rotation_cancel_out',

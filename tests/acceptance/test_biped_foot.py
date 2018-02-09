@@ -12,13 +12,23 @@ class TestBaseTemplateRigs(TestBase):
 
 
 class TestBuildBipedFoot(TestBaseTemplateRigs):
+
     @classmethod
-    def from_template_file(cls, template_file, skip_import=False, **kwargs):
-        if not skip_import:
-            cls.import_template_files(template_file)
-        rig_instance = cls.TEMPLATE_CLASS(layout_joints=[nt.Transform(n) for n in ['foot', 'ball', 'toe']],
+    def from_template_file(cls, template_file, pre_build_hook=None, post_build_hook=None, **kwargs):
+        default_return_func = lambda: {}
+        pre_build_hook = pre_build_hook or default_return_func
+        post_build_hook = post_build_hook or default_return_func
+
+        cls.import_template_files(template_file)
+
+        kwargs.update(pre_build_hook())
+
+        rig_instance = cls.TEMPLATE_CLASS(layout_joints=map(nt.Transform, ['foot', 'ball', 'toe']),
                                           heel=nt.Transform('heel'))
         rig_instance.build(**kwargs)
+
+        post_build_hook()
+
         return rig_instance
 
     def test_build_no_kwargs(self):
@@ -34,13 +44,15 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
     def test_build_with_leg_ik(self):
         with cleanup_nodes():
             parent = nt.Transform.build(name='test')
-            self.import_template_files(self.FOOT_WITH_LEG)
-            foot_ball_result = self.TEMPLATE_CLASS.build_ik(nt.HierarchyChain('hip', 'foot',
-                                                                              node_filter=cfg.JOINT_TYPE),
-                                                            solver=cfg.IK_RP_SOLVER)
-            handle, effector = foot_ball_result[cfg.NODE_TYPE]
-            rig_instance = self.from_template_file('None', skip_import=True, parent=parent, leg_ik=handle)
+            rig_instance = self.from_template_file(self.FOOT_WITH_LEG, parent=parent, pre_build_hook=self.build_leg_ik)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+
+    @staticmethod
+    def build_leg_ik():
+        foot_ball_result = TestBuildBipedFoot.TEMPLATE_CLASS.build_ik(nt.HierarchyChain('hip', 'foot',
+                                                                                        node_filter=cfg.JOINT_TYPE),
+                                                                      solver=cfg.IK_RP_SOLVER)
+        return {'leg_ik': foot_ball_result[cfg.NODE_TYPE][0]}
 
 
 class TestBuildBipedFootHierarchy(TestBaseTemplateRigs):

@@ -1,17 +1,16 @@
 from six import iteritems
 import nomenclate.core.tools as ts
-import anvil
-import anvil.log as log
+from anvil import factory, is_anvil
+from anvil.log import LogMixin, obtainLogger
 import anvil.config as cfg
 import anvil.runtime as rt
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
 
-class HierarchyChain(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
-    UP = 'up'
-    DOWN = 'down'
+class HierarchyChain(LogMixin):
+    LOG = obtainLogger(__name__)
+    DEFAULT_BUFFER_TYPE = ob.Transform
 
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
@@ -27,10 +26,15 @@ class HierarchyChain(log.LogMixin):
         return self.get_hierarchy(as_list=True)[self.depth() / 2]
 
     def find_child(self, child):
+        """
+
+        :param child: int or str or ob.UnicodeProxy, child index, child dag string or anvil object we are looking for.
+        :return: ob.UnicodeProxy, the node requested
+        """
         if isinstance(child, int):
             return self[child]
 
-        child = anvil.factory(child)
+        child = factory(child)
         for node in self:
             if node == child:
                 return node
@@ -65,23 +69,24 @@ class HierarchyChain(log.LogMixin):
 
         return level_tree
 
-    def insert_buffer(self, index_target, buffer_node_class=None, direction=None, **kwargs):
+    def insert_buffer(self, index_target, reference_node=None, buffer_node_class=None, collocate=False, **kwargs):
+        """
+
+        :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
+        :param reference_node: str or ob.Transform, either a dag path or anvil node to match position to
+        :param buffer_node_class: ob.UnicodeProxy, anvil node type we are going to build
+        :param collocate: boolean, should the buffer stay side by side or parent the target underneath
+        :return: ob.UnicodeProxy, created anvil buffer node
+        """
         index_target = self.find_child(index_target)
 
-        direction = self.UP if direction is None else direction if direction in [self.UP, self.DOWN] else self.UP
-        buffer_node_class = ob.Transform if not anvil.is_anvil(buffer_node_class) else buffer_node_class
+        buffer = (buffer_node_class if is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
+        buffer.parent(index_target if collocate else index_target.get_parent())
+        buffer.reset_transform()
+        buffer.match_transform(reference_node)
+        map(lambda node: node.parent(buffer), [index_target] if collocate else index_target.children())
 
-        buffer = buffer_node_class.build(**kwargs)
-        buffer_parent = index_target.get_parent() if direction == self.UP else index_target
-
-        buffer.match_position(buffer_parent)
-        buffer.parent(buffer_parent)
-
-        if direction == self.UP:
-            index_target.parent(buffer)
-        else:
-            for child in index_target.children():
-                child.parent(buffer)
+        return buffer
 
     def depth(self, node_filter=None):
         return gc.get_dict_depth(d=self.get_hierarchy(node_filter=node_filter or self.node_filter)) - 1
@@ -93,7 +98,7 @@ class HierarchyChain(log.LogMixin):
             self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)
 
     def duplicate_chain(self, top_node, end_node=None):
-        """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain
+        """ Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain
         """
         duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
         if isinstance(top_node, self.__class__):
@@ -105,9 +110,8 @@ class HierarchyChain(log.LogMixin):
                 # This is the case if no end was specified so we will duplicate the entire chain.
                 nodes = top_node
                 duplicate_kwargs.pop('parentOnly')
-        self.info('Duplicating chain %s from %s->%s, kwargs: %s', nodes, top_node, end_node, duplicate_kwargs)
+
         duplicates = rt.dcc.scene.duplicate(nodes, **duplicate_kwargs)
-        self.info('Duplicates of %s are %s', nodes, duplicates)
         if len(duplicates) == 1:
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
         return str(duplicates[0]), str(duplicates[-1])
@@ -122,13 +126,13 @@ class HierarchyChain(log.LogMixin):
         if duplicate:
             top_node, end_node = self.duplicate_chain(top_node, end_node=end_node)
 
-        return anvil.factory(top_node), end_node
+        return factory(top_node), end_node
 
     def _process_end_node(self, end_node_candidate, node_filter=None):
         """ Returns the last item found of type
         """
         try:
-            return anvil.factory(end_node_candidate)
+            return factory(end_node_candidate)
         except (RuntimeError, IOError):
             return self._get_linear_end(node_filter=node_filter)
 
@@ -139,11 +143,11 @@ class HierarchyChain(log.LogMixin):
             raise IndexError('Node %r is not a descendant of %s --> %s (filter=%s)' %
                              (downstream_node, upstream_node, all_descendants, self.node_filter))
 
-        current_node = anvil.factory(downstream_node)
+        current_node = factory(downstream_node)
         chain_path = [current_node]
 
-        while anvil.factory(current_node).get_parent():
-            current_node = anvil.factory(current_node.get_parent())
+        while factory(current_node).get_parent():
+            current_node = factory(current_node.get_parent())
             if any([current_node.type() in node_filter, node_filter is None, node_filter == []]):
                 chain_path.insert(0, current_node)
             if current_node == upstream_node:
@@ -161,7 +165,7 @@ class HierarchyChain(log.LogMixin):
         node_filter = node_filter or self.node_filter
         last_node = self.get_level(self.depth(), node_filter=node_filter)
         if last_node:
-            return anvil.factory(list(last_node)[0])
+            return factory(list(last_node)[0])
         else:
             raise ValueError('Could not find last node at depth %d' % self.depth())
 

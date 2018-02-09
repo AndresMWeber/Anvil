@@ -29,6 +29,10 @@ class Transform(DagNode):
     def get_children(self, **kwargs):
         return rt.dcc.scene.list_relatives(self.name(), children=True, **kwargs)
 
+    def reset_transform(self):
+        self.translate.set(0, 0, 0)
+        self.rotate.set(0, 0, 0)
+
     def parent(self, new_parent):
         self.debug('Parenting %s to %s', self, new_parent)
         top_node, new_parent = self, new_parent
@@ -86,24 +90,10 @@ class Transform(DagNode):
             return constraint
 
     def match_rotation(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
-        self.info('Matching position of %s to %s', self, reference_objects)
-        if reference_objects:
-            constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
-            if not keep_constraint:
-                rt.dcc.scene.delete(constraint)
-                constraint = None
-            return constraint
+        self.match_transform(reference_objects, keep_constraint=keep_constraint, translate=False, **kwargs)
 
     def match_position(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
-        self.info('Matching position of %s to %s', self, reference_objects)
-        if reference_objects:
-            constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
-            if not keep_constraint:
-                rt.dcc.scene.delete(constraint)
-                constraint = None
-            return constraint
+        self.match_transform(reference_objects, keep_constraint=keep_constraint, rotate=False, **kwargs)
 
     def match_transform(self, reference_objects, translate=True, rotate=True, keep_constraint=False, **kwargs):
         reference_objects = check_exist_to_list(reference_objects, anvil.factory)
