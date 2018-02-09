@@ -35,11 +35,11 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
         with cleanup_nodes():
             parent = nt.Transform.build(name='test')
             self.import_template_files(self.FOOT_WITH_LEG)
-            foot_ball_result = self.TEMPLATE_CLASS.build_ik(
-                nt.HierarchyChain('hip', 'foot', node_filter=cfg.JOINT_TYPE),
-                solver=cfg.IK_RP_SOLVER)
+            foot_ball_result = self.TEMPLATE_CLASS.build_ik(nt.HierarchyChain('hip', 'foot',
+                                                                              node_filter=cfg.JOINT_TYPE),
+                                                            solver=cfg.IK_RP_SOLVER)
             handle, effector = foot_ball_result[cfg.NODE_TYPE]
-            rig_instance = self.from_template_file(None, leg_ik=handle, skip_import=True, parent=parent)
+            rig_instance = self.from_template_file('None', skip_import=True, parent=parent, leg_ik=handle)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
 

@@ -44,8 +44,11 @@ class BipedFoot(SubRigTemplate):
                 pass
         return shape
 
-    def build(self, duplicate=True, **kwargs):
+    def build(self, duplicate=True, leg_ik=None, **kwargs):
+        print(leg_ik, kwargs)
         super(BipedFoot, self).build(**kwargs)
+        self.leg_ik = leg_ik or self.leg_ik
+
         if duplicate:
             self.ankle, self.ball, self.toe = nt.HierarchyChain(self.layout_joints[0].duplicate(all_children=True))
 
@@ -94,7 +97,9 @@ class BipedFoot(SubRigTemplate):
                            name_tokens={cfg.NAME: self.BALL_TOKEN, cfg.TYPE: cfg.IK_EFFECTOR})
 
         if self.leg_ik:
-            self.leg_ik.parent(self.ball)
+            self.leg_ik.parent(self.control_ball.connection_group)
+        else:
+            rt.dcc.connections.parent(self.control_ball.connection_group, self.ankle)
 
     def build_fk_toe(self):
         md = self.register_node('ball_rotation_cancel_out',
