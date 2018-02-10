@@ -41,6 +41,12 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
             rig_instance = self.from_template_file(self.FOOT, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
+    def test_build_with_leg_ik_and_soles(self):
+        with cleanup_nodes():
+            rig_instance = self.from_template_file(self.FOOT_WITH_LEG_AND_SOLES, insole='insole', outsole='outsole',
+                                                   pre_build_hook=self.build_leg_ik)
+            # TODO: Test info about soles here
+
     def test_build_with_leg_ik(self):
         with cleanup_nodes():
             parent = nt.Transform.build(name='test')

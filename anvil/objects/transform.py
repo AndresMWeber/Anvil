@@ -20,23 +20,22 @@ class Transform(DagNode):
         return rt.dcc.create.create_transform(**flags)
 
     def get_parent(self):
-        parents = rt.dcc.scene.list_relatives(self.name(), parent=True)
+        parents = map(anvil.factory, rt.dcc.scene.list_relatives(self.name(), parent=True))
         try:
             return parents[0]
         except IndexError:
             return parents
 
     def get_children(self, **kwargs):
-        return rt.dcc.scene.list_relatives(self.name(), children=True, **kwargs)
+        return map(anvil.factory, rt.dcc.scene.list_relatives(self.name(), children=True, **kwargs))
 
     def reset_transform(self):
-        self.translate.set(0, 0, 0)
-        self.rotate.set(0, 0, 0)
+        self.translate.set((0, 0, 0))
+        self.rotate.set((0, 0, 0))
 
     def parent(self, new_parent):
-        self.debug('Parenting %s to %s', self, new_parent)
         top_node, new_parent = self, new_parent
-        nodes_exist = [rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node != None]
+        nodes_exist = [rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node]
         if all(nodes_exist or [False]):
             rt.dcc.scene.parent(top_node, new_parent)
             return True

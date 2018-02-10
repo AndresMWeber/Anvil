@@ -128,10 +128,12 @@ class AbstractGrouping(log.LogMixin):
         if dag_node is None:
             self.warning('Attempted register node %s with key %s but it does not exist', dag_node, node_key)
             return
-        try:
-            anvil.factory(dag_node)
-        except:
-            raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.')
+
+        if not anvil.is_anvil(dag_node):
+            try:
+                dag_node = anvil.factory(dag_node)
+            except:
+                raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.' % type(dag_node))
 
         if self.hierarchy.get(node_key) is not None and not overwrite:
             raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)

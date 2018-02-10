@@ -1,7 +1,9 @@
 from base import SubRigTemplate
+import anvil
 import anvil.node_types as nt
 import anvil.config as cfg
 import anvil.runtime as rt
+from anvil.meta_data import MetaData
 
 
 class BipedFoot(SubRigTemplate):
@@ -26,9 +28,9 @@ class BipedFoot(SubRigTemplate):
     def __init__(self, heel=None, outsole=None, insole=None, has_ik=True, leg_ik=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
         self.ankle, self.ball, self.toe = self.layout_joints
-        self.heel = heel
-        self.outsole = outsole
-        self.insole = insole
+        self.heel = anvil.factory(heel) if heel else heel
+        self.outsole = anvil.factory(outsole) if outsole else outsole
+        self.insole = anvil.factory(insole) if insole else insole
         self.has_ik = has_ik
         self.leg_ik = leg_ik
 
@@ -74,6 +76,12 @@ class BipedFoot(SubRigTemplate):
             self.build_ik_toe()
         else:
             self.build_fk_toe()
+
+        control_hierarchy = nt.HierarchyChain(ankle_control.connection_group)
+
+        self.insert_pivot_buffer(self.OUTSOLE_TOKEN, control_hierarchy, 0)
+        self.insert_pivot_buffer(self.INSOLE_TOKEN, control_hierarchy, 0)
+
         self.rename()
 
     def build_ik_toe(self):
@@ -97,12 +105,15 @@ class BipedFoot(SubRigTemplate):
         else:
             rt.dcc.connections.parent(self.control_ball.connection_group, self.ankle)
 
-    def insert_pivot_buffer(self, pivot_label, **kwargs):
+    def insert_pivot_buffer(self, pivot, hierarchy, index, name_tokens=None, meta_data=None, **kwargs):
         try:
-            pivot_reference_node = getattr(self, pivot_label)
-
+            buffer = hierarchy.insert_buffer(index, reference_node=getattr(self, pivot), **kwargs)
+            self.register_node(pivot + '_pivot', buffer,
+                               name_tokens=MetaData(name=pivot, purpose='pivot', protected='purpose') + name_tokens,
+                               meta_data=meta_data)
+            return buffer
         except AttributeError:
-            self.warning('%r does not have pivot attribute %s...skipping' % (self, pivot_label))
+            self.warning('%r does not have pivot attribute %s...skipping' % (self, pivot))
 
     def build_fk_toe(self):
         md = self.register_node('ball_rotation_cancel_out',
