@@ -1,7 +1,7 @@
 import anvil.node_types as nt
 import anvil
 from base_test import TestBase
-
+from anvil.errors import APIError
 
 class TestBaseDagNode(TestBase):
     pass
@@ -32,7 +32,7 @@ class TestDagNodeRename(TestBaseDagNode):
             self.assertEqual(str(dag_node), desired_output)
 
     def test_empty_input(self):
-        self.assertRaises(RuntimeError, self.rename_runner, None, '')
+        self.assertRaises(APIError, self.rename_runner, None, '')
 
     def test_single_char_input(self):
         self.rename_runner('n', 'n')
