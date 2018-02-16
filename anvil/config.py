@@ -60,7 +60,7 @@ REFERENCE_OBJECT = 'reference_object'
 OFFSET_GROUP = 'offset_group'
 CONNECTION_GROUP = 'connection_group'
 QUERY = 'query'
-
+BUFFER = 'buffer'
 
 # DATA TYPES
 ATTRIBUTE_TYPE = 'attributeType'

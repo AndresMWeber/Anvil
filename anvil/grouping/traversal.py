@@ -8,6 +8,7 @@ import anvil.utils.generic as gc
 import anvil.utils.scene as sc
 from anvil.log import LogMixin, obtainLogger
 
+
 class HierarchyChain(LogMixin):
     LOG = obtainLogger(__name__)
     DEFAULT_BUFFER_TYPE = ob.Transform
@@ -73,22 +74,23 @@ class HierarchyChain(LogMixin):
 
         return level_tree
 
-    def insert_buffer(self, index_target, reference_node=None, buffer_node_class=None, collocate=False, **kwargs):
+    def insert_buffer(self, index_target, reference_node=None, beneath=False, buffer_node_class=None, **kwargs):
         """ Inserts node of type buffer_node_class at the index specified.
 
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
         :param reference_node: str or ob.Transform, either a dag path or anvil node to match position to
         :param buffer_node_class: ob.UnicodeProxy, anvil node type we are going to build
-        :param collocate: boolean, should the buffer stay side by side or parent the target underneath
         :return: ob.UnicodeProxy, created anvil buffer node
         """
         index_target = self.find_child(index_target)
 
         buffer = (buffer_node_class if anvil.is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
-        buffer.parent(index_target.get_parent() or None if collocate else index_target)
+        buffer.parent(index_target if beneath else (index_target.get_parent() or None))
         buffer.reset_transform()
+        print(reference_node)
         buffer.match_transform(reference_node)
-        map(lambda node: node.parent(buffer), [index_target] if collocate else index_target.get_children())
+
+        map(lambda node: node.parent(buffer), index_target.get_children() if beneath else [index_target])
 
         # If user specified the head we need to set it to the new head which is the buffer node.
         if index_target == self.head:
@@ -105,7 +107,7 @@ class HierarchyChain(LogMixin):
         else:
             self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)
 
-    def duplicate_chain(self, top_node, end_node=None):
+    def duplicate_chain(self, top_node, end_node=None, remove_branching_nodes=True):
         """ Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain
         """
         duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
@@ -122,7 +124,11 @@ class HierarchyChain(LogMixin):
         duplicates = rt.dcc.scene.duplicate(nodes, **duplicate_kwargs)
         if len(duplicates) == 1:
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
-        return str(duplicates[0]), str(duplicates[-1])
+        if remove_branching_nodes:
+            #map(lambda node: sc.safe_delete(node), [node for node in duplicates if node not in nodes])
+            pass
+
+        return self.__class__(str(duplicates[0]), end_node=str(duplicates[-1]))
 
     def _process_top_node(self, top_node, end_node, duplicate=False):
         if isinstance(top_node, list) and end_node is None:
@@ -132,7 +138,9 @@ class HierarchyChain(LogMixin):
             top_node, end_node = top_node.head, top_node.tail
 
         if duplicate:
-            top_node, end_node = self.duplicate_chain(top_node, end_node=end_node)
+            dup_chain = self.duplicate_chain(top_node, end_node=end_node)
+            top_node = dup_chain.head
+            end_node = dup_chain.tail
 
         return anvil.factory(top_node), end_node
 

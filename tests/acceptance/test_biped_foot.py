@@ -24,7 +24,9 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
         kwargs.update(pre_build_hook())
 
         rig_instance = cls.TEMPLATE_CLASS(layout_joints=map(nt.Transform, ['foot', 'ball', 'toe']),
-                                          heel=nt.Transform('heel'))
+                                          heel=nt.Transform('heel'),
+                                          outsole='outsole',
+                                          insole='insole')
         rig_instance.build(**kwargs)
 
         post_build_hook()

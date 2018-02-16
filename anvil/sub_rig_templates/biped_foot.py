@@ -49,7 +49,8 @@ class BipedFoot(SubRigTemplate):
         super(BipedFoot, self).build(**kwargs)
         self.leg_ik = leg_ik or self.leg_ik
         if duplicate:
-            self.ankle, self.ball, self.toe = nt.HierarchyChain(self.layout_joints[0].duplicate(all_children=True))
+            self.ankle, self.ball, self.toe = nt.HierarchyChain(self.layout_joints[0], end_node=self.layout_joints[-1],
+                                                                duplicate=True)
 
         ankle_control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, self.ANKLE_TOKEN),
                                         shape=self.get_control_shape(self.ANKLE_TOKEN),
@@ -78,9 +79,8 @@ class BipedFoot(SubRigTemplate):
             self.build_fk_toe()
 
         control_hierarchy = nt.HierarchyChain(ankle_control.connection_group)
-
-        self.insert_pivot_buffer(self.OUTSOLE_TOKEN, control_hierarchy, 0)
-        self.insert_pivot_buffer(self.INSOLE_TOKEN, control_hierarchy, 0)
+        self.insert_pivot_buffer(self.OUTSOLE_TOKEN, control_hierarchy, 0, reference_object=self.outsole)
+        self.insert_pivot_buffer(self.INSOLE_TOKEN, control_hierarchy, 0, reference_object=self.insole)
 
         self.rename()
 
