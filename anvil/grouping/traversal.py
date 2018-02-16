@@ -78,7 +78,7 @@ class HierarchyChain(LogMixin):
         """ Inserts node of type buffer_node_class at the index specified.
 
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
-        :param node: anvil.objects.dag_node.DagNode, an anvil node.
+        :param node: anvil.objects.dag_node.DagNode, an anvil node to insert in place
         :param pre_hooks: list, list of functions to run before
         :param beneath: bool, place the new buffer under the index target or replace it in position
         :param post_hooks: list, list of functions to run after
@@ -87,7 +87,7 @@ class HierarchyChain(LogMixin):
         if pre_hooks:
             for pre_hook in pre_hooks:
                 pre_hook()
-
+        index_target = self.find_child(index_target)
         node.parent(index_target if beneath else (index_target.get_parent() or None))
         index_target = self.find_child(index_target)
         map(lambda node: node.parent(node), index_target.get_children() if beneath else [index_target])
