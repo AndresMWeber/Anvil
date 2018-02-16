@@ -107,7 +107,7 @@ class BipedFoot(SubRigTemplate):
 
     def insert_pivot_buffer(self, pivot, hierarchy, index, name_tokens=None, meta_data=None, **kwargs):
         try:
-            buffer = hierarchy.insert_buffer(index, reference_node=getattr(self, pivot), **kwargs)
+            buffer = hierarchy.insert_and_build_buffer(index, reference_node=getattr(self, pivot), **kwargs)
             self.register_node(pivot + '_pivot', buffer,
                                name_tokens=MetaData(name=pivot, purpose='pivot', protected='purpose') + name_tokens,
                                meta_data=meta_data)

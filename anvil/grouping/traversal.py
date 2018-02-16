@@ -74,28 +74,46 @@ class HierarchyChain(LogMixin):
 
         return level_tree
 
-    def insert_buffer(self, index_target, reference_node=None, beneath=False, buffer_node_class=None, **kwargs):
+    def insert_node(self, index_target, node, beneath=False, pre_hooks=None, post_hooks=None):
         """ Inserts node of type buffer_node_class at the index specified.
 
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
-        :param reference_node: str or ob.Transform, either a dag path or anvil node to match position to
-        :param buffer_node_class: ob.UnicodeProxy, anvil node type we are going to build
-        :return: ob.UnicodeProxy, created anvil buffer node
+        :param node: anvil.objects.dag_node.DagNode, an anvil node.
+        :param pre_hooks: list, list of functions to run before
+        :param beneath: bool, place the new buffer under the index target or replace it in position
+        :param post_hooks: list, list of functions to run after
+        :return: anvil.objects.dag_node.DagNode, created anvil buffer node
         """
+        if pre_hooks:
+            for pre_hook in pre_hooks:
+                pre_hook()
+
+        node.parent(index_target if beneath else (index_target.get_parent() or None))
         index_target = self.find_child(index_target)
-
-        buffer = (buffer_node_class if anvil.is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
-        buffer.parent(index_target if beneath else (index_target.get_parent() or None))
-        buffer.reset_transform()
-        print(reference_node)
-        buffer.match_transform(reference_node)
-
-        map(lambda node: node.parent(buffer), index_target.get_children() if beneath else [index_target])
+        map(lambda node: node.parent(node), index_target.get_children() if beneath else [index_target])
 
         # If user specified the head we need to set it to the new head which is the buffer node.
         if index_target == self.head:
             self.head = buffer
 
+        if post_hooks:
+            for post_hook in post_hooks:
+                post_hook()
+
+    def insert_and_build_buffer(self, index_target, reference_node=None, beneath=False, buffer_node_class=None,
+                                **kwargs):
+        """
+
+        :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
+        :param reference_node: anvil.objects.dag_node.DagNode, an anvil transform to match positions to.
+        :param beneath: bool, place the new buffer under the index target or replace it in position
+        :param reference_node: str or ob.Transform, either a dag path or anvil node to match position to
+        :param buffer_node_class: ob.UnicodeProxy, anvil node type we are going to build
+        :return: anvil.objects.dag_node.DagNode, anvil node type
+        """
+        buffer = (buffer_node_class if anvil.is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
+        pre_hooks = [lambda: buffer.reset_transform(), lambda: buffer.match_transform(reference_node)]
+        self.insert_node(index_target, buffer, pre_hooks=pre_hooks, beneath=beneath)
         return buffer
 
     def depth(self, node_filter=None):
@@ -125,7 +143,7 @@ class HierarchyChain(LogMixin):
         if len(duplicates) == 1:
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
         if remove_branching_nodes:
-            #map(lambda node: sc.safe_delete(node), [node for node in duplicates if node not in nodes])
+            # map(lambda node: sc.safe_delete(node), [node for node in duplicates if node not in nodes])
             pass
 
         return self.__class__(str(duplicates[0]), end_node=str(duplicates[-1]))
