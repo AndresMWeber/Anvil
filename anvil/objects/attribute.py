@@ -131,10 +131,10 @@ class Attribute(unicode_delegate.UnicodeDelegate):
     def is_muted(self):
         return rt.dcc.connections.mute(self, query=True)
 
-    def isHidden(self):
+    def is_hidden(self):
         return rt.dcc.connections.query_attr(self, node=self.node(), hidden=True)
 
-    def isConnectable(self):
+    def is_connectable(self):
         return rt.dcc.connections.query_attr(self, node=self.node(), connectable=True)
 
     def unmute(self, **kwargs):

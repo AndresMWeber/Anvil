@@ -76,9 +76,9 @@ class TestCurveGetShapeConstructor(TestBaseCurve):
 class TestCurvePopulateShapeFileData(TestBaseCurve):
     @TestBase.delete_created_nodes
     def existing_shape_file(self):
-        self.assertIsNotNone(nt.Curve._populate_shape_file_data().SHAPE_CACHE)
+        self.assertIsNotNone(nt.Curve.populate_shape_file_data().SHAPE_CACHE)
 
     @TestBase.delete_created_nodes
     def non_existing_shape_file(self):
         nt.Curve.SHAPE_CACHE = None
-        self.assertEquals(nt.Curve._populate_shape_file_data('not a file').SHAPE_CACHE, {})
+        self.assertEquals(nt.Curve.populate_shape_file_data('not a file').SHAPE_CACHE, {})

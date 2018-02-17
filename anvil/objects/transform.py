@@ -32,7 +32,7 @@ class Transform(DagNode):
     def reset_transform(self):
         self.translate.set((0, 0, 0))
         self.rotate.set((0, 0, 0))
-        self.scale.set((1,1,1))
+        self.scale.set((1, 1, 1))
 
     def parent(self, new_parent):
         top_node, new_parent = self, new_parent

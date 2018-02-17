@@ -6,10 +6,10 @@ import test_biped_average_time
 import test_template_sub_rigs
 
 __all__ = [
-    test_biped_average_time,
-    test_hand,
-    test_biped_foot,
-    test_biped,
-    test_MVP,
-    test_template_sub_rigs
+    'test_biped_average_time',
+    'test_hand',
+    'test_biped_foot',
+    'test_biped',
+    'test_MVP',
+    'test_template_sub_rigs'
 ]

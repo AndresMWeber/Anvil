@@ -12,5 +12,5 @@ from joint import Joint
 from transform import Transform
 from unicode_delegate import UnicodeDelegate
 
-__modules__ = [curve, dag_node, joint, transform, unicode_delegate, attribute]
+__modules__ = ['curve', 'dag_node', 'joint', 'transform', 'unicode_delegate', 'attribute']
 __all__ = ['Curve', 'DagNode', 'Joint', 'Transform', 'UnicodeDelegate', 'Attribute']

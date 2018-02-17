@@ -8,7 +8,7 @@ from anvil.meta_data import MetaData
 class SubRig(base.AbstractGrouping):
     BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     ROOT_NAME_TOKENS = {cfg.RIG_TYPE: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.GROUP_TYPE}
-    LOG = lg.obtainLogger(__name__)
+    LOG = lg.obtain_logger(__name__)
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']
 
     def build(self, parent=None, **kwargs):

@@ -26,8 +26,8 @@ POSITION_OR_STR_TYPE = {"anyOf": [STR_TYPE, POSITION_LIST]}
 
 
 class APIProxy(object):
-    LOG = anvil.log.obtainLogger(__name__)
-    API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
+    LOG = anvil.log.obtain_logger(__name__)
+    API_LOG = anvil.log.obtain_logger(__name__ + '.api_calls')
     CURRENT_API = None
 
     @classmethod

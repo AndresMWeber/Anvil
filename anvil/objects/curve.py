@@ -100,7 +100,7 @@ class Curve(Transform):
             return lambda: api_function(**shape_entry)
 
     @classmethod
-    def _populate_shape_file_data(cls, shape_file=None):
+    def populate_shape_file_data(cls, shape_file=None):
         if shape_file is None:
             shape_file = cfg.SHAPES_FILE
 
@@ -112,11 +112,11 @@ class Curve(Transform):
                 cls.SHAPE_CACHE = {}
 
     @staticmethod
-    def _ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwargs):
+    def _ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwargs):
         """ Stolen from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
         """
 
-        class OrderedDumper(Dumper):
+        class OrderedDumper(dumper):
             pass
 
         def _dict_representer(dumper, data):
@@ -158,4 +158,4 @@ class Curve(Transform):
             curve.rename(shape)
 
 
-Curve._populate_shape_file_data()
+Curve.populate_shape_file_data()

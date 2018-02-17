@@ -15,7 +15,7 @@ class AbstractGrouping(log.LogMixin):
         are required to give a performance.
 
     """
-    LOG = log.obtainLogger(__name__)
+    LOG = log.obtain_logger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     BUILT_IN_META_DATA = MetaData()
@@ -143,7 +143,7 @@ class AbstractGrouping(log.LogMixin):
         dag_node.name_tokens.merge(self.name_tokens, name_tokens)
         return dag_node
 
-    def auto_color(self, **kwargs):
+    def auto_color(self):
         auto_colorer = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
         self._cascading_function(auto_colorer, auto_colorer)
 

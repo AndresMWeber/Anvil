@@ -5,12 +5,12 @@ import anvil.config as cfg
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
-from anvil.log import LogMixin, obtainLogger
+from anvil.log import LogMixin, obtain_logger
 import anvil.runtime as rt
 
 
 class HierarchyChain(LogMixin):
-    LOG = obtainLogger(__name__)
+    LOG = obtain_logger(__name__)
     DEFAULT_BUFFER_TYPE = ob.Transform
 
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
@@ -95,7 +95,7 @@ class HierarchyChain(LogMixin):
 
         # If user specified the head we need to set it to the new head which is the buffer node.
         if index_target == self.head:
-            self.head = buffer
+            self.head = node
 
         if post_hooks:
             for post_hook in post_hooks:

@@ -1,3 +1,3 @@
 import generic
 
-__all__ = [generic]
+__all__ = ['generic']

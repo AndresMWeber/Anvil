@@ -3,24 +3,21 @@ import unittest2
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 from functools import wraps
-import anvil.runtime as rt
-from pprint import pprint
 
 os.environ['ANVIL_MODE'] = 'TEST'
-import anvil
-from anvil.log import obtainLogger
 import logging
 from collections import Iterable
 from collections import OrderedDict
-
 from contextlib import contextmanager
 import nomenclate
+import anvil
+from anvil.log import obtain_logger
 
 NOMENCLATE = nomenclate.Nom()
 
 
 class TestBase(unittest2.TestCase):
-    LOG = obtainLogger('testing')
+    LOG = obtain_logger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
     LOG.setLevel(logging.CRITICAL)
 

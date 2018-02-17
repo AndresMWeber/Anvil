@@ -14,7 +14,7 @@ class Rig(base.AbstractGrouping):
     """ A fully functional and self-contained rig with all requirements implemented that
         require it to give a performance.  A collection of SubRig(s)
     """
-    LOG = anvil.log.obtainLogger(__name__)
+    LOG = anvil.log.obtain_logger(__name__)
     BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
@@ -66,7 +66,7 @@ class Rig(base.AbstractGrouping):
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
             self.info('Registering %s.[%s] = %s(%s)', self, sub_rig_key, sub_rig_candidate.__name__, kwargs)
-            layout_joints = kwargs.pop('layout_joints')
+            layout_joints = kwargs.pop(cfg.LAYOUT, None)
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(layout_joints, **kwargs)
             return self.sub_rigs[sub_rig_key]
 

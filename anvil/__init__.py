@@ -7,7 +7,7 @@ import version
 
 
 class AnvilLog(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
+    LOG = log.obtain_logger(__name__)
 
 
 LOG = AnvilLog
@@ -79,10 +79,9 @@ def is_anvil(node):
     try:
         if isinstance(node, node_types.REGISTERED_NODES.get(type(node).__name__)):
             return True
-    except AttributeError:
+    except TypeError:
         pass
-    finally:
-        return False
+    return False
 
 
 def is_agrouping(node):
