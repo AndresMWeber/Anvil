@@ -28,7 +28,7 @@ class Rig(base.AbstractGrouping):
         self.sub_rigs = OrderedDict.fromkeys(self.ORDERED_SUB_RIG_KEYS)
         super(Rig, self).__init__(*args, **kwargs)
         self.name_tokens[cfg.CHARACTER] = character or self.name_tokens.get(cfg.CHARACTER, '')
-        self.register_sub_rigs_from_dict(sub_rig_dict)
+        self.register_sub_rigs_from_dict(sub_rig_dict or {})
 
     def rename(self, *input_dicts, **name_tokens):
         super(Rig, self).rename(*input_dicts, **name_tokens)
