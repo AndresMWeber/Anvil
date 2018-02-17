@@ -1,4 +1,4 @@
-import anvil.node_types as nt
+import anvil.node_types as nt # noqa
 import anvil.config as cfg
 import anvil.sub_rig_templates as sub_rig_templates
 from collections import OrderedDict
