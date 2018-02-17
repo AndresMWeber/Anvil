@@ -38,7 +38,7 @@ class Curve(Transform):
         kwargs[cfg.DEGREE] = 1
         kwargs[cfg.NAME_TOKENS] = MetaData(kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.NAME_TOKENS].update({cfg.NAME: '%s_to_%s' % (object1, object2), cfg.TYPE: cfg.CURVE_TYPE})
-        curve = cls.build_from_objects([object1, object2], **kwargs)
+        curve = cls.build_from_nodes([object1, object2], **kwargs)
         object1_cluster, object2_cluster = curve.generate_clusters()
         object1_cluster.parent(object1)
         object2_cluster.parent(object2)
@@ -47,8 +47,8 @@ class Curve(Transform):
         return (curve, [object1_cluster, object1_cluster])
 
     @classmethod
-    def build_from_objects(cls, objects, **kwargs):
-        kwargs[cfg.POINT] = [object.get_world_position() for object in anvil.factory_list(objects)]
+    def build_from_nodes(cls, nodes, **kwargs):
+        kwargs[cfg.POINT] = [node.get_world_position() for node in anvil.factory_list(nodes)]
         instance = cls.build(**kwargs)
         return instance
 

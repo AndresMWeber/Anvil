@@ -1,6 +1,5 @@
 from base import SubRigTemplate
 import anvil.config as cfg
-from anvil.meta_data import MetaData
 
 
 class Limb(SubRigTemplate):

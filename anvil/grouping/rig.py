@@ -1,7 +1,7 @@
 from six import iteritems
 import base
 import anvil
-from anvil.meta_data import MetaData, cls_merge_name_tokens_and_meta_data
+from anvil.meta_data import MetaData
 import anvil.config as cfg
 import anvil.objects as ot
 import sub_rig
@@ -32,8 +32,8 @@ class Rig(base.AbstractGrouping):
 
     def rename(self, *input_dicts, **name_tokens):
         super(Rig, self).rename(*input_dicts, **name_tokens)
-        for sub_rig_key, sub_rig in iteritems(self.sub_rigs):
-            sub_rig.rename() #*input_dicts, **name_tokens)
+        for _, sub_rig_instance in iteritems(self.sub_rigs):
+            sub_rig_instance.rename()
 
     def register_sub_rigs_from_dict(self, sub_rig_dict):
         """ Only accepts dictionary with keys that match the built in SUB_RIG_BUILD_TABLE for the given Rig.
@@ -71,14 +71,14 @@ class Rig(base.AbstractGrouping):
             return self.sub_rigs[sub_rig_key]
 
     def build_sub_rigs(self):
-        for sub_rig_key, sub_rig_member in iteritems(self.sub_rigs):
+        for _, sub_rig_member in iteritems(self.sub_rigs):
             self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
             sub_rig_member.build(parent=self.group_sub_rigs)
 
     def auto_color(self):
         super(Rig, self).auto_color()
-        for key, sub_rig in iteritems(self.sub_rigs):
-            sub_rig.auto_color()
+        for _, sub_rig_instance in iteritems(self.sub_rigs):
+            sub_rig_instance.auto_color()
 
     def build(self, parent=None, name_tokens=None, **kwargs):
         self.info('Building %s(%r) with parent: %s, name_tokens: %s, and kwargs: %s',

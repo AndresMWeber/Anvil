@@ -35,7 +35,7 @@ class UnicodeDelegate(log.LogMixin):
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
-        except:
+        except AttributeError:
             self._api_class_instance = object()
 
     def name(self):

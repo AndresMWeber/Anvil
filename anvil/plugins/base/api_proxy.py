@@ -1,6 +1,5 @@
 from six import iteritems, raise_from
 from functools import wraps
-import sys
 import anvil
 import anvil.config as cfg
 from jsonschema import validate
@@ -32,7 +31,7 @@ class APIProxy(object):
     CURRENT_API = None
 
     @classmethod
-    def _validate_function(cls, schema, api, function_name):
+    def validate(cls, schema, api, function_name):
         def to_validate(function):
             @wraps(function)
             def validator(*args, **kwargs):

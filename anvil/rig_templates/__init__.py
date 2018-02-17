@@ -7,4 +7,10 @@ from fish import Fish
 from insect import Diptera
 
 
-__all__ = ['Biped', 'Quadruped', 'Hexapod', 'Octopod', 'Bird', 'Fish', 'Flying']
+__all__ = [Biped,
+           Quadruped,
+           Hexapod,
+           Octopod,
+           Bird,
+           Fish,
+           Diptera]

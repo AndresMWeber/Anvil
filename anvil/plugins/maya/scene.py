@@ -3,7 +3,7 @@ import anvil.config as cfg
 import anvil.plugins.base.api_proxy as api_proxy
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "activate": api_proxy.BOOL_TYPE,
                                             "activeProxy": api_proxy.BOOL_TYPE,
@@ -117,35 +117,35 @@ import anvil.plugins.base.api_proxy as api_proxy
                                             "usingNamespaces": api_proxy.BOOL_TYPE,
                                             "withoutCopyNumber": api_proxy.BOOL_TYPE,
                                             "writable": api_proxy.BOOL_TYPE}},
-                                       APIs['cmds'], 'file')
+                             APIs['cmds'], 'file')
 def fileop(file, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "isAType": api_proxy.STR_TYPE,
                                             "isType": api_proxy.STR_TYPE,
                                             "tagFromType": api_proxy.STR_TYPE,
                                             "typeFromTag": api_proxy.NUM_TYPE,
                                             "typeTag": api_proxy.BOOL_TYPE, }},
-                                       DEFAULT_API, 'objectType')
+                             DEFAULT_API, 'objectType')
 def get_type(node, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "apiType": api_proxy.BOOL_TYPE,
                                             "derived": api_proxy.BOOL_TYPE,
                                             "inherited": api_proxy.BOOL_TYPE,
                                             "isTypeName": api_proxy.BOOL_TYPE}},
-                                       DEFAULT_API, 'nodeType')
+                             DEFAULT_API, 'nodeType')
 def node_type(node, apiType="", **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "absoluteName": api_proxy.BOOL_TYPE,
                                             "allPaths": api_proxy.BOOL_TYPE,
@@ -203,28 +203,28 @@ def node_type(node, apiType="", **kwargs):
                                             "untemplated": api_proxy.BOOL_TYPE,
                                             "uuid": api_proxy.BOOL_TYPE,
                                             "visible": api_proxy.BOOL_TYPE}},
-                                       DEFAULT_API, 'ls')
+                             DEFAULT_API, 'ls')
 def list_scene(*args, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {}},
-                                       DEFAULT_API, 'objExists')
+                             DEFAULT_API, 'objExists')
 def exists(node):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "ignoreShape": api_proxy.BOOL_TYPE,
                                             "uuid": api_proxy.BOOL_TYPE}},
-                                       DEFAULT_API, 'rename')
+                             DEFAULT_API, 'rename')
 def rename(node_dag, name, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "inputConnections": api_proxy.BOOL_TYPE,
                                             "instanceLeaf": api_proxy.BOOL_TYPE,
@@ -234,12 +234,12 @@ def rename(node_dag, name, **flags):
                                             "returnRootsOnly": api_proxy.BOOL_TYPE,
                                             "smartTransform": api_proxy.BOOL_TYPE,
                                             "upstreamNodes": api_proxy.BOOL_TYPE}},
-                                       DEFAULT_API, 'duplicate')
+                             DEFAULT_API, 'duplicate')
 def duplicate(parent_only=True, *node_dags, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "allDescendents": api_proxy.BOOL_TYPE,
                                             "allParents": api_proxy.BOOL_TYPE,
@@ -250,12 +250,12 @@ def duplicate(parent_only=True, *node_dags, **flags):
                                             "path": api_proxy.BOOL_TYPE,
                                             "shapes": api_proxy.BOOL_TYPE,
                                             "type": api_proxy.STR_OR_STR_LIST_TYPE}},
-                                       DEFAULT_API, 'listRelatives')
+                             DEFAULT_API, 'listRelatives')
 def list_relatives(node_dag, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "absolute": api_proxy.BOOL_TYPE,
                                             "addObject": api_proxy.BOOL_TYPE,
@@ -265,12 +265,12 @@ def list_relatives(node_dag, **flags):
                                             "removeObject": api_proxy.BOOL_TYPE,
                                             "shape": api_proxy.BOOL_TYPE,
                                             "world": api_proxy.BOOL_TYPE, }},
-                                       DEFAULT_API, 'parent')
+                             DEFAULT_API, 'parent')
 def parent(node_dags, new_parent_dag=None, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "all": api_proxy.BOOL_TYPE,
                                             "attribute": api_proxy.STR_TYPE,
@@ -285,12 +285,12 @@ def parent(node_dags, new_parent_dag=None, **flags):
                                             "staticChannels": api_proxy.BOOL_TYPE,
                                             "timeAnimationCurves": api_proxy.BOOL_TYPE,
                                             "unitlessAnimationCurves": api_proxy.BOOL_TYPE}},
-                                       DEFAULT_API, 'delete')
+                             DEFAULT_API, 'delete')
 def delete(*node_dags, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function({"type": ["object", "null"],
+@api_proxy.APIProxy.validate({"type": ["object", "null"],
                                         "properties": {
                                             "absolute": api_proxy.BOOL_TYPE,
                                             "boundingBox": api_proxy.BOOL_TYPE,
@@ -326,7 +326,7 @@ def delete(*node_dags, **flags):
                                             "worldSpaceDistance": api_proxy.BOOL_TYPE,
                                             "zeroTransformPivots": api_proxy.BOOL_TYPE,
                                             "query": api_proxy.BOOL_TYPE}},
-                                       DEFAULT_API, 'xform')
+                             DEFAULT_API, 'xform')
 def position(*node_dags, **flags):
     pass
 

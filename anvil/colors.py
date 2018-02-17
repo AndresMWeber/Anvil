@@ -46,9 +46,9 @@ class RGB(Color):
         return '#{:02X}{:02X}{:02X}'.format(int(self.red), int(self.green), int(self.blue))
 
     @classmethod
-    def from_hex(cls, hex):
-        hex = hex.lstrip('#')
-        return cls(*tuple(int(hex[i:i + 2], 16) for i in (0, 2, 4)))
+    def from_hex(cls, hexadecimal):
+        hexadecimal = hexadecimal.lstrip('#')
+        return cls(*tuple(int(hexadecimal[i:i + 2], 16) for i in (0, 2, 4)))
 
     @classmethod
     def from_hsv(cls, hsv):
@@ -78,11 +78,8 @@ class RGB(Color):
         return self
 
 
-def get_closest_color(r, g, b):
-    pass
 
-
-# Color Contants
+# Color Constants
 ALICEBLUE = RGB(240, 248, 255)
 ANTIQUEWHITE = RGB(250, 235, 215)
 ANTIQUEWHITE1 = RGB(255, 239, 219)

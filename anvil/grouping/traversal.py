@@ -112,10 +112,10 @@ class HierarchyChain(LogMixin):
         :param buffer_node_class: ob.UnicodeProxy, anvil node type we are going to build
         :return: anvil.objects.dag_node.DagNode, anvil node type
         """
-        buffer = (buffer_node_class if anvil.is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
-        pre_hooks = [lambda: buffer.reset_transform(), lambda: buffer.match_transform(reference_node)]
-        self.insert_node(index_target, buffer, pre_hooks=pre_hooks, beneath=beneath)
-        return buffer
+        buff = (buffer_node_class if anvil.is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
+        pre_hooks = [buff.reset_transform, lambda: buff.match_transform(reference_node)]
+        self.insert_node(index_target, buff, pre_hooks=pre_hooks, beneath=beneath)
+        return buff
 
     def depth(self, node_filter=None):
         return gc.get_dict_depth(d=self.get_hierarchy(node_filter=node_filter or self.node_filter)) - 1

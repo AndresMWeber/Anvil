@@ -1,0 +1,11 @@
+doc-warnings: true
+test-warnings: false
+ignore-paths:
+  - docs
+  - tests
+  - anvil/plugins/maya
+  - anvil/plugins/standalone
+python-targets:
+  - 2
+pep8:
+  full: true

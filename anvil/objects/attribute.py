@@ -96,9 +96,9 @@ class Attribute(unicode_delegate.UnicodeDelegate):
     def set_max(self, value):
         rt.dcc.connections.add_attr(self, maxValue=value, edit=True)
 
-    def set_range(self, min, max):
-        self.set_min(min)
-        self.set_max(max)
+    def set_range(self, min_value, max_value):
+        self.set_min(min_value)
+        self.set_max(max_value)
 
     def set_soft_min(self, value):
         rt.dcc.connections.add_attr(self, softMinValue=value, edit=True)
@@ -106,9 +106,9 @@ class Attribute(unicode_delegate.UnicodeDelegate):
     def set_soft_max(self, value):
         rt.dcc.connections.add_attr(self, softMaxValue=value, edit=True)
 
-    def set_soft_range(self, min, max):
-        self.set_soft_min(min)
-        self.set_soft_max(max)
+    def set_soft_range(self, min_value, max_value):
+        self.set_soft_min(min_value)
+        self.set_soft_max(max_value)
 
     def set_keyframe(self, **kwargs):
         return rt.dcc.animation.set_keyframe(self, **kwargs)

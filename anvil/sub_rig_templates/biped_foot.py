@@ -107,11 +107,11 @@ class BipedFoot(SubRigTemplate):
 
     def insert_pivot_buffer(self, pivot, hierarchy, index, name_tokens=None, meta_data=None, **kwargs):
         try:
-            buffer = hierarchy.insert_and_build_buffer(index, reference_node=getattr(self, pivot), **kwargs)
-            self.register_node(pivot + '_pivot', buffer,
+            buff = hierarchy.insert_and_build_buffer(index, reference_node=getattr(self, pivot), **kwargs)
+            self.register_node(pivot + '_pivot', buff,
                                name_tokens=MetaData(name=pivot, purpose='pivot', protected='purpose') + name_tokens,
                                meta_data=meta_data)
-            return buffer
+            return buff
         except AttributeError:
             self.warning('%r does not have pivot attribute %s...skipping' % (self, pivot))
 
@@ -122,3 +122,4 @@ class BipedFoot(SubRigTemplate):
                                              cfg.TYPE: cfg.MULT_DIV_TYPE,
                                              'protected': cfg.TYPE})
         # md.input1D.connect()
+        return md

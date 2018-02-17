@@ -51,7 +51,7 @@ def to_str_dict(d):
     for k, v in iteritems(d):
         try:
             data.update({str(k): str(v)})
-        except:
+        except TypeError:
             pass
     return data
 
