@@ -42,19 +42,13 @@ class Rig(base.AbstractGrouping):
 
         :param sub_rig_dict: dict, key must be in SUB_RIG_BUILD_TABLE and value must be dict or list of joints.
         """
-        if sub_rig_dict is None or not isinstance(sub_rig_dict, dict):
-            self.info('Empty or invalid sub rig dict %s...pass.', sub_rig_dict)
-            return
-
         for sub_rig_name, sub_rig_data in iteritems(sub_rig_dict):
-            try:
-                self.info('Registering sub rig %s: %s.', sub_rig_name, sub_rig_data)
-                sub_rig_construction_data = self.SUB_RIG_BUILD_TABLE.get(sub_rig_name)
-                sub_rig_class, default_name_tokens = sub_rig_construction_data
-                sub_rig_kwargs = sub_rig_data if isinstance(sub_rig_data, dict) else {cfg.LAYOUT: sub_rig_data}
-                self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
-            except TypeError:
-                self.warning('Sub rig table entry %r not found in input dict %s', sub_rig_name, sub_rig_dict)
+            self.info('Registering sub rig %s: %s.', sub_rig_name, sub_rig_data)
+            sub_rig_construction_data = self.SUB_RIG_BUILD_TABLE.get(sub_rig_name)
+            sub_rig_class, default_name_tokens = sub_rig_construction_data
+            sub_rig_kwargs = sub_rig_data if isinstance(sub_rig_data, dict) else {cfg.LAYOUT: sub_rig_data}
+            print(sub_rig_kwargs)
+            self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
 
     def build_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, **kwargs):
         """ Initializes the given sub rig candidate class with kwargs and stores it in property sub_rigs under the key.
@@ -65,7 +59,6 @@ class Rig(base.AbstractGrouping):
         kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, sub_rig.SubRig):
-            self.info('Registering %s.[%s] = %s(%s)', self, sub_rig_key, sub_rig_candidate.__name__, kwargs)
             layout_joints = kwargs.pop(cfg.LAYOUT, None)
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(layout_joints, **kwargs)
             return self.sub_rigs[sub_rig_key]

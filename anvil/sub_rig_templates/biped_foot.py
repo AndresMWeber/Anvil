@@ -25,8 +25,8 @@ class BipedFoot(SubRigTemplate):
                       cfg.RIGHT: '_'.join([cfg.LEFT, cfg.RIGHT])},
     }
 
-    def __init__(self, heel=None, outsole=None, insole=None, has_ik=True, leg_ik=None, *args, **kwargs):
-        super(BipedFoot, self).__init__(*args, **kwargs)
+    def __init__(self, layout_joints=None, heel=None, outsole=None, insole=None, has_ik=True, leg_ik=None, **kwargs):
+        super(BipedFoot, self).__init__(layout_joints=layout_joints,**kwargs)
         self.ankle, self.ball, self.toe = self.layout_joints
         self.heel = anvil.factory(heel) if heel else heel
         self.outsole = anvil.factory(outsole) if outsole else outsole
