@@ -2,11 +2,11 @@ from six import iteritems
 import nomenclate.core.tools as ts
 import anvil
 import anvil.config as cfg
-import anvil.runtime as rt
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
 from anvil.log import LogMixin, obtainLogger
+import anvil.runtime as rt
 
 
 class HierarchyChain(LogMixin):
@@ -87,10 +87,11 @@ class HierarchyChain(LogMixin):
         if pre_hooks:
             for pre_hook in pre_hooks:
                 pre_hook()
+
         index_target = self.find_child(index_target)
         node.parent(index_target if beneath else (index_target.get_parent() or None))
-        index_target = self.find_child(index_target)
-        map(lambda node: node.parent(node), index_target.get_children() if beneath else [index_target])
+        map(lambda child_node: child_node.parent(node),
+            [c for c in index_target.get_children() if c != node] if beneath else [index_target])
 
         # If user specified the head we need to set it to the new head which is the buffer node.
         if index_target == self.head:

@@ -32,6 +32,7 @@ class Transform(DagNode):
     def reset_transform(self):
         self.translate.set((0, 0, 0))
         self.rotate.set((0, 0, 0))
+        self.scale.set((1,1,1))
 
     def parent(self, new_parent):
         top_node, new_parent = self, new_parent
@@ -45,11 +46,17 @@ class Transform(DagNode):
             raise KeyError('Node %s or %s does not exist.' % (self, new_parent))
 
     @classmethod
-    def build(cls, reference_object=None, parent=None, **kwargs):
-        node = super(Transform, cls).build(**kwargs)
-        node.parent(parent)
-        node.match_position(reference_object)
-        return node
+    def build(cls, t=None, r=None, s=None, reference_object=None, parent=None, **kwargs):
+        transform_instance = super(Transform, cls).build(**kwargs)
+        transform_instance.parent(parent)
+        if reference_object:
+            transform_instance.match_position(reference_object)
+        else:
+            transform_instance.translate_node(t)
+            transform_instance.rotate_node(r)
+            transform_instance.scale_node(s)
+
+        return transform_instance
 
     def get_world_position(self, **kwargs):
         kwargs[cfg.WORLD_SPACE] = True
@@ -119,10 +126,16 @@ class Transform(DagNode):
             self.rotate_node(value, **kwargs)
 
     def scale_node(self, value, **kwargs):
-        rt.dcc.scene.position(self, scale=value, **kwargs)
+        if value:
+            self._position(scale=value, **kwargs)
 
     def translate_node(self, value, **kwargs):
-        rt.dcc.scene.position(self, translation=value, **kwargs)
+        if value:
+            self._position(translation=value, **kwargs)
 
     def rotate_node(self, value, **kwargs):
-        rt.dcc.scene.position(self, rotation=value, **kwargs)
+        if value:
+            self._position(rotation=value, **kwargs)
+
+    def _position(self, **kwargs):
+        rt.dcc.scene.position(self.name(), **kwargs)
