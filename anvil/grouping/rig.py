@@ -43,11 +43,9 @@ class Rig(base.AbstractGrouping):
         :param sub_rig_dict: dict, key must be in SUB_RIG_BUILD_TABLE and value must be dict or list of joints.
         """
         for sub_rig_name, sub_rig_data in iteritems(sub_rig_dict):
-            self.info('Registering sub rig %s: %s.', sub_rig_name, sub_rig_data)
             sub_rig_construction_data = self.SUB_RIG_BUILD_TABLE.get(sub_rig_name)
             sub_rig_class, default_name_tokens = sub_rig_construction_data
             sub_rig_kwargs = sub_rig_data if isinstance(sub_rig_data, dict) else {cfg.LAYOUT: sub_rig_data}
-            print(sub_rig_kwargs)
             self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
 
     def build_sub_rig(self, sub_rig_key, sub_rig_candidate=sub_rig.SubRig, **kwargs):
