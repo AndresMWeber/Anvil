@@ -7,8 +7,7 @@ import datetime
 import config as cfg
 
 
-
-def obtainLogger(name, json_output=False):
+def obtain_logger(name):
     """Get's a logger and attaches the correct DCC compatible Handler.
     Args:
         name (str): Name of the logger to get / create.
@@ -16,19 +15,19 @@ def obtainLogger(name, json_output=False):
         Logger: Logger.
     """
     logger = structlog.get_logger(name)
-
+    """
     if json_output:
         format_str = '%(message)%(levelname)%(name)%(asctime)'
-        # formatter = jslog.JsonFormatter(format_str)
-        # for handler in logger.handlers:
-        #    handler.setFormatter(formatter)
+        formatter = jslog.JsonFormatter(format_str)
+        for handler in logger.handlers:
+           handler.setFormatter(formatter)
         pass
-
+    """
     return logger
 
 
 class LogMixin(object):
-    LOG = obtainLogger(__name__ + '.LogMixin')
+    LOG = obtain_logger(__name__ + '.LogMixin')
 
     @classmethod
     def info(cls, msg, *args):
@@ -76,7 +75,7 @@ structlog.configure(
 class LogInitializer(LogMixin):
     HANDLERS = 'handlers'
     LOGGERS = 'loggers'
-    LOG = obtainLogger(__name__)
+    LOG = obtain_logger(__name__)
     DEFAULT_LEVEL = logging.DEBUG
     LOG_DIR = cfg.DEFAULT_LOG_DIR
     ENV_KEY = cfg.LOG_ENV_KEY
@@ -179,6 +178,7 @@ def toggle_loggers():
     LogInitializer.STATE = not LogInitializer.STATE
     LogInitializer.override_all_loggers('disabled', LogInitializer.STATE)
     LogInitializer.set_from_dict()
+
 
 def set_all_log_levels(level=logging.ERROR):
     LogInitializer.override_all_loggers('level', level)

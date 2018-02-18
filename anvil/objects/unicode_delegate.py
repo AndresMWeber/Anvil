@@ -7,7 +7,7 @@ import anvil.utils.generic as gc
 
 
 class UnicodeDelegate(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
+    LOG = log.obtain_logger(__name__)
     DCC_TYPE = None
     ANVIL_TYPE = 'unicode'
     BUILT_IN_METADATA = MetaData({})
@@ -21,8 +21,6 @@ class UnicodeDelegate(log.LogMixin):
         :param kwargs: dict, creation flags specific for the platform environment node creation function
         :param meta_data: dict, any object specific meta data we want to record
         """
-        self.debug('Initializing node %s with ID %s, name_tokens=%s, meta_data=%s, %s',
-                  self.__class__, node_pointer, name_tokens, meta_data, kwargs)
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
 
         self.meta_data = self.BUILT_IN_METADATA.merge(meta_data, new=True)
@@ -35,7 +33,7 @@ class UnicodeDelegate(log.LogMixin):
 
         try:
             self._api_class_instance = rt.dcc.scene.APIWrapper(str(node_pointer))
-        except:
+        except AttributeError:
             self._api_class_instance = object()
 
     def name(self):

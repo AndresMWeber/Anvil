@@ -6,7 +6,7 @@ from utils.generic import to_list, to_str_dict, pop_dict_keys, merge_dicts, dict
 
 
 class MetaData(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
+    LOG = log.obtain_logger(__name__)
     PROTECTED_KWARG = 'protected'
     IGNORED_KWARG = 'ignored'
     FORCE_KWARG = 'force'
@@ -157,7 +157,7 @@ def cls_merge_name_tokens_and_meta_data(pre=True):
                 cls_or_self.name_tokens.merge(name_tokens)
                 cls_or_self.meta_data.merge(meta_data)
 
-            if not 'Attribute' in repr(cls_or_self):
+            if 'Attribute' not in repr(cls_or_self):
                 MetaData.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s',
                               cls_or_self, name_tokens, meta_data, pre)
             return function_result

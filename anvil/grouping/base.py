@@ -15,7 +15,7 @@ class AbstractGrouping(log.LogMixin):
         are required to give a performance.
 
     """
-    LOG = log.obtainLogger(__name__)
+    LOG = log.obtain_logger(__name__)
     ANVIL_TYPE = cfg.GROUP_TYPE
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     BUILT_IN_META_DATA = MetaData()
@@ -94,11 +94,11 @@ class AbstractGrouping(log.LogMixin):
     def rename_chain(self, objects, use_end_naming=False, **name_tokens):
         self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
 
-        for index, object in enumerate(objects):
+        for index, node in enumerate(objects):
             variation_kwargs = {'var': index}
             if use_end_naming and index == len(objects) - 1:
                 variation_kwargs = {'decorator': 'End'}
-            rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
+            rt.dcc.scene.rename(node, self.chain_nomenclate.get(**variation_kwargs))
 
     def rename(self, *input_dicts, **kwargs):
         new_tokens = MetaData(*input_dicts, **kwargs)
@@ -128,10 +128,12 @@ class AbstractGrouping(log.LogMixin):
         if dag_node is None:
             self.warning('Attempted register node %s with key %s but it does not exist', dag_node, node_key)
             return
-        try:
-            anvil.factory(dag_node)
-        except:
-            raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.')
+
+        if not anvil.is_anvil(dag_node):
+            try:
+                dag_node = anvil.factory(dag_node)
+            except:
+                raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.' % type(dag_node))
 
         if self.hierarchy.get(node_key) is not None and not overwrite:
             raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
@@ -141,7 +143,7 @@ class AbstractGrouping(log.LogMixin):
         dag_node.name_tokens.merge(self.name_tokens, name_tokens)
         return dag_node
 
-    def auto_color(self, *args, **kwargs):
+    def auto_color(self):
         auto_colorer = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
         self._cascading_function(auto_colorer, auto_colorer)
 
@@ -152,7 +154,7 @@ class AbstractGrouping(log.LogMixin):
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
 
     def _cascading_function(self, object_function, grouping_function):
-        for sub_key, sub_node in iteritems(self.hierarchy):
+        for _, sub_node in iteritems(self.hierarchy):
             if anvil.is_agrouping(sub_node):
                 grouping_function(sub_node)
             elif anvil.is_aobject(sub_node):

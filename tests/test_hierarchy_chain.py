@@ -1,7 +1,7 @@
 import anvil.node_types as nt
 import anvil.runtime as rt
 import anvil
-from base_test import TestBase
+from base_test import TestBase, cleanup_nodes
 import anvil.config as cfg
 
 
@@ -179,3 +179,145 @@ class TestHierarchyGetLevel(TestBaseHierarchyChain):
         chain = nt.HierarchyChain(self.joints_total[0], node_filter=filter)
         self.assertDictEqual(chain.get_level(8),
                              nt.HierarchyChain(self.joints_total[8], node_filter=filter).get_hierarchy())
+
+
+class TestHierarchyInsertNode(TestBaseHierarchyChain):
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        chain.insert_node(4, insert_me)
+        self.assertEqual(chain[4], insert_me)
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_parent_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        chain.insert_node(4, insert_me)
+        self.assertEqual(chain[3], insert_me.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_parent_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        old_parent = chain[4].get_parent()
+        chain.insert_node(4, insert_me)
+        self.assertEqual(old_parent, insert_me.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_children_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        old_index_target = chain[4]
+        chain.insert_node(4, insert_me)
+        self.assertEqual([old_index_target], insert_me.get_children())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_index_children(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        chain.insert_node(4, insert_me)
+        self.assertEqual([chain[5]], insert_me.get_children())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        chain.insert_node(4, insert_me, beneath=True)
+        self.assertEqual(chain[5], insert_me)
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_parent_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        chain.insert_node(4, insert_me, beneath=True)
+        self.assertEqual(chain[4], insert_me.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_parent_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        old_parent = chain[4].get_parent()
+        chain.insert_node(4, insert_me, beneath=True)
+        self.assertNotEqual(old_parent, insert_me.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_children_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        old_index_target_children = chain[4].get_children()
+        chain.insert_node(4, insert_me, beneath=True)
+        self.assertEqual(old_index_target_children, insert_me.get_children())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_index_children(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        insert_me = nt.Joint.build()
+        chain.insert_node(4, insert_me, beneath=True)
+        self.assertEqual([chain[6]], insert_me.get_children())
+
+
+class TestHierarchyInsertAndCreateBuffer(TestBaseHierarchyChain):
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        buffer = chain.insert_and_build_buffer(4)
+        self.assertEqual(chain[4], buffer)
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_parent_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        buffer = chain.insert_and_build_buffer(4)
+        self.assertEqual(chain[3], buffer.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_parent_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        old_parent = chain[4].get_parent()
+        buffer = chain.insert_and_build_buffer(4)
+        self.assertEqual(old_parent, buffer.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_children_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        old_index_target = chain[4]
+        buffer = chain.insert_and_build_buffer(4)
+        self.assertEqual([old_index_target], buffer.get_children())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_default_insert_check_index_children(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        buffer = chain.insert_and_build_buffer(4)
+        self.assertEqual([chain[5]], buffer.get_children())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        buffer = chain.insert_and_build_buffer(4, beneath=True)
+        self.assertEqual(chain[5], buffer)
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_parent_index(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        buffer = chain.insert_and_build_buffer(4, beneath=True)
+        self.assertEqual(chain[4], buffer.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_parent_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        old_parent = chain[4].get_parent()
+        buffer = chain.insert_and_build_buffer(4, beneath=True)
+        self.assertNotEqual(old_parent, buffer.get_parent())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_children_swap(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        old_index_target_children = chain[4].get_children()
+        buffer = chain.insert_and_build_buffer(4, beneath=True)
+        self.assertEqual(old_index_target_children, buffer.get_children())
+
+    @TestBase.delete_created_nodes
+    def test_joints_only_beneath_insert_check_index_children(self):
+        chain = nt.HierarchyChain(self.joints[0])
+        buffer = chain.insert_and_build_buffer(4, beneath=True)
+        self.assertEqual([chain[6]], buffer.get_children())

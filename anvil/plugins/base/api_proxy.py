@@ -1,8 +1,9 @@
-from six import iteritems
+from six import iteritems, raise_from
 from functools import wraps
 import anvil
 import anvil.config as cfg
 from jsonschema import validate
+import anvil.errors as err
 
 DEFAULT_SCHEMA = {cfg.TYPE: ["object", "null"], "properties": {}}
 BOOL_TYPE = {cfg.TYPE: cfg.BOOLEAN}
@@ -25,12 +26,12 @@ POSITION_OR_STR_TYPE = {"anyOf": [STR_TYPE, POSITION_LIST]}
 
 
 class APIProxy(object):
-    LOG = anvil.log.obtainLogger(__name__)
-    API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
+    LOG = anvil.log.obtain_logger(__name__)
+    API_LOG = anvil.log.obtain_logger(__name__ + '.api_calls')
     CURRENT_API = None
 
     @classmethod
-    def _validate_function(cls, schema, api, function_name):
+    def validate(cls, schema, api, function_name):
         def to_validate(function):
             @wraps(function)
             def validator(*args, **kwargs):
@@ -68,9 +69,12 @@ class APIProxy(object):
             for key, node in iteritems(kwargs):
                 if anvil.is_anvil(node):
                     kwargs[key] = str(node)
-
-        cls.API_LOG.info(cls._compose_api_call(api, function_name, *args, **kwargs))
-        return getattr(api, function_name)(*args, **kwargs)
+        api_call = cls._compose_api_call(api, function_name, *args, **kwargs)
+        cls.API_LOG.info(api_call)
+        try:
+            return getattr(api, function_name)(*args, **kwargs)
+        except RuntimeError as rterr:
+            raise_from(err.APIError('%s\n%s: %s' % (api_call, type(rterr).__name__, rterr)), rterr)
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):

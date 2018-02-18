@@ -20,19 +20,23 @@ class Transform(DagNode):
         return rt.dcc.create.create_transform(**flags)
 
     def get_parent(self):
-        parents = rt.dcc.scene.list_relatives(self.name(), parent=True)
+        parents = map(anvil.factory, rt.dcc.scene.list_relatives(self.name(), parent=True))
         try:
             return parents[0]
         except IndexError:
             return parents
 
     def get_children(self, **kwargs):
-        return rt.dcc.scene.list_relatives(self.name(), children=True, **kwargs)
+        return map(anvil.factory, rt.dcc.scene.list_relatives(self.name(), children=True, **kwargs))
+
+    def reset_transform(self):
+        self.translate.set((0, 0, 0))
+        self.rotate.set((0, 0, 0))
+        self.scale.set((1, 1, 1))
 
     def parent(self, new_parent):
-        self.debug('Parenting %s to %s', self, new_parent)
         top_node, new_parent = self, new_parent
-        nodes_exist = [rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node != None]
+        nodes_exist = [rt.dcc.scene.exists(node) for node in [top_node, new_parent] if node]
         if all(nodes_exist or [False]):
             rt.dcc.scene.parent(top_node, new_parent)
             return True
@@ -42,11 +46,17 @@ class Transform(DagNode):
             raise KeyError('Node %s or %s does not exist.' % (self, new_parent))
 
     @classmethod
-    def build(cls, reference_object=None, parent=None, **kwargs):
-        node = super(Transform, cls).build(**kwargs)
-        node.parent(parent)
-        node.match_position(reference_object)
-        return node
+    def build(cls, t=None, r=None, s=None, reference_object=None, parent=None, **kwargs):
+        transform_instance = super(Transform, cls).build(**kwargs)
+        transform_instance.parent(parent)
+        if reference_object:
+            transform_instance.match_position(reference_object)
+        else:
+            transform_instance.translate_node(t)
+            transform_instance.rotate_node(r)
+            transform_instance.scale_node(s)
+
+        return transform_instance
 
     def get_world_position(self, **kwargs):
         kwargs[cfg.WORLD_SPACE] = True
@@ -86,30 +96,14 @@ class Transform(DagNode):
             return constraint
 
     def match_rotation(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
-        self.info('Matching position of %s to %s', self, reference_objects)
-        if reference_objects:
-            constraint = rt.dcc.connections.rotate(reference_objects, self, maintainOffset=False, **kwargs)
-            if not keep_constraint:
-                rt.dcc.scene.delete(constraint)
-                constraint = None
-            return constraint
+        self.match_transform(reference_objects, keep_constraint=keep_constraint, translate=False, **kwargs)
 
     def match_position(self, reference_objects, keep_constraint=False, **kwargs):
-        reference_objects = check_exist_to_list(reference_objects, anvil.factory)
-        self.info('Matching position of %s to %s', self, reference_objects)
-        if reference_objects:
-            constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
-            if not keep_constraint:
-                rt.dcc.scene.delete(constraint)
-                constraint = None
-            return constraint
+        self.match_transform(reference_objects, keep_constraint=keep_constraint, rotate=False, **kwargs)
 
     def match_transform(self, reference_objects, translate=True, rotate=True, keep_constraint=False, **kwargs):
         reference_objects = check_exist_to_list(reference_objects, anvil.factory)
         if reference_objects:
-            self.info('Matching position of %s to %s with translate=%s and rotate=%s',
-                      self, reference_objects, translate, rotate)
             if translate and not rotate:
                 constraint = rt.dcc.connections.translate(reference_objects, self, maintainOffset=False, **kwargs)
             elif rotate and not translate:
@@ -132,10 +126,16 @@ class Transform(DagNode):
             self.rotate_node(value, **kwargs)
 
     def scale_node(self, value, **kwargs):
-        rt.dcc.scene.position(self, scale=value, **kwargs)
+        if value:
+            self._position(scale=value, **kwargs)
 
     def translate_node(self, value, **kwargs):
-        rt.dcc.scene.position(self, translation=value, **kwargs)
+        if value:
+            self._position(translation=value, **kwargs)
 
     def rotate_node(self, value, **kwargs):
-        rt.dcc.scene.position(self, rotation=value, **kwargs)
+        if value:
+            self._position(rotation=value, **kwargs)
+
+    def _position(self, **kwargs):
+        rt.dcc.scene.position(self.name(), **kwargs)

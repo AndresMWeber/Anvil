@@ -41,7 +41,7 @@ def verify_class_method_inputs(filterers=None, validators=None):
         @wraps(function)
         def wrapper(self, *args, **kwargs):
             check_inputs = []
-            for function_input in list(args) + [v for k, v in iteritems(kwargs)]:
+            for function_input in list(args) + [v for _, v in iteritems(kwargs)]:
                 if isinstance(function_input, dict):
                     break
 

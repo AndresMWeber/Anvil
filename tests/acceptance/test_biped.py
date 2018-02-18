@@ -19,9 +19,9 @@ class TestBaseTemplateRigs(TestBase):
             cfg.RIGHT + '_' + cfg.ARM: {cfg.LAYOUT: nt.HierarchyChain('r_armA_JNT', 'r_armC_JNT')},
             cfg.LEFT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('l_legA_JNT', 'l_legC_JNT')},
             cfg.RIGHT + '_' + cfg.LEG: {cfg.LAYOUT: nt.HierarchyChain('r_legA_JNT', 'r_legC_JNT')},
-            cfg.LEFT + '_' + cfg.FOOT: {cfg.LAYOUT: nt.HierarchyChain('l_legC_JNT', 'l_foot_toeEnd_JNT'),
+            cfg.LEFT + '_' + cfg.FOOT: {cfg.LAYOUT: nt.HierarchyChain('l_legC_JNT', 'l_foot_toe_JNT'),
                                         'heel': 'l_foot_heel_JNT'},
-            cfg.RIGHT + '_' + cfg.FOOT: {cfg.LAYOUT: nt.HierarchyChain('r_legC_JNT', 'r_foot_toeEnd_JNT'),
+            cfg.RIGHT + '_' + cfg.FOOT: {cfg.LAYOUT: nt.HierarchyChain('r_legC_JNT', 'r_foot_toe_JNT'),
                                          'heel': 'r_foot_heel_JNT'},
             cfg.SPINE: nt.HierarchyChain('spineA_JNT', 'spineE_JNT'),
             cfg.NECK: nt.HierarchyChain('neckA_JNT', 'neckEnd_JNT'),
@@ -34,8 +34,7 @@ class TestBaseTemplateRigs(TestBase):
             fingers = []
             for finger in ['thb', 'ind', 'mid', 'rng', 'pnk']:
                 fingers.append(nt.HierarchyChain(finger_start % (side[0], finger), finger_end % (side[0], finger)))
-            sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers, 'scale': 0.3}
-
+            sub_rig_dict[side + '_' + cfg.HAND] = {cfg.LAYOUT: fingers, cfg.SCALE: 0.3}
         rig_instance = cls.CLASS(sub_rig_dict=sub_rig_dict, name_tokens={cfg.CHARACTER: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)
         return rig_instance

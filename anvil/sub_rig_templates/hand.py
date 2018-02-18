@@ -31,7 +31,7 @@ class Hand(SubRigTemplate):
         self.has_fk = has_fk
         self.digits = []
 
-    def build(self, parent=None, use_layout=True, solver=None, meta_data=None, **kwargs):
+    def build(self, parent=None, solver=None, meta_data=None, **kwargs):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
         solver = solver or cfg.IK_SC_SOLVER
 
@@ -78,3 +78,4 @@ class Hand(SubRigTemplate):
         control.add_attr('curl', defaultValue=0, attributeType=cfg.FLOAT)
         for phalanges in phalanges[:-1]:
             pass
+        print(axis)

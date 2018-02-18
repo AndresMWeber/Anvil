@@ -2,7 +2,7 @@ from anvil.plugins.maya.dependencies import *
 import anvil.plugins.base.api_proxy as api_proxy
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'animLayer': api_proxy.STR_TYPE, 'attribute': api_proxy.STR_TYPE,
