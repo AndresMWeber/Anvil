@@ -8,6 +8,7 @@ import anvil.objects.attribute as at
 import anvil.objects as ot
 from anvil.meta_data import MetaData
 from anvil.utils.generic import merge_dicts
+from bunch import Bunch
 
 
 class AbstractGrouping(log.LogMixin):
@@ -27,9 +28,10 @@ class AbstractGrouping(log.LogMixin):
         '%ss' % cfg.CONTROL_TYPE: merge_dicts(at.DISPLAY_KWARGS, {cfg.DEFAULT_VALUE: 1}),
         '%s' % cfg.LOD: merge_dicts(at.DISPLAY_KWARGS, {cfg.ENUM_NAME: 'Hero:Proxy'})
     })
+    BUILD_REPORT_KEYS = [cfg.CONTROL_TYPE, cfg.JOINT_TYPE, cfg.NODE_TYPE]
 
     def __init__(self, layout_joints=None, parent=None, top_node=None, name_tokens=None, meta_data=None, **kwargs):
-        self.hierarchy = {}
+        self.hierarchy = Bunch()
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_joints = None
@@ -119,10 +121,9 @@ class AbstractGrouping(log.LogMixin):
     def insert_transform_buffer(self, node_to_buffer, **kwargs):
         name_tokens = kwargs.get(cfg.NAME_TOKENS) or node_to_buffer.name_tokens
         buffer = ot.Transform.build(parent=node_to_buffer, name_tokens=name_tokens, **kwargs)
-        buffer.transform.set((0,0,0))
+        buffer.transform.set((0, 0, 0))
         buffer.parent(node_to_buffer.get_parent())
         return buffer
-
 
     def register_node(self, node_key, dag_node, overwrite=True, name_tokens=None, meta_data=None):
         if dag_node is None:
@@ -142,14 +143,18 @@ class AbstractGrouping(log.LogMixin):
         return dag_node
 
     def auto_color(self, *args, **kwargs):
-        auto_colorer = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
-        self._cascading_function(auto_colorer, auto_colorer)
+        auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
+        self._cascading_function(auto_colorize, auto_colorize)
 
     def find_node(self, node_key):
         try:
             return self.hierarchy[node_key]
         except:
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
+
+    def generate_build_report(self, controls=None, joints=None, nodes=None):
+        return {result_id: result for result_id, result in zip(self.BUILD_REPORT_KEYS, [controls, joints, nodes]) if
+                result}
 
     def _cascading_function(self, object_function, grouping_function):
         for sub_key, sub_node in iteritems(self.hierarchy):
@@ -179,3 +184,52 @@ class AbstractGrouping(log.LogMixin):
 
     def __dir__(self):
         return dir(super(AbstractGrouping, self)) + list(self.hierarchy)
+
+    @staticmethod
+    def register_built_nodes(f):
+        """ This function automatically digests a dictionary formatted build report of all nodes created and returned
+            during function 'f'.  They will be added to the existing Bunch object self.hierarchy which is a dot notation
+            searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
+            to bunch objects.
+
+            Depends on all build node functions being comprised of a dictionary with str keys with the structure:
+
+            {'controls': ..., 'joints': ..., 'nodes': ...}
+
+            Operations based on input/existing types:
+                (existing entry, new entry)
+                - list, list: it will extend the list with the new list
+                - list, object: adds the object to the list
+                - Bunch, dict: it will update the existing Bunch with Bunch converted input
+                - object, object: converts the entry to a list
+
+            If there is no existing entry then we will just assign it.
+
+        """
+
+        def wrapper(self, *args, **kwargs):
+            results = f(self, *args, **kwargs)
+            for result_id, node in iteritems(results):
+                if issubclass(type(node), dict):
+                    node = Bunch.fromDict(node)
+
+                # Existing entry
+                try:
+                    hierarchy_entry = self.hierarchy[result_id]
+
+                    if issubclass(type(hierarchy_entry), dict) and issubclass(type(node), dict):
+                        hierarchy_entry.update(node)
+
+                    elif isinstance(hierarchy_entry, list):
+                        if isinstance(node, list):
+                            hierarchy_entry.extend(node)
+                        else:
+                            hierarchy_entry.append(node)
+
+                    else:
+                        self.hierarchy[result_id] = [hierarchy_entry, node]
+
+                except KeyError:
+                    self.hierarchy[result_id] = node
+
+        return wrapper

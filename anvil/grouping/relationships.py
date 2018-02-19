@@ -7,13 +7,31 @@ import anvil.runtime as rt
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
+from anvil.meta_data import MetaData
 
-class HierarchyChain(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
+
+class NodeRelation(log.LogMixin):
+    VARIATION_TOKEN = cfg.VARIATION
+
+    def __init__(self, name_tokens=None, **kwargs):
+        self.name_tokens = MetaData(name_tokens or {}, **kwargs)
+
+    def rename(self, *args, **kwargs):
+        self.name_tokens.update(*args, **kwargs)
+        for i, node in enumerate(list(self)):
+            node.name_tokens.update(self.name_tokens, {self.VARIATION_TOKEN: i})
+            node.rename()
+
+    def __iter__(self):
+        raise NotImplementedError('Sub-class of %s MUST implement __iter__' % (self.__class__))
+
+
+class HierarchyChain(NodeRelation):
     UP = 'up'
     DOWN = 'down'
 
-    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
+    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None, **kwargs):
+        super(HierarchyChain, self).__init__(**kwargs)
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         top_node, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
         self.head = top_node
@@ -201,3 +219,21 @@ class HierarchyChain(log.LogMixin):
 
     def __add__(self, other):
         return list(self) + gc.to_list(other)
+
+
+class NonLinearSet(NodeRelation):
+    def __init__(self, nodes=None, **kwargs):
+        super(NonLinearSet, self).__init__(**kwargs)
+        self.nodes = nodes or []
+
+    def append(self, node):
+        self.nodes.append(node)
+
+    def insert(self, index, node):
+        self.nodes.insert(index, node)
+
+    def extend(self, nodes):
+        self.nodes.extend(nodes)
+
+    def __iter__(self):
+        return iter(self.nodes)
