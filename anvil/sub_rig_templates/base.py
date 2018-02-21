@@ -28,7 +28,7 @@ class SubRigTemplate(nt.SubRig):
 
     @register_built_nodes
     def build_blend_chain(self, layout_joints, source_chains, duplicate=True, **kwargs):
-        blend_chain = nt.HierarchyChain(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
+        blend_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
 
         for bl, source_chain in zip(blend_chain, zip(*source_chains)):
             blender = rt.dcc.create.create_node(cfg.BLEND_NODE)
@@ -45,7 +45,7 @@ class SubRigTemplate(nt.SubRig):
     def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, duplicate=True, **kwargs):
         kwargs = MetaData(kwargs)
 
-        ik_chain = nt.HierarchyChain(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
+        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
 
         results = self.build_ik(ik_chain, chain_end=ik_chain[ik_end_index], parent=self.group_nodes,
                                 name_tokens={cfg.NAME: cfg.IK}, **kwargs)
@@ -73,7 +73,7 @@ class SubRigTemplate(nt.SubRig):
     @register_built_nodes
     def build_fk_chain(self, chain_start=None, chain_end=None, shape=None, duplicate=True, parent=None,
                        name_tokens=None, meta_data=None, **kwargs):
-        chain = nt.HierarchyChain(chain_start, chain_end, duplicate=duplicate, parent=self.group_joints)
+        chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=self.group_joints)
 
         # Ensure there are enough shapes in the shape list to pair with the chain
         controls = []

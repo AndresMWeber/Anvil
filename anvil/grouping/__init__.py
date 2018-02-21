@@ -8,6 +8,6 @@ from base import AbstractGrouping
 from control import Control
 from sub_rig import SubRig
 from rig import Rig
-from relationships import HierarchyChain
+from relationships import LinearHierarchyNodeSet
 
-__all__ = ['Control', 'SubRig', 'Rig', 'AbstractGrouping', 'HierarchyChain']
+__all__ = ['Control', 'SubRig', 'Rig', 'AbstractGrouping', 'LinearHierarchyNodeSet']

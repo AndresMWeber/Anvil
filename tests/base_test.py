@@ -187,3 +187,11 @@ def cleanup_nodes():
     TestBase.sanitize_scene()
     yield
     TestBase.sanitize_scene()
+
+
+def pre_and_post_sanitize_scene(f):
+    def wrapper(instance, *args, **kwargs):
+        with cleanup_nodes():
+            return f(instance, *args, **kwargs)
+
+    return wrapper

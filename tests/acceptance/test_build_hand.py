@@ -27,7 +27,7 @@ class TestHandBase(TestBase):
 
         finger_joints = []
         for finger in finger_start_joints:
-            finger_joints.append(list(nt.HierarchyChain(finger)))
+            finger_joints.append(list(nt.LinearHierarchyNodeSet(finger)))
 
         rig_instance = Hand(layout_joints=finger_joints, **kwargs)
         rig_instance.build(**kwargs)

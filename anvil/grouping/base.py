@@ -161,10 +161,11 @@ class AbstractGrouping(log.LogMixin):
                                  n.rename(self.name_tokens, n.name_tokens))
 
     @register_built_nodes
-    def build_node(self, node_class, build_fn='build', *args, **kwargs):
+    def build_node(self, node_class, *args, **kwargs):
+        build_function = kwargs.pop('build_fn') or 'build'
         kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
-        dag_node = getattr(node_class, build_fn)(*args, **kwargs)
+        dag_node = getattr(node_class, build_function)(*args, **kwargs)
         return self.generate_build_report(**{str(type(dag_node)).lower(): dag_node})
 
     @register_built_nodes

@@ -39,7 +39,7 @@ class BipedFoot(SubRigTemplate):
 
         self.control_ankle.control.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
 
-        toe_ball_chain = nt.HierarchyChain(self.toe, node_filter=cfg.JOINT_TYPE)
+        toe_ball_chain = nt.LinearHierarchyNodeSet(self.toe, node_filter=cfg.JOINT_TYPE)
 
         self.build_ik(toe_ball_chain, solver=cfg.IK_SC_SOLVER, parent=self.group_nodes,
                       name_tokens={cfg.NAME: self.BALL_TOKEN})

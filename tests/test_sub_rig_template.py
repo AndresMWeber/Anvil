@@ -42,7 +42,7 @@ class TestSubRigTemplateBuildIk(TestBaseSubRig):
         d = nt.Joint.build()
         c.translate_node([0, 2.5, 0])
         d.translate_node([0, 5, 0])
-        cls.joint_chain = nt.HierarchyChain(b, d)
+        cls.joint_chain = nt.LinearHierarchyNodeSet(b, d)
         result = cls.sub_rig.build_ik(cls.joint_chain)
         cls.handle, cls.effector = result[cfg.NODE_TYPE]
 
