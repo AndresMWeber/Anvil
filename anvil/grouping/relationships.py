@@ -82,7 +82,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
     def set(self):
         """ Only iterates on the nodes in between the top node and the end node linearly (ignores branching paths)
         """
-        return self.nodes
+        return self._traverse_up_linear_tree(self.tail, self.head)
 
     def find_child(self, child):
         if isinstance(child, int):
@@ -230,7 +230,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return list(reversed(rt.dcc.scene.list_relatives(start, allDescendents=True, children=True, **kwargs)))
 
     def __getitem__(self, key):
-        return self[key] if isinstance(key, (int, slice)) else gc.get_dict_key_matches(key, self.get_hierarchy())
+        return list(self)[key] if isinstance(key, (int, slice)) else gc.get_dict_key_matches(key, self.get_hierarchy())
 
     def __add__(self, other):
         return NonLinearHierarchySet(list(self) + gc.to_list(other))
