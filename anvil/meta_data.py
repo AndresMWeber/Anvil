@@ -21,7 +21,7 @@ class MetaData(log.LogMixin):
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
         """
-        protect_all = kwargs.pop(self.PROTECT_ALL_KWARG, None)
+        protect_all = kwargs.pop(self.PROTECT_ALL_KWARG, False)
         self.protected = set(to_list(kwargs.pop(self.PROTECTED_KWARG, None)) + [cfg.TYPE])
         self.data = {}
         self.merge(force=True, *args, **kwargs)

@@ -11,6 +11,55 @@ from anvil.utils.generic import merge_dicts
 from bunch import Bunch
 
 
+def register_built_nodes(f):
+    """ This function automatically digests a dictionary formatted build report of all nodes created and returned
+        during function 'f'.  They will be added to the existing Bunch object self.hierarchy which is a dot notation
+        searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
+        to bunch objects.
+
+        Depends on all build node functions being comprised of a dictionary with str keys with the structure:
+
+        {'controls': ..., 'joints': ..., 'nodes': ...}
+
+        Operations based on input/existing types:
+            (existing entry, new entry)
+            - list, list: it will extend the list with the new list
+            - list, object: adds the object to the list
+            - Bunch, dict: it will update the existing Bunch with Bunch converted input
+            - object, object: converts the entry to a list
+
+        If there is no existing entry then we will just assign it.
+
+    """
+
+    def wrapper(abstract_grouping, *args, **kwargs):
+        results = f(abstract_grouping, *args, **kwargs)
+        for result_id, node in iteritems(results):
+            if issubclass(type(node), dict):
+                node = Bunch.fromDict(node)
+
+            # Existing entry
+            try:
+                hierarchy_entry = abstract_grouping.hierarchy[result_id]
+
+                if issubclass(type(hierarchy_entry), dict) and issubclass(type(node), dict):
+                    hierarchy_entry.update(node)
+
+                elif isinstance(hierarchy_entry, list):
+                    if isinstance(node, list):
+                        hierarchy_entry.extend(node)
+                    else:
+                        hierarchy_entry.append(node)
+
+                else:
+                    abstract_grouping.hierarchy[result_id] = [hierarchy_entry, node]
+
+            except KeyError:
+                abstract_grouping.hierarchy[result_id] = node
+
+    return wrapper
+
+
 class AbstractGrouping(log.LogMixin):
     """ A fully functional and self-contained rig with all requirements implemented that
         are required to give a performance.
@@ -111,36 +160,20 @@ class AbstractGrouping(log.LogMixin):
                                  lambda n:
                                  n.rename(self.name_tokens, n.name_tokens))
 
-    def build_node(self, node_class, node_key, build_fn='build', *args, **kwargs):
+    @register_built_nodes
+    def build_node(self, node_class, build_fn='build', *args, **kwargs):
         kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
         dag_node = getattr(node_class, build_fn)(*args, **kwargs)
-        self.register_node(node_key, dag_node)
-        return dag_node
+        return self.generate_build_report(**{str(type(dag_node)).lower(): dag_node})
 
+    @register_built_nodes
     def insert_transform_buffer(self, node_to_buffer, **kwargs):
         name_tokens = kwargs.get(cfg.NAME_TOKENS) or node_to_buffer.name_tokens
         buffer = ot.Transform.build(parent=node_to_buffer, name_tokens=name_tokens, **kwargs)
         buffer.transform.set((0, 0, 0))
         buffer.parent(node_to_buffer.get_parent())
-        return buffer
-
-    def register_node(self, node_key, dag_node, overwrite=True, name_tokens=None, meta_data=None):
-        if dag_node is None:
-            self.warning('Attempted register node %s with key %s but it does not exist', dag_node, node_key)
-            return
-        try:
-            anvil.factory(dag_node)
-        except:
-            raise TypeError('Could not register unrecognized node type %s is not an anvil grouping or object class.')
-
-        if self.hierarchy.get(node_key) is not None and not overwrite:
-            raise IndexError('Preexisting node already is stored under key %s in the hierarchy' % node_key)
-
-        self.hierarchy[node_key] = dag_node
-        dag_node.meta_data.merge(self.meta_data, meta_data)
-        dag_node.name_tokens.merge(self.name_tokens, name_tokens)
-        return dag_node
+        return self.generate_build_report(**{str(type(buffer)).lower(): buffer})
 
     def auto_color(self, *args, **kwargs):
         auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
@@ -152,8 +185,8 @@ class AbstractGrouping(log.LogMixin):
         except:
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
 
-    def generate_build_report(self, controls=None, joints=None, nodes=None):
-        return {result_id: result for result_id, result in zip(self.BUILD_REPORT_KEYS, [controls, joints, nodes]) if
+    def generate_build_report(self, control=None, joint=None, node=None):
+        return {result_id: result for result_id, result in zip(self.BUILD_REPORT_KEYS, [control, joint, node]) if
                 result}
 
     def _cascading_function(self, object_function, grouping_function):
@@ -184,52 +217,3 @@ class AbstractGrouping(log.LogMixin):
 
     def __dir__(self):
         return dir(super(AbstractGrouping, self)) + list(self.hierarchy)
-
-    @staticmethod
-    def register_built_nodes(f):
-        """ This function automatically digests a dictionary formatted build report of all nodes created and returned
-            during function 'f'.  They will be added to the existing Bunch object self.hierarchy which is a dot notation
-            searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
-            to bunch objects.
-
-            Depends on all build node functions being comprised of a dictionary with str keys with the structure:
-
-            {'controls': ..., 'joints': ..., 'nodes': ...}
-
-            Operations based on input/existing types:
-                (existing entry, new entry)
-                - list, list: it will extend the list with the new list
-                - list, object: adds the object to the list
-                - Bunch, dict: it will update the existing Bunch with Bunch converted input
-                - object, object: converts the entry to a list
-
-            If there is no existing entry then we will just assign it.
-
-        """
-
-        def wrapper(self, *args, **kwargs):
-            results = f(self, *args, **kwargs)
-            for result_id, node in iteritems(results):
-                if issubclass(type(node), dict):
-                    node = Bunch.fromDict(node)
-
-                # Existing entry
-                try:
-                    hierarchy_entry = self.hierarchy[result_id]
-
-                    if issubclass(type(hierarchy_entry), dict) and issubclass(type(node), dict):
-                        hierarchy_entry.update(node)
-
-                    elif isinstance(hierarchy_entry, list):
-                        if isinstance(node, list):
-                            hierarchy_entry.extend(node)
-                        else:
-                            hierarchy_entry.append(node)
-
-                    else:
-                        self.hierarchy[result_id] = [hierarchy_entry, node]
-
-                except KeyError:
-                    self.hierarchy[result_id] = node
-
-        return wrapper
