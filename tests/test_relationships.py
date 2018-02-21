@@ -5,7 +5,7 @@ from base_test import TestBase
 import anvil.config as cfg
 
 
-class TestBaseHierarchyChain(TestBase):
+class TestBaseLinearHierarchyNodeSet(TestBase):
     joints = None
     joints_mixed = None
     joints_third = None
@@ -32,7 +32,7 @@ class TestBaseHierarchyChain(TestBase):
         cls.joints_total = cls.joints_second + [group] + cls.joints_third
 
 
-class TestHierarchyChainInit(TestBaseHierarchyChain):
+class TestLinearHierarchyNodeSetInit(TestBaseLinearHierarchyNodeSet):
     @TestBase.delete_created_nodes
     def test_empty_input(self):
         self.assertRaises(TypeError, nt.LinearHierarchyNodeSet)
@@ -88,7 +88,7 @@ class TestHierarchyChainInit(TestBaseHierarchyChain):
                         [str(f) for f in list(nodes)])
 
 
-class TestHierarchyChainGetHierarchy(TestBaseHierarchyChain):
+class TestLinearHierarchyNodeSetGetHierarchy(TestBaseLinearHierarchyNodeSet):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
         chain = nt.LinearHierarchyNodeSet(self.joints[0])
@@ -105,7 +105,7 @@ class TestHierarchyChainGetHierarchy(TestBaseHierarchyChain):
         self.assertEqual(chain.get_hierarchy(as_list=True), self.joints_total)
 
 
-class TestHierarchyChainIteration(TestBaseHierarchyChain):
+class TestLinearHierarchyNodeSetIteration(TestBaseLinearHierarchyNodeSet):
     @TestBase.delete_created_nodes
     def test_first_member(self):
         chain = nt.LinearHierarchyNodeSet(self.joints[0])
@@ -145,7 +145,7 @@ class TestHierarchyChainIteration(TestBaseHierarchyChain):
         self.checkEqual(chain, self.joints_total[:-3])
 
 
-class TestHierarchyChainDepth(TestBaseHierarchyChain):
+class TestLinearHierarchyNodeSetDepth(TestBaseLinearHierarchyNodeSet):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
         chain = nt.LinearHierarchyNodeSet(self.joints[0])
@@ -162,7 +162,7 @@ class TestHierarchyChainDepth(TestBaseHierarchyChain):
         self.assertEqual(chain.depth(), len(self.joints_total) - 1)
 
 
-class TestHierarchyGetLevel(TestBaseHierarchyChain):
+class TestHierarchyGetLevel(TestBaseLinearHierarchyNodeSet):
     @TestBase.delete_created_nodes
     def test_joints_only(self):
         chain = nt.LinearHierarchyNodeSet(self.joints[0])

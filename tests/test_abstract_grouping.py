@@ -1,5 +1,7 @@
 import anvil.node_types as nt
+import anvil.config as cfg
 from base_test import TestBase, pre_and_post_sanitize_scene
+
 
 class TestBaseAbstractGrouping(TestBase):
     def build_dependencies(cls):
@@ -12,7 +14,7 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
         test_meta_data = {'blah': 'fart'}
         rig = nt.AbstractGrouping(meta_data=test_meta_data, top_node=None, layout_joints=None, parent=None)
         test_meta_data.update(nt.AbstractGrouping.BUILT_IN_META_DATA)
-        self.assertDictEqual(rig.meta_data, test_meta_data)
+        self.assertEqual(rig.meta_data, test_meta_data)
 
     @pre_and_post_sanitize_scene
     def test_meta_data_nomenclate(self):
@@ -59,7 +61,7 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     def test_kwargs(self):
         test_flags = {'blah': 'fart'}
         rig = nt.AbstractGrouping(meta_data=None, top_node=None, layout_joints=None, parent=None, **test_flags)
-        self.assertDictEqual(rig.build_kwargs, test_flags)
+        self.assertEqual(rig.build_kwargs, test_flags)
 
 
 class TestAbstractGroupingParent(TestBaseAbstractGrouping):
@@ -88,10 +90,17 @@ class TestAbstractGroupingParent(TestBaseAbstractGrouping):
 
 class TestAbstractGroupingBuildNode(TestBaseAbstractGrouping):
     @pre_and_post_sanitize_scene
-    def test_built_node_registered(self):
+    def test_built_node_registered_autosorted(self):
         grouping = nt.AbstractGrouping()
-        grouping.build_node(nt.Transform, )
+        report = grouping.build_node(nt.Transform)
+        self.assertEqual(report[cfg.NODE_TYPE], grouping.hierarchy[cfg.NODE_TYPE][-1])
 
+    def test_built_node_registered_control(self):
+        grouping = nt.AbstractGrouping()
+        report = grouping.build_node(nt.Control)
+        self.assertEqual(report[cfg.CONTROL_TYPE], grouping.hierarchy[cfg.CONTROL_TYPE][-1])
 
-class TestAbstractGroupingInsertTransformBuffer(TestBaseAbstractGrouping):
-    pass
+    def test_built_node_registered_joint(self):
+        grouping = nt.AbstractGrouping()
+        report = grouping.build_node(nt.Joint)
+        self.assertEqual(report[cfg.JOINT_TYPE], grouping.hierarchy[cfg.JOINT_TYPE][-1])

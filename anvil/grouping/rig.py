@@ -84,21 +84,21 @@ class Rig(base.AbstractGrouping):
                   self.__class__.__name__, self, parent, name_tokens, kwargs)
         self.name_tokens.update(name_tokens)
 
-        self.group_top = self.build_node(ot.Transform, name_tokens=self.ROOT_NAME_TOKENS, **kwargs)
+        self.group_top = self.build_node(ot.Transform, name_tokens=self.ROOT_NAME_TOKENS, **kwargs)[cfg.NODE_TYPE]
 
-        self.contorl_universal = self.build_node(ct.Control,
+        self.control_universal = self.build_node(ct.Control,
                                                  parent=self.group_top,
                                                  shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
                                                  scale=5,
                                                  name_tokens=self.UNIV_NAME_TOKENS,
-                                                 **kwargs)
+                                                 **kwargs)[cfg.NODE_TYPE]
 
         for main_group_type in self.SUB_GROUPINGS:
-            self.setattr('%s_%s' % (cfg.GROUP_TYPE, main_group_type),
-                         self.build_node(ot.Transform,
-                                         parent=getattr(self.control_universal, cfg.CONNECTION_GROUP),
-                                         name_tokens={cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE}))
-
+            build_report = self.build_node(ot.Transform,
+                                           parent=getattr(self.control_universal, cfg.CONNECTION_GROUP),
+                                           name_tokens={cfg.CHILD_TYPE: main_group_type,
+                                                        cfg.TYPE: cfg.GROUP_TYPE})
+            setattr(self, '%s_%s' % (cfg.GROUP_TYPE, main_group_type), build_report[cfg.NODE_TYPE])
             self.root = self.group_top
 
             self.build_sub_rigs()

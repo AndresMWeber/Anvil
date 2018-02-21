@@ -3,8 +3,6 @@ import unittest2
 from deepdiff import DeepDiff
 from six import iteritems, string_types
 from functools import wraps
-import anvil.runtime as rt
-from pprint import pprint
 
 os.environ['ANVIL_MODE'] = 'TEST'
 import anvil
@@ -190,6 +188,7 @@ def cleanup_nodes():
 
 
 def pre_and_post_sanitize_scene(f):
+    @wraps(f)
     def wrapper(instance, *args, **kwargs):
         with cleanup_nodes():
             return f(instance, *args, **kwargs)

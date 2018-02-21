@@ -22,12 +22,9 @@ class Control(base.AbstractGrouping):
 
     def __init__(self, control=None, offset_group=None, connection_group=None, **kwargs):
         super(Control, self).__init__(top_node=offset_group or control, **kwargs)
-        self.register_node(cfg.CONTROL_TYPE, control)
-        self.register_node(cfg.OFFSET_GROUP, offset_group)
-        self.register_node(cfg.CONNECTION_GROUP, connection_group)
-        getattr(self, cfg.CONTROL_TYPE).name_tokens.merge(self.CTRL_NAME_TOKENS, force=True)
-        getattr(self, cfg.OFFSET_GROUP).name_tokens.merge(self.OFFSET_NAME_TOKENS, force=True)
-        getattr(self, cfg.CONNECTION_GROUP).name_tokens.merge(self.CONN_NAME_TOKENS, force=True)
+        self.control = control
+        self.offset_group = offset_group
+        self.connection_group = connection_group
 
     @classmethod
     def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
@@ -36,11 +33,13 @@ class Control(base.AbstractGrouping):
         name_tokens = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
         name_tokens.set_protected(cls.BUILT_IN_NAME_TOKENS.protected)
         kwargs[cfg.META_DATA] = meta_data
-        instance = cls(ob.Curve.build(name_tokens=name_tokens, **kwargs),
-                       ob.Transform.build(name_tokens=name_tokens, **kwargs),
-                       ob.Transform.build(name_tokens=name_tokens, **kwargs),
-                       name_tokens=name_tokens,
-                       **kwargs)
+        kwargs[cfg.NAME_TOKENS] = name_tokens
+
+        instance = cls(**kwargs)
+        instance.control = instance.build_node(ob.Curve, **kwargs)[cfg.NODE_TYPE]
+        instance.offset_group = instance.build_node(ob.Transform, **kwargs)[cfg.NODE_TYPE]
+        instance.connection_group = instance.build_node(ob.Transform, **kwargs)[cfg.NODE_TYPE]
+
         instance.build_layout()
         instance.match_position(reference_object, **kwargs)
         instance.parent(parent)
@@ -91,3 +90,9 @@ class Control(base.AbstractGrouping):
     def swap_shape(self, new_shape, maintain_position=False):
         self.control.swap_shape(new_shape, maintain_position=maintain_position)
         self.rename()
+
+    def rename(self, *input_dicts, **kwargs):
+        self.control.name_tokens.merge(self.CTRL_NAME_TOKENS, force=True)
+        self.offset_group.name_tokens.merge(self.OFFSET_NAME_TOKENS, force=True)
+        self.connection_group.name_tokens.merge(self.CONN_NAME_TOKENS, force=True)
+        super(Control, self).rename(*input_dicts, **kwargs)

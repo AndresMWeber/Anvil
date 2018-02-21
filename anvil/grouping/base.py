@@ -1,4 +1,5 @@
 from six import iteritems
+from functools import wraps
 import nomenclate
 import anvil
 import anvil.log as log
@@ -7,13 +8,12 @@ import anvil.config as cfg
 import anvil.objects.attribute as at
 import anvil.objects as ot
 from anvil.meta_data import MetaData
-from anvil.utils.generic import merge_dicts
-from bunch import Bunch
+from anvil.utils.generic import merge_dicts, to_list
 
 
 def register_built_nodes(f):
     """ This function automatically digests a dictionary formatted build report of all nodes created and returned
-        during function 'f'.  They will be added to the existing Bunch object self.hierarchy which is a dot notation
+        during function 'f'.  They will be added to the existing dict object self.hierarchy which is a dot notation
         searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
         to bunch objects.
 
@@ -25,20 +25,20 @@ def register_built_nodes(f):
             (existing entry, new entry)
             - list, list: it will extend the list with the new list
             - list, object: adds the object to the list
-            - Bunch, dict: it will update the existing Bunch with Bunch converted input
+            - dict, dict: it will update the existing dict with new dict
             - object, object: converts the entry to a list
 
         If there is no existing entry then we will just assign it.
 
     """
 
+    @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
         results = f(abstract_grouping, *args, **kwargs)
         for result_id, node in iteritems(results):
-            if issubclass(type(node), dict):
-                node = Bunch.fromDict(node)
-
             # Existing entry
+            # TODO: introduce "label" kwarg that will dictate a node's tuple pair that will indicate a top level label
+            # for special nodes.
             try:
                 hierarchy_entry = abstract_grouping.hierarchy[result_id]
 
@@ -55,7 +55,31 @@ def register_built_nodes(f):
                     abstract_grouping.hierarchy[result_id] = [hierarchy_entry, node]
 
             except KeyError:
-                abstract_grouping.hierarchy[result_id] = node
+                abstract_grouping.hierarchy[result_id] = to_list(node)
+        return results
+
+    return wrapper
+
+
+class_name = lambda object_instance: object_instance.__class__.__name__.lower()
+get_tag = lambda n, grouping: class_name(n) if class_name(n) in grouping.BUILD_REPORT_KEYS else cfg.NODE_TYPE
+
+
+def generate_build_report(f):
+    @wraps(f)
+    def wrapper(abstract_grouping, *args, **kwargs):
+        """ Creates a dictionary of created nodes that will be digested later by the node registration function.
+
+        :param args: object, node to sort into the hierarchy, SHOULD be an Anvil node.
+        :param kwargs: dict, use kwargs if you want to override the types.
+                             By default accepts any key from abstract_grouping.BUILD_REPORT_KEYS
+        :return:
+        """
+        node_report = f(abstract_grouping, *args, **kwargs)
+        if isinstance(node_report, dict):
+            return {result_id: result for result_id, result in node_report if result}
+        else:
+            return {get_tag(node, abstract_grouping): node for node in to_list(node_report)}
 
     return wrapper
 
@@ -80,7 +104,7 @@ class AbstractGrouping(log.LogMixin):
     BUILD_REPORT_KEYS = [cfg.CONTROL_TYPE, cfg.JOINT_TYPE, cfg.NODE_TYPE]
 
     def __init__(self, layout_joints=None, parent=None, top_node=None, name_tokens=None, meta_data=None, **kwargs):
-        self.hierarchy = Bunch()
+        self.hierarchy = {}
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_joints = None
@@ -161,20 +185,17 @@ class AbstractGrouping(log.LogMixin):
                                  n.rename(self.name_tokens, n.name_tokens))
 
     @register_built_nodes
+    @generate_build_report
     def build_node(self, node_class, *args, **kwargs):
-        build_function = kwargs.pop('build_fn') or 'build'
+        try:
+            build_function = kwargs.pop('build_fn')
+        except KeyError:
+            build_function = 'build'
+
         kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
         dag_node = getattr(node_class, build_function)(*args, **kwargs)
-        return self.generate_build_report(**{str(type(dag_node)).lower(): dag_node})
-
-    @register_built_nodes
-    def insert_transform_buffer(self, node_to_buffer, **kwargs):
-        name_tokens = kwargs.get(cfg.NAME_TOKENS) or node_to_buffer.name_tokens
-        buffer = ot.Transform.build(parent=node_to_buffer, name_tokens=name_tokens, **kwargs)
-        buffer.transform.set((0, 0, 0))
-        buffer.parent(node_to_buffer.get_parent())
-        return self.generate_build_report(**{str(type(buffer)).lower(): buffer})
+        return dag_node
 
     def auto_color(self, *args, **kwargs):
         auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
@@ -185,10 +206,6 @@ class AbstractGrouping(log.LogMixin):
             return self.hierarchy[node_key]
         except:
             raise KeyError('Node from key %s not found in hierarchy' % node_key)
-
-    def generate_build_report(self, control=None, joint=None, node=None):
-        return {result_id: result for result_id, result in zip(self.BUILD_REPORT_KEYS, [control, joint, node]) if
-                result}
 
     def _cascading_function(self, object_function, grouping_function):
         for sub_key, sub_node in iteritems(self.hierarchy):

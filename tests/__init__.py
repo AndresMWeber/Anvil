@@ -4,7 +4,7 @@ import test_colors
 import test_control
 import test_curve
 import test_dag_node
-import test_hierarchy_chain
+import test_relationships
 import test_joint
 import test_meta_data
 import test_rig
@@ -20,7 +20,7 @@ __all__ = [
     test_control,
     test_curve,
     test_dag_node,
-    test_hierarchy_chain,
+    test_relationships,
     test_joint,
     test_meta_data,
     test_rig,
