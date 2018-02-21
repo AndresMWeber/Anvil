@@ -13,6 +13,7 @@ POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
 ADD_SUB_TYPE = 'plusMinusAverage'
+MULT_DIV_TYPE = 'multiplyDivide'
 
 # NAME METADATA
 LEFT = 'left'
@@ -59,7 +60,7 @@ REFERENCE_OBJECT = 'reference_object'
 OFFSET_GROUP = 'offset_group'
 CONNECTION_GROUP = 'connection_group'
 QUERY = 'query'
-
+BUFFER = 'buffer'
 
 # DATA TYPES
 ATTRIBUTE_TYPE = 'attributeType'

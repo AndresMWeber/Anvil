@@ -7,7 +7,7 @@ import version
 
 
 class AnvilLog(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
+    LOG = log.obtain_logger(__name__)
 
 
 LOG = AnvilLog
@@ -30,12 +30,11 @@ EXISTING_ENCAPSULATIONS = {}
 
 
 def check_for_encapsulation(dag_path):
-    for node_index, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
+    for _, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
             LOG.debug('Found previous encapsulation for %s: %r. Using instead.', dag_path, node_encapsulation)
             return node_encapsulation
-    else:
-        return None
+    return None
 
 
 def factory(dag_path, **kwargs):
@@ -80,7 +79,7 @@ def is_anvil(node):
     try:
         if isinstance(node, node_types.REGISTERED_NODES.get(type(node).__name__)):
             return True
-    except:
+    except TypeError:
         pass
     return False
 

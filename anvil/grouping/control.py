@@ -1,4 +1,3 @@
-from anvil.meta_data import MetaData
 import anvil.config as cfg
 import anvil.objects as ob
 import anvil.runtime as rt
@@ -69,7 +68,7 @@ class Control(base.AbstractGrouping):
             target = self.offset_group
         except AttributeError:
             target = self.control
-        target.match_transform(reference_object, rotate=rotate, translate=translate)
+        target.match_transform(reference_object, rotate=rotate, translate=translate, **kwargs)
 
     def build_layout(self):
         rt.dcc.scene.parent(getattr(self, cfg.CONTROL_TYPE), getattr(self, cfg.OFFSET_GROUP))

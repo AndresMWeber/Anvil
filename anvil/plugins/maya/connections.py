@@ -31,14 +31,14 @@ aim_schema = {
 }
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': {'ignoreUnitConversion': api_proxy.BOOL_TYPE}}),
     DEFAULT_API, 'mute')
 def connected_attr(attribute_dag_path_1, attribute_dag_path_2, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'disable': api_proxy.BOOL_TYPE,
@@ -48,7 +48,7 @@ def mute(attribute_dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'connection': api_proxy.BOOL_TYPE,
@@ -58,7 +58,7 @@ def dirty_attr(attribute_dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'destinationFromSource': api_proxy.BOOL_TYPE,
@@ -72,7 +72,7 @@ def connection_info(attribute_dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'allAttributes': api_proxy.BOOL_TYPE, 'bool': api_proxy.BOOL_TYPE,
@@ -86,7 +86,7 @@ def info_attr(attribute_dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'allFuture': api_proxy.BOOL_TYPE, 'allGraphs': api_proxy.BOOL_TYPE,
@@ -100,7 +100,7 @@ def list_history(dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {'connections': api_proxy.BOOL_TYPE, 'destination': api_proxy.BOOL_TYPE,
                                           'exactType': api_proxy.BOOL_TYPE, 'plugs': api_proxy.BOOL_TYPE,
@@ -112,7 +112,7 @@ def list_connections(attribute_dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'remove': api_proxy.BOOL_TYPE,
@@ -122,7 +122,7 @@ def alias_attr(attribute_dag_path, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'affectsAppearance': api_proxy.BOOL_TYPE, 'affectsWorldspace': api_proxy.BOOL_TYPE,
@@ -155,7 +155,7 @@ def query_attr(attribute, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'caching': api_proxy.BOOL_TYPE,
@@ -191,7 +191,7 @@ def list_attr(node, *args, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'attribute': api_proxy.STR_TYPE,
@@ -201,7 +201,7 @@ def delete_attr(attribute_dag_path_or_node, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'asString': api_proxy.BOOL_TYPE,
@@ -221,7 +221,7 @@ def get_attr(attribute_dag_path, *args, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'alteredValue': api_proxy.BOOL_TYPE,
@@ -238,7 +238,7 @@ def set_attr(attribute, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'attributeType': api_proxy.STR_TYPE, 'binaryTag': api_proxy.STR_TYPE,
@@ -265,7 +265,7 @@ def add_attr(attribute, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': {
                               'force': api_proxy.BOOL_TYPE,
@@ -277,14 +277,14 @@ def connect_attr(source_attribute, destination_attribute, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': {'nextAvailable': api_proxy.BOOL_TYPE}}),
     DEFAULT_API, 'disconnectAttr')
 def disconnect_attr(*attributes, **kwargs):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, offset_schema)}),
     DEFAULT_API, 'pointConstraint')
@@ -292,7 +292,7 @@ def translate(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, offset_schema, cacheable_schema)}),
     DEFAULT_API, 'orientConstraint')
@@ -300,7 +300,7 @@ def rotate(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, offset_schema, aim_schema)}),
     DEFAULT_API, 'aimConstraint')
@@ -308,7 +308,7 @@ def aim(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties,
                                                                {"scaleCompensate": api_proxy.BOOL_TYPE,
@@ -319,7 +319,7 @@ def scale(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties,
                                                                {"decompRotationToChild": api_proxy.BOOL_TYPE,
@@ -333,7 +333,7 @@ def parent(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, aim_schema)}),
     DEFAULT_API, 'tangentConstraint')
@@ -341,14 +341,14 @@ def tangent(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': api_proxy.merge_dicts(default_properties)}),
     DEFAULT_API, 'geometryConstraint')
 def geometry_point(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties': api_proxy.merge_dicts(default_properties, aim_schema)}),
     DEFAULT_API, 'normalConstraint')
@@ -356,7 +356,7 @@ def geometry_normal(source, targets, **flags):
     pass
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA, {'properties': api_proxy.merge_dicts(default_properties)}),
     DEFAULT_API, 'poleVectorConstraint')
 def pole_vector(source, targets, **flags):

@@ -5,20 +5,19 @@ from six import iteritems, string_types
 from functools import wraps
 
 os.environ['ANVIL_MODE'] = 'TEST'
-import anvil
-from anvil.log import obtainLogger
 import logging
 from collections import Iterable
 from collections import OrderedDict
-
 from contextlib import contextmanager
 import nomenclate
+import anvil
+from anvil.log import obtain_logger
 
 NOMENCLATE = nomenclate.Nom()
 
 
 class TestBase(unittest2.TestCase):
-    LOG = obtainLogger('testing')
+    LOG = obtain_logger('testing')
     logging.getLogger('pymel.core.nodetypes').setLevel(logging.CRITICAL)
     LOG.setLevel(logging.CRITICAL)
 
@@ -27,10 +26,14 @@ class TestBase(unittest2.TestCase):
     FOOT = 'FOOT'
     EXTERNALA = 'EXTERNALA'
     HAND_MERC = "HAND_MERC"
+    FOOT_WITH_LEG = 'FOOT_WITH_LEG'
+    FOOT_WITH_LEG_AND_SOLES = 'FOOT_WITH_LEG_AND_SOLES'
     TEMPLATE_FILES = {APOSE: 'test_skeleton_a_pose.ma',
                       TPOSE: 'test_skeleton_t_pose.ma',
                       EXTERNALA: 'test_skeleton_externalA.ma',
                       FOOT: 'test_skeleton_biped_foot.ma',
+                      FOOT_WITH_LEG: 'test_skeleton_biped_foot_with_leg.ma',
+                      FOOT_WITH_LEG_AND_SOLES: 'test_skeleton_biped_foot_with_leg_and_soles.ma',
                       HAND_MERC: "test_skeleton_hand.ma"
                       }
 

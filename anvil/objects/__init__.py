@@ -1,9 +1,9 @@
-import curve
-import dag_node
-import joint
-import transform
-import unicode_delegate
-import attribute
+import curve # noqa
+import dag_node # noqa
+import joint # noqa
+import transform # noqa
+import unicode_delegate # noqa
+import attribute # noqa
 
 from attribute import Attribute
 from curve import Curve
