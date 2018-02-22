@@ -35,9 +35,10 @@ class Control(base.AbstractGrouping):
         kwargs[cfg.NAME_TOKENS] = name_tokens
 
         instance = cls(**kwargs)
-        instance.control = instance.build_node(ob.Curve, **kwargs)[cfg.NODE_TYPE]
-        instance.offset_group = instance.build_node(ob.Transform, **kwargs)[cfg.NODE_TYPE]
-        instance.connection_group = instance.build_node(ob.Transform, **kwargs)[cfg.NODE_TYPE]
+        instance.control = instance.build_node(ob.Curve, **kwargs)[cfg.NODE_TYPE][-1]
+        instance.offset_group = instance.build_node(ob.Transform, **kwargs)[cfg.NODE_TYPE][-1]
+        instance.connection_group = instance.build_node(ob.Transform, **kwargs)[cfg.NODE_TYPE][-1]
+        instance._fix_child_name_tokens()
 
         instance.build_layout()
         instance.match_position(reference_object, **kwargs)
@@ -91,7 +92,13 @@ class Control(base.AbstractGrouping):
         self.rename()
 
     def rename(self, *input_dicts, **kwargs):
-        self.control.name_tokens.merge(self.CTRL_NAME_TOKENS, force=True)
-        self.offset_group.name_tokens.merge(self.OFFSET_NAME_TOKENS, force=True)
-        self.connection_group.name_tokens.merge(self.CONN_NAME_TOKENS, force=True)
+        self._fix_child_name_tokens()
         super(Control, self).rename(*input_dicts, **kwargs)
+
+    def _fix_child_name_tokens(self):
+        try:
+            self.control.name_tokens.merge(self.CTRL_NAME_TOKENS, force=True)
+            self.offset_group.name_tokens.merge(self.OFFSET_NAME_TOKENS, force=True)
+            self.connection_group.name_tokens.merge(self.CONN_NAME_TOKENS, force=True)
+        except AttributeError:
+            pass
