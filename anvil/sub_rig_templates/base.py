@@ -90,7 +90,7 @@ class SubRigTemplate(nt.SubRig):
                                        **kwargs)
             controls.append(control)
             rt.dcc.connections.parent(control.node.connection_group, node, maintainOffset=True)
-            last_node = control.connection_group
+            last_node = control.node.connection_group
         return (controls, chain)
 
     @register_built_nodes

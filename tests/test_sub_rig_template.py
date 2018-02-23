@@ -45,7 +45,7 @@ class TestSubRigTemplateBuildIk(TestBaseSubRig):
         d.translate_node([0, 5, 0])
         cls.joint_chain = nt.LinearHierarchyNodeSet(b, d)
         result = cls.sub_rig.build_ik(cls.joint_chain)
-        cls.handle, cls.effector = result[cfg.NODE_TYPE]
+        cls.handle, cls.effector = result.node.default
 
     @clean_up_scene
     def test_build(self):

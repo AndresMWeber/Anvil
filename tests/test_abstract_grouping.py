@@ -93,14 +93,14 @@ class TestAbstractGroupingBuildNode(TestBaseAbstractGrouping):
     def test_built_node_registered_autosorted(self):
         grouping = nt.AbstractGrouping()
         report = grouping.build_node(nt.Transform)
-        self.assertEqual(report[cfg.NODE_TYPE], grouping.hierarchy[cfg.NODE_TYPE][-1])
+        self.assertEqual(report[cfg.NODE_TYPE], grouping.hierarchy.node.default[-1])
 
     def test_built_node_registered_control(self):
         grouping = nt.AbstractGrouping()
         report = grouping.build_node(nt.Control)
-        self.assertEqual(report[cfg.CONTROL_TYPE], grouping.hierarchy[cfg.CONTROL_TYPE][-1])
+        self.assertEqual(report[cfg.CONTROL_TYPE], grouping.hierarchy.control.default)
 
     def test_built_node_registered_joint(self):
         grouping = nt.AbstractGrouping()
         report = grouping.build_node(nt.Joint)
-        self.assertEqual(report[cfg.JOINT_TYPE], grouping.hierarchy[cfg.JOINT_TYPE][-1])
+        self.assertEqual(report[cfg.JOINT_TYPE], grouping.hierarchy.joint.default[-1])

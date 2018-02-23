@@ -1,8 +1,7 @@
 from six import iteritems
 import anvil
-import anvil.config as cfg
 import anvil.node_types as nt
-from tests.base_test import TestBase
+from tests.base_test import TestBase, sanitize_scene
 
 
 class TestBaseRig(TestBase):
@@ -17,7 +16,7 @@ class TestBaseRig(TestBase):
     @classmethod
     def tearDownClass(cls):
         super(TestBaseRig, cls).tearDownClass()
-        cls.sanitize_scene()
+        sanitize_scene()
 
     @classmethod
     def build_dependencies(cls):
@@ -27,7 +26,7 @@ class TestBaseRig(TestBase):
         test_rig.build()
         sub_rig.build_node(nt.Joint, hierarchy_id='eye', parent=sub_rig.group_joints)
         sub_rig.build_node(nt.Control, hierarchy_id='eye', parent=sub_rig.group_controls, shape='sphere')
-        anvil.runtime.dcc.connections.parent(sub_rig.joint.eye, sub_rig.control.eye.connection_group)
+        anvil.runtime.dcc.connections.parent(sub_rig.joint.eye, sub_rig.control.eye.node.connection_group)
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig
@@ -37,13 +36,13 @@ class TestBaseRig(TestBase):
 
 class TestRigEyeBuild(TestBaseRig):
     def test_control_created(self):
-        self.assertEqual(self.test_rig.find_node('control_universal'), self.test_rig.control.universal)
+        self.assertEqual(self.test_rig.find_node('universal'), self.test_rig.control.universal)
 
     def test_extra_control_created(self):
-        self.assertEqual(self.test_sub_rig.find_node('control_eye'), self.test_sub_rig.control.eye)
+        self.assertEqual(self.test_sub_rig.find_node('eye'), self.test_sub_rig.control.eye)
 
     def test_extra_joint_created(self):
-        self.assertEqual(self.test_sub_rig.find_node('joint_eye'), self.test_sub_rig.joint_eye)
+        self.assertEqual(self.test_sub_rig.find_node('eye'), self.test_sub_rig.joint.eye)
 
     def test_constraint(self):
         self.assertTrue(anvil.runtime.dcc.scene.list_scene(type='parentConstraint'))
@@ -64,7 +63,7 @@ class TestRigEyeBuild(TestBaseRig):
 
 class TestRigRename(TestBaseRig):
     def test_universal_control_name(self):
-        self.assertEqual(str(self.test_rig.control_universal.control), 'bert_eye_universal_mvp_CTR')
+        self.assertEqual(str(self.test_rig.control_universal.node.control), 'bert_eye_universal_mvp_CTR')
 
     def test_root_name(self):
         self.assertEqual(str(self.test_rig.root), 'bert_rig_eye_mvp_GRP')

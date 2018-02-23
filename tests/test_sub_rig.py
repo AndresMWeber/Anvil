@@ -50,7 +50,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(name_tokens={'name': 'bob'})
-        self.sub_rig.register_node('test', b, name_tokens=None)
+        self.sub_rig.register_node('test', b)
         # This test will override the previous name because it now should inherit the new sub rig tokens.
         self.assertDictEqual(b.name_tokens,
                              {cfg.NAME: 'untitled', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
@@ -126,7 +126,7 @@ class TestSubRigMetaDataIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(meta_data={'name': 'bob'})
-        self.sub_rig.register_node('test', b, meta_data=None)
+        self.sub_rig.register_node('test', b)
         self.assertDictEqual(b.meta_data, {'name': 'bob', 'type': 'joint'})
         self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})
 
@@ -134,7 +134,7 @@ class TestSubRigMetaDataIntact(TestBase):
     def test_register_previously_created_with_meta_data_overwrite(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
-        b = nt.Joint.build(meta_data={'name': 'bob'})
-        self.sub_rig.register_node('test', b, meta_data={'name': 'silvia'})
+        b = nt.Joint.build(meta_data={'name': 'silvia'})
+        self.sub_rig.register_node('test', b)
         self.assertDictEqual(b.meta_data, {'name': 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN})
         self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})
