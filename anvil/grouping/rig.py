@@ -14,7 +14,7 @@ class Rig(base.AbstractGrouping):
     """ A fully functional and self-contained rig with all requirements implemented that
         require it to give a performance.  A collection of SubRig(s)
     """
-    LOG = anvil.log.obtainLogger(__name__)
+    LOG = anvil.log.obtain_logger(__name__)
     BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
@@ -63,7 +63,6 @@ class Rig(base.AbstractGrouping):
         kwargs[cfg.NAME_TOKENS] = MetaData(self.name_tokens, kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, SubRig):
-            self.info('Registering %s.[%s] = %s(%s)', self, sub_rig_key, sub_rig_candidate.__name__, kwargs)
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)
             return self.sub_rigs[sub_rig_key]
 
@@ -72,7 +71,7 @@ class Rig(base.AbstractGrouping):
             if not sub_rig_member.is_built:
                 self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
                 sub_rig_member.build()
-            anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.group_sub_rigs)
+            anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.node.group_sub_rigs)
 
     def auto_color(self):
         super(Rig, self).auto_color()
@@ -84,30 +83,31 @@ class Rig(base.AbstractGrouping):
                   self.__class__.__name__, self, parent, name_tokens, kwargs)
         self.name_tokens.update(name_tokens)
 
-        self.group_top = self.build_node(ot.Transform, name_tokens=self.ROOT_NAME_TOKENS, **kwargs)[cfg.NODE_TYPE]
+        self.build_node(ot.Transform, hierarchy_id='top', name_tokens=self.ROOT_NAME_TOKENS, **kwargs)
+        self.root = self.node.top
 
-        self.control_universal = self.build_node(ct.Control,
-                                                 parent=self.group_top,
-                                                 shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
-                                                 scale=5,
-                                                 name_tokens=self.UNIV_NAME_TOKENS,
-                                                 **kwargs)[cfg.NODE_TYPE]
+        self.build_node(ct.Control,
+                        hierarchy_id='universal',
+                        parent=self.node.top,
+                        shape=cfg.DEFAULT_UNIVERSAL_SHAPE,
+                        scale=5,
+                        name_tokens=self.UNIV_NAME_TOKENS,
+                        **kwargs)
 
         for main_group_type in self.SUB_GROUPINGS:
-            build_report = self.build_node(ot.Transform,
-                                           parent=getattr(self.control_universal, cfg.CONNECTION_GROUP),
-                                           name_tokens={cfg.CHILD_TYPE: main_group_type,
-                                                        cfg.TYPE: cfg.GROUP_TYPE})
-            setattr(self, '%s_%s' % (cfg.GROUP_TYPE, main_group_type), build_report[cfg.NODE_TYPE])
-            self.root = self.group_top
+            self.build_node(ot.Transform,
+                            parent=self.control.universal.node.connection_group,
+                            hierarchy_id='%s_%s' % (cfg.GROUP_TYPE, main_group_type),
+                            name_tokens={cfg.CHILD_TYPE: main_group_type,
+                                         cfg.TYPE: cfg.GROUP_TYPE})
 
-            self.build_sub_rigs()
-            self.initialize_sub_rig_attributes(self.control_universal.control)
-            self.connect_rendering_delegate(self.control_universal.control)
-
-            self.parent(parent)
-            self.rename()
-            self.auto_color()
+        self.build_sub_rigs()
+        self.initialize_sub_rig_attributes(self.control.universal.node.control)
+        self.connect_rendering_delegate(self.control.universal.node.control)
+        print(parent)
+        self.parent(parent)
+        self.rename()
+        self.auto_color()
 
     def __getattr__(self, item):
         try:

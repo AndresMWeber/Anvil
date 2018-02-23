@@ -18,7 +18,9 @@ class Limb(SubRigTemplate):
 
         if build_ik:
             ik_results = self.build_ik_chain(self.layout_joints, **self.build_kwargs)
-
+        from pprint import pprint
+        pprint(fk_results)
+        pprint(ik_results)
         if build_fk and build_ik:
             blend_results = self.build_blend_chain(self.layout_joints,
                                                    [fk_results[cfg.JOINT_TYPE], ik_results[cfg.JOINT_TYPE]],

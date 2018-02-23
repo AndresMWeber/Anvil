@@ -1,27 +1,29 @@
 import anvil.node_types as nt
 import anvil
-from base_test import TestBase
+from base_test import TestBase, clean_up_scene
 from anvil.errors import APIError
+
 
 class TestBaseDagNode(TestBase):
     pass
 
 
 class TestDagNodeBuild(TestBaseDagNode):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_empty_input(self):
         self.assertRaises(NotImplementedError, nt.DagNode.build)
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_full_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name':'test'}, name='bob')
+        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name': 'test'}, name='bob')
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_partial_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name':'test'})
+        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name': 'test'})
+
 
 class TestDagNodeRename(TestBaseDagNode):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def rename_runner(self, desired_output, input_name):
         dag_node = nt.DagNode(str(nt.Transform.build()))
         dag_node.rename(input_name)

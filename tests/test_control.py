@@ -2,7 +2,7 @@ import anvil.node_types as nt
 import anvil
 import anvil.config as cfg
 from six import iteritems
-from base_test import TestBase, cleanup_nodes
+from base_test import TestBase, clean_up_scene
 
 
 class TestBaseControl(TestBase):
@@ -10,92 +10,94 @@ class TestBaseControl(TestBase):
 
 
 class TestControlInit(TestBaseControl):
-    pass
+    @clean_up_scene
+    def test_empty_input(self):
+        nt.Control()
 
 
 class TestControlBuild(TestBaseControl):
+    @clean_up_scene
     def test_empty_input(self):
-        with cleanup_nodes():
-            nt.Control.build()
+        nt.Control.build()
 
+    @clean_up_scene
     def test_full_input(self):
-        with cleanup_nodes():
-            nt.Control.build()
+        nt.Control.build()
 
+    @clean_up_scene
     def test_partial_input(self):
-        with cleanup_nodes():
-            nt.Control.build()
+        nt.Control.build()
 
+    @clean_up_scene
     def test_shape_input(self):
-        with cleanup_nodes():
-            nt.Control.build(shape='cube')
+        nt.Control.build(shape='cube')
 
+    @clean_up_scene
     def test_hierarchy_name_tokens_control(self):
-        with cleanup_nodes():
-            control = nt.Control.build()
-            self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-            self.assertEqual(control.control.name_tokens.get(cfg.NAME), 'untitled')
+        control = nt.Control.build()
+        self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.control.name_tokens.get(cfg.NAME), 'untitled')
 
+    @clean_up_scene
     def test_hierarchy_name_tokens_offset(self):
-        with cleanup_nodes():
-            control = nt.Control.build()
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'untitled')
+        control = nt.Control.build()
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'untitled')
 
+    @clean_up_scene
     def test_hierarchy_name_tokens_connection(self):
-        with cleanup_nodes():
-            control = nt.Control.build()
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'untitled')
+        control = nt.Control.build()
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'untitled')
 
+    @clean_up_scene
     def test_hierarchy_name_tokens_control_preexisting_name_tokens(self):
-        with cleanup_nodes():
-            control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
-            self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-            self.assertEqual(control.control.name_tokens.get(cfg.NAME), 'bob')
-            self.assertEqual(control.control.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
+        control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
+        self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.control.name_tokens.get(cfg.NAME), 'bob')
+        self.assertEqual(control.control.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
 
+    @clean_up_scene
     def test_hierarchy_name_tokens_offset_preexisting_name_tokens(self):
-        with cleanup_nodes():
-            control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'bob')
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
+        control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'bob')
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
 
+    @clean_up_scene
     def test_hierarchy_name_tokens_connection_preexisting_name_tokens(self):
-        with cleanup_nodes():
-            control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'bob')
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
+        control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'bob')
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
 
+    @clean_up_scene
     def test_hierarchy_name_token_type_default(self):
-        with cleanup_nodes():
-            control = nt.Control.build()
-            self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        control = nt.Control.build()
+        self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
 
+    @clean_up_scene
     def test_hierarchy_name_token_type_preexisting(self):
-        with cleanup_nodes():
-            control = nt.Control.build(name_tokens={'name': 'bob', 'childtype': 'lisa'})
-            self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-            self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-            self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        control = nt.Control.build(name_tokens={'name': 'bob', 'childtype': 'lisa'})
+        self.assertEqual(control.control.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
 
 
 class TestControlRename(TestBaseControl):
+    @clean_up_scene
     def rename_runner(self, desired_output, *input_dicts, **input_kwargs):
-        with cleanup_nodes():
-            control = nt.Control.build()
-            control.rename(*input_dicts, **input_kwargs)
-            control_hierarchy = {key: str(node) for key, node in iteritems(control.hierarchy)}
-            desired_output = desired_output or control_hierarchy
+        control = nt.Control.build()
+        control.rename(*input_dicts, **input_kwargs)
+        control_hierarchy = {key: str(node) for key, node in iteritems(control.hierarchy)}
+        desired_output = desired_output or control_hierarchy
 
-            if 'standalone' in anvil.runtime.dcc.ENGINE:
-                self.assertTrue(True)
-            else:
-                self.assertDictEqual(control_hierarchy, desired_output)
+        if 'standalone' in anvil.runtime.dcc.ENGINE:
+            self.assertTrue(True)
+        else:
+            self.assertDictEqual(control_hierarchy, desired_output)
 
     def test_empty_input(self):
         self.rename_runner(None)

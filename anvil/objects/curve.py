@@ -11,8 +11,8 @@ from six import iteritems
 
 class Curve(Transform):
     DCC_TYPE = 'nurbsCurve'
-    ANVIL_TYPE = 'curve'
-    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: ANVIL_TYPE}, force=True, new=True)
+    ANVIL_TYPE = cfg.CURVE_TYPE
+    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: cfg.CURVE_TYPE}, force=True, new=True)
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 

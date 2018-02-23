@@ -15,6 +15,13 @@ class NodeRelationshipSet(log.LogMixin):
         self.nodes = nodes or []
 
     @property
+    def ANVIL_TYPE(self):
+        try:
+            return self.nodes[0].ANVIL_TYPE
+        except (AttributeError, ValueError, IndexError):
+            return cfg.SET_TYPE
+
+    @property
     def set(self):
         return self.nodes
 
@@ -149,7 +156,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         map(lambda child_node: child_node.parent(node),
             [target_child for target_child in index_target.get_children() if c != node] if beneath else [index_target])
 
-        if any(index_target == test for test in (self.head ,0)):
+        if any(index_target == test for test in (self.head, 0)):
             self.head = node
 
         return node

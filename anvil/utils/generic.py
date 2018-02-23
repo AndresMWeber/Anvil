@@ -4,7 +4,7 @@ from six import iteritems
 def to_list(query):
     if isinstance(query, list):
         return query
-    elif isinstance(query, str):
+    elif isinstance(query, (tuple, str)):
         return [query]
     elif query is None:
         return list()
@@ -12,6 +12,14 @@ def to_list(query):
         return list(query)
     except TypeError:
         return [query]
+
+
+def to_size_list(query, desired_length):
+    query_list = to_list(query) if query else [None]
+    if len(query_list) > desired_length:
+        return query_list[:desired_length]
+    else:
+        return query_list + [query_list[-1]] * (desired_length - len(query_list))
 
 
 def to_camel_case(input_string):
@@ -90,3 +98,48 @@ def dict_compare(d1, d2):
     modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
     same = set(o for o in intersect_keys if d1[o] == d2[o])
     return added, removed, modified, same
+
+
+def is_class(instance_or_class):
+    try:
+        if instance_or_class.__self___ == instance_or_class:
+            return True
+    except AttributeError:
+        pass
+    return False
+
+
+class Map(dict):
+    """ Taken from:
+        https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
+    Example:
+    m = Map({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(Map, self).__init__(*args, **kwargs)
+        for arg in args:
+            if isinstance(arg, dict):
+                for k, v in iteritems(arg):
+                    self[k] = v
+
+        if kwargs:
+            for k, v in iteritems(kwargs):
+                self[k] = v
+
+    def __getattr__(self, attr):
+        return self.get(attr)
+
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+
+    def __setitem__(self, key, value):
+        super(Map, self).__setitem__(key, value)
+        self.__dict__.update({key: value})
+
+    def __delattr__(self, item):
+        self.__delitem__(item)
+
+    def __delitem__(self, key):
+        super(Map, self).__delitem__(key)
+        del self.__dict__[key]

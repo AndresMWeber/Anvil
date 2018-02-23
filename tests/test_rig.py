@@ -1,6 +1,6 @@
 import anvil.node_types as nt
 import anvil.config as cfg
-from base_test import TestBase
+from base_test import TestBase, clean_up_scene
 
 
 class TestBaseRig(TestBase):
@@ -8,7 +8,7 @@ class TestBaseRig(TestBase):
 
 
 class TestRigBuild(TestBaseRig):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_hierarchy_length(self):
         test_rig = nt.Rig()
         test_rig.build()
@@ -16,7 +16,7 @@ class TestRigBuild(TestBaseRig):
 
 
 class TestRigRename(TestBaseRig):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_default_names(self):
         test_rig = nt.Rig()
         test_rig.build()

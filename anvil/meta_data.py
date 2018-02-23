@@ -1,12 +1,10 @@
 from six import iteritems
-from functools import wraps
 import config as cfg
 import log
 from utils.generic import to_list, to_str_dict, pop_dict_keys, merge_dicts, dict_compare
 
 
 class MetaData(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
     PROTECTED_KWARG = 'protected'
     PROTECT_ALL_KWARG = 'protect_all'
     IGNORED_KWARG = 'ignored'

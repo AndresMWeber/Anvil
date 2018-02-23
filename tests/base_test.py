@@ -66,16 +66,6 @@ class TestBase(unittest2.TestCase):
             return node
 
     @classmethod
-    def delete_objects(cls, objects):
-        cls.LOG.info('Deleting objects %s' % objects)
-        for object in objects:
-            if anvil.runtime.dcc.scene.exists(object):
-                try:
-                    anvil.runtime.dcc.scene.delete(object, hierarchy=True)
-                except ValueError:
-                    anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object + '*'), hierarchy=True)
-
-    @classmethod
     def deep_sort(cls, obj):
         """
         https://stackoverflow.com/questions/18464095/how-to-achieve-assertdictequal-with-assertsequenceequal-applied-to-values
@@ -116,12 +106,6 @@ class TestBase(unittest2.TestCase):
             else:
                 self.assertEqual(v1, v2, msg)
         return True
-
-    @classmethod
-    def sanitize_scene(cls):
-        preexisting_nodes = anvil.runtime.dcc.scene.list_scene_nodes()
-        TestBase.LOG.info('Sanitizing Scene of preexisting nodes %s' % preexisting_nodes)
-        cls.delete_objects(preexisting_nodes)
 
     def post_hook(self):
         created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
@@ -165,35 +149,34 @@ class TestBase(unittest2.TestCase):
                 deep_path.append(str(item))
         return deep_path
 
-    @classmethod
-    def delete_created_nodes(cls, func):
-        @wraps(func)
-        def wrapped(self, *args, **kwargs):
-            self.LOG.info('RUNNING UNITTEST ----------- %s(%s, %s)' % (func.__name__, args, kwargs))
-            with cleanup_nodes():
-                if hasattr(self, 'build_dependencies'):
-                    self.build_dependencies()
-                    initial_scene_tree = self.pre_hook()
-                    self.LOG.info('Pre-scene: %s' % initial_scene_tree)
-                func_return = func(self, *args, **kwargs)
-                created_scene_tree = self.post_hook()
-                self.LOG.info('Post-scene: %s' % created_scene_tree)
-            return func_return
 
-        return wrapped
+def safe_delete(objects):
+    for object in objects:
+        if anvil.runtime.dcc.scene.exists(object):
+            try:
+                anvil.runtime.dcc.scene.delete(object, hierarchy=True)
+            except ValueError:
+                anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object + '*'), hierarchy=True)
+
+
+def sanitize_scene():
+    safe_delete(anvil.runtime.dcc.scene.list_scene_nodes())
 
 
 @contextmanager
 def cleanup_nodes():
-    TestBase.sanitize_scene()
+    sanitize_scene()
     yield
-    TestBase.sanitize_scene()
+    sanitize_scene()
 
 
-def pre_and_post_sanitize_scene(f):
-    @wraps(f)
-    def wrapper(instance, *args, **kwargs):
+def clean_up_scene(func):
+    @wraps(func)
+    def wrapped(self, *args, **kwargs):
         with cleanup_nodes():
-            return f(instance, *args, **kwargs)
+            if hasattr(self, 'build_dependencies'):
+                self.build_dependencies()
+            func_return = func(self, *args, **kwargs)
+        return func_return
 
-    return wrapper
+    return wrapped

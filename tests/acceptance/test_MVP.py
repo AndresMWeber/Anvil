@@ -25,9 +25,9 @@ class TestBaseRig(TestBase):
         test_rig = nt.Rig(name_tokens=cls.name_tokens)
         sub_rig = test_rig.build_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
         test_rig.build()
-        sub_rig.build_node(nt.Joint, 'joint_eye', parent=sub_rig.group_joints)
-        sub_rig.build_node(nt.Control, 'control_eye', parent=sub_rig.group_controls, shape='sphere')
-        anvil.runtime.dcc.connections.parent(sub_rig.joint_eye, getattr(sub_rig.control_eye, cfg.CONNECTION_GROUP))
+        sub_rig.build_node(nt.Joint, hierarchy_id='eye', parent=sub_rig.group_joints)
+        sub_rig.build_node(nt.Control, hierarchy_id='eye', parent=sub_rig.group_controls, shape='sphere')
+        anvil.runtime.dcc.connections.parent(sub_rig.joint.eye, sub_rig.control.eye.connection_group)
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig
@@ -37,10 +37,10 @@ class TestBaseRig(TestBase):
 
 class TestRigEyeBuild(TestBaseRig):
     def test_control_created(self):
-        self.assertEqual(self.test_rig.find_node('control_universal'), self.test_rig.control_universal)
+        self.assertEqual(self.test_rig.find_node('control_universal'), self.test_rig.control.universal)
 
     def test_extra_control_created(self):
-        self.assertEqual(self.test_sub_rig.find_node('control_eye'), self.test_sub_rig.control_eye)
+        self.assertEqual(self.test_sub_rig.find_node('control_eye'), self.test_sub_rig.control.eye)
 
     def test_extra_joint_created(self):
         self.assertEqual(self.test_sub_rig.find_node('joint_eye'), self.test_sub_rig.joint_eye)
@@ -50,7 +50,6 @@ class TestRigEyeBuild(TestBaseRig):
 
     def test_hierarchy_exists(self):
         for key, node in iteritems(self.test_rig.hierarchy):
-            self.LOG.info('Checking to see if node %r at key %s exists...' % (node, key))
             self.assertTrue(anvil.runtime.dcc.scene.exists(str(node)))
 
     def test_hierarchy_count(self):

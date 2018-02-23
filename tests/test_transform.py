@@ -1,6 +1,5 @@
 import anvil.node_types as nt
-
-from base_test import TestBase
+from base_test import TestBase, clean_up_scene
 
 
 class TestBaseTransform(TestBase):
@@ -8,25 +7,25 @@ class TestBaseTransform(TestBase):
 
 
 class TestTransformBuild(TestBaseTransform):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_empty_input(self):
         nt.Transform.build()
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_full_input(self):
         nt.Transform.build()
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_partial_input(self):
         nt.Transform.build()
 
 
 class TestTransformDelegation(TestBaseTransform):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_get_parent(self):
         self.assertEquals(nt.Transform.build().getParent(), None)
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_set_parent(self):
         a = nt.Transform.build()
         b = nt.Transform.build()

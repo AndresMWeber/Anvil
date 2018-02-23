@@ -5,7 +5,7 @@ import anvil.objects.attribute as at
 import anvil.config as cfg
 import anvil
 from anvil.utils.generic import to_list
-from anvil.grouping.base import register_built_nodes
+from anvil.grouping.base import register_built_nodes, generate_build_report
 
 
 class SubRigTemplate(nt.SubRig):
@@ -13,20 +13,22 @@ class SubRigTemplate(nt.SubRig):
     DEFAULT_FK_SHAPE = cfg.DEFAULT_FK_SHAPE
 
     @register_built_nodes
-    def build_ik(self, hierarchy, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
+    @generate_build_report
+    def build_ik(self, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
         name_tokens = MetaData({cfg.TYPE: cfg.IK_HANDLE}, name_tokens or {})
-        kwargs.update({'endEffector': str(hierarchy.tail), 'solver': solver})
+        kwargs.update({'endEffector': str(linear_hierarchy_set.tail), 'solver': solver})
 
-        handle, effector = rt.dcc.rigging.ik_handle(str(hierarchy.head), **kwargs)
+        handle, effector = rt.dcc.rigging.ik_handle(str(linear_hierarchy_set.head), **kwargs)
         if parent:
             rt.dcc.scene.parent(handle, parent)
 
         handle = anvil.factory(handle, name_tokens=name_tokens, **kwargs)
         ik_handle = anvil.factory(effector, name_tokens=name_tokens.update({cfg.TYPE: cfg.IK_EFFECTOR}), **kwargs)
 
-        return self.generate_build_report(**{cfg.NODE_TYPE: [handle, ik_handle]})
+        return handle, ik_handle
 
     @register_built_nodes
+    @generate_build_report
     def build_blend_chain(self, layout_joints, source_chains, duplicate=True, **kwargs):
         blend_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
 
@@ -39,9 +41,10 @@ class SubRigTemplate(nt.SubRig):
 
             getattr(self.root, cfg.IKFK_BLEND).connect(blender.blender)
 
-        return self.generate_build_report(**{cfg.JOINT_TYPE: blend_chain})
+        return blend_chain
 
     @register_built_nodes
+    @generate_build_report
     def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, duplicate=True, **kwargs):
         kwargs = MetaData(kwargs)
 
@@ -49,6 +52,7 @@ class SubRigTemplate(nt.SubRig):
 
         results = self.build_ik(ik_chain, chain_end=ik_chain[ik_end_index], parent=self.group_nodes,
                                 name_tokens={cfg.NAME: cfg.IK}, **kwargs)
+        print(results)
         handle, effector = results[cfg.NODE_TYPE]
 
         controls = []
@@ -66,11 +70,10 @@ class SubRigTemplate(nt.SubRig):
                                                                             {cfg.PURPOSE: cfg.POLE_VECTOR}})))
 
         rt.dcc.connections.translate(controls[0].connection_group, handle)
-        return self.generate_build_report(**{cfg.JOINT_TYPE: ik_chain,
-                                             cfg.CONTROL_TYPE: {cfg.IK: controls},
-                                             cfg.NODE_TYPE: [handle, effector]})
+        return (ik_chain, controls, handle, effector)
 
     @register_built_nodes
+    @generate_build_report
     def build_fk_chain(self, chain_start=None, chain_end=None, shape=None, duplicate=True, parent=None,
                        name_tokens=None, meta_data=None, **kwargs):
         chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=self.group_joints)
@@ -86,11 +89,12 @@ class SubRigTemplate(nt.SubRig):
                                        meta_data=self.meta_data.merge(self.meta_data, meta_data, new=True),
                                        **kwargs)
             controls.append(control)
-            rt.dcc.connections.parent(control.connection_group, node, maintainOffset=True)
+            rt.dcc.connections.parent(control.node.connection_group, node, maintainOffset=True)
             last_node = control.connection_group
-        return self.generate_build_report(**{cfg.CONTROL_TYPE: controls, cfg.JOINT_TYPE: chain})
+        return (controls, chain)
 
     @register_built_nodes
+    @generate_build_report
     def build_pole_vector_control(self, joints, ik_handle,
                                   up_vector=None,
                                   aim_vector=None,
@@ -119,7 +123,7 @@ class SubRigTemplate(nt.SubRig):
             cluster.visibility.set(False)
             cluster.parent(self.group_nodes)
         pv_line.parent(self.group_controls)
-        return self.generate_build_report(**{cfg.CONTROL_TYPE: control, cfg.NODE_TYPE: [pv_line, clusters]})
+        return (control, pv_line, clusters)
 
     @classmethod
     def get_shape_list(cls, length, shape_list=None, shape=None, **kwargs):

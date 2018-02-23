@@ -1,7 +1,6 @@
 import anvil.node_types as nt
 import anvil.config as cfg
-from base_test import TestBase
-import unittest
+from base_test import TestBase, clean_up_scene
 
 
 class TestBaseSubRig(TestBase):
@@ -11,11 +10,11 @@ class TestBaseSubRig(TestBase):
 
 
 class TestSubRigBuild(TestBaseSubRig):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_default(self):
         nt.SubRig().build()
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_meta_data(self):
         sub_rig = nt.SubRig(meta_data={'meta': 'data'}, top_node=None, layout=None, parent=None)
         sub_rig.build()
@@ -24,20 +23,20 @@ class TestSubRigBuild(TestBaseSubRig):
             self.assertTrue(node.exists())
             self.assertTrue(isinstance(node, nt.Transform))
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_top_node(self):
         top_node = nt.Transform.build()
         sub_rig = nt.SubRig(meta_data=None, top_node=top_node, layout=None, parent=None)
         sub_rig.build()
         self.assertEquals(sub_rig.root, top_node)
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_layout(self):
         sub_rig = nt.SubRig(meta_data=None, top_node=None, layout_joints='test layout', parent=None)
         sub_rig.build()
         self.assertEquals(sub_rig.layout_joints, 'test layout')
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_parent(self):
         parent = nt.Transform.build()
         sub_rig = nt.SubRig(meta_data=None, top_node=None, layout=None)
@@ -46,7 +45,7 @@ class TestSubRigBuild(TestBaseSubRig):
 
 
 class TestSubRigNameTokensIntact(TestBase):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_register_previously_created_with_name_tokens(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
@@ -57,7 +56,7 @@ class TestSubRigNameTokensIntact(TestBase):
                              {cfg.NAME: 'untitled', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
         self.assertDictEqual(b.meta_data, {})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_register_previously_created_with_name_tokens_overwrite(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
@@ -69,7 +68,7 @@ class TestSubRigNameTokensIntact(TestBase):
                               cfg.TYPE: cfg.JOINT_TYPE})
         self.assertDictEqual(b.meta_data, {})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_register_previously_created_add_name_tokens(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
@@ -80,7 +79,7 @@ class TestSubRigNameTokensIntact(TestBase):
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_build_with_sub_rig_init_name_tokens_and_build_name_tokens(self):
         self.sub_rig = nt.SubRig(name_tokens={'name': 'silvia'})
         self.sub_rig.build()
@@ -91,7 +90,7 @@ class TestSubRigNameTokensIntact(TestBase):
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_build_with_sub_rig_previous_name_tokens(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build(name_tokens={'name': 'silvia'})
@@ -101,7 +100,7 @@ class TestSubRigNameTokensIntact(TestBase):
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_build_with_sub_rig_previous_name_tokens_and_build_name_tokens(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build(name_tokens={'name': 'silvia'})
@@ -112,7 +111,7 @@ class TestSubRigNameTokensIntact(TestBase):
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_build_add_name_tokens(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
@@ -122,7 +121,7 @@ class TestSubRigNameTokensIntact(TestBase):
 
 
 class TestSubRigMetaDataIntact(TestBase):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_register_previously_created_with_meta_data(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
@@ -131,7 +130,7 @@ class TestSubRigMetaDataIntact(TestBase):
         self.assertDictEqual(b.meta_data, {'name': 'bob', 'type': 'joint'})
         self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_register_previously_created_with_meta_data_overwrite(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()

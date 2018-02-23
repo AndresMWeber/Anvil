@@ -14,7 +14,7 @@ class BipedFoot(SubRigTemplate):
 
     def __init__(self, heel=None, outsole=None, insole=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
-        self.ankle, self.ball, self.toe, self.toe_end = self.layout_joints
+        self.ankle, self.ball, self.toe = self.layout_joints
         self.heel = heel
         self.outsole = outsole
         self.insole = insole
@@ -28,14 +28,15 @@ class BipedFoot(SubRigTemplate):
             shape = '%s_%s' % (cfg.CIRCLE, cfg.X)
             if label == self.ANKLE_TOKEN:
                 shape = '_'.join([s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
+            self.build_node(nt.Control,
+                            hierarchy_id=label,
+                            shape=shape,
+                            reference_object=reference_object,
+                            parent=last,
+                            rotate=False,
+                            name_tokens={cfg.NAME: label})
 
-            control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, label),
-                                      shape=shape,
-                                      reference_object=reference_object,
-                                      parent=last,
-                                      rotate=False,
-                                      name_tokens={cfg.NAME: label})
-            last = control.connection_group
+            last = getattr(self, label).nodes.connection_group
 
         self.control_ankle.control.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
 

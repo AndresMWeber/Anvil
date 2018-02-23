@@ -9,5 +9,6 @@ from control import Control
 from sub_rig import SubRig
 from rig import Rig
 from relationships import LinearHierarchyNodeSet
+from relationships import NonLinearHierarchyNodeSet
 
-__all__ = ['Control', 'SubRig', 'Rig', 'AbstractGrouping', 'LinearHierarchyNodeSet']
+__all__ = ['Control', 'SubRig', 'Rig', 'AbstractGrouping', 'LinearHierarchyNodeSet', 'NonLinearHierarchyNodeSet']

@@ -9,9 +9,9 @@ import anvil.utils.generic as gc
 class UnicodeDelegate(log.LogMixin):
     LOG = log.obtain_logger(__name__)
     DCC_TYPE = None
-    ANVIL_TYPE = 'unicode'
+    ANVIL_TYPE = cfg.NODE_TYPE
     BUILT_IN_METADATA = MetaData({})
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.NODE_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
 
     def __init__(self, node_pointer, meta_data=None, name_tokens=None, **kwargs):
         """ All nodes must be initialized with a string representation that the encompassing platform

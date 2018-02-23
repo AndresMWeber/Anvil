@@ -7,8 +7,7 @@ from anvil.utils.scene import check_exist_to_list
 
 class Transform(DagNode):
     DCC_TYPE = cfg.TRANSFORM_TYPE
-    ANVIL_TYPE = cfg.GROUP_TYPE
-    BUILT_IN_NAME_TOKENS = DagNode.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: ANVIL_TYPE}, force=True, new=True)
+    BUILT_IN_NAME_TOKENS = DagNode.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: cfg.GROUP_TYPE}, force=True, new=True)
     MODE_LOOKUP = {
         cfg.SCALE: cfg.SCALE,
         cfg.TRANSLATE: cfg.TRANSLATION,

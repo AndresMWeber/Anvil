@@ -1,7 +1,8 @@
 from anvil.sub_rig_templates import base
-from base_test import TestBase
+from base_test import TestBase, clean_up_scene
 import anvil.node_types as nt
 import anvil.config as cfg
+
 
 class TestBaseSubRig(TestBase):
     pass
@@ -46,6 +47,6 @@ class TestSubRigTemplateBuildIk(TestBaseSubRig):
         result = cls.sub_rig.build_ik(cls.joint_chain)
         cls.handle, cls.effector = result[cfg.NODE_TYPE]
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_build(self):
         self.sub_rig.build_pole_vector_control(self.joint_chain, self.handle)

@@ -17,16 +17,13 @@ class SubRig(base.AbstractGrouping):
             self.build_node(Transform, meta_data=self.meta_data,
                             name_tokens=self.name_tokens + {cfg.RIG_TYPE: cfg.SUB_RIG_TYPE, cfg.TYPE: cfg.GROUP_TYPE},
                             **self.build_kwargs)
-            print(self.hierarchy)
-            self.root = self.group_top = self.hierarchy[cfg.NODE_TYPE][-1]
+            self.root = self.group_top = self.hierarchy[cfg.NODE_TYPE][cfg.DEFAULT][-1]
 
         for main_group_type in self.SUB_GROUPS:
             self.build_node(Transform, parent=self.root, meta_data=self.meta_data,
                             name_tokens=self.name_tokens + {cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE},
                             **self.build_kwargs)
-            print(self.hierarchy)
-            setattr(self, '%s_%s' % (cfg.GROUP_TYPE, main_group_type), self.hierarchy[cfg.NODE_TYPE][-1])
-        print(self.group_world)
+            setattr(self, '%s_%s' % (cfg.GROUP_TYPE, main_group_type), self.hierarchy[cfg.NODE_TYPE][cfg.DEFAULT][-1])
         self.group_world.inheritsTransform.set(False)
 
         self.parent(parent)

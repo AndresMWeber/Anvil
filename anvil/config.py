@@ -14,6 +14,9 @@ GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
 ADD_SUB_TYPE = 'plusMinusAverage'
 MULT_DIV_TYPE = 'multiplyDivide'
+SET_TYPE = 'set'
+ANVIL_TYPE = 'ANVIL_TYPE'
+ID_TYPE = 'hierarchy_id'
 
 # NAME METADATA
 LEFT = 'left'
@@ -40,7 +43,7 @@ HIERARCHY_TYPE = 'hierarchy'
 # RIG CONCEPTS
 SUB_RIG_TOKEN = 'sub'
 NAME_TOKENS = 'name_tokens'
-META_DATA= 'meta_data'
+META_DATA = 'meta_data'
 UNIVERSAL = 'universal'
 TOP_GROUP = 'group_top'
 UNIVERSAL_CONTROL = '%s_%s' % (CONTROL_TYPE, UNIVERSAL)

@@ -5,10 +5,10 @@ import anvil
 import anvil.log as log
 import anvil.runtime as rt
 import anvil.config as cfg
+from anvil.utils.generic import Map
 import anvil.objects.attribute as at
-import anvil.objects as ot
 from anvil.meta_data import MetaData
-from anvil.utils.generic import merge_dicts, to_list
+from anvil.utils.generic import merge_dicts, to_list, to_size_list, is_class
 
 
 def register_built_nodes(f):
@@ -35,10 +35,16 @@ def register_built_nodes(f):
     @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
         results = f(abstract_grouping, *args, **kwargs)
+
+        if is_class(abstract_grouping):
+            return results
+
         for result_id, node in iteritems(results):
-            # Existing entry
-            # TODO: introduce "label" kwarg that will dictate a node's tuple pair that will indicate a top level label
-            # for special nodes.
+            if isinstance(node, tuple):
+                node = Map([(node[0], node[1])])
+            elif isinstance(node, dict):
+                node = Map(node)
+
             try:
                 hierarchy_entry = abstract_grouping.hierarchy[result_id]
 
@@ -50,19 +56,14 @@ def register_built_nodes(f):
                         hierarchy_entry.extend(node)
                     else:
                         hierarchy_entry.append(node)
-
                 else:
                     abstract_grouping.hierarchy[result_id] = [hierarchy_entry, node]
 
             except KeyError:
-                abstract_grouping.hierarchy[result_id] = to_list(node)
+                abstract_grouping.hierarchy[result_id] = node
         return results
 
     return wrapper
-
-
-class_name = lambda object_instance: object_instance.__class__.__name__.lower()
-get_tag = lambda n, grouping: class_name(n) if class_name(n) in grouping.BUILD_REPORT_KEYS else cfg.NODE_TYPE
 
 
 def generate_build_report(f):
@@ -74,12 +75,35 @@ def generate_build_report(f):
         :param kwargs: dict, use kwargs if you want to override the types.
                              By default accepts any key from abstract_grouping.BUILD_REPORT_KEYS
         :return:
+
+        A build report looks like this:
+
+        {'control': {'default': [anvil_controls_or_set_of_controls, ...]},
+         'node': {'default': [anvil_nodes_or_set_of_nodes, ...],
+                  'user custom hierarchy id': node}},
+         'set': {'default': None},
+         'joint': {'default': None},
+
+        A top level key will not be present if the result nodes from the wrapped function are not of that type.
+        The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
-        node_report = f(abstract_grouping, *args, **kwargs)
-        if isinstance(node_report, dict):
-            return {result_id: result for result_id, result in node_report if result}
-        else:
-            return {get_tag(node, abstract_grouping): node for node in to_list(node_report)}
+        custom_hierarchy_ids = kwargs.get('hierarchy_id', None)
+        nodes_built = to_list(f(abstract_grouping, *args, **kwargs))
+
+        if is_class(abstract_grouping):
+            return nodes_built
+
+        result = {}
+        for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
+            tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
+            if hierarchy_id:
+                # We are assuming the extra tag is unique and we can just do a plain update instead of checking.
+                result.update({tag: {hierarchy_id: node}})
+            else:
+                result[tag] = result.get(tag, {cfg.DEFAULT: []})
+                result[tag][cfg.DEFAULT].append(node)
+        print('build report:', result)
+        return result
 
     return wrapper
 
@@ -89,9 +113,9 @@ class AbstractGrouping(log.LogMixin):
         are required to give a performance.
 
     """
-    LOG = log.obtainLogger(__name__)
-    ANVIL_TYPE = cfg.GROUP_TYPE
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
+    LOG = log.obtain_logger(__name__)
+    ANVIL_TYPE = cfg.RIG_TYPE
+    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.GROUP_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     BUILT_IN_META_DATA = MetaData()
     BUILT_IN_ATTRIBUTES = MetaData({})
     RENDERING_ATTRIBUTES = MetaData({
@@ -104,7 +128,7 @@ class AbstractGrouping(log.LogMixin):
     BUILD_REPORT_KEYS = [cfg.CONTROL_TYPE, cfg.JOINT_TYPE, cfg.NODE_TYPE]
 
     def __init__(self, layout_joints=None, parent=None, top_node=None, name_tokens=None, meta_data=None, **kwargs):
-        self.hierarchy = {}
+        self.hierarchy = Map()
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_joints = None
@@ -133,6 +157,13 @@ class AbstractGrouping(log.LogMixin):
 
     def build_layout(self):
         raise NotImplementedError
+
+    @register_built_nodes
+    @generate_build_report
+    def register_node(self, node, manual_id=None):
+        if manual_id:
+            node = (manual_id, node)
+        return node
 
     def connect_rendering_delegate(self, assignee=None):
         # TODO: API Attribute dependent...dangerous.
@@ -191,11 +222,9 @@ class AbstractGrouping(log.LogMixin):
             build_function = kwargs.pop('build_fn')
         except KeyError:
             build_function = 'build'
-
         kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
-        dag_node = getattr(node_class, build_function)(*args, **kwargs)
-        return dag_node
+        return getattr(node_class, build_function)(*args, **kwargs)
 
     def auto_color(self, *args, **kwargs):
         auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
