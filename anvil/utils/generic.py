@@ -4,7 +4,7 @@ from six import iteritems, itervalues
 def to_list(query):
     if isinstance(query, list):
         return query
-    elif isinstance(query, (tuple, str)):
+    elif isinstance(query, str):
         return [query]
     elif query is None:
         return list()

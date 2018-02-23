@@ -20,10 +20,14 @@ class SubRig(base.AbstractGrouping):
             self.root = self.group_top = self.hierarchy[cfg.NODE_TYPE][cfg.DEFAULT][-1]
 
         for main_group_type in self.SUB_GROUPS:
-            self.build_node(Transform, parent=self.root, meta_data=self.meta_data,
+            hierarchy_id = '%s_%s' % (cfg.GROUP_TYPE, main_group_type)
+            self.build_node(Transform,
+                            hierarchy_id=hierarchy_id,
+                            parent=self.root,
+                            meta_data=self.meta_data,
                             name_tokens=self.name_tokens + {cfg.CHILD_TYPE: main_group_type, cfg.TYPE: cfg.GROUP_TYPE},
                             **self.build_kwargs)
-            setattr(self, '%s_%s' % (cfg.GROUP_TYPE, main_group_type), self.hierarchy[cfg.NODE_TYPE][cfg.DEFAULT][-1])
+            setattr(self, hierarchy_id, self.hierarchy[cfg.NODE_TYPE][hierarchy_id])
         self.group_world.inheritsTransform.set(False)
 
         self.parent(parent)

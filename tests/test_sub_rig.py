@@ -19,7 +19,6 @@ class TestSubRigBuild(TestBaseSubRig):
         sub_rig = nt.SubRig(meta_data={'meta': 'data'}, top_node=None, layout=None, parent=None)
         sub_rig.build()
         for node in sub_rig._flat_hierarchy():
-            node = sub_rig.hierarchy[node]
             self.assertTrue(node.exists())
             self.assertTrue(isinstance(node, nt.Transform))
 

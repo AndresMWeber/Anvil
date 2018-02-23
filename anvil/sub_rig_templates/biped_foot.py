@@ -1,6 +1,7 @@
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 import anvil.node_types as nt
 import anvil.config as cfg
+from anvil.utils.generic import to_size_list
 
 
 class BipedFoot(SubRigTemplate):
@@ -14,7 +15,7 @@ class BipedFoot(SubRigTemplate):
 
     def __init__(self, heel=None, outsole=None, insole=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
-        self.ankle, self.ball, self.toe = self.layout_joints
+        self.ankle, self.ball, self.toe = to_size_list(self.layout_joints, 3)
         self.heel = heel
         self.outsole = outsole
         self.insole = insole

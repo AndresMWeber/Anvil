@@ -1,4 +1,4 @@
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 import anvil.node_types as nt
 
 

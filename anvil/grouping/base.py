@@ -92,7 +92,6 @@ def generate_build_report(f):
 
         if is_class(abstract_grouping):
             return nodes_built
-
         result = {}
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)

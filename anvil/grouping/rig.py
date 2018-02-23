@@ -96,8 +96,8 @@ class Rig(base.AbstractGrouping):
 
         for main_group_type in self.SUB_GROUPINGS:
             self.build_node(ot.Transform,
-                            parent=self.control.universal.node.connection_group,
                             hierarchy_id='%s_%s' % (cfg.GROUP_TYPE, main_group_type),
+                            parent=self.control.universal.node.connection_group,
                             name_tokens={cfg.CHILD_TYPE: main_group_type,
                                          cfg.TYPE: cfg.GROUP_TYPE})
 

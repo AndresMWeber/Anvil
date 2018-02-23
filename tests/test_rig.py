@@ -26,4 +26,4 @@ class TestRigRename(TestBaseRig):
         self.assertEqual(str(test_rig.control.universal.offset_group), "untitled_universal_OGP")
 
         for node in test_rig.SUB_GROUPINGS:
-            self.assertEqual(getattr(test_rig, '%s_%s' % (cfg.GROUP_TYPE, node)), 'untitled_%s_GRP' % node)
+            self.assertEqual(str(getattr(test_rig.node, '%s_%s' % (cfg.GROUP_TYPE, node))), 'untitled_%s_GRP' % node)

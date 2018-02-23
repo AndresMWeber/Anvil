@@ -1,4 +1,4 @@
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 
 
 class Tentacle(SubRigTemplate):

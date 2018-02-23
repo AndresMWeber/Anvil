@@ -1,6 +1,6 @@
 import string
 import anvil.config as cfg
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 import anvil.objects.attribute as at
 
 
