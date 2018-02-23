@@ -1,4 +1,4 @@
-from six import iteritems
+from six import iteritems, itervalues
 
 
 def to_list(query):
@@ -26,6 +26,15 @@ def to_camel_case(input_string):
     tokens = input_string.split('_')
     return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
 
+def gen_flatten_dict_depth_two(d):
+    """ Taken from:
+        https://stackoverflow.com/questions/3835192/flatten-a-dictionary-of-dictionaries-2-levels-deep-of-lists-in-python
+        Given the d_inner, return an iterator that provides all the sessions, one by one, converted to tuples.
+    """
+    for d_inner in itervalues(d):
+        for nodes in itervalues(d_inner):
+            for node in to_list(nodes):
+                yield node
 
 def get_dict_depth(d=None, level=0):
     """ Returns maximum depth of the hierarchy
@@ -98,6 +107,8 @@ def dict_compare(d1, d2):
     modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
     same = set(o for o in intersect_keys if d1[o] == d2[o])
     return added, removed, modified, same
+
+
 
 
 def is_class(instance_or_class):

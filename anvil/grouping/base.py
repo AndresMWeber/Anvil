@@ -5,7 +5,7 @@ import anvil
 import anvil.log as log
 import anvil.runtime as rt
 import anvil.config as cfg
-from anvil.utils.generic import Map
+from anvil.utils.generic import Map, gen_flatten_dict_depth_two
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
 from anvil.utils.generic import merge_dicts, to_list, to_size_list, is_class
@@ -102,7 +102,6 @@ def generate_build_report(f):
             else:
                 result[tag] = result.get(tag, {cfg.DEFAULT: []})
                 result[tag][cfg.DEFAULT].append(node)
-        print('build report:', result)
         return result
 
     return wrapper
@@ -230,18 +229,34 @@ class AbstractGrouping(log.LogMixin):
         auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
         self._cascading_function(auto_colorize, auto_colorize)
 
-    def find_node(self, node_key):
+    def find_node(self, node_key, specify_initial_key=None):
+        """ This will only work with user specified hierarchy IDs.
+            Otherwise it will not detect the node key from the default node list.
+
+        :param node_key: str, node key we are looking for within the hierarchy initial sets
+        :param specify_initial_key: str, if there are double keys we can add granularity and specify the initial key.
+        """
         try:
-            return self.hierarchy[node_key]
+            if specify_initial_key:
+                return self.hierarchy[specify_initial_key][node_key]
+            for _, sub_hierarchy in iteritems(self.hierarchy):
+                candidate = sub_hierarchy.get(node_key)
+                if candidate:
+                    return candidate
         except:
-            raise KeyError('Node from key %s not found in hierarchy' % node_key)
+            raise KeyError('Node from key %s not found in hierarchy' % (
+                '.'.join([specify_initial_key, node_key]) if specify_initial_key else node_key))
+
+    def _flat_hierarchy(self):
+        return gen_flatten_dict_depth_two(self.hierarchy)
 
     def _cascading_function(self, object_function, grouping_function):
         for sub_key, sub_node in iteritems(self.hierarchy):
-            if anvil.is_agrouping(sub_node):
-                grouping_function(sub_node)
-            elif anvil.is_aobject(sub_node):
-                object_function(sub_node)
+            for node_key, node in iteritems(sub_node):
+                if anvil.is_agrouping(node):
+                    grouping_function(node)
+                elif anvil.is_aobject(node):
+                    object_function(node)
 
     def __getattr__(self, item):
         try:
@@ -258,8 +273,7 @@ class AbstractGrouping(log.LogMixin):
             return super(AbstractGrouping, self).__str__()
 
     def __repr__(self):
-        _ = (self.root, len(list(self.hierarchy)), self.meta_data, self.name_tokens)
-        formatted_properties = ' root=%s children=%d meta_data=%s name_tokens=%s>' % _
+        formatted_properties = ' root=%s children=%d>' % (self.root, len(list(self.hierarchy)))
         return super(AbstractGrouping, self).__repr__().replace('>', formatted_properties)
 
     def __dir__(self):

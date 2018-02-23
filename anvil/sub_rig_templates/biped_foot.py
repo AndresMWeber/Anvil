@@ -36,9 +36,9 @@ class BipedFoot(SubRigTemplate):
                             rotate=False,
                             name_tokens={cfg.NAME: label})
 
-            last = getattr(self, label).nodes.connection_group
+            last = self.control.get(label).node.connection_group
 
-        self.control_ankle.control.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
+        self.control.ankle.controller.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
 
         toe_ball_chain = nt.LinearHierarchyNodeSet(self.toe, node_filter=cfg.JOINT_TYPE)
 

@@ -2,7 +2,7 @@ from six import iteritems
 import anvil.node_types as nt
 from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
-from tests.base_test import TestBase, cleanup_nodes
+from tests.base_test import TestBase, clean_up_scene
 import string
 
 
@@ -12,17 +12,6 @@ class TestHandBase(TestBase):
 
     @classmethod
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
-        """
-
-        rt.dcc.scene.fileop(template_file,
-                            i=True,
-                            type="FBX",
-                            ignoreVersion=True,
-                            ra=True,
-                            mergeNamespacesOnClash=False,
-                            options="fbx",
-                            pr=True)
-        """
         cls.import_template_files(template_file)
 
         finger_joints = []
@@ -63,18 +52,18 @@ class TestBuildHand(TestHandBase):
 
 
 class TestBuildDefaultHand(TestHandBase):
+    @clean_up_scene
     def test_build_with_parent(self):
-        with cleanup_nodes():
-            parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, parent=parent)
-            self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+        parent = nt.Transform.build(name='test')
+        rig_instance = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, parent=parent)
+        self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
 
 class TestGetFingerBaseNames(TestHandBase):
+
     @classmethod
     def setUpClass(cls):
         super(TestGetFingerBaseNames, cls).setUpClass()
-        cleanup_nodes()
         cls.hand = Hand(cls.HAND_MERC_JOINTS)
 
     def test_default_with_thumb_from_fbx(self):

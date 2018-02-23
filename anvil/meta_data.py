@@ -78,6 +78,9 @@ class MetaData(log.LogMixin):
     def iteritems(self):
         return iteritems(self.data)
 
+    def to_dict(self):
+        return self.data
+
     def _process_args(self, args):
         return tuple(arg.data if isinstance(arg, self.__class__) else arg for arg in args)
 

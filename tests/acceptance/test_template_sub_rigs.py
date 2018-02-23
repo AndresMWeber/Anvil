@@ -28,6 +28,7 @@ class TestBaseTemplates(TestBase):
         else:
             joints = template_args
         sub_rig_instance = cls.TEMPLATE_CLASS(joints)
+        print(sub_rig_instance.hierarchy)
         sub_rig_instance.build(**template_flags)
         return sub_rig_instance
 

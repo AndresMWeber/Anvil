@@ -12,7 +12,7 @@ class TestRigBuild(TestBaseRig):
     def test_hierarchy_length(self):
         test_rig = nt.Rig()
         test_rig.build()
-        self.assertEqual(len(list(test_rig.hierarchy)), 5)
+        self.assertEqual(len(list(test_rig._flat_hierarchy())), 5)
 
 
 class TestRigRename(TestBaseRig):
@@ -20,10 +20,10 @@ class TestRigRename(TestBaseRig):
     def test_default_names(self):
         test_rig = nt.Rig()
         test_rig.build()
-        self.assertEqual(str(test_rig.group_top), "rig_untitled_GRP")
-        self.assertEqual(str(test_rig.control_universal.control), "untitled_universal_CTR")
-        self.assertEqual(str(test_rig.control_universal.connection_group), "untitled_universal_CGP")
-        self.assertEqual(str(test_rig.control_universal.offset_group), "untitled_universal_OGP")
+        self.assertEqual(str(test_rig.root), "rig_untitled_GRP")
+        self.assertEqual(str(test_rig.control.universal.controller), "untitled_universal_CTR")
+        self.assertEqual(str(test_rig.control.universal.connection_group), "untitled_universal_CGP")
+        self.assertEqual(str(test_rig.control.universal.offset_group), "untitled_universal_OGP")
 
         for node in test_rig.SUB_GROUPINGS:
             self.assertEqual(getattr(test_rig, '%s_%s' % (cfg.GROUP_TYPE, node)), 'untitled_%s_GRP' % node)

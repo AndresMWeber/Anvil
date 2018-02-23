@@ -4,33 +4,82 @@ import anvil.node_types as nt
 import anvil.objects.attribute as at
 import anvil.config as cfg
 import anvil
-from anvil.utils.generic import to_list
+from anvil.utils.generic import to_list, to_size_list
 from anvil.grouping.base import register_built_nodes, generate_build_report
 
 
 class SubRigTemplate(nt.SubRig):
     BUILT_IN_ATTRIBUTES = nt.SubRig.BUILT_IN_ATTRIBUTES.merge({cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS}, new=True)
-    DEFAULT_FK_SHAPE = cfg.DEFAULT_FK_SHAPE
 
+    @classmethod
     @register_built_nodes
     @generate_build_report
-    def build_ik(self, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
+    def build_pole_vector_control(cls, joints, ik_handle,
+                                  parent=None,
+                                  up_vector=None,
+                                  aim_vector=None,
+                                  up_object=None,
+                                  move_by=None,
+                                  meta_data=None,
+                                  name_tokens=None,
+                                  **kwargs):
+        """ Builds a pole vector control based on positions of joints and existing ik handle.
+            Runs as follows:
+                - Point constraint to the two base positions, aim constrain to the other objects
+                - Delete constraints then move the control outside of the reference transforms in the aim direction.
+
+
+        :param joints: LinearHierarchyNodeSet(Joint), linear hierarchy set of joints.
+        :param ik_handle: DagNode, ik handle node
+        :param kwargs: dict, build kwargs for the control build call
+        :return: (Control, DagNode, NonLinearHierarchyNodeSet(DagNode))
+        """
+        mid_joint = joints[len(joints) // 2]
+        parent = list(reversed(to_size_list(parent, 3)))
+
+        name_tokens = MetaData(cls.name_tokens, name_tokens) if hasattr(cls, cfg.NAME_TOKENS) else name_tokens
+        meta_data = MetaData(cls.meta_data, meta_data) if hasattr(cls, cfg.META_DATA) else meta_data
+        kwargs.update({cfg.NAME_TOKENS: name_tokens,
+                       cfg.META_DATA: meta_data,
+                       'move_by': move_by,
+                       'parent': parent.pop(),
+                       'up_vector': up_vector,
+                       'aim_vector': aim_vector,
+                       'up_object': up_object})
+
+        control = nt.Control.build_pole_vector(joints, ik_handle, **kwargs)
+        pv_line, clusters = nt.Curve.build_line_indicator(mid_joint, control.node.control, **kwargs)
+
+        for cluster in clusters:
+            cluster.visibility.set(False)
+            cluster.parent(parent.pop())
+        pv_line.parent(parent.pop())
+
+        return (control, pv_line, nt.NonLinearHierarchyNodeSet(clusters))
+
+    DEFAULT_FK_SHAPE = cfg.DEFAULT_FK_SHAPE
+
+    @classmethod
+    @register_built_nodes
+    @generate_build_report
+    def build_ik(cls, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
         name_tokens = MetaData({cfg.TYPE: cfg.IK_HANDLE}, name_tokens or {})
         kwargs.update({'endEffector': str(linear_hierarchy_set.tail), 'solver': solver})
 
-        handle, effector = rt.dcc.rigging.ik_handle(str(linear_hierarchy_set.head), **kwargs)
+        handle, effector = anvil.factory_list(rt.dcc.rigging.ik_handle(str(linear_hierarchy_set.head), **kwargs))
         if parent:
             rt.dcc.scene.parent(handle, parent)
 
-        handle = anvil.factory(handle, name_tokens=name_tokens, **kwargs)
-        ik_handle = anvil.factory(effector, name_tokens=name_tokens.update({cfg.TYPE: cfg.IK_EFFECTOR}), **kwargs)
+        handle.name_tokens.update(name_tokens)
+        effector.name_tokens.update({cfg.TYPE: cfg.IK_EFFECTOR})
 
-        return handle, ik_handle
+        return handle, effector
 
+    @classmethod
     @register_built_nodes
     @generate_build_report
-    def build_blend_chain(self, layout_joints, source_chains, duplicate=True, **kwargs):
-        blend_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
+    def build_blend_chain(cls, layout_joints, source_chains, blend_attr=None, parent=None, duplicate=True, **kwargs):
+        blend_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent, **kwargs)
 
         for bl, source_chain in zip(blend_chain, zip(*source_chains)):
             blender = rt.dcc.create.create_node(cfg.BLEND_NODE)
@@ -39,95 +88,75 @@ class SubRigTemplate(nt.SubRig):
             for index, joint in enumerate(source_chain):
                 joint.rotate.connect(blender.attr('color%d' % (index + 1)))
 
-            getattr(self.root, cfg.IKFK_BLEND).connect(blender.blender)
+            if blend_attr:
+                blend_attr.connect(blender.blender)
 
         return blend_chain
 
+    @classmethod
     @register_built_nodes
     @generate_build_report
-    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, duplicate=True, **kwargs):
-        kwargs = MetaData(kwargs)
+    def build_ik_chain(cls,
+                       layout_joints,
+                       ik_end_index=-1,
+                       solver=cfg.IK_RP_SOLVER,
+                       chain_parent=None,
+                       parent=None,
+                       duplicate=True,
+                       **kwargs):
+        parent = list(reversed(to_size_list(parent, 3)))
 
-        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=self.group_joints, **kwargs)
+        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=chain_parent, **kwargs)
 
-        results = self.build_ik(ik_chain, chain_end=ik_chain[ik_end_index], parent=self.group_nodes,
-                                name_tokens={cfg.NAME: cfg.IK}, **kwargs)
-        print(results)
+        results = cls.build_ik(ik_chain,
+                               chain_end=ik_chain[ik_end_index],
+                               parent=parent.pop(),
+                               name_tokens={cfg.NAME: cfg.IK}, **kwargs)
         handle, effector = results[cfg.NODE_TYPE]
 
-        controls = []
+        controls = nt.NonLinearHierarchyNodeSet()
         # build ik control
-        controls.append(nt.Control.build(**(kwargs + {cfg.PARENT: self.group_controls,
-                                                      cfg.REFERENCE_OBJECT: ik_chain[-1],
-                                                      cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
-                                                      cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}})))
+        controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(),
+                                                             cfg.REFERENCE_OBJECT: ik_chain[-1],
+                                                             cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
+                                                             cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict()))
 
         # build pole vector control if using RP solver.
         if solver == cfg.IK_RP_SOLVER:
-            controls.append(self.build_pole_vector_control(ik_chain, handle,
-                                                           **(kwargs + {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
-                                                                        cfg.NAME_TOKENS:
-                                                                            {cfg.PURPOSE: cfg.POLE_VECTOR}})))
+            controls.append(cls.build_pole_vector_control(ik_chain, handle,
+                                                          **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
+                                                                              cfg.NAME_TOKENS:
+                                                                                  {cfg.PURPOSE: cfg.POLE_VECTOR}})))
 
         rt.dcc.connections.translate(controls[0].connection_group, handle)
         return (ik_chain, controls, handle, effector)
 
+    @classmethod
     @register_built_nodes
     @generate_build_report
-    def build_fk_chain(self, chain_start=None, chain_end=None, shape=None, duplicate=True, parent=None,
+    def build_fk_chain(cls, chain_start=None, chain_end=None, shape=None, duplicate=True, parent=None,
                        name_tokens=None, meta_data=None, **kwargs):
-        chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=self.group_joints)
+        """
 
-        # Ensure there are enough shapes in the shape list to pair with the chain
-        controls = []
-        last_node = parent or self.group_controls
-        for node, shape in zip(chain, self.get_shape_list(len(chain), shape)):
+        :param parent: list or object: list of up to length 2, [fk chain parent, control chain parent]
+        :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
+        """
+        parent = to_size_list(parent, 2)
+
+        chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
+        controls = nt.NonLinearHierarchyNodeSet()
+        control_parent = parent.pop()
+        name_tokens = MetaData(cls.name_tokens, name_tokens) if hasattr(cls, cfg.NAME_TOKENS) else name_tokens
+        meta_data = MetaData(cls.meta_data, meta_data) if hasattr(cls, cfg.META_DATA) else meta_data
+
+        for node, shape in zip(chain, to_size_list(shape or cls.DEFAULT_FK_SHAPE, len(chain))):
             control = nt.Control.build(reference_object=node,
                                        shape=shape,
-                                       parent=last_node,
-                                       name_tokens=self.name_tokens.merge(self.name_tokens, name_tokens, new=True),
-                                       meta_data=self.meta_data.merge(self.meta_data, meta_data, new=True),
+                                       parent=control_parent,
+                                       name_tokens=name_tokens,
+                                       meta_data=meta_data,
                                        **kwargs)
             controls.append(control)
             rt.dcc.connections.parent(control.node.connection_group, node, maintainOffset=True)
-            last_node = control.node.connection_group
+            control_parent = control.node.connection_group
         return (controls, chain)
-
-    @register_built_nodes
-    @generate_build_report
-    def build_pole_vector_control(self, joints, ik_handle,
-                                  up_vector=None,
-                                  aim_vector=None,
-                                  up_object=None,
-                                  move_by=None,
-                                  meta_data=None,
-                                  name_tokens=None,
-                                  **kwargs):
-        """ Point constraint to the two base positions, aim constrain to the other objects
-            Delete constraints then move the control outside of the reference transforms in the aim direction.
-        """
-        mid_joint = joints[len(joints) / 2]
-
-        kwargs.update({cfg.NAME_TOKENS: MetaData(self.name_tokens, name_tokens),
-                       cfg.META_DATA: MetaData(self.meta_data, meta_data),
-                       'move_by': move_by,
-                       'parent': self.group_controls,
-                       'up_vector': up_vector,
-                       'aim_vector': aim_vector,
-                       'up_object': up_object})
-
-        control = nt.Control.build_pole_vector(joints, ik_handle, **kwargs)
-        pv_line, clusters = nt.Curve.build_line_indicator(mid_joint, control.control, **kwargs)
-
-        for cluster in clusters:
-            cluster.visibility.set(False)
-            cluster.parent(self.group_nodes)
-        pv_line.parent(self.group_controls)
-        return (control, pv_line, clusters)
-
-    @classmethod
-    def get_shape_list(cls, length, shape_list=None, shape=None, **kwargs):
-        shape_list = to_list(shape_list or shape or cls.DEFAULT_FK_SHAPE)
-        if not len(shape_list) == length:
-            shape_list.extend([shape_list[-1]] * (length - len(shape_list)))
-        return shape_list

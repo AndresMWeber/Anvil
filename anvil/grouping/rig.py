@@ -104,7 +104,6 @@ class Rig(base.AbstractGrouping):
         self.build_sub_rigs()
         self.initialize_sub_rig_attributes(self.control.universal.node.control)
         self.connect_rendering_delegate(self.control.universal.node.control)
-        print(parent)
         self.parent(parent)
         self.rename()
         self.auto_color()
