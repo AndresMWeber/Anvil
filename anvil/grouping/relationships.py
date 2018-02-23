@@ -14,12 +14,13 @@ class NodeRelationshipSet(log.LogMixin):
         self.name_tokens = MetaData(name_tokens or {}, **kwargs)
         self.nodes = nodes or []
 
-    @property
-    def ANVIL_TYPE(self):
+    def _get_anvil_type(self):
         try:
             return self.nodes[0].ANVIL_TYPE
         except (AttributeError, ValueError, IndexError):
             return cfg.SET_TYPE
+
+    ANVIL_TYPE = property(_get_anvil_type)
 
     @property
     def set(self):

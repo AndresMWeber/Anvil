@@ -47,8 +47,10 @@ class Hand(SubRigTemplate):
         if self.has_ik:
             digit_nodes[cfg.IK] = self.build_ik_chain(digit_joints, shape='cube', **kwargs)
         if self.has_fk and self.has_ik:
+            print(digit_nodes)
             self.build_blend_chain(digit_joints,
-                                   [digit_nodes[cfg.IK][cfg.JOINT_TYPE], digit_nodes[cfg.FK][cfg.JOINT_TYPE]],
+                                   [digit_nodes[cfg.IK][cfg.SET_TYPE][cfg.DEFAULT][-1],
+                                    digit_nodes[cfg.FK][cfg.SET_TYPE][cfg.DEFAULT][-1]],
                                    **kwargs)
 
     def get_finger_base_names(self):

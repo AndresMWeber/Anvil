@@ -24,7 +24,7 @@ class TestToSizeList(TestBaseGeneric):
 
     def test_over_length_shape_list(self):
         input = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        self.assertEqual(generic.to_size_list(input, 5), input)
+        self.assertEqual(generic.to_size_list(input, 5), input[:5])
 
     def test_kwarg_shape_input(self):
         self.assertEqual(generic.to_size_list('pyramid', 6), ['pyramid'] * 6)

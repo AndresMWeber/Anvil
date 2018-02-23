@@ -108,7 +108,8 @@ class SubRigTemplate(nt.SubRig):
         results = self.build_ik(ik_chain,
                                 chain_end=ik_chain[ik_end_index],
                                 parent=parent.pop(),
-                                name_tokens={cfg.NAME: cfg.IK}, **kwargs)
+                                name_tokens=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.NAME_TOKENS, {})),
+                                **kwargs)
         handle, effector = results[cfg.NODE_TYPE][cfg.DEFAULT]
 
         controls = nt.NonLinearHierarchyNodeSet()

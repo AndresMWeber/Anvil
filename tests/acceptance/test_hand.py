@@ -31,8 +31,9 @@ class TestBuildHand(TestHandBase):
         super(TestBuildHand, cls).setUpClass()
         try:
             cls.rig = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
-        except IndexError:
+        except (IndexError, KeyError) as e:
             print_scene_tree()
+            raise e
 
     def test_build_no_kwargs_no_errors(self):
         self.assertIsNotNone(self.rig)

@@ -11,15 +11,14 @@ class TestBaseTemplateRigs(TestBase):
     TEMPLATE = BipedFoot
 
     @classmethod
-    def from_template_file(cls, template_file, pre_build_hook=None, post_build_hook=None,
-                           **kwargs):
+    def from_template_file(cls, template_file, pre_build_hook=None, post_build_hook=None, **kwargs):
         default_return_func = lambda: {}
         pre_build_hook = pre_build_hook or default_return_func
         post_build_hook = post_build_hook or default_return_func
 
         cls.import_template_files(template_file)
         kwargs.update(pre_build_hook())
-        rig_instance = cls.TEMPLATE(layout_joints=map(nt.Transform, ['foot', 'ball', 'toe']), heel='heel')
+        rig_instance = cls.TEMPLATE(layout_joints=map(nt.Transform, ['foot', 'ball', 'toe']), heel=nt.Transform('heel'))
         rig_instance.build(**kwargs)
         post_build_hook()
 
@@ -70,16 +69,16 @@ class TestBuildBipedFootHierarchy(TestBaseTemplateRigs):
         cls.rig = cls.from_template_file(cls.FOOT)
 
     def test_number_of_controls(self):
-        self.assertEqual(
-            len(list([node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)])), 4)
+        self.assertEqual(len(list([node for node in self.rig._flat_hierarchy() if isinstance(node, nt.Control)])), 4)
 
     def test_control_positions_match(self):
         components = [self.TEMPLATE.TOE_TOKEN,
                       self.TEMPLATE.BALL_TOKEN,
                       self.TEMPLATE.ANKLE_TOKEN,
                       self.TEMPLATE.HEEL_TOKEN]
+
         for component in components:
-            control = getattr(self.rig, 'control_%s' % component)
+            control = getattr(self.rig.control, component)
             joint = getattr(self.rig, component)
             self.assertEqual([round(p, 5) for p in control.offset_group.get_world_position()],
                              [round(p, 5) for p in joint.get_world_position()])
