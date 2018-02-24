@@ -43,15 +43,24 @@ class Hand(SubRigTemplate):
     def build_digit(self, digit_joints, **kwargs):
         digit_nodes = {}
         if self.has_fk:
-            digit_nodes[cfg.FK] = self.build_fk_chain(digit_joints, shape='pyramid_pin', **kwargs)
+            digit_nodes[cfg.FK] = self.build_fk_chain(digit_joints,
+                                                      parent=[self.group_joints, self.group_controls],
+                                                      shape='pyramid_pin', **kwargs)
         if self.has_ik:
-            digit_nodes[cfg.IK] = self.build_ik_chain(digit_joints, shape='cube', **kwargs)
-        if self.has_fk and self.has_ik:
-            print(digit_nodes)
-            self.build_blend_chain(digit_joints,
-                                   [digit_nodes[cfg.IK][cfg.SET_TYPE][cfg.DEFAULT][-1],
-                                    digit_nodes[cfg.FK][cfg.SET_TYPE][cfg.DEFAULT][-1]],
-                                   **kwargs)
+            digit_nodes[cfg.IK] = self.build_ik_chain(digit_joints,
+                                                      parent=[self.group_joints, self.group_nodes, self.group_controls,
+                                                              [self.group_controls,
+                                                               self.group_nodes,
+                                                               self.group_nodes]],
+                                                      shape='cube', **kwargs)
+
+            if self.has_fk and self.has_ik:
+                self.build_blend_chain(digit_joints,
+                                       [digit_nodes[cfg.IK][cfg.SET_TYPE][cfg.DEFAULT][-1],
+                                        digit_nodes[cfg.FK][cfg.SET_TYPE][cfg.DEFAULT][-1]],
+                                       parent=self.group_joints,
+                                       **kwargs)
+
 
     def get_finger_base_names(self):
         num_fingers = len(self.layout_joints)
@@ -60,20 +69,25 @@ class Hand(SubRigTemplate):
         else:
             return [cfg.FINGER + c for c in string.uppercase[:num_fingers]]
 
+
     def rename(self, *input_dicts, **name_tokens):
         super(Hand, self).rename(*input_dicts, **name_tokens)
+
 
     def set_up_fist_pose(self):
         # for now just hook it up to the controls
         pass
 
+
     def set_up_spread_pose(self):
         # for now just hook it up to the controls
         pass
 
+
     def set_up_curl_pose(self):
         # for now just hook it up to the controls
         pass
+
 
     def connect_curl_fist(self, control, axis=cfg.X):
         phalanges = self.fk_chain if hasattr(self, '%s_chain' % cfg.FK) else self.blend_chain

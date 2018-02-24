@@ -41,7 +41,7 @@ class TestBase(unittest2.TestCase):
     def import_template_files(cls, template_file):
         import pymel.core as pm
         import os
-        file_path = os.path.join(os.path.dirname(__file__), 'acceptance', cls.TEMPLATE_FILES[template_file])
+        file_path = os.path.join(os.path.dirname(__file__), 'resources', cls.TEMPLATE_FILES[template_file])
         cls.LOG.info('Importing file %s from anvil/tests dir' % file_path)
         pm.importFile(file_path, ignoreVersion=True)
         cls.LOG.info('Successfully imported file.')

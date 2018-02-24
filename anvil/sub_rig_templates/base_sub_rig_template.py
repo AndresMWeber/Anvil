@@ -13,21 +13,14 @@ class SubRigTemplate(nt.SubRig):
 
     @register_built_nodes
     @generate_build_report
-    def build_pole_vector_control(self, joints, ik_handle,
-                                  parent=None,
-                                  up_vector=None,
-                                  aim_vector=None,
-                                  up_object=None,
-                                  move_by=None,
-                                  meta_data=None,
-                                  name_tokens=None,
-                                  **kwargs):
+    def build_pole_vector_control(self, joints, ik_handle, parent=None, up_vector=None, aim_vector=None,
+                                  up_object=None, move_by=None, meta_data=None, name_tokens=None, **kwargs):
         """ Builds a pole vector control based on positions of joints and existing ik handle.
             Runs as follows:
                 - Point constraint to the two base positions, aim constrain to the other objects
                 - Delete constraints then move the control outside of the reference transforms in the aim direction.
 
-
+        :param parent: list or object: list of up to length 3, [control parent, clusters parent, pv line parent]
         :param joints: LinearHierarchyNodeSet(Joint), linear hierarchy set of joints.
         :param ik_handle: DagNode, ik handle node
         :param kwargs: dict, build kwargs for the control build call
@@ -62,6 +55,11 @@ class SubRigTemplate(nt.SubRig):
     @register_built_nodes
     @generate_build_report
     def build_ik(self, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
+        """
+
+        :param parent: list or object: list of up to length 1, [handle parent]
+        :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
+        """
         name_tokens = MetaData({cfg.TYPE: cfg.IK_HANDLE}, name_tokens or {})
         kwargs.update({'endEffector': str(linear_hierarchy_set.tail), 'solver': solver})
 
@@ -77,6 +75,11 @@ class SubRigTemplate(nt.SubRig):
     @register_built_nodes
     @generate_build_report
     def build_blend_chain(self, layout_joints, source_chains, blend_attr=None, parent=None, duplicate=True, **kwargs):
+        """
+
+        :param parent: list or object: list of up to length 1, [blend chain parent]
+        :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
+        """
         blend_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent, **kwargs)
 
         for bl, source_chain in zip(blend_chain, zip(*source_chains)):
@@ -93,17 +96,17 @@ class SubRigTemplate(nt.SubRig):
 
     @register_built_nodes
     @generate_build_report
-    def build_ik_chain(self,
-                       layout_joints,
-                       ik_end_index=-1,
-                       solver=cfg.IK_RP_SOLVER,
-                       chain_parent=None,
-                       parent=None,
-                       duplicate=True,
+    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, parent=None, duplicate=True,
                        **kwargs):
+        """
+
+        :param parent: list or object: list of up to length 4:
+                       [ik chain parent, handle parent, pv control parent, [3 pole vector control parents]]
+        :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
+        """
         parent = list(reversed(to_size_list(parent, 3)))
 
-        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=chain_parent, **kwargs)
+        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent.pop(), **kwargs)
 
         results = self.build_ik(ik_chain,
                                 chain_end=ik_chain[ik_end_index],

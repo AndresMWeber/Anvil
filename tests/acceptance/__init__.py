@@ -1,8 +1,8 @@
-import test_hand
-import test_biped_foot
 import test_biped
-import test_MVP
 import test_biped_average_time
+import test_biped_foot
+import test_hand
+import test_MVP
 import test_template_sub_rigs
 
 __all__ = [
