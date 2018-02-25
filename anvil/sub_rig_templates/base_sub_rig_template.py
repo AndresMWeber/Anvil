@@ -117,19 +117,20 @@ class SubRigTemplate(nt.SubRig):
 
         controls = nt.NonLinearHierarchyNodeSet()
         # build ik control
-        controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(),
-                                                             cfg.REFERENCE_OBJECT: ik_chain[-1],
-                                                             cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
-                                                             cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict()))
+        control = nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(),
+                                            cfg.REFERENCE_OBJECT: ik_chain[-1],
+                                            cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
+                                            cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict())
+        controls.append(control)
 
         # build pole vector control if using RP solver.
         if solver == cfg.IK_RP_SOLVER:
-            controls.append(self.build_pole_vector_control(ik_chain, handle,
-                                                           **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
-                                                                               cfg.NAME_TOKENS:
-                                                                                   {cfg.PURPOSE: cfg.POLE_VECTOR}})))
+            self.build_pole_vector_control(ik_chain, handle,
+                                           **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
+                                                               cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.POLE_VECTOR}}))
 
         rt.dcc.connections.translate(controls[0].connection_group, handle)
+
         return ik_chain, controls, handle, effector
 
     @register_built_nodes
@@ -145,18 +146,21 @@ class SubRigTemplate(nt.SubRig):
 
         chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
         controls = nt.NonLinearHierarchyNodeSet()
-        control_parent = parent.pop()
+
         name_tokens = MetaData(self.name_tokens, name_tokens) if hasattr(self, cfg.NAME_TOKENS) else name_tokens
         meta_data = MetaData(self.meta_data, meta_data) if hasattr(self, cfg.META_DATA) else meta_data
 
+        control_parent = parent.pop()
         for node, shape in zip(chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(chain))):
-            control = nt.Control.build(reference_object=node,
-                                       shape=shape,
-                                       parent=control_parent,
-                                       name_tokens=name_tokens,
-                                       meta_data=meta_data,
-                                       **kwargs)
-            controls.append(control)
-            rt.dcc.connections.parent(control.node.connection_group, node, maintainOffset=True)
-            control_parent = control.node.connection_group
+            self.build_node(nt.Control,
+                            reference_object=node,
+                            shape=shape,
+                            parent=control_parent,
+                            name_tokens=name_tokens,
+                            meta_data=meta_data,
+                            **kwargs)
+            controls.append(self.hierarchy.control.default[-1])
+            rt.dcc.connections.parent(controls[-1].node.connection_group, node, maintainOffset=True)
+            control_parent = controls[-1].node.connection_group
+
         return controls, chain

@@ -84,6 +84,10 @@ def is_anvil(node):
     return False
 
 
+def is_aset(node):
+    issubclass(type(node), node_types.NodeRelationshipSet)
+
+
 def is_agrouping(node):
     return issubclass(type(node), node_types.AbstractGrouping)
 
@@ -99,7 +103,6 @@ __all__ = ['config',
            'version',
            'node_types',
            'runtime',
-           'node_types',
            'objects',
            'grouping',
            'sub_rig_templates',

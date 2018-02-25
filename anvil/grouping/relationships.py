@@ -30,12 +30,6 @@ class NodeRelationshipSet(log.LogMixin):
     def set(self, value):
         self.nodes = value
 
-    def rename(self, *args, **kwargs):
-        self.name_tokens.update(*args, **kwargs)
-        for i, node in enumerate(list(self)):
-            node.name_tokens.update(self.name_tokens, {cfg.VARIATION: i})
-            node.rename()
-
     def __contains__(self, item):
         return item in self.set
 

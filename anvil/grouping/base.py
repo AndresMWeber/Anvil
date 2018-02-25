@@ -208,10 +208,8 @@ class AbstractGrouping(log.LogMixin):
         new_tokens = MetaData(*input_dicts, **kwargs)
         self.name_tokens.merge(new_tokens)
         self._nomenclate.merge_dict(**self.name_tokens.data)
-        self._cascading_function(lambda n:
-                                 n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
-                                 lambda n:
-                                 n.rename(self.name_tokens, n.name_tokens))
+        self._cascade_across_hierarchy(lambda n: n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
+                                       lambda n: n.rename(self.name_tokens, n.name_tokens))
 
     @register_built_nodes
     @generate_build_report
@@ -226,36 +224,37 @@ class AbstractGrouping(log.LogMixin):
 
     def auto_color(self, *args, **kwargs):
         auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
-        self._cascading_function(auto_colorize, auto_colorize)
+        self._cascade_across_hierarchy(auto_colorize, auto_colorize)
 
-    def find_node(self, node_key, specify_initial_key=None):
+    def find_node(self, node_key, category_override=None):
         """ This will only work with user specified hierarchy IDs.
             Otherwise it will not detect the node key from the default node list.
 
         :param node_key: str, node key we are looking for within the hierarchy initial sets
-        :param specify_initial_key: str, if there are double keys we can add granularity and specify the initial key.
+        :param category_override: str, if there are double keys we can add granularity and specify the initial key.
         """
         try:
-            if specify_initial_key:
-                return self.hierarchy[specify_initial_key][node_key]
+            if category_override:
+                return self.hierarchy[category_override][node_key]
             for _, sub_hierarchy in iteritems(self.hierarchy):
                 candidate = sub_hierarchy.get(node_key)
                 if candidate:
                     return candidate
         except:
             raise KeyError('Node from key %s not found in hierarchy' % (
-                '.'.join([specify_initial_key, node_key]) if specify_initial_key else node_key))
+                '.'.join([category_override, node_key]) if category_override else node_key))
 
     def _flat_hierarchy(self):
         return gen_flatten_dict_depth_two(self.hierarchy)
 
-    def _cascading_function(self, object_function, grouping_function):
+    def _cascade_across_hierarchy(self, object_function, grouping_function):
         for sub_key, sub_node in iteritems(self.hierarchy):
-            for node_key, node in iteritems(sub_node):
-                if anvil.is_agrouping(node):
-                    grouping_function(node)
-                elif anvil.is_aobject(node):
-                    object_function(node)
+            for node_key, anvil_node in iteritems(sub_node):
+                for node in anvil_node if anvil.is_aset(anvil_node) else [anvil_node]:
+                    if anvil.is_agrouping(node):
+                        grouping_function(node)
+                    elif anvil.is_aobject(node):
+                        object_function(node)
 
     def __getattr__(self, item):
         try:

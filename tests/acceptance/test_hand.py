@@ -7,8 +7,10 @@ import string
 
 
 class TestHandBase(TestBase):
+    hand = None
     name_tokens = {'name': 'hoof', 'purpose': 'mvp'}
     HAND_MERC_JOINTS = ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']
+    TEMPLATE_CLASS = Hand
 
     @classmethod
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
@@ -18,38 +20,39 @@ class TestHandBase(TestBase):
         for finger in finger_start_joints:
             finger_joints.append(list(nt.LinearHierarchyNodeSet(finger)))
 
-        rig_instance = Hand(layout_joints=finger_joints, **kwargs)
+        rig_instance = cls.TEMPLATE_CLASS(layout_joints=finger_joints, **kwargs)
         rig_instance.build(**kwargs)
         return rig_instance
 
 
 class TestBuildHand(TestHandBase):
-    rig = None
-
     @classmethod
     def setUpClass(cls):
         super(TestBuildHand, cls).setUpClass()
         try:
-            cls.rig = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
+            cls.hand = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
         except (IndexError, KeyError) as e:
             print_scene_tree()
             raise e
 
     def test_build_no_kwargs_no_errors(self):
-        self.assertIsNotNone(self.rig)
+        self.assertIsNotNone(self.hand)
 
     def test_number_of_controls(self):
-        controls = [node for key, node in iteritems(self.rig.hierarchy) if isinstance(node, nt.Control)]
+        controls = [node for key, node in iteritems(self.hand.hierarchy) if isinstance(node, nt.Control)]
         self.assertEqual(len(controls), 0)
 
     def test_number_of_control_top_groups(self):
-        self.assertEqual(len(self.rig.group_controls.get_children()), 10)
+        print(self.hand.hierarchy.control)
+        self.assertEqual(len(self.hand.group_controls.get_children()), 10)
 
     def test_number_of_joint_chains(self):
-        self.assertEqual(len(self.rig.group_joints.get_children()), 15)
+        print(self.hand.hierarchy.joint)
+        self.assertEqual(len(self.hand.group_joints.get_children()), 15)
 
     def test_number_of_nodes(self):
-        self.assertEqual(len(self.rig.group_nodes.get_children()), 5)
+        print(self.hand.hierarchy.node)
+        self.assertEqual(len(self.hand.group_nodes.get_children()), 5)
 
 
 class TestBuildDefaultHand(TestHandBase):
@@ -61,7 +64,6 @@ class TestBuildDefaultHand(TestHandBase):
 
 
 class TestGetFingerBaseNames(TestHandBase):
-
     @classmethod
     def setUpClass(cls):
         super(TestGetFingerBaseNames, cls).setUpClass()

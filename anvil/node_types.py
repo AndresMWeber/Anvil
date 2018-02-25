@@ -21,6 +21,7 @@ anvil.LOG.info('Registered all object classes in anvil.node_types: %s', list(REG
 __all__ = ['AbstractGrouping',
            'SubRig',
            'Rig',
+           'NodeRelationshipSet',
            'NonLinearHierarchyNodeSet',
            'LinearHierarchyNodeSet'
            'Control',
