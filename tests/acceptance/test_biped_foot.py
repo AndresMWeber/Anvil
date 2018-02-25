@@ -1,7 +1,7 @@
 from six import iteritems
 import anvil.node_types as nt
 from anvil.sub_rig_templates import BipedFoot
-from tests.base_test import TestBase, clean_up_scene, cleanup_nodes
+from tests.base_test import TestBase, clean_up_scene, sanitize
 import anvil.config as cfg
 
 

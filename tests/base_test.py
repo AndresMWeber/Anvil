@@ -1,13 +1,12 @@
 import os
 import unittest2
-from deepdiff import DeepDiff
 from six import iteritems, string_types
 from functools import wraps
 
 os.environ['ANVIL_MODE'] = 'TEST'
 import logging
 from collections import Iterable
-from collections import OrderedDict
+from anvil.utils.scene import sanitize_scene
 from contextlib import contextmanager
 import nomenclate
 import anvil
@@ -65,28 +64,6 @@ class TestBase(unittest2.TestCase):
             node.rename(NOMENCLATE.get(**name_tokens))
             return node
 
-    @classmethod
-    def deep_sort(cls, obj):
-        """
-        https://stackoverflow.com/questions/18464095/how-to-achieve-assertdictequal-with-assertsequenceequal-applied-to-values
-        Recursively sort list or dict nested lists
-        """
-        if isinstance(obj, dict):
-            _sorted = OrderedDict()
-            for key in sorted(list(obj)):
-                _sorted[key] = cls.deep_sort(obj[key])
-
-        elif isinstance(obj, list):
-            new_list = []
-            for val in obj:
-                new_list.append(cls.deep_sort(val))
-            _sorted = sorted(new_list)
-
-        else:
-            _sorted = obj
-
-        return _sorted
-
     @staticmethod
     def checkEqual(list_a, list_b):
         return len(list_a) == len(list_b) and sorted(list_a) == sorted(list_b)
@@ -107,64 +84,9 @@ class TestBase(unittest2.TestCase):
                 self.assertEqual(v1, v2, msg)
         return True
 
-    def post_hook(self):
-        created_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-        return created_scene_tree
-
-    def pre_hook(self):
-        initial_scene_tree = anvil.runtime.dcc.scene.get_scene_tree()
-        return initial_scene_tree
-
-    def process_scene_tree_diff(self, initial_scene_tree, post_scene_tree):
-        diff = DeepDiff(initial_scene_tree, post_scene_tree)
-        created_nodes = []
-        deep_diff_added, deep_diff_removed = 'dictionary_item_added', 'dictionary_item_removed'
-        for dict_item in list(diff.get(deep_diff_removed, [])) + list(diff.get(deep_diff_added, [])):
-            deep_path = self.tokenize_deep_diff_string(dict_item)
-            created_nodes.append(self.dict_item_from_path(post_scene_tree, deep_path))
-        return created_nodes
-
-    def dict_item_from_path(self, dict_to_query, query_path):
-        """
-        item_from_path = dict_to_query
-        TestBase.LOG.info('Attempting to get item from path %s in dict %s' % (query_path, dict_to_query))
-        for path in query_path:
-            try:
-                item_from_path = item_from_path.get(path)
-            except AttributeError:
-                pass
-        return list(item_from_path)
-        """
-        return query_path[-1]
-
-    def tokenize_deep_diff_string(self, deep_diff_path_string):
-        full_path = [item.replace(']', '') for item in deep_diff_path_string.split('[')]
-        full_path.remove('root')
-        deep_path = []
-        for item in full_path:
-            try:
-                deep_path.append(
-                    item.strip('\"').strip("\'") if '\"' in item or '\'' in item or item == 'root' else int(item))
-            except ValueError:
-                deep_path.append(str(item))
-        return deep_path
-
-
-def safe_delete(objects):
-    for object in objects:
-        if anvil.runtime.dcc.scene.exists(object):
-            try:
-                anvil.runtime.dcc.scene.delete(object, hierarchy=True)
-            except ValueError:
-                anvil.runtime.dcc.scene.delete(anvil.runtime.dcc.scene.list_scene(object + '*'), hierarchy=True)
-
-
-def sanitize_scene():
-    safe_delete(anvil.runtime.dcc.scene.list_scene_nodes())
-
 
 @contextmanager
-def cleanup_nodes():
+def sanitize():
     sanitize_scene()
     yield
     sanitize_scene()
@@ -173,7 +95,7 @@ def cleanup_nodes():
 def clean_up_scene(func):
     @wraps(func)
     def wrapped(self, *args, **kwargs):
-        with cleanup_nodes():
+        with sanitize():
             if hasattr(self, 'build_dependencies'):
                 self.build_dependencies()
             func_return = func(self, *args, **kwargs)

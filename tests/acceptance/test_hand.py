@@ -39,19 +39,20 @@ class TestBuildHand(TestHandBase):
         self.assertIsNotNone(self.hand)
 
     def test_number_of_controls(self):
+        print(self.hand.hierarchy)
         controls = [node for key, node in iteritems(self.hand.hierarchy) if isinstance(node, nt.Control)]
-        self.assertEqual(len(controls), 0)
+        self.assertEqual(len(controls), 15)
 
     def test_number_of_control_top_groups(self):
-        print(self.hand.hierarchy.control)
+        print(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_controls.get_children()), 10)
 
     def test_number_of_joint_chains(self):
-        print(self.hand.hierarchy.joint)
+        print(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_joints.get_children()), 15)
 
     def test_number_of_nodes(self):
-        print(self.hand.hierarchy.node)
+        print(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_nodes.get_children()), 5)
 
 

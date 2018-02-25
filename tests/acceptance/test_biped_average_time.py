@@ -1,4 +1,4 @@
-from tests.base_test import cleanup_nodes
+from tests.base_test import sanitize
 import test_biped
 import os
 import unittest
@@ -9,12 +9,12 @@ class TestProfileBiped(test_biped.TestBaseTemplateRigs):
     def test_pycall_graph(self):
         from pycallgraph import PyCallGraph
         from pycallgraph.output import GraphvizOutput
-        with cleanup_nodes():
+        with sanitize():
             with PyCallGraph(output=GraphvizOutput()):
                 self.from_template_file(self.TPOSE)
 
     @unittest.skipIf(os.getenv('ANVIL_CPROFILE') is None, 'Env var ANVIL_CPROFILE not set.')
     def test_cprofiler(self):
         import cProfile as profile
-        with cleanup_nodes():
+        with sanitize():
             profile.runctx('self.from_template_file(self.TPOSE)', globals(), locals())

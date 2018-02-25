@@ -1,4 +1,5 @@
 from six import iteritems, itervalues
+from collections import OrderedDict
 
 
 def to_list(query):
@@ -26,6 +27,7 @@ def to_camel_case(input_string):
     tokens = input_string.split('_')
     return tokens[0] + ''.join([token.capitalize() for token in tokens[1:]])
 
+
 def gen_flatten_dict_depth_two(d):
     """ Taken from:
         https://stackoverflow.com/questions/3835192/flatten-a-dictionary-of-dictionaries-2-levels-deep-of-lists-in-python
@@ -35,6 +37,7 @@ def gen_flatten_dict_depth_two(d):
         for nodes in itervalues(d_inner):
             for node in to_list(nodes):
                 yield node
+
 
 def get_dict_depth(d=None, level=0):
     """ Returns maximum depth of the hierarchy
@@ -61,6 +64,28 @@ def dict_to_keys_list(d, keys=None):
     else:
         keys.append(d)
     return keys
+
+
+def dict_deep_sort(cls, obj):
+    """
+    https://stackoverflow.com/questions/18464095/how-to-achieve-assertdictequal-with-assertsequenceequal-applied-to-values
+    Recursively sort list or dict nested lists
+    """
+    if isinstance(obj, dict):
+        _sorted = OrderedDict()
+        for key in sorted(list(obj)):
+            _sorted[key] = cls.deep_sort(obj[key])
+
+    elif isinstance(obj, list):
+        new_list = []
+        for val in obj:
+            new_list.append(cls.deep_sort(val))
+        _sorted = sorted(new_list)
+
+    else:
+        _sorted = obj
+
+    return _sorted
 
 
 def to_str_dict(d):
@@ -107,17 +132,6 @@ def dict_compare(d1, d2):
     modified = {o: (d1[o], d2[o]) for o in intersect_keys if d1[o] != d2[o]}
     same = set(o for o in intersect_keys if d1[o] == d2[o])
     return added, removed, modified, same
-
-
-
-
-def is_class(instance_or_class):
-    try:
-        if instance_or_class.__self___ == instance_or_class:
-            return True
-    except AttributeError:
-        pass
-    return False
 
 
 class Map(dict):

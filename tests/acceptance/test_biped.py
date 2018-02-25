@@ -1,7 +1,7 @@
 import anvil.config as cfg
 import anvil.node_types as nt
 from anvil.rig_templates import Biped
-from tests.base_test import TestBase, cleanup_nodes
+from tests.base_test import TestBase, sanitize
 
 
 class TestBaseTemplateRigs(TestBase):
@@ -43,18 +43,18 @@ class TestBaseTemplateRigs(TestBase):
 
 class TestBuildBiped(TestBaseTemplateRigs):
     def test_build_with_parent_t_pose(self):
-        with cleanup_nodes():
+        with sanitize():
             parent = nt.Transform.build(name='test')
             rig_instance = self.from_template_file(self.TPOSE, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
     def test_build_with_parent_a_pose(self):
-        with cleanup_nodes():
+        with sanitize():
             parent = nt.Transform.build(name='test')
             rig_instance = self.from_template_file(self.APOSE, parent=parent)
             self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
     def test_sub_rigs(self):
-        with cleanup_nodes():
+        with sanitize():
             rig_instance = self.from_template_file(self.APOSE)
             self.assertEqual(sorted(list(rig_instance.sub_rigs)), sorted(list(rig_instance.SUB_RIG_BUILD_TABLE)))

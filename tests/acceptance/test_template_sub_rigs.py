@@ -2,7 +2,7 @@ import anvil.runtime as rt
 import anvil.node_types as nt
 import anvil.sub_rig_templates.spine as spine
 import anvil.sub_rig_templates.biped_arm as biped_arm
-from tests.base_test import TestBase, cleanup_nodes
+from tests.base_test import TestBase, sanitize
 
 
 class TestBaseTemplates(TestBase):
@@ -40,7 +40,7 @@ class TestBuildSpine(TestBaseTemplates):
         self.runner()
 
     def test_build_with_parent(self):
-        with cleanup_nodes():
+        with sanitize():
             parent = nt.Transform.build(name='test')
             sub_rig_instance = self.runner(template_flags={'parent': parent})
             self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
@@ -59,20 +59,20 @@ class TestBuildBipedArm(TestBaseTemplates):
         return l_sub_rig_instance, r_sub_rig_instance
 
     def test_build(self):
-        with cleanup_nodes():
+        with sanitize():
             rig = self.runner()
             self.assertIsNotNone(rig)
 
     def test_build_with_parent(self):
-        with cleanup_nodes():
+        with sanitize():
             parent = nt.Transform.build(name='test')
             sub_rig_instance = self.runner(template_flags={'parent': parent})
             self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
 
     def test_build_with_imported_skeleton_t_pose(self):
-        with cleanup_nodes():
+        with sanitize():
             l_arm, r_arm = self.from_template_file(self.TPOSE)
 
     def test_build_with_imported_skeleton_a_pose(self):
-        with cleanup_nodes():
+        with sanitize():
             l_arm, r_arm = self.from_template_file(self.APOSE)

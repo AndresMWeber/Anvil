@@ -26,7 +26,8 @@ import atexit
 @atexit.register
 def exit_maya():
     import sys
-    # If we are in standalone we need to make a new file and uninitialize then os._exit to properly exit Maya.
+    # If we are in standalone we need to make a new file and uninitialize then the virtual machines crash
+    # if we do not use os._exit to properly exit Maya in CIRCLECI.
     # https://groups.google.com/forum/#!topic/python_inside_maya/chpuSyLbryI
     try:
         import maya.standalone as ms
@@ -48,4 +49,5 @@ def exit_maya():
         sys.stdout.write('Success...exiting.\n')
         sys.stdout.flush()
         import os
-        os._exit(0)
+        if os.getenv('CIRCLECI'):
+            os._exit(0)

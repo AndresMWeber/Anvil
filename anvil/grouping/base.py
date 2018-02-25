@@ -8,7 +8,7 @@ import anvil.config as cfg
 from anvil.utils.generic import Map, gen_flatten_dict_depth_two
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
-from anvil.utils.generic import merge_dicts, to_list, to_size_list, is_class
+from anvil.utils.generic import merge_dicts, to_list, to_size_list
 
 
 def register_built_nodes(f):
@@ -33,10 +33,10 @@ def register_built_nodes(f):
     """
 
     @wraps(f)
-    def wrapper(abstract_grouping, *args, **kwargs):
+    def wrapper(abstract_grouping, skip_register=False, *args, **kwargs):
         results = f(abstract_grouping, *args, **kwargs)
 
-        if is_class(abstract_grouping):
+        if skip_register:
             return results
 
         for result_id, node in iteritems(results):
@@ -68,7 +68,7 @@ def register_built_nodes(f):
 
 def generate_build_report(f):
     @wraps(f)
-    def wrapper(abstract_grouping, *args, **kwargs):
+    def wrapper(abstract_grouping, skip_register=False, *args, **kwargs):
         """ Creates a dictionary of created nodes that will be digested later by the node registration function.
 
         :param args: object, node to sort into the hierarchy, SHOULD be an Anvil node.
@@ -90,8 +90,9 @@ def generate_build_report(f):
         custom_hierarchy_ids = kwargs.get('hierarchy_id', None)
         nodes_built = to_list(f(abstract_grouping, *args, **kwargs))
 
-        if is_class(abstract_grouping):
+        if skip_register:
             return nodes_built
+
         result = {}
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
