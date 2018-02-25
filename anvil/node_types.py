@@ -1,8 +1,8 @@
 from six import iteritems
 import inspect
 import anvil
-from objects import * # noqa
-from grouping import * # noqa
+from objects import *  # noqa
+from grouping import *  # noqa
 
 REGISTERED_NODES = {}
 

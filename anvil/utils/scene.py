@@ -18,7 +18,7 @@ def safe_delete(node_or_nodes):
     for node in node_or_nodes:
         try:
             rt.dcc.scene.delete(node)
-        except (ValueError, RuntimeError):
+        except:  # noqa
             pass
 
 

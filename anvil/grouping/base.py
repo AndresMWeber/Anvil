@@ -1,4 +1,4 @@
-from six import iteritems
+from six import iteritems, itervalues
 from functools import wraps
 import nomenclate
 import anvil
@@ -33,10 +33,10 @@ def register_built_nodes(f):
     """
 
     @wraps(f)
-    def wrapper(abstract_grouping, skip_register=False, *args, **kwargs):
+    def wrapper(abstract_grouping, *args, **kwargs):
         results = f(abstract_grouping, *args, **kwargs)
 
-        if skip_register:
+        if kwargs.get('skip_register'):
             return results
 
         for result_id, node in iteritems(results):
@@ -68,7 +68,7 @@ def register_built_nodes(f):
 
 def generate_build_report(f):
     @wraps(f)
-    def wrapper(abstract_grouping, skip_register=False, *args, **kwargs):
+    def wrapper(abstract_grouping, *args, **kwargs):
         """ Creates a dictionary of created nodes that will be digested later by the node registration function.
 
         :param args: object, node to sort into the hierarchy, SHOULD be an Anvil node.
@@ -90,7 +90,7 @@ def generate_build_report(f):
         custom_hierarchy_ids = kwargs.get('hierarchy_id', None)
         nodes_built = to_list(f(abstract_grouping, *args, **kwargs))
 
-        if skip_register:
+        if kwargs.get('skip_register'):
             return nodes_built
 
         result = {}
@@ -237,7 +237,7 @@ class AbstractGrouping(log.LogMixin):
         try:
             if category_override:
                 return self.hierarchy[category_override][node_key]
-            for _, sub_hierarchy in iteritems(self.hierarchy):
+            for sub_hierarchy in itervalues(self.hierarchy):
                 candidate = sub_hierarchy.get(node_key)
                 if candidate:
                     return candidate

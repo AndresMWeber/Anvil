@@ -1,4 +1,4 @@
-from six import iteritems
+from six import itervalues
 import config
 import colors
 import meta_data
@@ -30,7 +30,7 @@ EXISTING_ENCAPSULATIONS = {}
 
 
 def check_for_encapsulation(dag_path):
-    for _, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
+    for node_encapsulation in itervalues(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
             LOG.debug('Found previous encapsulation for %s: %r. Using instead.', dag_path, node_encapsulation)
             return node_encapsulation

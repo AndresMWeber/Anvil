@@ -1,4 +1,4 @@
-from six import iteritems
+from six import itervalues
 from functools import wraps
 import anvil.config as cfg
 import anvil.runtime as rt
@@ -14,7 +14,7 @@ def verify_inputs(filterers=None, validators=None):
         @wraps(function)
         def wrapper(*args, **kwargs):
             check_inputs = []
-            for function_input in list(args) + [v for k, v in iteritems(kwargs)]:
+            for function_input in list(args) + list(itervalues(kwargs)):
                 for filterer in filterers:
                     if filterer(function_input):
                         check_inputs.append(function_input)
@@ -41,7 +41,7 @@ def verify_class_method_inputs(filterers=None, validators=None):
         @wraps(function)
         def wrapper(self, *args, **kwargs):
             check_inputs = []
-            for function_input in list(args) + [v for _, v in iteritems(kwargs)]:
+            for function_input in list(args) + list(itervalues(kwargs)):
                 if isinstance(function_input, dict):
                     break
 
