@@ -38,7 +38,7 @@ class Control(base.AbstractGrouping):
         instance.build_node(ob.Curve, hierarchy_id='control', **kwargs)
         instance.build_node(ob.Transform, hierarchy_id='offset_group', **kwargs)
         instance.build_node(ob.Transform, hierarchy_id='connection_group', **kwargs)
-
+        print(instance, instance.hierarchy)
         instance.controller = instance.hierarchy.curve.control
         instance.offset_group = instance.hierarchy.node.offset_group
         instance.connection_group = instance.hierarchy.node.connection_group

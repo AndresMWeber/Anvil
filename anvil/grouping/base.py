@@ -34,9 +34,14 @@ def register_built_nodes(f):
 
     @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
-        results = f(abstract_grouping, *args, **kwargs)
-
+        skip_register = False
         if kwargs.get('skip_register'):
+            skip_register = kwargs.pop('skip_register')
+
+        results = f(abstract_grouping, *args, **kwargs)
+        print('registering, ', results)
+        if skip_register:
+            print('skipped registration.')
             return results
 
         for result_id, node in iteritems(results):
@@ -87,10 +92,14 @@ def generate_build_report(f):
         A top level key will not be present if the result nodes from the wrapped function are not of that type.
         The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
+        skip_register = False
+        if kwargs.get('skip_register'):
+            skip_register = kwargs.pop('skip_register')
+
         custom_hierarchy_ids = kwargs.get('hierarchy_id', None)
         nodes_built = to_list(f(abstract_grouping, *args, **kwargs))
 
-        if kwargs.get('skip_register'):
+        if skip_register:
             return nodes_built
 
         result = {}
