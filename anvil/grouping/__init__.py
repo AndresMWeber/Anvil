@@ -1,8 +1,8 @@
-import base
-import control
-import sub_rig
-import rig
-import relationships
+import base  # noqa
+import control  # noqa
+import sub_rig  # noqa
+import rig  # noqa
+import relationships  # noqa
 
 from base import AbstractGrouping
 from control import Control

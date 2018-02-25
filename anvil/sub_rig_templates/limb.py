@@ -13,16 +13,19 @@ class Limb(SubRigTemplate):
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **kwargs)
+        fk_chain = ik_chain = None
         if build_fk:
-            fk_results = self.build_fk_chain(self.layout_joints, **self.build_kwargs)
+            fk_chain, fk_controls = self.build_fk_chain(self.layout_joints,
+                                                        skip_register=True,
+                                                        **self.build_kwargs)
 
         if build_ik:
-            ik_results = self.build_ik_chain(self.layout_joints, **self.build_kwargs)
+            ik_chain, controls, handle, effector = self.build_ik_chain(self.layout_joints,
+                                                                       skip_register=True,
+                                                                       **self.build_kwargs)
 
-        if build_fk and build_ik:
-            self.build_blend_chain(self.layout_joints,
-                                   [fk_results[cfg.SET_TYPE][cfg.DEFAULT][-1],
-                                    ik_results[cfg.SET_TYPE][cfg.DEFAULT][-1]],
+        if fk_chain and ik_chain:
+            self.build_blend_chain(self.layout_joints, fk_chain, ik_chain,
                                    use_layout=use_layout, **self.build_kwargs)
         self.rename()
 

@@ -4,7 +4,7 @@ import anvil.node_types as nt
 import anvil.objects.attribute as at
 import anvil.config as cfg
 import anvil
-from anvil.utils.generic import to_list, to_size_list
+from anvil.utils.generic import to_size_list
 from anvil.grouping.base import register_built_nodes, generate_build_report
 
 
@@ -105,29 +105,29 @@ class SubRigTemplate(nt.SubRig):
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
         parent = list(reversed(to_size_list(parent, 3)))
-
+        kwargs['skip_register'] = True
         ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent.pop(), **kwargs)
 
-        results = self.build_ik(ik_chain,
-                                chain_end=ik_chain[ik_end_index],
-                                parent=parent.pop(),
-                                name_tokens=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.NAME_TOKENS, {})),
-                                **kwargs)
-        handle, effector = results[cfg.NODE_TYPE][cfg.DEFAULT]
+        handle, effector = self.build_ik(ik_chain,
+                                         chain_end=ik_chain[ik_end_index],
+                                         parent=parent.pop(),
+                                         name_tokens=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.NAME_TOKENS, {})),
+                                         **kwargs)
 
         controls = nt.NonLinearHierarchyNodeSet()
         # build ik control
-        control = nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(),
-                                            cfg.REFERENCE_OBJECT: ik_chain[-1],
-                                            cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
-                                            cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict())
-        controls.append(control)
+        controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(),
+                                                             cfg.REFERENCE_OBJECT: ik_chain[-1],
+                                                             cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
+                                                             cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict()))
 
         # build pole vector control if using RP solver.
         if solver == cfg.IK_RP_SOLVER:
-            self.build_pole_vector_control(ik_chain, handle,
-                                           **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
-                                                               cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.POLE_VECTOR}}))
+            pv_control = self.build_pole_vector_control(ik_chain, handle,
+                                                        **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
+                                                                            cfg.NAME_TOKENS: {
+                                                                                cfg.PURPOSE: cfg.POLE_VECTOR}}))
+            controls.append(pv_control)
 
         rt.dcc.connections.translate(controls[0].connection_group, handle)
 
@@ -143,24 +143,23 @@ class SubRigTemplate(nt.SubRig):
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
         parent = to_size_list(parent, 2)
-
-        chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
-        controls = nt.NonLinearHierarchyNodeSet()
-
         name_tokens = MetaData(self.name_tokens, name_tokens) if hasattr(self, cfg.NAME_TOKENS) else name_tokens
         meta_data = MetaData(self.meta_data, meta_data) if hasattr(self, cfg.META_DATA) else meta_data
+        kwargs['skip_register'] = True
+        fk_chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
+        fk_controls = nt.NonLinearHierarchyNodeSet()
 
         control_parent = parent.pop()
-        for node, shape in zip(chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(chain))):
-            self.build_node(nt.Control,
-                            reference_object=node,
-                            shape=shape,
-                            parent=control_parent,
-                            name_tokens=name_tokens,
-                            meta_data=meta_data,
-                            **kwargs)
-            controls.append(self.hierarchy.control.default[-1])
-            rt.dcc.connections.parent(controls[-1].node.connection_group, node, maintainOffset=True)
-            control_parent = controls[-1].node.connection_group
+        for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
+            control = self.build_node(nt.Control,
+                                      reference_object=node,
+                                      shape=shape,
+                                      parent=control_parent,
+                                      name_tokens=name_tokens,
+                                      meta_data=meta_data,
+                                      **kwargs)
+            fk_controls.append(control)
+            rt.dcc.connections.parent(fk_controls[-1].node.connection_group, node, maintainOffset=True)
+            control_parent = fk_controls[-1].node.connection_group
 
-        return controls, chain
+        return fk_chain, fk_controls

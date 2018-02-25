@@ -29,4 +29,5 @@ __all__ = ['CenterOfMass',
            'FacialFeature',
            'Eye',
            'Eyelid',
-           'Limb']
+           'Limb',
+           'Tentacle']

@@ -14,16 +14,7 @@ def obtain_logger(name):
     Returns:
         Logger: Logger.
     """
-    logger = structlog.get_logger(name)
-    """
-    if json_output:
-        format_str = '%(message)%(levelname)%(name)%(asctime)'
-        formatter = jslog.JsonFormatter(format_str)
-        for handler in logger.handlers:
-           handler.setFormatter(formatter)
-        pass
-    """
-    return logger
+    return structlog.get_logger(name)
 
 
 class LogMixin(object):

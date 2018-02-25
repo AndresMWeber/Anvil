@@ -4,14 +4,6 @@ import colors
 import meta_data
 import log
 import version
-
-
-class AnvilLog(log.LogMixin):
-    LOG = log.obtain_logger(__name__)
-
-
-LOG = AnvilLog
-
 import plugins
 import runtime
 import utils
@@ -21,6 +13,13 @@ import node_types
 import sub_rig_templates
 import rig_templates
 
+
+class AnvilLog(log.LogMixin):
+    LOG = log.obtain_logger(__name__)
+
+
+LOG = AnvilLog
+LOG.info('Auto-Loaded DCC %s', runtime.dcc)
 LOG.info('Loaded logger config file %s successfully, writing to: %s',
          log.LogInitializer.CFG_FILE, log.LogInitializer.LOG_DIR)
 LOG.info('Anvil environment has been set to %s', config.ENV)

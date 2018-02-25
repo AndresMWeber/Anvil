@@ -149,7 +149,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         node.match_transform(reference_node)
 
         map(lambda child_node: child_node.parent(node),
-            [target_child for target_child in index_target.get_children() if c != node] if beneath else [index_target])
+            [c for c in index_target.get_children() if c != node] if beneath else [index_target])
 
         if any(index_target == test for test in (self.head, 0)):
             self.head = node

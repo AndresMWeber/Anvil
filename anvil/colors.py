@@ -27,7 +27,7 @@ class RGB(Color):
         return tuple(self.as_list())
 
     def as_rgb_normalized(self):
-        return tuple(component/255.0 for component in self.as_list())
+        return tuple(component / 255.0 for component in self.as_list())
 
     def as_hsv(self):
         return colorsys.rgb_to_hsv(*self.as_rgb_normalized())
@@ -76,7 +76,6 @@ class RGB(Color):
         for x, y, component in zip(list(self), list(other), self.components):
             setattr(self, component, x + y)
         return self
-
 
 
 # Color Constants

@@ -188,7 +188,7 @@ class AbstractGrouping(log.LogMixin):
                 controller.add_attr(attr, **attr_kwargs)
 
     def parent(self, new_parent):
-        nodes_exist = [rt.dcc.scene.exists(node) if node != None else False for node in [self.root, new_parent]]
+        nodes_exist = [rt.dcc.scene.exists(node) if node is not None else False for node in [self.root, new_parent]]
         if all(nodes_exist or [False]):
             self.root.parent(new_parent)
             return True
@@ -196,12 +196,12 @@ class AbstractGrouping(log.LogMixin):
             self.warning('Parent(%s) -> %r does not exist.', new_parent, self.root)
             return False
 
-    def rename_chain(self, objects, use_end_naming=False, **name_tokens):
+    def rename_chain(self, nodes, use_end_naming=False, **name_tokens):
         self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
 
-        for index, object in enumerate(objects):
+        for index, object in enumerate(nodes):
             variation_kwargs = {'var': index}
-            if use_end_naming and index == len(objects) - 1:
+            if use_end_naming and index == len(nodes) - 1:
                 variation_kwargs = {'decorator': 'End'}
             rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
 
@@ -223,9 +223,9 @@ class AbstractGrouping(log.LogMixin):
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
         return getattr(node_class, build_function)(*args, **kwargs)
 
-    def auto_color(self, *args, **kwargs):
-        auto_colorize = lambda n: n.auto_color() if hasattr(n, 'auto_color') else None
-        self._cascade_across_hierarchy(auto_colorize, auto_colorize)
+    def auto_color(self):
+        self._cascade_across_hierarchy(lambda n: n.auto_color() if hasattr(n, 'auto_color') else None,
+                                       lambda n: n.auto_color() if hasattr(n, 'auto_color') else None)
 
     def find_node(self, node_key, category_override=None):
         """ This will only work with user specified hierarchy IDs.
@@ -249,8 +249,8 @@ class AbstractGrouping(log.LogMixin):
         return gen_flatten_dict_depth_two(self.hierarchy)
 
     def _cascade_across_hierarchy(self, object_function, grouping_function):
-        for sub_key, sub_node in iteritems(self.hierarchy):
-            for node_key, anvil_node in iteritems(sub_node):
+        for sub_node in itervalues(self.hierarchy):
+            for anvil_node in itervalues(sub_node):
                 for node in anvil_node if anvil.is_aset(anvil_node) else [anvil_node]:
                     if anvil.is_agrouping(node):
                         grouping_function(node)

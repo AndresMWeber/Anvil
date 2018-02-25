@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from six import iteritems
+from six import iteritems, itervalues
 import inspect
 import base
 import anvil
@@ -32,7 +32,7 @@ class Rig(base.AbstractGrouping):
 
     def rename(self, *input_dicts, **name_tokens):
         super(Rig, self).rename(*input_dicts, **name_tokens)
-        for sub_rig_key, sub_rig_instance in iteritems(self.sub_rigs):
+        for sub_rig_instance in itervalues(self.sub_rigs):
             sub_rig_instance.rename()  # *input_dicts, **name_tokens)
 
     def register_sub_rigs_from_dict(self, sub_rig_dict):
@@ -67,7 +67,7 @@ class Rig(base.AbstractGrouping):
             return self.sub_rigs[sub_rig_key]
 
     def build_sub_rigs(self):
-        for sub_rig_key, sub_rig_member in iteritems(self.sub_rigs):
+        for sub_rig_member in itervalues(self.sub_rigs):
             if not sub_rig_member.is_built:
                 self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
                 sub_rig_member.build()
@@ -75,7 +75,7 @@ class Rig(base.AbstractGrouping):
 
     def auto_color(self):
         super(Rig, self).auto_color()
-        for key, sub_rig_instance in iteritems(self.sub_rigs):
+        for sub_rig_instance in itervalues(self.sub_rigs):
             sub_rig_instance.auto_color()
 
     def build(self, parent=None, name_tokens=None, **kwargs):
