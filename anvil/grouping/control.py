@@ -33,7 +33,10 @@ class Control(base.AbstractGrouping):
         kwargs[cfg.NAME_TOKENS].set_protected(cls.BUILT_IN_NAME_TOKENS.protected)
 
         instance = cls(**kwargs)
+
         kwargs.pop(cfg.ID_TYPE, None)
+        kwargs['skip_register'] = False
+        kwargs['skip_report'] = False
 
         instance.build_node(ob.Curve, hierarchy_id='control', **kwargs)
         instance.build_node(ob.Transform, hierarchy_id='offset_group', **kwargs)

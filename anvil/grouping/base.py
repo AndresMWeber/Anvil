@@ -92,17 +92,18 @@ def generate_build_report(f):
         A top level key will not be present if the result nodes from the wrapped function are not of that type.
         The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
-        skip_register = False
-        if kwargs.get('skip_register'):
-            skip_register = kwargs.pop('skip_register')
+        skip_report = False
+        if kwargs.get('skip_report'):
+            skip_report = kwargs.pop('skip_report')
 
         custom_hierarchy_ids = kwargs.get('hierarchy_id', None)
-        nodes_built = to_list(f(abstract_grouping, *args, **kwargs))
+        nodes_built = f(abstract_grouping, *args, **kwargs)
 
-        if skip_register:
+        if skip_report:
             return nodes_built
 
         result = {}
+        nodes_built = to_list(nodes_built)
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
             if hierarchy_id:

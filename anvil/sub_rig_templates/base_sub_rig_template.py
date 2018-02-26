@@ -80,11 +80,11 @@ class SubRigTemplate(nt.SubRig):
         :param parent: list or object: list of up to length 1, [blend chain parent]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        blend_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent, **kwargs)
-
-        for bl, source_chain in zip(blend_chain, zip(*source_chains)):
+        blend_chain_joint = nt.LinearHierarchyNodeSet(layout_joints[0], duplicate=duplicate, parent=parent, **kwargs)
+        print(blend_chain_joint, source_chains)
+        for blend_chain_joint, source_chain in zip(blend_chain_joint, zip(*source_chains)):
             blender = rt.dcc.create.create_node(cfg.BLEND_NODE)
-            blender.output.connect(bl.rotate)
+            blender.output.connect(blend_chain_joint.rotate)
 
             for index, joint in enumerate(source_chain):
                 joint.rotate.connect(blender.attr('color%d' % (index + 1)))
@@ -92,7 +92,7 @@ class SubRigTemplate(nt.SubRig):
             if blend_attr:
                 blend_attr.connect(blender.blender)
 
-        return blend_chain
+        return blend_chain_joint
 
     @register_built_nodes
     @generate_build_report
@@ -106,6 +106,7 @@ class SubRigTemplate(nt.SubRig):
         """
         parent = list(reversed(to_size_list(parent, 3)))
         kwargs['skip_register'] = True
+        kwargs['skip_report'] = True
         ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent.pop(), **kwargs)
 
         handle, effector = self.build_ik(ik_chain,
@@ -146,6 +147,8 @@ class SubRigTemplate(nt.SubRig):
         name_tokens = MetaData(self.name_tokens, name_tokens) if hasattr(self, cfg.NAME_TOKENS) else name_tokens
         meta_data = MetaData(self.meta_data, meta_data) if hasattr(self, cfg.META_DATA) else meta_data
         kwargs['skip_register'] = True
+        kwargs['skip_report'] = True
+
         fk_chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
         fk_controls = nt.NonLinearHierarchyNodeSet()
 
@@ -159,7 +162,8 @@ class SubRigTemplate(nt.SubRig):
                                       meta_data=meta_data,
                                       **kwargs)
             fk_controls.append(control)
-            rt.dcc.connections.parent(fk_controls[-1].node.connection_group, node, maintainOffset=True)
+
             control_parent = fk_controls[-1].node.connection_group
+            rt.dcc.connections.parent(control_parent, node, maintainOffset=True)
 
         return fk_chain, fk_controls
