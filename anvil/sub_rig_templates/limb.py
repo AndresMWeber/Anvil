@@ -27,7 +27,7 @@ class Limb(SubRigTemplate):
                                                                        **self.build_kwargs)
 
         if fk_chain and ik_chain:
-            blend_chain = self.build_blend_chain(self.layout_joints, fk_chain, ik_chain,
+            blend_chain = self.build_blend_chain(self.layout_joints, [fk_chain, ik_chain],
                                                  skip_register=True,
                                                  skip_report=True,
                                                  use_layout=use_layout, **self.build_kwargs)

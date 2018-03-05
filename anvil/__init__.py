@@ -1,5 +1,6 @@
 from six import itervalues
 import config
+import registration
 import colors
 import meta_data
 import log
@@ -107,4 +108,5 @@ __all__ = ['config',
            'sub_rig_templates',
            'rig_templates',
            'utils',
-           'colors']
+           'colors',
+           'registration']

@@ -263,4 +263,4 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return NonLinearHierarchyNodeSet(list(self) + gc.to_list(other))
 
     def __repr__(self):
-        return repr(super(LinearHierarchyNodeSet, self)).replace('>', '(root=%s, end=%s)>' % (self.head, self.tail))
+        return super(LinearHierarchyNodeSet, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))

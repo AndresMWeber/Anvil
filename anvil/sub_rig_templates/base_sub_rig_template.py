@@ -4,7 +4,7 @@ import anvil.node_types as nt
 import anvil.objects.attribute as at
 import anvil.config as cfg
 import anvil
-from anvil.utils.generic import to_size_list
+from anvil.utils.generic import to_size_list, to_list
 from anvil.grouping.base import register_built_nodes, generate_build_report
 
 
@@ -77,22 +77,26 @@ class SubRigTemplate(nt.SubRig):
     def build_blend_chain(self, layout_joints, source_chains, blend_attr=None, parent=None, duplicate=True, **kwargs):
         """
 
+        :param layout_joints: list, list of joints to use as the main joints in the set.
+        :param source_chains: list, list of chains to use as the source input rotation chains
+                                    -  length can only be up to 2 due to blend node limitations
+        :param blend_attr: anvil.objects.attribute.Attribute, attribute to use as the blender for the ik/fk blend.
         :param parent: list or object: list of up to length 1, [blend chain parent]
+        :param duplicate: bool, whether or not to duplicate the layout joints chain
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        blend_chain_joint = nt.LinearHierarchyNodeSet(layout_joints[0], duplicate=duplicate, parent=parent, **kwargs)
-        print(blend_chain_joint, source_chains)
-        for blend_chain_joint, source_chain in zip(blend_chain_joint, zip(*source_chains)):
-            blender = rt.dcc.create.create_node(cfg.BLEND_NODE)
-            blender.output.connect(blend_chain_joint.rotate)
-
-            for index, joint in enumerate(source_chain):
-                joint.rotate.connect(blender.attr('color%d' % (index + 1)))
-
+        blend_chain = nt.LinearHierarchyNodeSet(layout_joints[0], duplicate=duplicate, parent=parent, **kwargs)
+        blend_nodes = []
+        for blend_chain_joint, source_chain_joints in zip(blend_chain, zip(*to_list(source_chains))):
+            blend_nodes.append(rt.dcc.create.create_node(cfg.BLEND_NODE))
+            blend_nodes[-1].output.connect(blend_chain_joint.rotate)
             if blend_attr:
-                blend_attr.connect(blender.blender)
+                blend_attr.connect(blend_nodes[-1].blender)
 
-        return blend_chain_joint
+            for index, source_chain_joint in enumerate(source_chain_joints):
+                source_chain_joint.rotate.connect(blend_nodes[-1].attr('color%d' % (index + 1)))
+
+        return blend_chain
 
     @register_built_nodes
     @generate_build_report
@@ -151,7 +155,6 @@ class SubRigTemplate(nt.SubRig):
 
         fk_chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
         fk_controls = nt.NonLinearHierarchyNodeSet()
-
         control_parent = parent.pop()
         for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
             control = self.build_node(nt.Control,
@@ -165,5 +168,4 @@ class SubRigTemplate(nt.SubRig):
 
             control_parent = fk_controls[-1].node.connection_group
             rt.dcc.connections.parent(control_parent, node, maintainOffset=True)
-
         return fk_chain, fk_controls
