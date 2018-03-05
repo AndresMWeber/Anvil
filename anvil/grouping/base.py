@@ -63,9 +63,7 @@ class AbstractGrouping(log.LogMixin):
 
     @register_built_nodes
     @generate_build_report
-    def register_node(self, node, manual_id=None):
-        if manual_id:
-            node = (manual_id, node)
+    def register_node(self, node, **kwargs):
         return node
 
     def connect_rendering_delegate(self, assignee=None):

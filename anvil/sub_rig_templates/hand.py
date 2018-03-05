@@ -35,32 +35,43 @@ class Hand(SubRigTemplate):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
         solver = solver or cfg.IK_SC_SOLVER
 
-        for layout_joints, base_name in zip(self.layout_joints, self.get_finger_base_names()):
-            self.build_digit(layout_joints, solver=solver, name_tokens={cfg.NAME: base_name}, **self.build_kwargs)
+        for index, digit_info in enumerate(zip(self.layout_joints, self.get_finger_base_names())):
+            layout_joints, label = digit_info
+            self.build_digit(layout_joints, index, solver=solver, name_tokens={cfg.NAME: label}, **self.build_kwargs)
 
         self.rename()
 
-    def build_digit(self, digit_joints, **kwargs):
-        digit_nodes = {}
+    def build_digit(self, digit_joints, index, **kwargs):
+        kwargs[cfg.SKIP_REGISTER] = True
+        kwargs[cfg.SKIP_REPORT] = True
+        fk_chain = None
+        ik_chain = None
+
         if self.has_fk:
-            digit_nodes[cfg.FK] = self.build_fk_chain(digit_joints,
-                                                      parent=[self.group_joints, self.group_controls],
-                                                      shape='pyramid_pin', **kwargs)
+            fk_chain, fk_controls = self.build_fk_chain(digit_joints,
+                                                        parent=[self.group_joints, self.group_controls],
+                                                        shape='pyramid_pin', **kwargs)
+            self.register_node(fk_chain, hierarchy_id='%s_chain_%s' % (cfg.FK, index))
+            self.register_node(fk_controls, hierarchy_id='%s_%s_%s' % (cfg.FK, cfg.CONTROL_TYPE, index))
+
         if self.has_ik:
-            digit_nodes[cfg.IK] = self.build_ik_chain(digit_joints,
-                                                      parent=[self.group_joints, self.group_nodes, self.group_controls,
-                                                              [self.group_controls,
-                                                               self.group_nodes,
-                                                               self.group_nodes]],
-                                                      shape='cube', **kwargs)
+            ik_chain, ik_controls, handle, effector = self.build_ik_chain(digit_joints,
+                                                                          parent=[self.group_joints,
+                                                                                  self.group_nodes,
+                                                                                  self.group_controls,
+                                                                                  [self.group_controls,
+                                                                                   self.group_nodes]],
+                                                                          shape='cube', **kwargs)
+            self.register_node(ik_chain, hierarchy_id='%s_chain_%s' % (cfg.IK, index))
+            self.register_node(ik_controls, hierarchy_id='%s_%s_%s' % (cfg.IK, cfg.CONTROL_TYPE, index))
+            self.register_node(handle, hierarchy_id='%s_%s_%s' % (cfg.IK, cfg.IK_HANDLE, index))
+            self.register_node(effector, hierarchy_id='%s_%s_%s' % (cfg.IK, cfg.IK_EFFECTOR, index))
 
-            if self.has_fk and self.has_ik:
-                self.build_blend_chain(digit_joints,
-                                       [digit_nodes[cfg.IK][cfg.SET_TYPE][cfg.DEFAULT][-1],
-                                        digit_nodes[cfg.FK][cfg.SET_TYPE][cfg.DEFAULT][-1]],
-                                       parent=self.group_joints,
-                                       **kwargs)
-
+        if self.has_fk and self.has_ik:
+            blend_chain = self.build_blend_chain(digit_joints, [fk_chain, ik_chain],
+                                                 parent=self.group_joints,
+                                                 **kwargs)
+            self.register_node(blend_chain, hierarchy_id='%s_chain_%s' % (cfg.BLEND, index))
 
     def get_finger_base_names(self):
         num_fingers = len(self.layout_joints)
@@ -69,25 +80,20 @@ class Hand(SubRigTemplate):
         else:
             return [cfg.FINGER + c for c in string.uppercase[:num_fingers]]
 
-
     def rename(self, *input_dicts, **name_tokens):
         super(Hand, self).rename(*input_dicts, **name_tokens)
-
 
     def set_up_fist_pose(self):
         # for now just hook it up to the controls
         pass
 
-
     def set_up_spread_pose(self):
         # for now just hook it up to the controls
         pass
 
-
     def set_up_curl_pose(self):
         # for now just hook it up to the controls
         pass
-
 
     def connect_curl_fist(self, control, axis=cfg.X):
         phalanges = self.fk_chain if hasattr(self, '%s_chain' % cfg.FK) else self.blend_chain

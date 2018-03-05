@@ -28,9 +28,7 @@ def register_built_nodes(f):
 
     @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
-        skip_register = False
-        if kwargs.get('skip_register'):
-            skip_register = kwargs.pop('skip_register')
+        skip_register = kwargs.pop('skip_register', False)
 
         results = f(abstract_grouping, *args, **kwargs)
         if skip_register:
@@ -84,11 +82,8 @@ def generate_build_report(f):
         A top level key will not be present if the result nodes from the wrapped function are not of that type.
         The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
-        skip_report = False
-        if kwargs.get('skip_report'):
-            skip_report = kwargs.pop('skip_report')
-
-        custom_hierarchy_ids = kwargs.get('hierarchy_id', None)
+        skip_report = kwargs.pop('skip_report', False)
+        custom_hierarchy_ids = kwargs.pop('hierarchy_id', None)
         nodes_built = f(abstract_grouping, *args, **kwargs)
 
         if skip_report:

@@ -163,6 +163,8 @@ DEFAULT_IK_SHAPE = SPHERE
 DEFAULT_FK_SHAPE = CUBE
 DEFAULT_DIGIT_FK_SHAPE = PYRAMID_PIN
 DEFAULT_PV_SHAPE = TRIANGLE
+SKIP_REGISTER = 'skip_register'
+SKIP_REPORT = 'skip_report'
 
 # PATHS
 BASE_DIR = os.path.dirname(os.path.abspath(anvil.__file__))
