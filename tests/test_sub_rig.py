@@ -49,7 +49,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(name_tokens={'name': 'bob'})
-        self.sub_rig.register_node('test', b)
+        self.sub_rig.register_node('test', hierarchy_id=b)
         # This test will override the previous name because it now should inherit the new sub rig tokens.
         self.assertDictEqual(b.name_tokens,
                              {cfg.NAME: 'bob', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
@@ -60,7 +60,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(name_tokens={'name': 'silvia', cfg.SUB_RIG_TOKEN: 'muggle'})
-        self.sub_rig.register_node(b, 'test')
+        self.sub_rig.register_node(b, hierarchy_id='test')
         self.assertDictEqual(b.name_tokens,
                              {'name': 'silvia',
                               cfg.SUB_RIG_TOKEN: 'muggle',
@@ -72,7 +72,7 @@ class TestSubRigNameTokensIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(name_tokens={'name': 'silvia'})
-        self.sub_rig.register_node(b, 'test')
+        self.sub_rig.register_node(b, hierarchy_id='test')
         self.assertDictEqual(b.name_tokens,
                              {'name': 'silvia',
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
@@ -125,7 +125,7 @@ class TestSubRigMetaDataIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(meta_data={'name': 'bob'})
-        self.sub_rig.register_node('test', b)
+        self.sub_rig.register_node('test', hierarchy_id=b)
         self.assertDictEqual(b.meta_data, {'name': 'bob', 'type': 'joint'})
         self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})
 
@@ -134,6 +134,6 @@ class TestSubRigMetaDataIntact(TestBase):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
         b = nt.Joint.build(meta_data={'name': 'silvia'})
-        self.sub_rig.register_node('test', b)
+        self.sub_rig.register_node('test', hierarchy_id=b)
         self.assertDictEqual(b.meta_data, {'name': 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN})
         self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})

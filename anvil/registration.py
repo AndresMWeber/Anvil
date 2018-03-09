@@ -83,7 +83,7 @@ def generate_build_report(f):
         The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
         skip_report = kwargs.pop('skip_report', False)
-        custom_hierarchy_ids = kwargs.pop('hierarchy_id', None)
+        custom_hierarchy_ids = kwargs.pop(cfg.ID_TYPE, None)
         nodes_built = f(abstract_grouping, *args, **kwargs)
 
         if skip_report:

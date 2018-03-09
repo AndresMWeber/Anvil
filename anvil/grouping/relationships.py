@@ -55,6 +55,9 @@ class NodeRelationshipSet(log.LogMixin):
     def __str__(self):
         return str(self.set)
 
+    def __repr__(self):
+        return super(NodeRelationshipSet, self).__repr__().replace('>', '(children=%d)>' % (len(self)))
+
     def append(self, node):
         raise NotImplementedError
 

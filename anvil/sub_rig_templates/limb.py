@@ -31,9 +31,9 @@ class Limb(SubRigTemplate):
                                                  skip_register=True,
                                                  skip_report=True,
                                                  use_layout=use_layout, **self.build_kwargs)
-        self.register_node(ik_chain, 'ik_chain')
-        self.register_node(fk_chain, 'fk_chain')
-        self.register_node(blend_chain, 'blend_chain')
+        self.register_node(ik_chain, hierarchy_id='ik_chain')
+        self.register_node(fk_chain, hierarchy_id='fk_chain')
+        self.register_node(blend_chain, hierarchy_id='blend_chain')
 
         self.rename()
 

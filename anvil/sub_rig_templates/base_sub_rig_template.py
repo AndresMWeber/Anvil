@@ -157,8 +157,6 @@ class SubRigTemplate(nt.SubRig):
         fk_controls = nt.NonLinearHierarchyNodeSet()
         control_parent = parent.pop()
         for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
-            print('parenting fk control %s to %s' % (node, control_parent))
-
             control = self.build_node(nt.Control,
                                       reference_object=node,
                                       shape=shape,
@@ -170,5 +168,4 @@ class SubRigTemplate(nt.SubRig):
 
             control_parent = fk_controls[-1].node.connection_group
             rt.dcc.connections.parent(control_parent, node, maintainOffset=True)
-        print(type(fk_chain))
         return fk_chain, fk_controls

@@ -15,7 +15,7 @@ class Spine(SubRigTemplate):
                                                 parent=self.group_nodes,
                                                 meta_data=self.meta_data + {'name': 'spine', 'type': 'curve'},
                                                 degree=3)
-        self.register_node('curve_spine', spine_curve)
+        self.register_node('curve_spine', hierarchy_id=spine_curve)
 
         self.rename()
         self.LOG.info('Built sub rig %s' % self.__class__.__name__)
