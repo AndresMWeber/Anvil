@@ -10,6 +10,7 @@ from anvil.utils.scene import sanitize_scene
 from contextlib import contextmanager
 import nomenclate
 import anvil
+import anvil.runtime as rt
 from anvil.log import obtain_logger
 
 NOMENCLATE = nomenclate.Nom()
@@ -102,3 +103,18 @@ def clean_up_scene(func):
         return func_return
 
     return wrapped
+
+def auto_save_result(func):
+    @wraps(func)
+    def wrapped(self, *args, **kwargs):
+        save_file = kwargs.pop('save_file', False)
+        save_path = kwargs.pop('save_path', False)
+        func_return = func(self, *args, **kwargs)
+        if save_file:
+            rt.dcc.scene.fileop(rename=os.path.join([f for f in [save_path, save_file, 'mb'] if f]),
+                                save=True,
+                                type='mayaBinary')
+        return func_return
+
+    return wrapped
+

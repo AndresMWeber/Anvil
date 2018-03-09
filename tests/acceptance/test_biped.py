@@ -1,7 +1,7 @@
 import anvil.config as cfg
 import anvil.node_types as nt
 from anvil.rig_templates import Biped
-from tests.base_test import TestBase, sanitize
+from tests.base_test import TestBase, sanitize, auto_save_result
 
 
 class TestBaseTemplateRigs(TestBase):
@@ -11,6 +11,7 @@ class TestBaseTemplateRigs(TestBase):
     CLASS = Biped
 
     @classmethod
+    @auto_save_result
     def from_template_file(cls, template_file, **kwargs):
         cls.import_template_files(template_file)
 

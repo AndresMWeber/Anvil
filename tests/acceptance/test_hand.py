@@ -2,7 +2,7 @@ from six import iteritems
 import anvil.node_types as nt
 from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
-from tests.base_test import TestBase, clean_up_scene
+from tests.base_test import TestBase, clean_up_scene, auto_save_result
 import string
 from pprint import pprint
 
@@ -14,6 +14,7 @@ class TestHandBase(TestBase):
     TEMPLATE_CLASS = Hand
 
     @classmethod
+    @auto_save_result
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
 
