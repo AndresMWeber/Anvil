@@ -20,10 +20,10 @@ class Control(base.AbstractGrouping):
     SHAPE_PARENT_KWARGS = {cfg.RELATIVE: True, cfg.ABSOLUTE: False, cfg.SHAPE: True}
 
     def __init__(self, **kwargs):
-        super(Control, self).__init__(**kwargs)
         self.controller = None
         self.connection_group = None
         self.offset_group = None
+        super(Control, self).__init__(**kwargs)
 
     @classmethod
     def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
@@ -100,3 +100,6 @@ class Control(base.AbstractGrouping):
 
     def rename(self, *input_dicts, **kwargs):
         super(Control, self).rename(*input_dicts, **kwargs)
+
+    def parent(self, new_parent, override_root=None):
+        super(Control, self).parent(new_parent, override_root=override_root or self.offset_group or self.controller)

@@ -1,7 +1,7 @@
 from six import iteritems
 import anvil.node_types as nt
 from anvil.sub_rig_templates import BipedFoot
-from tests.base_test import TestBase, clean_up_scene, sanitize
+from tests.base_test import TestBase, clean_up_scene, auto_save_result
 import anvil.config as cfg
 
 
@@ -27,16 +27,19 @@ class TestBaseTemplateRigs(TestBase):
 
 class TestBuildBipedFoot(TestBaseTemplateRigs):
     @clean_up_scene
+    @auto_save_result
     def test_build_no_kwargs(self):
         self.from_template_file(self.FOOT)
 
     @clean_up_scene
+    @auto_save_result
     def test_build_with_parent(self):
         parent = nt.Transform.build(name='test')
         rig_instance = self.from_template_file(self.FOOT, parent=parent)
         self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
     @clean_up_scene
+    @auto_save_result
     def test_build_with_leg_ik_and_soles(self):
         self.import_template_files(self.FOOT_WITH_LEG_AND_SOLES)
         self.build_leg_ik()
@@ -50,6 +53,7 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
         #                 [round(p, 5) for p in joint.get_world_position()])
 
     @clean_up_scene
+    @auto_save_result
     def test_build_with_leg_ik(self):
         parent = nt.Transform.build(name='test')
         rig_instance = self.from_template_file(self.FOOT_WITH_LEG, parent=parent, pre_build_hook=self.build_leg_ik)
@@ -58,8 +62,8 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
     @staticmethod
     def build_leg_ik():
         foot_ball_result = TestBuildBipedFoot.TEMPLATE().build_ik(nt.LinearHierarchyNodeSet('hip', 'foot',
-                                                                                          node_filter=cfg.JOINT_TYPE),
-                                                                solver=cfg.IK_RP_SOLVER)
+                                                                                            node_filter=cfg.JOINT_TYPE),
+                                                                  solver=cfg.IK_RP_SOLVER)
         return {'leg_ik': foot_ball_result[cfg.NODE_TYPE][cfg.DEFAULT]}
 
 

@@ -1,7 +1,7 @@
 from six import itervalues
 import anvil
 import anvil.node_types as nt
-from tests.base_test import TestBase, sanitize_scene
+from tests.base_test import TestBase, sanitize_scene, auto_save_result
 
 
 class TestBaseRig(TestBase):
@@ -36,6 +36,7 @@ class TestBaseRig(TestBase):
 
 
 class TestRigEyeBuild(TestBaseRig):
+    @auto_save_result
     def test_control_created(self):
         self.assertEqual(self.test_rig.find_node('universal'), self.test_rig.control.universal)
 

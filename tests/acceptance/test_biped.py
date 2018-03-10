@@ -1,7 +1,7 @@
 import anvil.config as cfg
 import anvil.node_types as nt
 from anvil.rig_templates import Biped
-from tests.base_test import TestBase, sanitize, auto_save_result
+from tests.base_test import TestBase, clean_up_scene, auto_save_result
 
 
 class TestBaseTemplateRigs(TestBase):
@@ -11,7 +11,6 @@ class TestBaseTemplateRigs(TestBase):
     CLASS = Biped
 
     @classmethod
-    @auto_save_result
     def from_template_file(cls, template_file, **kwargs):
         cls.import_template_files(template_file)
 
@@ -34,7 +33,8 @@ class TestBaseTemplateRigs(TestBase):
         for side in [cfg.LEFT, cfg.RIGHT]:
             fingers = []
             for finger in ['thb', 'ind', 'mid', 'rng', 'pnk']:
-                fingers.append(nt.LinearHierarchyNodeSet(finger_start % (side[0], finger), finger_end % (side[0], finger)))
+                fingers.append(
+                    nt.LinearHierarchyNodeSet(finger_start % (side[0], finger), finger_end % (side[0], finger)))
             sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers, 'scale': 0.3}
 
         rig_instance = cls.CLASS(sub_rig_dict=sub_rig_dict, name_tokens={cfg.CHARACTER: 'hombre'}, **kwargs)
@@ -43,19 +43,21 @@ class TestBaseTemplateRigs(TestBase):
 
 
 class TestBuildBiped(TestBaseTemplateRigs):
+    @clean_up_scene
+    @auto_save_result
     def test_build_with_parent_t_pose(self):
-        with sanitize():
-            parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file(self.TPOSE, parent=parent)
-            self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+        parent = nt.Transform.build(name='test')
+        rig_instance = self.from_template_file(self.TPOSE, parent=parent)
+        self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
+    @clean_up_scene
+    @auto_save_result
     def test_build_with_parent_a_pose(self):
-        with sanitize():
-            parent = nt.Transform.build(name='test')
-            rig_instance = self.from_template_file(self.APOSE, parent=parent)
-            self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+        parent = nt.Transform.build(name='test')
+        rig_instance = self.from_template_file(self.APOSE, parent=parent)
+        self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
+    @clean_up_scene
     def test_sub_rigs(self):
-        with sanitize():
-            rig_instance = self.from_template_file(self.APOSE)
-            self.assertEqual(sorted(list(rig_instance.sub_rigs)), sorted(list(rig_instance.SUB_RIG_BUILD_TABLE)))
+        rig_instance = self.from_template_file(self.APOSE)
+        self.assertEqual(sorted(list(rig_instance.sub_rigs)), sorted(list(rig_instance.SUB_RIG_BUILD_TABLE)))

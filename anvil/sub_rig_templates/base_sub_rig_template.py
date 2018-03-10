@@ -164,8 +164,8 @@ class SubRigTemplate(nt.SubRig):
                                       name_tokens=name_tokens,
                                       meta_data=meta_data,
                                       **kwargs)
-            fk_controls.append(control)
-
-            control_parent = fk_controls[-1].node.connection_group
+            control.parent(control_parent)
+            control_parent = control.node.connection_group
             rt.dcc.connections.parent(control_parent, node, maintainOffset=True)
+            fk_controls.append(control)
         return fk_chain, fk_controls

@@ -89,13 +89,14 @@ class AbstractGrouping(log.LogMixin):
             for attr, attr_kwargs in iteritems(attr_dict):
                 controller.add_attr(attr, **attr_kwargs)
 
-    def parent(self, new_parent):
-        nodes_exist = [rt.dcc.scene.exists(node) if node is not None else False for node in [self.root, new_parent]]
+    def parent(self, new_parent, override_root=None):
+        nodes_exist = [rt.dcc.scene.exists(node) if node is not None else False for node in
+                       [override_root or self.root, new_parent]]
         if all(nodes_exist or [False]):
-            self.root.parent(new_parent)
+            (override_root or self.root).parent(new_parent)
             return True
         else:
-            self.warning('Parent(%s) -> %r does not exist.', new_parent, self.root)
+            self.warning('Parent(%s) -> %r does not exist.', new_parent, override_root or self.root)
             return False
 
     def rename_chain(self, nodes, use_end_naming=False, **name_tokens):

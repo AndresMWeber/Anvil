@@ -1,4 +1,3 @@
-from six import iteritems
 import anvil.node_types as nt
 from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
@@ -14,7 +13,6 @@ class TestHandBase(TestBase):
     TEMPLATE_CLASS = Hand
 
     @classmethod
-    @auto_save_result
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
 
@@ -37,29 +35,34 @@ class TestBuildHand(TestHandBase):
             print_scene_tree()
             raise e
 
+    @auto_save_result
     def test_build_no_kwargs_no_errors(self):
         self.assertIsNotNone(self.hand)
 
-    def test_number_of_controls(self):
+    def test_number_of_controls_from_flat_hierarchy(self):
+        pprint(self.hand.hierarchy)
+        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]), 15)
 
-        controls = [node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]
-        self.assertEqual(len(controls), 15)
-
-    def test_number_of_control_top_groups(self):
+    def test_number_of_controls_from_get_children(self):
         pprint(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_controls.get_children()), 10)
 
-    def test_number_of_joint_chains(self):
+    def test_number_of_joint_chains_from_get_children(self):
         pprint(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_joints.get_children()), 15)
 
-    def test_number_of_nodes(self):
+    def test_number_of_joints_from_flat_hierarchy(self):
+        pprint(self.hand.hierarchy)
+        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Joint)]), 15)
+
+    def test_number_of_nodes_from_get_children(self):
         pprint(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_nodes.get_children()), 5)
 
 
 class TestBuildDefaultHand(TestHandBase):
     @clean_up_scene
+    @auto_save_result
     def test_build_with_parent(self):
         parent = nt.Transform.build(name='test')
         rig_instance = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, parent=parent)
