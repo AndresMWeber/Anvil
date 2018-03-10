@@ -33,11 +33,12 @@ class Hand(SubRigTemplate):
 
     def build(self, parent=None, solver=None, meta_data=None, **kwargs):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
-        solver = solver or cfg.IK_SC_SOLVER
+        self.build_kwargs['solver'] = solver or cfg.IK_SC_SOLVER
+
 
         for index, digit_info in enumerate(zip(self.layout_joints, self.get_finger_base_names())):
             layout_joints, label = digit_info
-            self.build_digit(layout_joints, index, solver=solver, name_tokens={cfg.NAME: label}, **self.build_kwargs)
+            self.build_digit(layout_joints, index, name_tokens={cfg.NAME: label}, **self.build_kwargs)
 
         self.rename()
 
