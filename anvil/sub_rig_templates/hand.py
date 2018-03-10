@@ -59,8 +59,8 @@ class Hand(SubRigTemplate):
                                                                           parent=[self.group_joints,
                                                                                   self.group_nodes,
                                                                                   self.group_controls,
-                                                                                  [self.group_controls,
-                                                                                   self.group_nodes]],
+                                                                                  self.group_controls,
+                                                                                  self.group_nodes],
                                                                           shape='cube', **kwargs)
             self.register_node(ik_chain, hierarchy_id='%s_chain_%s' % (cfg.IK, index))
             self.register_node(ik_controls, hierarchy_id='%s_%s_%s' % (cfg.IK, cfg.CONTROL_TYPE, index))

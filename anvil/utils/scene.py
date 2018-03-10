@@ -22,8 +22,9 @@ def safe_delete(node_or_nodes):
             pass
 
 
-def objects_exist(nodes):
-    return all([node.exists() if node else False for node in nodes])
+def objects_exist(*nodes):
+    return all(
+        [node.exists() if anvil.is_anvil(node) else rt.dcc.scene.exists(node) if node else False for node in nodes])
 
 
 def list_scene_nodes(object_type=cfg.TRANSFORM_TYPE):

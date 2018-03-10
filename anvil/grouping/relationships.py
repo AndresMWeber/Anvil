@@ -176,7 +176,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return gc.get_dict_depth(d=self.get_hierarchy(node_filter=node_filter or self.node_filter)) - 1
 
     def parent(self, new_parent):
-        if sc.objects_exist([self.head, new_parent]):
+        if sc.objects_exist(self.head, new_parent):
             rt.dcc.scene.parent(self.head, new_parent)
         else:
             self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)

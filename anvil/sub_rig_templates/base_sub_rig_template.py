@@ -104,11 +104,15 @@ class SubRigTemplate(nt.SubRig):
                        **kwargs):
         """
 
-        :param parent: list or object: list of up to length 4:
-                       [ik chain parent, handle parent, pv control parent, [3 pole vector control parents]]
+        :param parent: list or object: list of up to length 5:
+                       [ik chain parent, handle
+                       parent,
+                       pv control parent,
+                       pole vector clusters parent,
+                       pole vector line parent]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        parent = list(reversed(to_size_list(parent, 4)))
+        parent = list(reversed(to_size_list(parent, 5)))
         kwargs[cfg.SKIP_REGISTER] = True
         kwargs[cfg.SKIP_REPORT] = True
         ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent.pop(0), **kwargs)
@@ -129,6 +133,7 @@ class SubRigTemplate(nt.SubRig):
         # build pole vector control if using RP solver.
         if solver == cfg.IK_RP_SOLVER:
             pv_control = self.build_pole_vector_control(ik_chain, handle,
+                                                        parent = parent,
                                                         **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
                                                                             cfg.NAME_TOKENS: {
                                                                                 cfg.PURPOSE: cfg.POLE_VECTOR}}))
