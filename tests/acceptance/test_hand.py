@@ -3,6 +3,7 @@ from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
 from tests.base_test import TestBase, clean_up_scene, auto_save_result
 import string
+import anvil.config as cfg
 from pprint import pprint
 
 
@@ -68,6 +69,11 @@ class TestBuildDefaultHand(TestHandBase):
     @auto_save_result
     def test_build_no_kwargs_no_errors(self):
         self.assertIsNotNone(self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS))
+
+    @clean_up_scene
+    @auto_save_result
+    def test_build_with_rp_solver(self):
+        self.assertIsNotNone(self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, solver=cfg.IK_RP_SOLVER))
 
 
 class TestGetFingerBaseNames(TestHandBase):

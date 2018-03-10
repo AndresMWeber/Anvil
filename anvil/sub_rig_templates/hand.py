@@ -55,6 +55,7 @@ class Hand(SubRigTemplate):
             self.register_node(fk_controls, hierarchy_id='%s_%s_%s' % (cfg.FK, cfg.CONTROL_TYPE, index))
 
         if self.has_ik:
+
             ik_chain, ik_controls, handle, effector = self.build_ik_chain(digit_joints,
                                                                           parent=[self.group_joints,
                                                                                   self.group_nodes,
