@@ -3,7 +3,6 @@ from biped_foot import BipedFoot
 from quadruped_arm import QuadrupedArm
 from biped_leg import BipedLeg
 from quadruped_leg import QuadrupedLeg
-from digits import Digit
 from hand import Hand
 from head import Head
 from neck import Neck
@@ -22,7 +21,6 @@ __all__ = ['CenterOfMass',
            'BipedLeg',
            'QuadrupedArm',
            'QuadrupedLeg',
-           'Digit',
            'Hand',
            'Spine',
            'Neck',
@@ -31,4 +29,5 @@ __all__ = ['CenterOfMass',
            'FacialFeature',
            'Eye',
            'Eyelid',
-           'Limb']
+           'Limb',
+           'Tentacle']

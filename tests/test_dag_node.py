@@ -1,6 +1,7 @@
 import anvil.node_types as nt
 import anvil
-from base_test import TestBase
+from base_test import TestBase, clean_up_scene
+from anvil.errors import APIError
 
 
 class TestBaseDagNode(TestBase):
@@ -8,20 +9,21 @@ class TestBaseDagNode(TestBase):
 
 
 class TestDagNodeBuild(TestBaseDagNode):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_empty_input(self):
         self.assertRaises(NotImplementedError, nt.DagNode.build)
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_full_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name':'test'}, name='bob')
+        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name': 'test'}, name='bob')
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_partial_input(self):
-        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name':'test'})
+        self.assertRaises(NotImplementedError, nt.DagNode.build, meta_data={'name': 'test'})
+
 
 class TestDagNodeRename(TestBaseDagNode):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def rename_runner(self, desired_output, input_name):
         dag_node = nt.DagNode(str(nt.Transform.build()))
         dag_node.rename(input_name)
@@ -32,7 +34,7 @@ class TestDagNodeRename(TestBaseDagNode):
             self.assertEqual(str(dag_node), desired_output)
 
     def test_empty_input(self):
-        self.assertRaises(RuntimeError, self.rename_runner, None, '')
+        self.assertRaises(APIError, self.rename_runner, None, '')
 
     def test_single_char_input(self):
         self.rename_runner('n', 'n')

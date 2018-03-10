@@ -1,18 +1,17 @@
 import codecs
 from os.path import abspath, dirname, join
-from distutils.util import convert_path
 from setuptools import setup, find_packages
 
 __author__ = 'Andres Weber'
 __author_email__ = 'andresmweber@gmail.com'
 __package__ = 'anvil'
 __url__ = 'https://github.com/andresmweber/anvil'
+__version__ = '0.0.0'
 
-main_ns = {}
-with open(convert_path('%s/version.py' % __package__)) as ver_file:
-    exec (ver_file.read(), main_ns)
+with codecs.open(abspath(join(__package__, 'version.py'))) as ver_file:
+    exec (ver_file.read())
 
-with codecs.open(join(abspath(dirname(__file__)), 'README.rst'), encoding='utf-8') as readme_file:
+with codecs.open(join(abspath(dirname(__file__)), 'README.md'), encoding='utf-8') as readme_file:
     long_description = readme_file.read()
 
 description = 'Yet another auto-rigger.'
@@ -38,8 +37,8 @@ dev_requires = ['Sphinx', 'docutils', 'docopt']
 
 setup(
     name=__package__,
-    version=main_ns['__version__'],
-    packages=find_packages(),
+    version=__version__,
+    packages=find_packages(exclude=['tests', '*.tests', '*.tests.*']),
     package_data={'curve_shapes.yml': ['anvil/objects/curve_shapes.yml']},
     include_package_data=True,
     url=__url__,
@@ -48,7 +47,7 @@ setup(
     author_email=__author_email__,
     description=description,
     long_description=long_description,
-    keywords='auto-rig, rig, maya, auto',
+    keywords='auto-rig, rig, maya, auto, auto-rigger, python, circleci, pymel',
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Development Status :: 4 - Beta',

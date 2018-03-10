@@ -1,13 +1,12 @@
 from six import iteritems
-from functools import wraps
 import config as cfg
 import log
 from utils.generic import to_list, to_str_dict, pop_dict_keys, merge_dicts, dict_compare
 
 
 class MetaData(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
     PROTECTED_KWARG = 'protected'
+    PROTECT_ALL_KWARG = 'protect_all'
     IGNORED_KWARG = 'ignored'
     FORCE_KWARG = 'force'
     NEW_KWARG = 'new'
@@ -20,9 +19,13 @@ class MetaData(log.LogMixin):
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
         """
+        protect_all = kwargs.pop(self.PROTECT_ALL_KWARG, False)
         self.protected = set(to_list(kwargs.pop(self.PROTECTED_KWARG, None)) + [cfg.TYPE])
         self.data = {}
         self.merge(force=True, *args, **kwargs)
+
+        if protect_all:
+            self.protected = set(self.data)
 
     def merge(self, *args, **kwargs):
         """ Merge the incoming dictionaries into the current MetaData instance.  If the user passes a list of
@@ -74,6 +77,9 @@ class MetaData(log.LogMixin):
 
     def iteritems(self):
         return iteritems(self.data)
+
+    def to_dict(self):
+        return self.data
 
     def _process_args(self, args):
         return tuple(arg.data if isinstance(arg, self.__class__) else arg for arg in args)
@@ -134,34 +140,3 @@ class MetaData(log.LogMixin):
         return '{CLASS}({DATA}, protected={PROTECTED})'.format(CLASS=self.__class__.__name__,
                                                                DATA=self.data,
                                                                PROTECTED=self.protected)
-
-
-def cls_merge_name_tokens_and_meta_data(pre=True):
-    def outer(function):
-        @wraps(function)
-        def inner(cls_or_self, *args, **kwargs):
-            for meta_attr in [cfg.META_DATA, cfg.NAME_TOKENS]:
-                if not hasattr(cls_or_self, meta_attr):
-                    setattr(cls_or_self, meta_attr, MetaData())
-
-            name_tokens = MetaData(kwargs.pop(cfg.NAME_TOKENS, {}))
-            meta_data = MetaData(kwargs.pop(cfg.META_DATA, {}))
-
-            if pre:
-                kwargs[cfg.NAME_TOKENS] = name_tokens + getattr(cls_or_self, cfg.NAME_TOKENS)
-                kwargs[cfg.META_DATA] = meta_data + getattr(cls_or_self, cfg.META_DATA)
-
-            function_result = function(cls_or_self, *args, **kwargs)
-
-            if not pre:
-                cls_or_self.name_tokens.merge(name_tokens)
-                cls_or_self.meta_data.merge(meta_data)
-
-            if not 'Attribute' in repr(cls_or_self):
-                MetaData.info('Adding to node %r, name_tokens: %s, meta_data: %s, pre: %s',
-                              cls_or_self, name_tokens, meta_data, pre)
-            return function_result
-
-        return inner
-
-    return outer

@@ -11,8 +11,8 @@ from six import iteritems
 
 class Curve(Transform):
     DCC_TYPE = 'nurbsCurve'
-    ANVIL_TYPE = 'curve'
-    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: ANVIL_TYPE}, force=True, new=True)
+    ANVIL_TYPE = cfg.CURVE_TYPE
+    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: cfg.CURVE_TYPE}, force=True, new=True)
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
@@ -38,7 +38,7 @@ class Curve(Transform):
         kwargs[cfg.DEGREE] = 1
         kwargs[cfg.NAME_TOKENS] = MetaData(kwargs.get(cfg.NAME_TOKENS, {}))
         kwargs[cfg.NAME_TOKENS].update({cfg.NAME: '%s_to_%s' % (object1, object2), cfg.TYPE: cfg.CURVE_TYPE})
-        curve = cls.build_from_objects([object1, object2], **kwargs)
+        curve = cls.build_from_nodes([object1, object2], **kwargs)
         object1_cluster, object2_cluster = curve.generate_clusters()
         object1_cluster.parent(object1)
         object2_cluster.parent(object2)
@@ -47,8 +47,8 @@ class Curve(Transform):
         return (curve, [object1_cluster, object1_cluster])
 
     @classmethod
-    def build_from_objects(cls, objects, **kwargs):
-        kwargs[cfg.POINT] = [object.get_world_position() for object in anvil.factory_list(objects)]
+    def build_from_nodes(cls, nodes, **kwargs):
+        kwargs[cfg.POINT] = [node.get_world_position() for node in anvil.factory_list(nodes)]
         instance = cls.build(**kwargs)
         return instance
 
@@ -100,7 +100,7 @@ class Curve(Transform):
             return lambda: api_function(**shape_entry)
 
     @classmethod
-    def _populate_shape_file_data(cls, shape_file=None):
+    def populate_shape_file_data(cls, shape_file=None):
         if shape_file is None:
             shape_file = cfg.SHAPES_FILE
 
@@ -112,11 +112,11 @@ class Curve(Transform):
                 cls.SHAPE_CACHE = {}
 
     @staticmethod
-    def _ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwargs):
+    def _ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwargs):
         """ Stolen from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
         """
 
-        class OrderedDumper(Dumper):
+        class OrderedDumper(dumper):
             pass
 
         def _dict_representer(dumper, data):
@@ -158,4 +158,4 @@ class Curve(Transform):
             curve.rename(shape)
 
 
-Curve._populate_shape_file_data()
+Curve.populate_shape_file_data()

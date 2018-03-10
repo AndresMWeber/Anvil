@@ -42,7 +42,7 @@ def run_control():
 
 
 def run_biped():
-    import tests.acceptance.test_build_biped as t
+    import tests.acceptance.test_biped as t
     suite = unittest.TestSuite()
     suite.addTest(t.TestBuildBiped('test_build_with_parent_t_pose'))
     unittest.TextTestRunner().run(suite)

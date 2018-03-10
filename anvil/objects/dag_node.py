@@ -15,6 +15,17 @@ class DagNode(unicode_delegate.UnicodeDelegate):
     def _resolve_attribute_name(self, attribute_name):
         return '%s%s%s' % (self, cfg.ATTR_DELIMITER, attribute_name)
 
+    def delete(self):
+        rt.dcc.scene.delete(self.name())
+
+    def duplicate(self, keep_inputs=False, include_children=False, include_parents=False, rename_children=True,
+                  **kwargs):
+        kwargs['inputConnections'] = keep_inputs
+        kwargs['parentOnly'] = include_children
+        kwargs['renameChildren'] = rename_children
+        kwargs['upstreamNodes'] = include_parents
+        return self.__class__(rt.dcc.scene.duplicate(self.name(), **kwargs)[0])
+
     def add_attr(self, attribute, **kwargs):
         rt.dcc.connections.add_attr(self, longName=attribute, **kwargs)
         return at.Attribute(self._resolve_attribute_name(attribute))

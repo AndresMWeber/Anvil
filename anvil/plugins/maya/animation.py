@@ -2,7 +2,7 @@ from anvil.plugins.maya.dependencies import *
 import anvil.plugins.base.api_proxy as api_proxy
 
 
-@api_proxy.APIProxy._validate_function(
+@api_proxy.APIProxy.validate(
     api_proxy.merge_dicts(api_proxy.DEFAULT_SCHEMA,
                           {'properties':
                                {'animLayer': api_proxy.STR_TYPE, 'attribute': api_proxy.STR_TYPE,
@@ -13,6 +13,6 @@ import anvil.plugins.base.api_proxy as api_proxy
                                 'insertBlend': api_proxy.BOOL_TYPE, 'minimizeRotation': api_proxy.BOOL_TYPE,
                                 'outTangentType': api_proxy.STR_TYPE, 'shape': api_proxy.BOOL_TYPE,
                                 'time': api_proxy.NUM_TYPE, 'value': api_proxy.NUM_TYPE}}),
-    API, 'setKeyframe')
+    DEFAULT_API, 'setKeyframe')
 def set_keyframe(*objects, **kwargs):
     pass

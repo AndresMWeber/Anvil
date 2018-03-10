@@ -1,5 +1,4 @@
 from six import iteritems
-import nomenclate.core.tools as ts
 import anvil
 import anvil.log as log
 import anvil.config as cfg
@@ -7,24 +6,94 @@ import anvil.runtime as rt
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
+from anvil.meta_data import MetaData
 
-class HierarchyChain(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
-    UP = 'up'
-    DOWN = 'down'
 
-    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None):
+class NodeRelationshipSet(log.LogMixin):
+    def __init__(self, nodes=None, name_tokens=None, **kwargs):
+        self.name_tokens = MetaData(name_tokens or {}, **kwargs)
+        self.nodes = nodes or []
+
+    def _get_anvil_type(self):
+        try:
+            return self.nodes[0].ANVIL_TYPE
+        except (AttributeError, ValueError, IndexError):
+            return cfg.SET_TYPE
+
+    ANVIL_TYPE = property(_get_anvil_type)
+
+    @property
+    def set(self):
+        return self.nodes
+
+    @set.setter
+    def set(self, value):
+        self.nodes = value
+
+    def __contains__(self, item):
+        return item in self.set
+
+    def __getitem__(self, item):
+        return self.set[item]
+
+    def __setitem__(self, key, value):
+        self.set[key] = value
+
+    def __iter__(self):
+        return iter(self.set)
+
+    def __len__(self):
+        return len(list(self.set))
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __add__(self, other):
+        self.set = other
+        return self
+
+    def __str__(self):
+        return str(self.set)
+
+    def __repr__(self):
+        return super(NodeRelationshipSet, self).__repr__().replace('>', '(children=%d)>' % (len(self)))
+
+    def append(self, node):
+        raise NotImplementedError
+
+    def insert(self, index, node):
+        raise NotImplementedError
+
+    def extend(self, nodes):
+        raise NotImplementedError
+
+
+class NonLinearHierarchyNodeSet(NodeRelationshipSet):
+    def append(self, node):
+        self.set.append(node)
+
+    def insert(self, index, node):
+        self.set.insert(index, node)
+
+    def extend(self, nodes):
+        self.set.extend(nodes)
+
+
+class LinearHierarchyNodeSet(NodeRelationshipSet):
+    DEFAULT_BUFFER_TYPE = ob.Transform
+
+    def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None, **kwargs):
+        super(LinearHierarchyNodeSet, self).__init__(**kwargs)
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
-        top_node, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
-        self.head = top_node
+        self.head, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
         self.tail = self._process_end_node(end_node)
         self.parent(parent)
 
     @property
-    def mid(self):
-        """ Should only be used with non-branching chains as it will create false positives.
+    def set(self):
+        """ Only iterates on the nodes in between the top node and the end node linearly (ignores branching paths)
         """
-        return self.get_hierarchy(as_list=True)[self.depth() / 2]
+        return self._traverse_up_linear_tree(self.tail, self.head)
 
     def find_child(self, child):
         if isinstance(child, int):
@@ -65,23 +134,43 @@ class HierarchyChain(log.LogMixin):
 
         return level_tree
 
-    def insert_buffer(self, index_target, buffer_node_class=None, direction=None, **kwargs):
+    def insert(self, index_target, node, beneath=False, reference_node=None, reset_transform=True):
+        """ Inserts node of type buffer_node_class at the index specified.
+        :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
+        :param node: anvil.objects.dag_node.DagNode, an anvil node to insert in place
+        :param pre_hooks: list, list of functions to run before
+        :param beneath: bool, place the new buffer under the index target or replace it in position
+        :param post_hooks: list, list of functions to run after
+        :return: anvil.objects.dag_node.DagNode, created anvil buffer node
+        """
         index_target = self.find_child(index_target)
 
-        direction = self.UP if direction is None else direction if direction in [self.UP, self.DOWN] else self.UP
-        buffer_node_class = ob.Transform if not anvil.is_anvil(buffer_node_class) else buffer_node_class
+        node.parent(index_target if beneath else (index_target.get_parent() or None))
 
-        buffer = buffer_node_class.build(**kwargs)
-        buffer_parent = index_target.get_parent() if direction == self.UP else index_target
+        if reset_transform:
+            node.reset_transform()
+        node.match_transform(reference_node)
 
-        buffer.match_position(buffer_parent)
-        buffer.parent(buffer_parent)
+        map(lambda child_node: child_node.parent(node),
+            [c for c in index_target.get_children() if c != node] if beneath else [index_target])
 
-        if direction == self.UP:
-            index_target.parent(buffer)
-        else:
-            for child in index_target.children():
-                child.parent(buffer)
+        if any(index_target == test for test in (self.head, 0)):
+            self.head = node
+
+        return node
+
+    def add_buffer(self, index_target, beneath=False, buffer_node_class=None, reference_node=None, **kwargs):
+        """
+        :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
+        :param reference_node: anvil.objects.dag_node.DagNode, an anvil transform to match positions to.
+        :param beneath: bool, place the new buffer under the index target or replace it in position
+        :param reference_node: str or ob.Transform, either a dag path or anvil node to match position to
+        :param buffer_node_class: ob.UnicodeProxy, anvil node type we are going to build
+        :param kwargs: dict, dictionary of flags for the node creation function based on buffer_node_class.
+        :return: anvil.objects.dag_node.DagNode, anvil node type
+        """
+        buff = (buffer_node_class if anvil.is_anvil(buffer_node_class) else self.DEFAULT_BUFFER_TYPE).build(**kwargs)
+        return self.insert(index_target, buff, beneath=beneath, reference_node=reference_node)
 
     def depth(self, node_filter=None):
         return gc.get_dict_depth(d=self.get_hierarchy(node_filter=node_filter or self.node_filter)) - 1
@@ -105,23 +194,13 @@ class HierarchyChain(log.LogMixin):
                 # This is the case if no end was specified so we will duplicate the entire chain.
                 nodes = top_node
                 duplicate_kwargs.pop('parentOnly')
-        self.info('Duplicating chain %s from %s->%s, kwargs: %s', nodes, top_node, end_node, duplicate_kwargs)
+
         duplicates = rt.dcc.scene.duplicate(nodes, **duplicate_kwargs)
-        self.info('Duplicates of %s are %s', nodes, duplicates)
+
         if len(duplicates) == 1:
             duplicates = [duplicates[0]] + self._traverse_down_linear_tree(duplicates[0])
+
         return str(duplicates[0]), str(duplicates[-1])
-
-    def build_ik(self, chain_start=None, chain_end=None, solver=cfg.IK_RP_SOLVER, parent=None, **kwargs):
-        chain_start = chain_start if chain_start is not None else self.head
-        chain_end = chain_end if chain_end is not None else self.tail
-
-        kwargs.update({'endEffector': str(chain_end), 'solver': solver})
-        handle, effector = rt.dcc.rigging.ik_handle(str(chain_start), **kwargs)
-        if parent:
-            rt.dcc.scene.parent(handle, parent)
-
-        return (anvil.factory(handle), anvil.factory(effector))
 
     def _process_top_node(self, top_node, end_node, duplicate=False):
         if isinstance(top_node, list) and end_node is None:
@@ -147,7 +226,8 @@ class HierarchyChain(log.LogMixin):
         node_filter = node_filter if node_filter is not None else self.node_filter
         all_descendants = self._traverse_down_linear_tree(upstream_node)
         if not str(downstream_node) in all_descendants:
-            raise IndexError('Node %r is a descendant of %s --> %s' % (downstream_node, upstream_node, all_descendants))
+            raise IndexError('Node %r is not a descendant of %s --> %s (filter=%s)' %
+                             (downstream_node, upstream_node, all_descendants, self.node_filter))
 
         current_node = anvil.factory(downstream_node)
         chain_path = [current_node]
@@ -176,38 +256,14 @@ class HierarchyChain(log.LogMixin):
             raise ValueError('Could not find last node at depth %d' % self.depth())
 
     def _traverse_down_linear_tree(self, start):
-        relatives_kwargs = {'allDescendents': True, 'children': True}
-        if self.node_filter:
-            relatives_kwargs[cfg.TYPE] = self.node_filter
-        return list(reversed(rt.dcc.scene.list_relatives(start, **relatives_kwargs)))
-
-    def __iter__(self):
-        """ This is setup to only iterate on the nodes in between the top node and the end node
-            ignores branching paths
-        """
-        return self._traverse_up_linear_tree(self.tail, self.head)
-
-    def __contains__(self, item):
-        return str(item) in [str(n) for n in ts.flatten(self.get_hierarchy())]
+        kwargs = {cfg.TYPE: self.node_filter} if self.node_filter else {}
+        return list(reversed(rt.dcc.scene.list_relatives(start, allDescendents=True, children=True, **kwargs)))
 
     def __getitem__(self, key):
-        if isinstance(key, (int, slice)):
-            return list(self)[key]
-        else:
-
-            return gc.get_dict_key_matches(key, self.get_hierarchy())
-
-    def __len__(self):
-        return len(list(iter(self)))
-
-    def __str__(self):
-        return str(self.head)
-
-    def __repr__(self):
-        return super(HierarchyChain, self).__repr__().replace('>', '(root=%s, end=%s)>' % (self.head, self.tail))
-
-    def __radd__(self, other):
-        return self.__add__(other)
+        return list(self)[key] if isinstance(key, (int, slice)) else gc.get_dict_key_matches(key, self.get_hierarchy())
 
     def __add__(self, other):
-        return list(self) + gc.to_list(other)
+        return NonLinearHierarchyNodeSet(list(self) + gc.to_list(other))
+
+    def __repr__(self):
+        return super(LinearHierarchyNodeSet, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))

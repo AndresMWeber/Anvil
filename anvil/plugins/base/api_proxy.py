@@ -1,8 +1,9 @@
-from six import iteritems
+from six import iteritems, raise_from
 from functools import wraps
 import anvil
 import anvil.config as cfg
 from jsonschema import validate
+import anvil.errors as err
 
 DEFAULT_SCHEMA = {cfg.TYPE: ["object", "null"], "properties": {}}
 BOOL_TYPE = {cfg.TYPE: cfg.BOOLEAN}
@@ -21,28 +22,23 @@ QUERYABLE_MATRIX = {"anyOf": [MATRIX_TYPE, BOOL_TYPE]}
 LINEAR_ANGLE_TYPE = {cfg.TYPE: cfg.ARRAY, "items": NUM_TYPE, "minItems": 2, "maxItems": 2}
 LINEAR_STRING_TYPE = {cfg.TYPE: cfg.ARRAY, "items": STR_TYPE, "minItems": 2, "maxItems": 2}
 STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
+POSITION_OR_STR_TYPE = {"anyOf": [STR_TYPE, POSITION_LIST]}
 
 
 class APIProxy(object):
-    LOG = anvil.log.obtainLogger(__name__)
-    API_LOG = anvil.log.obtainLogger(__name__ + '.api_calls')
+    LOG = anvil.log.obtain_logger(__name__)
+    API_LOG = anvil.log.obtain_logger(__name__ + '.api_calls')
     CURRENT_API = None
 
     @classmethod
-    def _validate_function(cls, schema, api, function_name):
+    def validate(cls, schema, api, function_name):
         def to_validate(function):
             @wraps(function)
             def validator(*args, **kwargs):
-                cls.LOG.debug('Validating call for %s.%s(args=%s, kwargs=%s) against schema %s' % (
-                    api.__name__, function_name, ', '.join([repr(a) for a in args]),
-                    ', '.join(['%s=%s' % (k, v) for k, v in iteritems(kwargs)]),
-                    list(schema['properties'])))
                 validate(kwargs, schema)
                 kwargs = cls._initialize_and_filter_flags(kwargs, schema)
                 return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
-
             return validator
-
         return to_validate
 
     @classmethod
@@ -50,17 +46,14 @@ class APIProxy(object):
         new_flags = {} if flags is None else flags.copy()
 
         schema_properties = list(schema.get('properties'))
-        cls.LOG.debug('Filtering flags %s for the schema properties %s' % (new_flags, schema_properties))
 
         for flag_key in list(new_flags):
             if flag_key not in schema_properties:
-                cls.LOG.debug('Flag %s not in schema...removing from flags' % (flag_key))
                 new_flags.pop(flag_key)
 
         for schema_property in schema_properties:
             default = schema['properties'][schema_property].get(cfg.DEFAULT)
             if default is not None and new_flags.get(schema_property) is None:
-                cls.LOG.debug('Setting flag %s from default value %s in schema ' % (schema_property, default))
                 new_flags[schema_property] = default
 
         return new_flags
@@ -76,9 +69,12 @@ class APIProxy(object):
             for key, node in iteritems(kwargs):
                 if anvil.is_anvil(node):
                     kwargs[key] = str(node)
-
-        cls.API_LOG.info(cls._compose_api_call(api, function_name, *args, **kwargs))
-        return getattr(api, function_name)(*args, **kwargs)
+        api_call = cls._compose_api_call(api, function_name, *args, **kwargs)
+        cls.API_LOG.info(api_call)
+        try:
+            return getattr(api, function_name)(*args, **kwargs)
+        except RuntimeError as rterr:
+            raise_from(err.APIError('%s\n%s: %s' % (api_call, type(rterr).__name__, rterr)), rterr)
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):

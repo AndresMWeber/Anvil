@@ -1,19 +1,12 @@
-from six import iteritems
+from six import itervalues
 import config
+import registration
 import colors
 import meta_data
 import log
 import version
-
-
-class AnvilLog(log.LogMixin):
-    LOG = log.obtainLogger(__name__)
-
-
-LOG = AnvilLog
-
-import runtime
 import plugins
+import runtime
 import utils
 import objects
 import grouping
@@ -21,6 +14,13 @@ import node_types
 import sub_rig_templates
 import rig_templates
 
+
+class AnvilLog(log.LogMixin):
+    LOG = log.obtain_logger(__name__)
+
+
+LOG = AnvilLog
+LOG.info('Auto-Loaded DCC %s', runtime.dcc)
 LOG.info('Loaded logger config file %s successfully, writing to: %s',
          log.LogInitializer.CFG_FILE, log.LogInitializer.LOG_DIR)
 LOG.info('Anvil environment has been set to %s', config.ENV)
@@ -30,15 +30,14 @@ EXISTING_ENCAPSULATIONS = {}
 
 
 def check_for_encapsulation(dag_path):
-    for node_index, node_encapsulation in iteritems(EXISTING_ENCAPSULATIONS):
+    for node_encapsulation in itervalues(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
             LOG.debug('Found previous encapsulation for %s: %r. Using instead.', dag_path, node_encapsulation)
             return node_encapsulation
-    else:
-        return None
+    return None
 
 
-def factory(dag_path):
+def factory(dag_path, **kwargs):
     if dag_path is None:
         raise IOError('Tried to factory encapsulate None.')
     if is_anvil(dag_path):
@@ -62,7 +61,7 @@ def factory(dag_path):
     else:
         encapsulation_class = objects.Transform
 
-    encapsulation = encapsulation_class(dag_path)
+    encapsulation = encapsulation_class(dag_path, **kwargs)
     LOG.debug('Encapsulating %s with node type %s as %s', dag_path, encapsulation_class, encapsulation)
     register_encapsulation(encapsulation)
     return encapsulation
@@ -80,9 +79,13 @@ def is_anvil(node):
     try:
         if isinstance(node, node_types.REGISTERED_NODES.get(type(node).__name__)):
             return True
-    except:
+    except TypeError:
         pass
     return False
+
+
+def is_aset(node):
+    issubclass(type(node), node_types.NodeRelationshipSet)
 
 
 def is_agrouping(node):
@@ -100,10 +103,10 @@ __all__ = ['config',
            'version',
            'node_types',
            'runtime',
-           'node_types',
            'objects',
            'grouping',
            'sub_rig_templates',
            'rig_templates',
            'utils',
-           'colors']
+           'colors',
+           'registration']

@@ -13,6 +13,10 @@ POLY_TYPE = 'poly'
 GROUP_TYPE = 'group'
 TRANSFORM_TYPE = 'transform'
 ADD_SUB_TYPE = 'plusMinusAverage'
+MULT_DIV_TYPE = 'multiplyDivide'
+SET_TYPE = 'set'
+ANVIL_TYPE = 'ANVIL_TYPE'
+ID_TYPE = 'hierarchy_id'
 
 # NAME METADATA
 LEFT = 'left'
@@ -39,7 +43,7 @@ HIERARCHY_TYPE = 'hierarchy'
 # RIG CONCEPTS
 SUB_RIG_TOKEN = 'sub'
 NAME_TOKENS = 'name_tokens'
-META_DATA= 'meta_data'
+META_DATA = 'meta_data'
 UNIVERSAL = 'universal'
 TOP_GROUP = 'group_top'
 UNIVERSAL_CONTROL = '%s_%s' % (CONTROL_TYPE, UNIVERSAL)
@@ -59,7 +63,7 @@ REFERENCE_OBJECT = 'reference_object'
 OFFSET_GROUP = 'offset_group'
 CONNECTION_GROUP = 'connection_group'
 QUERY = 'query'
-
+BUFFER = 'buffer'
 
 # DATA TYPES
 ATTRIBUTE_TYPE = 'attributeType'
@@ -100,7 +104,8 @@ IK_HANDLE = 'ik_handle'
 IK_EFFECTOR = 'ik_effector'
 FK = 'fk'
 IKFK_BLEND = 'ikfk_blend'
-BLENDER = 'blendColors'
+BLEND_NODE = 'blendColors'
+CHOICE_NODE = 'choice'
 POLE_VECTOR = 'pole_vector'
 BLEND = 'blend'
 WORLD_SPACE = 'worldSpace'
@@ -158,6 +163,8 @@ DEFAULT_IK_SHAPE = SPHERE
 DEFAULT_FK_SHAPE = CUBE
 DEFAULT_DIGIT_FK_SHAPE = PYRAMID_PIN
 DEFAULT_PV_SHAPE = TRIANGLE
+SKIP_REGISTER = 'skip_register'
+SKIP_REPORT = 'skip_report'
 
 # PATHS
 BASE_DIR = os.path.dirname(os.path.abspath(anvil.__file__))

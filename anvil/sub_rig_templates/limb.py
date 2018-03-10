@@ -1,4 +1,4 @@
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 import anvil.config as cfg
 
 
@@ -13,17 +13,28 @@ class Limb(SubRigTemplate):
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **kwargs)
-
-        # Build IK/FK chains from the initial layout joints
+        fk_chain = ik_chain = blend_chain = None
         if build_fk:
-            self.LOG.info('Building FK chain on %r from layout joints %r.' % (self, self.layout_joints))
-            self.build_fk_chain(self.layout_joints, **self.build_kwargs)
+            fk_chain, fk_controls = self.build_fk_chain(self.layout_joints,
+                                                        skip_register=True,
+                                                        skip_report=True,
+                                                        **self.build_kwargs)
 
         if build_ik:
-            self.LOG.info('Building IK chain on %r from layout joints %r.' % (self, self.layout_joints))
-            self.build_ik_chain(self.layout_joints, **self.build_kwargs)
+            ik_chain, controls, handle, effector = self.build_ik_chain(self.layout_joints,
+                                                                       skip_register=True,
+                                                                       skip_report=True,
+                                                                       **self.build_kwargs)
 
-        self.build_blend_chain(self.layout_joints, use_layout=use_layout, **self.build_kwargs)
+        if fk_chain and ik_chain:
+            blend_chain = self.build_blend_chain(self.layout_joints, [fk_chain, ik_chain],
+                                                 skip_register=True,
+                                                 skip_report=True,
+                                                 use_layout=use_layout, **self.build_kwargs)
+        self.register_node(ik_chain, hierarchy_id='ik_chain')
+        self.register_node(fk_chain, hierarchy_id='fk_chain')
+        self.register_node(blend_chain, hierarchy_id='blend_chain')
+
         self.rename()
 
     def rename(self, *input_dicts, **name_tokens):
