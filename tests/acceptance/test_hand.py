@@ -35,10 +35,6 @@ class TestBuildHand(TestHandBase):
             print_scene_tree()
             raise e
 
-    @auto_save_result
-    def test_build_no_kwargs_no_errors(self):
-        self.assertIsNotNone(self.hand)
-
     def test_number_of_controls_from_flat_hierarchy(self):
         pprint(self.hand.hierarchy)
         self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]), 15)
@@ -67,6 +63,11 @@ class TestBuildDefaultHand(TestHandBase):
         parent = nt.Transform.build(name='test')
         rig_instance = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, parent=parent)
         self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
+
+    @clean_up_scene
+    @auto_save_result
+    def test_build_no_kwargs_no_errors(self):
+        self.assertIsNotNone(self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS))
 
 
 class TestGetFingerBaseNames(TestHandBase):

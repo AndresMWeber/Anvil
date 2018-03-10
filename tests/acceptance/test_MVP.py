@@ -12,16 +12,6 @@ class TestBaseRig(TestBase):
     def setUpClass(cls):
         sanitize_scene()
         super(TestBaseRig, cls).setUpClass()
-        cls.build_dependencies()
-
-    @classmethod
-    def tearDownClass(cls):
-        super(TestBaseRig, cls).tearDownClass()
-        sanitize_scene()
-
-    @classmethod
-    def build_dependencies(cls):
-        super(TestBaseRig, cls).build_dependencies()
         test_rig = nt.Rig(name_tokens=cls.name_tokens)
         sub_rig = test_rig.build_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
         test_rig.build()
@@ -33,6 +23,11 @@ class TestBaseRig(TestBase):
         cls.test_rig = test_rig
         cls.LOG.info('Built rig for testing %s' % test_rig)
         return test_rig
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestBaseRig, cls).tearDownClass()
+        sanitize_scene()
 
 
 class TestRigEyeBuild(TestBaseRig):

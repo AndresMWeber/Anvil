@@ -33,7 +33,7 @@ class SubRigTemplate(nt.SubRig):
         kwargs.update({cfg.NAME_TOKENS: name_tokens,
                        cfg.META_DATA: meta_data,
                        'move_by': move_by,
-                       'parent': parent.pop(),
+                       'parent': parent.pop(0),
                        'up_vector': up_vector,
                        'aim_vector': aim_vector,
                        'up_object': up_object})
@@ -41,12 +41,12 @@ class SubRigTemplate(nt.SubRig):
         control = nt.Control.build_pole_vector(joints, ik_handle, **kwargs)
         pv_line, clusters = nt.Curve.build_line_indicator(joints[len(joints) // 2], control.controller, **kwargs)
 
-        cluster_parent = parent.pop()
+        cluster_parent = parent.pop(0)
         for cluster in clusters:
             cluster.visibility.set(False)
             cluster.parent(cluster_parent)
 
-        pv_line.parent(parent.pop())
+        pv_line.parent(parent.pop(0))
 
         return control, pv_line, nt.NonLinearHierarchyNodeSet(clusters)
 
@@ -108,20 +108,20 @@ class SubRigTemplate(nt.SubRig):
                        [ik chain parent, handle parent, pv control parent, [3 pole vector control parents]]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        parent = list(reversed(to_size_list(parent, 3)))
+        parent = list(reversed(to_size_list(parent, 4)))
         kwargs[cfg.SKIP_REGISTER] = True
         kwargs[cfg.SKIP_REPORT] = True
-        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent.pop(), **kwargs)
+        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=parent.pop(0), **kwargs)
 
         handle, effector = self.build_ik(ik_chain,
                                          chain_end=ik_chain[ik_end_index],
-                                         parent=parent.pop(),
+                                         parent=parent.pop(0),
                                          name_tokens=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.NAME_TOKENS, {})),
                                          **kwargs)
 
         controls = nt.NonLinearHierarchyNodeSet()
         # build ik control
-        controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(),
+        controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: parent.pop(0),
                                                              cfg.REFERENCE_OBJECT: ik_chain[-1],
                                                              cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
                                                              cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict()))
@@ -153,9 +153,9 @@ class SubRigTemplate(nt.SubRig):
         kwargs['skip_register'] = True
         kwargs['skip_report'] = True
 
-        fk_chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop())
+        fk_chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop(0))
         fk_controls = nt.NonLinearHierarchyNodeSet()
-        control_parent = parent.pop()
+        control_parent = parent.pop(0)
         for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
             control = self.build_node(nt.Control,
                                       reference_object=node,

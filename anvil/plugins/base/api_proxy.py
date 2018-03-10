@@ -73,7 +73,7 @@ class APIProxy(object):
         cls.API_LOG.info(api_call)
         try:
             return getattr(api, function_name)(*args, **kwargs)
-        except RuntimeError as rterr:
+        except (RuntimeError, TypeError) as rterr:
             raise_from(err.APIError('%s\n%s: %s' % (api_call, type(rterr).__name__, rterr)), rterr)
 
     @staticmethod
