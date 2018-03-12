@@ -46,13 +46,10 @@ class Rig(base.AbstractGrouping):
             return
 
         for sub_rig_name, sub_rig_data in iteritems(sub_rig_dict):
-            try:
-                sub_rig_construction_data = self.SUB_RIG_BUILD_TABLE.get(sub_rig_name)
-                sub_rig_class, default_name_tokens = sub_rig_construction_data
-                sub_rig_kwargs = sub_rig_data if isinstance(sub_rig_data, dict) else {cfg.LAYOUT: sub_rig_data}
-                self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
-            except TypeError:
-                self.warning('Sub rig table entry %r not found in input dict %s', sub_rig_name, sub_rig_dict)
+            sub_rig_construction_data = self.SUB_RIG_BUILD_TABLE.get(sub_rig_name)
+            sub_rig_class, default_name_tokens = sub_rig_construction_data
+            sub_rig_kwargs = sub_rig_data if isinstance(sub_rig_data, dict) else {cfg.LAYOUT: sub_rig_data}
+            self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
 
     def build_sub_rig(self, sub_rig_key, sub_rig_candidate=SubRig, **kwargs):
         """ Initializes the given sub rig candidate class with kwargs and stores it in property sub_rigs under the key.
@@ -64,13 +61,13 @@ class Rig(base.AbstractGrouping):
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, SubRig):
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)
-            return self.sub_rigs[sub_rig_key]
+        else:
+            self.warning('Sub rig candidate %s is not a valid anvil template', sub_rig_candidate)
 
     def build_sub_rigs(self):
         for sub_rig_member in itervalues(self.sub_rigs):
-            if not sub_rig_member.is_built:
-                self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
-                sub_rig_member.build()
+            self.info('Building sub-rig %s on rig %s', sub_rig_member, self)
+            sub_rig_member.build()
             anvil.runtime.dcc.scene.parent(sub_rig_member.root, self.node.group_sub_rigs)
 
     def auto_color(self):
@@ -79,10 +76,7 @@ class Rig(base.AbstractGrouping):
             sub_rig_instance.auto_color()
 
     def build(self, parent=None, name_tokens=None, **kwargs):
-        self.info('Building %s(%r) with parent: %s, name_tokens: %s, and kwargs: %s',
-                  self.__class__.__name__, self, parent, name_tokens, kwargs)
         self.name_tokens.update(name_tokens)
-
         self.build_node(ot.Transform, hierarchy_id='top', name_tokens=self.ROOT_NAME_TOKENS, **kwargs)
         self.root = self.node.top
 

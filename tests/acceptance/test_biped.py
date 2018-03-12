@@ -13,7 +13,6 @@ class TestBaseTemplateRigs(TestBase):
     @classmethod
     def from_template_file(cls, template_file, **kwargs):
         cls.import_template_files(template_file)
-
         sub_rig_dict = {
             cfg.LEFT + '_' + cfg.ARM: {cfg.LAYOUT: nt.LinearHierarchyNodeSet('l_armA_JNT', 'l_armC_JNT')},
             cfg.RIGHT + '_' + cfg.ARM: {cfg.LAYOUT: nt.LinearHierarchyNodeSet('r_armA_JNT', 'r_armC_JNT')},
@@ -27,15 +26,14 @@ class TestBaseTemplateRigs(TestBase):
             cfg.NECK: nt.LinearHierarchyNodeSet('neckA_JNT', 'neckEnd_JNT'),
             cfg.HEAD: nt.LinearHierarchyNodeSet('headA_JNT', 'headEnd_JNT'),
         }
-
-        finger_start = '%s_finger_%s_A_JNT'
-        finger_end = '%s_finger_%s_D_JNT'
+        finger_labels = ['thb', 'ind', 'mid', 'rng', 'pnk']
+        finger_start, finger_end = '%s_finger_%s_A_JNT', '%s_finger_%s_D_JNT'
         for side in [cfg.LEFT, cfg.RIGHT]:
             fingers = []
-            for finger in ['thb', 'ind', 'mid', 'rng', 'pnk']:
+            for finger in finger_labels:
                 fingers.append(
                     nt.LinearHierarchyNodeSet(finger_start % (side[0], finger), finger_end % (side[0], finger)))
-            sub_rig_dict[side + '_' + cfg.HAND] = {'finger_joints': fingers, 'scale': 0.3}
+            sub_rig_dict[side + '_' + cfg.HAND] = {cfg.LAYOUT: fingers, 'scale': 0.3}
 
         rig_instance = cls.CLASS(sub_rig_dict=sub_rig_dict, name_tokens={cfg.CHARACTER: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)

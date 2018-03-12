@@ -2,6 +2,7 @@ import string
 import anvil.config as cfg
 from base_sub_rig_template import SubRigTemplate
 import anvil.objects.attribute as at
+import anvil.node_types as nt
 
 
 class Hand(SubRigTemplate):
@@ -16,7 +17,7 @@ class Hand(SubRigTemplate):
         cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS,
     }
 
-    def __init__(self, layout_joints, has_ik=True, has_fk=True, has_thumb=True, **kwargs):
+    def __init__(self, has_ik=True, has_fk=True, has_thumb=True, **kwargs):
         """ General class for a hand.
 
         :param layout_joints: anvil.node_types.Hierarchy, hierarchy chain of joints to use.
@@ -25,21 +26,18 @@ class Hand(SubRigTemplate):
         :param has_ik: bool or int, if this is true will build ik setup
         :param finger_joints: [nt.HierarchyChain or str]: list joint chains to build the fingers on.
         """
-        super(Hand, self).__init__(layout_joints=layout_joints, **kwargs)
+        super(Hand, self).__init__(**kwargs)
+        self.digits = nt.NonLinearHierarchyNodeSet()
         self.has_thumb = has_thumb
         self.has_ik = has_ik
         self.has_fk = has_fk
-        self.digits = []
 
     def build(self, parent=None, solver=None, meta_data=None, **kwargs):
         super(Hand, self).build(meta_data=meta_data, parent=parent, **kwargs)
         self.build_kwargs['solver'] = solver or cfg.IK_SC_SOLVER
-
-
         for index, digit_info in enumerate(zip(self.layout_joints, self.get_finger_base_names())):
             layout_joints, label = digit_info
             self.build_digit(layout_joints, index, name_tokens={cfg.NAME: label}, **self.build_kwargs)
-
         self.rename()
 
     def build_digit(self, digit_joints, index, **kwargs):
