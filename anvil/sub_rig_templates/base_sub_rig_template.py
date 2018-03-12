@@ -100,7 +100,7 @@ class SubRigTemplate(nt.SubRig):
 
     @register_built_nodes
     @generate_build_report
-    def build_ik_chain(self, layout_joints, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, parent=None, duplicate=True,
+    def build_ik_chain(self, layout_joints=None, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, parent=None, duplicate=True,
                        **kwargs):
         """
 
@@ -158,19 +158,23 @@ class SubRigTemplate(nt.SubRig):
         kwargs['skip_register'] = True
         kwargs['skip_report'] = True
 
-        fk_chain = nt.LinearHierarchyNodeSet(chain_start, chain_end, duplicate=duplicate, parent=parent.pop(0))
+        fk_chain = nt.LinearHierarchyNodeSet(chain_start, end_node=chain_end, duplicate=duplicate, parent=parent.pop(0))
         fk_controls = nt.NonLinearHierarchyNodeSet()
         control_parent = parent.pop(0)
         for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
-            control = self.build_node(nt.Control,
-                                      reference_object=node,
-                                      shape=shape,
-                                      parent=control_parent,
-                                      name_tokens=name_tokens,
-                                      meta_data=meta_data,
-                                      **kwargs)
-            control.parent(control_parent)
-            control_parent = control.node.connection_group
-            rt.dcc.connections.parent(control_parent, node, maintainOffset=True)
-            fk_controls.append(control)
+            if node.get_children():
+                control = self.build_node(nt.Control,
+                                          reference_object=node,
+                                          shape=shape,
+                                          parent=control_parent,
+                                          name_tokens=name_tokens,
+                                          meta_data=meta_data,
+                                          **kwargs)
+                control.parent(control_parent)
+                control_parent = control.node.connection_group
+                rt.dcc.connections.parent(control_parent, node, maintainOffset=True)
+                fk_controls.append(control)
+            else:
+                break
+        print('fkfkfkfkfkf', fk_controls)
         return fk_chain, fk_controls

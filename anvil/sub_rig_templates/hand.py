@@ -17,7 +17,7 @@ class Hand(SubRigTemplate):
         cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS,
     }
 
-    def __init__(self, has_ik=True, has_fk=True, has_thumb=True, **kwargs):
+    def __init__(self, has_fk=True, has_ik=True, has_thumb=True, **kwargs):
         """ General class for a hand.
 
         :param layout_joints: anvil.node_types.Hierarchy, hierarchy chain of joints to use.
@@ -43,19 +43,21 @@ class Hand(SubRigTemplate):
     def build_digit(self, digit_joints, index, **kwargs):
         kwargs[cfg.SKIP_REGISTER] = True
         kwargs[cfg.SKIP_REPORT] = True
+        kwargs[cfg.LAYOUT] = digit_joints
         fk_chain = None
         ik_chain = None
-
+        print('building digit from joints ', digit_joints)
         if self.has_fk:
-            fk_chain, fk_controls = self.build_fk_chain(digit_joints,
-                                                        parent=[self.group_joints, self.group_controls],
+            print('building digit fk controls')
+            fk_chain, fk_controls = self.build_fk_chain(parent=[self.group_joints, self.group_controls],
                                                         shape='pyramid_pin', **kwargs)
             self.register_node(fk_chain, hierarchy_id='%s_chain_%s' % (cfg.FK, index))
+            print('controls', fk_controls)
             self.register_node(fk_controls, hierarchy_id='%s_%s_%s' % (cfg.FK, cfg.CONTROL_TYPE, index))
-
+            print(self.hierarchy)
+            print(getattr(self.hierarchy.control, '%s_%s_%s' % (cfg.FK, cfg.CONTROL_TYPE, index)))
         if self.has_ik:
-            ik_chain, ik_controls, handle, effector = self.build_ik_chain(digit_joints,
-                                                                          parent=[self.group_joints,
+            ik_chain, ik_controls, handle, effector = self.build_ik_chain(parent=[self.group_joints,
                                                                                   self.group_nodes,
                                                                                   self.group_controls,
                                                                                   self.group_controls,

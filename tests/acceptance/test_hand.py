@@ -17,11 +17,11 @@ class TestHandBase(TestBase):
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
 
-        finger_joints = []
+        kwargs['layout_joints'] = []
         for finger in finger_start_joints:
-            finger_joints.append(list(nt.LinearHierarchyNodeSet(finger)))
+            kwargs['layout_joints'].append(list(nt.LinearHierarchyNodeSet(finger)))
 
-        rig_instance = cls.TEMPLATE_CLASS(layout_joints=finger_joints, **kwargs)
+        rig_instance = cls.TEMPLATE_CLASS(**kwargs)
         rig_instance.build(**kwargs)
         return rig_instance
 
