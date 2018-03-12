@@ -61,6 +61,7 @@ class Rig(base.AbstractGrouping):
         kwargs[cfg.META_DATA] = MetaData(self.meta_data, kwargs.get(cfg.META_DATA, {}))
         if inspect.isclass(sub_rig_candidate) and issubclass(sub_rig_candidate, SubRig):
             self.sub_rigs[sub_rig_key] = sub_rig_candidate(**kwargs)
+            return self.sub_rigs[sub_rig_key]
         else:
             self.warning('Sub rig candidate %s is not a valid anvil template', sub_rig_candidate)
 
