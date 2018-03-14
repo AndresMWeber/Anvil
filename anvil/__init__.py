@@ -1,13 +1,13 @@
 from six import itervalues
 import config
-import registration
+import utils
+import decorators
 import colors
 import meta_data
 import log
 import version
 import plugins
 import runtime
-import utils
 import objects
 import grouping
 import node_types
@@ -109,4 +109,4 @@ __all__ = ['config',
            'rig_templates',
            'utils',
            'colors',
-           'registration']
+           'decorators.py']

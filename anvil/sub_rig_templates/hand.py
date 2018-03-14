@@ -37,16 +37,17 @@ class Hand(SubRigTemplate):
         self.build_kwargs['solver'] = solver or cfg.IK_SC_SOLVER
         for index, digit_info in enumerate(zip(self.layout_joints, self.get_finger_base_names())):
             layout_joints, label = digit_info
-            self.build_digit(layout_joints, index, name_tokens={cfg.NAME: label}, **self.build_kwargs)
+            kwargs = self.build_kwargs.copy()
+            kwargs.update({cfg.LAYOUT: layout_joints})
+            self.build_digit(index, name_tokens={cfg.NAME: label}, **kwargs)
         self.rename()
 
-    def build_digit(self, digit_joints, index, **kwargs):
+    def build_digit(self, index, **kwargs):
         kwargs[cfg.SKIP_REGISTER] = True
         kwargs[cfg.SKIP_REPORT] = True
-        kwargs[cfg.LAYOUT] = digit_joints
         fk_chain = None
         ik_chain = None
-        print('building digit from joints ', digit_joints)
+        print('building digit from joints ', kwargs[cfg.LAYOUT])
         if self.has_fk:
             print('building digit fk controls')
             fk_chain, fk_controls = self.build_fk_chain(parent=[self.group_joints, self.group_controls],
@@ -69,7 +70,7 @@ class Hand(SubRigTemplate):
             self.register_node(effector, hierarchy_id='%s_%s_%s' % (cfg.IK, cfg.IK_EFFECTOR, index))
 
         if self.has_fk and self.has_ik:
-            blend_chain = self.build_blend_chain(digit_joints, [fk_chain, ik_chain],
+            blend_chain = self.build_blend_chain(source_chains=[fk_chain, ik_chain],
                                                  parent=self.group_joints,
                                                  **kwargs)
             self.register_node(blend_chain, hierarchy_id='%s_chain_%s' % (cfg.BLEND, index))

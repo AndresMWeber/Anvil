@@ -117,7 +117,7 @@ def auto_save_result(func):
         func_return = func(self, *args, **kwargs)
         if save_file:
             timestamp = datetime.utcnow().strftime('%Y-%m-%d_T%H-%M-%S')
-            filename = self.__class__.__name__ + func.__name__ + save_file + timestamp + '.mb'
+            filename = '_'.join([self.__class__.__name__, func.__name__, save_file, timestamp]) + '.mb'
             path = os.path.join(*[f for f in [save_path, filename] if f])
             rt.dcc.scene.fileop(rename=path)
             rt.dcc.scene.fileop(save=True, type='mayaBinary')

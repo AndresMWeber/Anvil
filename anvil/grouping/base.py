@@ -8,7 +8,7 @@ from anvil.utils.generic import Map, gen_flatten_dict_depth_two
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
 from anvil.utils.generic import merge_dicts
-from anvil.registration import generate_build_report, register_built_nodes
+from anvil.decorators import register_built_nodes, generate_build_report
 
 
 class AbstractGrouping(log.LogMixin):
@@ -64,6 +64,7 @@ class AbstractGrouping(log.LogMixin):
     @register_built_nodes
     @generate_build_report
     def register_node(self, node, **kwargs):
+        print('registering node manually %s' % node, kwargs)
         return node
 
     def connect_rendering_delegate(self, assignee=None):

@@ -27,6 +27,9 @@ class MetaData(log.LogMixin):
         if protect_all:
             self.protected = set(self.data)
 
+    def copy(self):
+        return self.data.copy()
+
     def merge(self, *args, **kwargs):
         """ Merge the incoming dictionaries into the current MetaData instance.  If the user passes a list of
             ignore_keys then these keys will be ignored...however the user can permanently set them as protected.

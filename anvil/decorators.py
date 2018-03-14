@@ -1,8 +1,33 @@
-from six import iteritems
 from functools import wraps
+from six import iteritems
 import config as cfg
-from anvil.utils.generic import Map
-from anvil.utils.generic import to_list, to_size_list
+from anvil.utils.generic import Map, to_list, to_size_list
+
+
+def parametrized(dec):
+    """ Taken from https://stackoverflow.com/questions/5929107/decorators-with-parameters
+        Parametrizes a decorator.
+    """
+
+    @wraps(dec)
+    def layer(*args, **kwargs):
+        def repl(f):
+            return dec(f, *args, **kwargs)
+
+        return repl
+
+    return layer
+
+
+@parametrized
+def extend_parent_kwarg(f, number_of_parents):
+    @wraps(f)
+    def wrapper(abstract_grouping, *args, **kwargs):
+        if kwargs.get(cfg.PARENT):
+            kwargs[cfg.PARENT] = iter(to_size_list(kwargs.get(cfg.PARENT), number_of_parents))
+        return f(abstract_grouping, *args, **kwargs)
+
+    return wrapper
 
 
 def register_built_nodes(f):
@@ -39,7 +64,7 @@ def register_built_nodes(f):
                 node = Map([(node[0], node[1])])
             elif isinstance(node, dict):
                 node = Map(node)
-
+            print('regsitering node %s in hierarchy %s' % (node, result_id))
             try:
                 hierarchy_entry = abstract_grouping.hierarchy[result_id]
 
@@ -79,7 +104,7 @@ def generate_build_report(f):
          'set': {'default': None},
          'joint': {'default': None},
 
-        A top level key will not be present if the result nodes from the wrapped function are not of that type.
+        A top level key will not be present if the report nodes from the wrapped function are not of that type.
         The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
         skip_report = kwargs.pop('skip_report', False)
@@ -89,16 +114,18 @@ def generate_build_report(f):
         if skip_report:
             return nodes_built
 
-        result = {}
+        report = {}
         nodes_built = to_list(nodes_built)
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
             if hierarchy_id:
                 # We are assuming the extra tag is unique and we can just do a plain update instead of checking.
-                result.update({tag: {hierarchy_id: node}})
+                report.update({tag: {hierarchy_id: node}})
             else:
-                result[tag] = result.get(tag, {cfg.DEFAULT: []})
-                result[tag][cfg.DEFAULT].append(node)
-        return result
+                # Otherwise we auto tag the node and add to the default list under that tag.
+                report[tag] = report.get(tag, {cfg.DEFAULT: []})
+                report[tag][cfg.DEFAULT].append(node)
+        print('Converted built nodes %s to report: %s' % (nodes_built, report))
+        return report
 
     return wrapper
