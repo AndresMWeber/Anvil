@@ -109,19 +109,29 @@ def clean_up_scene(func):
     return wrapped
 
 
+def save_test_file(instance, save_file, func):
+    save_path = os.environ.get('A_SAVE_PATH', None)
+    timestamp = datetime.utcnow().strftime('%Y-%m-%d_T%H-%M-%S')
+    filename = '_'.join([instance.__class__.__name__, func.__name__, save_file, timestamp]) + '.mb'
+    path = os.path.join(*[f for f in [save_path, filename] if f])
+    rt.dcc.scene.fileop(rename=path)
+    rt.dcc.scene.fileop(save=True, type='mayaBinary')
+    print('Saving test result file for test %s in path %s' % (instance.__class__.__name__, path))
+
+
 def auto_save_result(func):
     @wraps(func)
     def wrapped(self, *args, **kwargs):
         save_file = os.environ.get('A_SAVE_PREFIX', None)
-        save_path = os.environ.get('A_SAVE_PATH', None)
-        func_return = func(self, *args, **kwargs)
+        try:
+            func_return = func(self, *args, **kwargs)
+        except Exception as e:
+            save_test_file(self, save_file, func)
+            raise e
+
         if save_file:
-            timestamp = datetime.utcnow().strftime('%Y-%m-%d_T%H-%M-%S')
-            filename = '_'.join([self.__class__.__name__, func.__name__, save_file, timestamp]) + '.mb'
-            path = os.path.join(*[f for f in [save_path, filename] if f])
-            rt.dcc.scene.fileop(rename=path)
-            rt.dcc.scene.fileop(save=True, type='mayaBinary')
-            print('Saving test result file for test %s in path %s' % (self.__class__.__name__, path))
+            save_test_file(self, save_file, func)
+
         return func_return
 
     return wrapped
