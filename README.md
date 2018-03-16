@@ -34,6 +34,9 @@
   </a>
 </div>
 
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/AndresMWeber/Anvil.svg?columns=all)](https://waffle.io/AndresMWeber/Anvil)
+
+
 Introduction
 =============
 

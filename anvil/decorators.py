@@ -69,17 +69,22 @@ def register_built_nodes(f):
                 hierarchy_entry = abstract_grouping.hierarchy[result_id]
 
                 if issubclass(type(hierarchy_entry), dict) and issubclass(type(node), dict):
+                    print('dictionary updating')
                     hierarchy_entry.update(node)
 
                 elif isinstance(hierarchy_entry, list):
                     if isinstance(node, list):
+                        print('extending')
                         hierarchy_entry.extend(node)
                     else:
+                        print('appending')
                         hierarchy_entry.append(node)
                 else:
+                    print('assigning straight up new list')
                     abstract_grouping.hierarchy[result_id] = [hierarchy_entry, node]
 
             except KeyError:
+                print('no previous key, assigning as node')
                 abstract_grouping.hierarchy[result_id] = node
         return results
 

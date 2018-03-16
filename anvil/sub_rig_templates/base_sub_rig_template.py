@@ -5,7 +5,7 @@ import anvil.objects.attribute as at
 import anvil.config as cfg
 import anvil
 from anvil.utils.generic import to_size_list, to_list
-from decorators import register_built_nodes, generate_build_report, extend_parent_kwarg
+from anvil.decorators import register_built_nodes, generate_build_report, extend_parent_kwarg
 
 
 class SubRigTemplate(nt.SubRig):

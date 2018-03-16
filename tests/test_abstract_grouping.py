@@ -1,6 +1,6 @@
 import anvil.node_types as nt
 import anvil.config as cfg
-from base_test import TestBase, clean_up_scene
+from base_test import TestBase, clean_up_scene, sanitize_scene
 
 
 class TestBaseAbstractGrouping(TestBase):
@@ -104,3 +104,63 @@ class TestAbstractGroupingBuildNode(TestBaseAbstractGrouping):
         grouping = nt.AbstractGrouping()
         report = grouping.build_node(nt.Joint)
         self.assertEqual(report[cfg.JOINT_TYPE][cfg.DEFAULT], grouping.hierarchy.joint.default)
+
+
+class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
+    @classmethod
+    def setUpClass(cls):
+        cls.grouping = nt.AbstractGrouping()
+        super(TestAbstractGroupingRegisterNode, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        sanitize_scene()
+        super(TestAbstractGroupingRegisterNode, cls).tearDownClass()
+
+    def test_register_joint(self):
+        node = nt.Joint.build()
+        report = self.grouping.register_node(node)
+        self.assertEqual(report[cfg.JOINT_TYPE][cfg.DEFAULT], self.grouping.hierarchy.joint.default)
+        self.assertEqual(node, self.grouping.hierarchy.joint.default[-1])
+
+    def test_register_control(self):
+        node = nt.Control.build()
+        report = self.grouping.register_node(node)
+        self.assertEqual(report[cfg.CONTROL_TYPE][cfg.DEFAULT], self.grouping.hierarchy.control.default)
+        self.assertEqual(node, self.grouping.hierarchy.control.default[-1])
+
+    def test_register_transform(self):
+        node = nt.Transform.build()
+        report = self.grouping.register_node(node)
+        print(node, self.grouping.hierarchy)
+        print(self.grouping.hierarchy.node)
+        print(self.grouping.hierarchy.node.default)
+        print(self.grouping.hierarchy.node['default'])
+        print(report)
+        print(report[cfg.NODE_TYPE][cfg.DEFAULT])
+        self.assertEqual(node, self.grouping.hierarchy.node.default[-1])
+        self.assertEqual(report[cfg.NODE_TYPE][cfg.DEFAULT], self.grouping.hierarchy.node.default)
+
+    def test_register_non_linear_hierarchy_node_set_of_transforms(self):
+        node = nt.NonLinearHierarchyNodeSet([nt.Transform.build() for _ in range(10)])
+        report = self.grouping.register_node(node)
+        self.assertEqual(report[cfg.NODE_TYPE][cfg.DEFAULT], self.grouping.hierarchy.node.default)
+        self.assertEqual(node, self.grouping.hierarchy.node.default[-1])
+
+    def test_register_non_linear_hierarchy_node_set_of_controls(self):
+        node = nt.NonLinearHierarchyNodeSet([nt.Control.build() for _ in range(10)])
+        report = self.grouping.register_node(node)
+        self.assertEqual(report[cfg.CONTROL_TYPE][cfg.DEFAULT], self.grouping.hierarchy.control.default)
+        self.assertEqual(node, self.grouping.hierarchy.control.default[-1])
+
+    def test_register_non_linear_hierarchy_node_set_of_joints(self):
+        node = nt.NonLinearHierarchyNodeSet([nt.Joint.build() for _ in range(10)])
+        report = self.grouping.register_node(node)
+        self.assertEqual(report[cfg.JOINT_TYPE][cfg.DEFAULT], self.grouping.hierarchy.joint.default)
+        self.assertEqual(node, self.grouping.hierarchy.joint.default[-1])
+
+    def test_register_linear_hierarchy_node_set(self):
+        node = nt.LinearHierarchyNodeSet([nt.Joint.build() for _ in range(10)])
+        report = self.grouping.register_node(node)
+        self.assertEqual(report[cfg.JOINT_TYPE][cfg.DEFAULT], self.grouping.hierarchy.joint.default)
+        self.assertEqual(node, self.grouping.hierarchy.joint.default[-1])

@@ -71,6 +71,7 @@ class Hand(SubRigTemplate):
 
         if self.has_fk and self.has_ik:
             blend_chain = self.build_blend_chain(source_chains=[fk_chain, ik_chain],
+                                                 blend_attr=self.root.blend,
                                                  parent=self.group_joints,
                                                  **kwargs)
             self.register_node(blend_chain, hierarchy_id='%s_chain_%s' % (cfg.BLEND, index))
