@@ -32,9 +32,12 @@
     <img src="https://api.codacy.com/project/badge/Grade/ef864a0c79984322b7809d64e3f036c8"
       alt="Codacy Rating" />
   </a>
+  <!-- Waffle.io -->
+  <a href="https://waffle.io/AndresMWeber/Anvil">
+    <img src="https://badge.waffle.io/AndresMWeber/Anvil.svg?columns=all"
+      alt="Waffle.io - Columns and their card count" />
+  </a>
 </div>
-
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/AndresMWeber/Anvil.svg?columns=all)](https://waffle.io/AndresMWeber/Anvil)
 
 
 Introduction

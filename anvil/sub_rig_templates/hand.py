@@ -8,14 +8,14 @@ import anvil.node_types as nt
 class Hand(SubRigTemplate):
     BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({"name": "hand"}, new=True)
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
-    BUILT_IN_ATTRIBUTES = {
+    BUILT_IN_ATTRIBUTES = SubRigTemplate.BUILT_IN_ATTRIBUTES.merge({
         "curl_bias": at.PM_1_KWARGS,
         "curl": at.PM_10_KWARGS,
         "spread": at.PM_10_KWARGS,
         "fist": at.PM_10_KWARGS,
         "cup": at.PM_10_KWARGS,
         cfg.IKFK_BLEND: at.ZERO_TO_ONE_KWARGS,
-    }
+    })
 
     def __init__(self, has_fk=True, has_ik=True, has_thumb=True, **kwargs):
         """ General class for a hand.
@@ -71,7 +71,7 @@ class Hand(SubRigTemplate):
 
         if self.has_fk and self.has_ik:
             blend_chain = self.build_blend_chain(source_chains=[fk_chain, ik_chain],
-                                                 blend_attr=self.root.blend,
+                                                 blend_attr=self.root.ikfk_blend,
                                                  parent=self.group_joints,
                                                  **kwargs)
             self.register_node(blend_chain, hierarchy_id='%s_chain_%s' % (cfg.BLEND, index))

@@ -14,12 +14,13 @@ class SubRig(base.AbstractGrouping):
     def build(self, parent=None, **kwargs):
         super(SubRig, self).build(**kwargs)
         if self.root is None:
+            root_id = '%s_%s' % (cfg.GROUP_TYPE, 'top')
             self.build_node(Transform,
-                            hierarchy_id='%s_%s' % (cfg.GROUP_TYPE, 'top'),
+                            hierarchy_id=root_id,
                             meta_data=self.meta_data,
                             name_tokens=self.name_tokens + {cfg.RIG_TYPE: cfg.SUB_RIG_TYPE, cfg.TYPE: cfg.GROUP_TYPE},
                             **self.build_kwargs)
-            self.root = self.hierarchy[cfg.NODE_TYPE][cfg.DEFAULT][-1]
+            self.root = self.hierarchy[cfg.NODE_TYPE][root_id]
 
         for main_group_type in self.SUB_GROUPS:
             hierarchy_id = '%s_%s' % (cfg.GROUP_TYPE, main_group_type)

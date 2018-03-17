@@ -3,6 +3,7 @@ import unittest2
 from six import iteritems, string_types
 from functools import wraps
 from datetime import datetime
+import traceback
 
 os.environ['ANVIL_MODE'] = 'TEST'
 os.environ['A_SAVE_PREFIX'] = 'test_results'
@@ -116,7 +117,7 @@ def save_test_file(instance, save_file, func):
     path = os.path.join(*[f for f in [save_path, filename] if f])
     rt.dcc.scene.fileop(rename=path)
     rt.dcc.scene.fileop(save=True, type='mayaBinary')
-    print('Saving test result file for test %s in path %s' % (instance.__class__.__name__, path))
+    print('Saving test result file for test %s.%s to file:\n\t%s' % (instance.__class__.__name__, func.__name__, path))
 
 
 def auto_save_result(func):
@@ -125,12 +126,14 @@ def auto_save_result(func):
         save_file = os.environ.get('A_SAVE_PREFIX', None)
         try:
             func_return = func(self, *args, **kwargs)
-        except Exception as e:
-            save_test_file(self, save_file, func)
-            raise e
 
-        if save_file:
-            save_test_file(self, save_file, func)
+        except Exception:
+            traceback.print_exc()
+            raise
+
+        finally:
+            if save_file:
+                save_test_file(self, save_file, func)
 
         return func_return
 
