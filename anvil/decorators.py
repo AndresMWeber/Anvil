@@ -67,7 +67,8 @@ def register_built_nodes(f):
             print('regsitering node %s in hierarchy %s' % (node, result_id))
             try:
                 hierarchy_entry = abstract_grouping.hierarchy[result_id]
-
+                
+                # TODO: This breaks the Map hierarchy.
                 if issubclass(type(hierarchy_entry), dict) and issubclass(type(node), dict):
                     print('dictionary updating')
                     hierarchy_entry.update(node)
