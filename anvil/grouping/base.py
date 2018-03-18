@@ -149,6 +149,39 @@ class AbstractGrouping(log.LogMixin):
             raise KeyError('Node from key %s not found in hierarchy' % (
                 '.'.join([category_override, node_key]) if category_override else node_key))
 
+    def _update_hierarchy(self, hierarchy_id, candidate):
+        print('updating hierarchy from %s->%s' % (hierarchy_id, candidate))
+        if isinstance(candidate, tuple):
+            candidate = Map([(candidate[0], candidate[1])])
+        elif isinstance(candidate, dict):
+            candidate = Map(candidate)
+        print('regsitering node %s in hierarchy %s' % (candidate, hierarchy_id))
+
+        try:
+            hierarchy_entry = self.hierarchy[hierarchy_id]
+
+            # TODO: This breaks the Map hierarchy.
+            if issubclass(type(hierarchy_entry), dict) and issubclass(type(candidate), dict):
+                print('dictionary updating')
+                hierarchy_entry.deep_update(candidate)
+
+            elif isinstance(hierarchy_entry, list):
+                if isinstance(candidate, list):
+                    print('extending')
+                    hierarchy_entry.extend(candidate)
+                else:
+                    print('appending')
+                    hierarchy_entry.append(candidate)
+            else:
+                print('assigning straight up new list')
+                self.hierarchy[hierarchy_id] = [hierarchy_entry, candidate]
+
+        except KeyError:
+            print('no previous key, assigning as node')
+            self.hierarchy[hierarchy_id] = candidate
+
+        print('hierarchy is now', self.hierarchy)
+
     def _flat_hierarchy(self):
         return gen_flatten_dict_depth_two(self.hierarchy)
 

@@ -54,39 +54,10 @@ def register_built_nodes(f):
     @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
         skip_register = kwargs.pop('skip_register', False)
-
         results = f(abstract_grouping, *args, **kwargs)
         if skip_register:
             return results
-
-        for result_id, node in iteritems(results):
-            if isinstance(node, tuple):
-                node = Map([(node[0], node[1])])
-            elif isinstance(node, dict):
-                node = Map(node)
-            print('regsitering node %s in hierarchy %s' % (node, result_id))
-            try:
-                hierarchy_entry = abstract_grouping.hierarchy[result_id]
-                
-                # TODO: This breaks the Map hierarchy.
-                if issubclass(type(hierarchy_entry), dict) and issubclass(type(node), dict):
-                    print('dictionary updating')
-                    hierarchy_entry.update(node)
-
-                elif isinstance(hierarchy_entry, list):
-                    if isinstance(node, list):
-                        print('extending')
-                        hierarchy_entry.extend(node)
-                    else:
-                        print('appending')
-                        hierarchy_entry.append(node)
-                else:
-                    print('assigning straight up new list')
-                    abstract_grouping.hierarchy[result_id] = [hierarchy_entry, node]
-
-            except KeyError:
-                print('no previous key, assigning as node')
-                abstract_grouping.hierarchy[result_id] = node
+        abstract_grouping.hierarchy.deep_update(results)
         return results
 
     return wrapper
@@ -131,7 +102,6 @@ def generate_build_report(f):
                 # Otherwise we auto tag the node and add to the default list under that tag.
                 report[tag] = report.get(tag, {cfg.DEFAULT: []})
                 report[tag][cfg.DEFAULT].append(node)
-        print('Converted built nodes %s to report: %s' % (nodes_built, report))
         return report
 
     return wrapper

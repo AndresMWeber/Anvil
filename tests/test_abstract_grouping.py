@@ -132,35 +132,63 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
     def test_register_transform(self):
         node = nt.Transform.build()
         report = self.grouping.register_node(node)
-        print(node, self.grouping.hierarchy)
-        print(self.grouping.hierarchy.node)
-        print(self.grouping.hierarchy.node.default)
-        print(self.grouping.hierarchy.node['default'])
-        print(report)
-        print(report[cfg.NODE_TYPE][cfg.DEFAULT])
         self.assertEqual(node, self.grouping.hierarchy.node.default[-1])
-        self.assertEqual(report[cfg.NODE_TYPE][cfg.DEFAULT], self.grouping.hierarchy.node.default)
+        self.assertEqual(report[cfg.NODE_TYPE][cfg.DEFAULT][-1], self.grouping.hierarchy.node.default[-1])
 
     def test_register_non_linear_hierarchy_node_set_of_transforms(self):
         node = nt.NonLinearHierarchyNodeSet([nt.Transform.build() for _ in range(10)])
         report = self.grouping.register_node(node)
-        self.assertEqual(report[cfg.NODE_TYPE][cfg.DEFAULT], self.grouping.hierarchy.node.default)
+
+        print(node, self.grouping.hierarchy)
+        print('original report:')
+        print(report)
+        print(report[cfg.NODE_TYPE][cfg.DEFAULT])
+        print('hierarchy...')
+        print(self.grouping.hierarchy.node)
+        print(self.grouping.hierarchy.node.default)
+        print(self.grouping.hierarchy.node['default'])
+
+        self.assertTrue(all(a in self.grouping.hierarchy.node.default for a in report[cfg.NODE_TYPE][cfg.DEFAULT]))
         self.assertEqual(node, self.grouping.hierarchy.node.default[-1])
 
     def test_register_non_linear_hierarchy_node_set_of_controls(self):
         node = nt.NonLinearHierarchyNodeSet([nt.Control.build() for _ in range(10)])
         report = self.grouping.register_node(node)
-        self.assertEqual(report[cfg.CONTROL_TYPE][cfg.DEFAULT], self.grouping.hierarchy.control.default)
+        print(node, self.grouping.hierarchy)
+        print('original report:')
+        print(report)
+        print(report[cfg.NODE_TYPE][cfg.DEFAULT])
+        print('hierarchy...')
+        print(self.grouping.hierarchy.node)
+        print(self.grouping.hierarchy.node.default)
+
+        self.assertTrue(all(a in self.grouping.hierarchy.control.default for a in report[cfg.CONTROL_TYPE][cfg.DEFAULT]))
         self.assertEqual(node, self.grouping.hierarchy.control.default[-1])
 
     def test_register_non_linear_hierarchy_node_set_of_joints(self):
         node = nt.NonLinearHierarchyNodeSet([nt.Joint.build() for _ in range(10)])
         report = self.grouping.register_node(node)
-        self.assertEqual(report[cfg.JOINT_TYPE][cfg.DEFAULT], self.grouping.hierarchy.joint.default)
+        print(node, self.grouping.hierarchy)
+        print('original report:')
+        print(report)
+        print(report[cfg.JOINT_TYPE][cfg.DEFAULT])
+        print('hierarchy...')
+        print(self.grouping.hierarchy.joint)
+        print(self.grouping.hierarchy.joint.default)
+
+        self.assertTrue(all(a in self.grouping.hierarchy.joint.default for a in report[cfg.JOINT_TYPE][cfg.DEFAULT]))
         self.assertEqual(node, self.grouping.hierarchy.joint.default[-1])
 
     def test_register_linear_hierarchy_node_set(self):
         node = nt.LinearHierarchyNodeSet([nt.Joint.build() for _ in range(10)])
         report = self.grouping.register_node(node)
-        self.assertEqual(report[cfg.JOINT_TYPE][cfg.DEFAULT], self.grouping.hierarchy.joint.default)
+        print(node, self.grouping.hierarchy)
+        print('original report:')
+        print(report)
+        print(report[cfg.JOINT_TYPE][cfg.DEFAULT])
+        print('hierarchy...')
+        print(self.grouping.hierarchy.joint)
+        print(self.grouping.hierarchy.joint.default)
+
+        self.assertTrue(all(a in self.grouping.hierarchy.joint.default for a in report[cfg.JOINT_TYPE][cfg.DEFAULT]))
         self.assertEqual(node, self.grouping.hierarchy.joint.default[-1])

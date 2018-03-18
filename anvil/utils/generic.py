@@ -134,6 +134,14 @@ def dict_compare(d1, d2):
     return added, removed, modified, same
 
 
+merge_value_LUT = {
+    dict: lambda d1, d2: merge_dicts(d2),
+    list: lambda l1, l2: l1 + to_list(l2),
+    str: lambda s1, s2: s1 + str(s2),
+    'replace': lambda e1, e2: e2,
+}
+
+
 class Map(dict):
     """ Taken from:
         https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
@@ -152,6 +160,35 @@ class Map(dict):
             for k, v in iteritems(kwargs):
                 self[k] = v
 
+    def deep_update(self, d, path=None):
+        if path is None:
+            path = []
+        for k, v in iteritems(d):
+            print(path)
+            if isinstance(v, dict):
+                self.deep_update(v, path=path + [k])
+            else:
+                self._merge_value(path + [k], v)
+
+    def _merge_value(self, path, v):
+        """ This is used since we have a slightly customized way of adding entries and do not want the base Map object
+            to start getting stale data.  If a path does not exist, we will add a default Map object in that place
+            unless it is the final path, in which case we merge with the existing (or not) value.
+
+        :param path: list, list of keys we will traverse down.
+        :param v: object, any type of object we are adding to that nested/base dict.
+        """
+        print('merging value %s from path %s' % (v, path))
+        current_map = self
+        for p in path[:-1]:
+            print('here', p, current_map)
+            current_map = current_map.setdefault(p, self.__class__())
+        print('final hierarchy section is %r' % current_map)
+        current_v = current_map.setdefault(path[-1], None)
+        print('current value is type %s...' % type(current_v))
+        current_map[path[-1]] = merge_value_LUT.get(type(current_v), merge_value_LUT['replace'])(current_v, v)
+        print('Added key from path %s=%s' % (path, v))
+
     def __getattr__(self, attr):
         return self.get(attr)
 
@@ -160,7 +197,7 @@ class Map(dict):
 
     def __setitem__(self, key, value):
         super(Map, self).__setitem__(key, value)
-        self.__dict__.update({key: value})
+        self.__dict__[key] = value
 
     def __delattr__(self, item):
         self.__delitem__(item)
