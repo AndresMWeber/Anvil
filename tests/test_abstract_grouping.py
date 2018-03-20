@@ -159,8 +159,9 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
         print(report)
         print(report[cfg.CONTROL_TYPE][cfg.DEFAULT])
         print('hierarchy...')
-        print(self.grouping.hierarchy.node)
-        print(self.grouping.hierarchy.node.default)
+        print(self.grouping.hierarchy)
+        print(self.grouping.hierarchy.control)
+        print(self.grouping.hierarchy.control.default)
 
         self.assertTrue(all(a in self.grouping.hierarchy.control.default for a in report[cfg.CONTROL_TYPE][cfg.DEFAULT]))
         self.assertEqual(node, self.grouping.hierarchy.control.default[-1])

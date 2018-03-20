@@ -158,7 +158,6 @@ class SubRigTemplate(nt.SubRig):
         meta_data = MetaData(self.meta_data, meta_data) if hasattr(self, cfg.META_DATA) else meta_data
         kwargs['skip_register'] = True
         kwargs['skip_report'] = True
-        print('building fk chain', layout_joints, chain_end)
         fk_chain = nt.NodeChain(layout_joints, end_node=chain_end, duplicate=duplicate,
                                 parent=next(parent))
         fk_controls = nt.NodeSet()
@@ -178,5 +177,4 @@ class SubRigTemplate(nt.SubRig):
                 fk_controls.append(control)
             else:
                 break
-        print('fkfkfkfkfkf', fk_controls)
         return fk_chain, fk_controls

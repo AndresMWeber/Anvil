@@ -15,15 +15,13 @@ class BaseCollection(log.LogMixin):
         self.nodes = nodes or []
 
     def _get_anvil_type(self):
-        # TODO: This is not getting passed properly to the registration..
-        print('GETTING TYPE %s' % self.child_type())
         return self.child_type()
 
     ANVIL_TYPE = property(_get_anvil_type)
 
     def child_type(self):
         try:
-            return type(self[0])
+            return type(self[0]).ANVIL_TYPE
         except (AttributeError, ValueError, IndexError):
             return cfg.SET_TYPE
 
@@ -62,7 +60,7 @@ class BaseCollection(log.LogMixin):
 
     def __repr__(self):
         return super(BaseCollection, self).__repr__().replace('>', '(children=%d, type=%s)>' % (
-        len(self), self.child_type().__name__))
+        len(self), self.child_type()))
 
     def append(self, node):
         raise NotImplementedError
@@ -240,7 +238,7 @@ class NodeChain(BaseCollection):
 
         while anvil.factory(current_node).get_parent():
             current_node = anvil.factory(current_node.get_parent())
-            if any([current_node.child_type() in node_filter, node_filter is None, node_filter == []]):
+            if any([current_node.type() in node_filter, node_filter is None, node_filter == []]):
                 chain_path.insert(0, current_node)
             if current_node == upstream_node:
                 return iter(chain_path)

@@ -168,7 +168,6 @@ class Map(dict):
         if path is None:
             path = []
         for k, v in iteritems(d):
-            print('updating raw: %s: %r', path, v)
             if isinstance(v, dict):
                 self.deep_update(v, path=path + [k])
             else:
@@ -182,16 +181,11 @@ class Map(dict):
         :param path: list, list of keys we will traverse down.
         :param v: object, any type of object we are adding to that nested/base dict.
         """
-        print('merging value %r from path %s' % (v, path))
         current_map = self
         for p in path[:-1]:
-            print('here', p, current_map)
             current_map = current_map.setdefault(p, self.__class__())
-        print('final hierarchy section is %r' % current_map)
         current_v = current_map.setdefault(path[-1], None)
-        print('current value is type %s...' % type(current_v))
         current_map[path[-1]] = merge_value_LUT.get(type(current_v), merge_value_LUT['replace'])(current_v, v)
-        print('Added key from path %s=%s' % (path, v))
 
     def __getattr__(self, attr):
         return self.get(attr)
@@ -230,8 +224,7 @@ def parametrized(dec):
 def extend_parent_kwarg(f, number_of_parents):
     @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
-        if kwargs.get(cfg.PARENT):
-            kwargs[cfg.PARENT] = iter(to_size_list(kwargs.get(cfg.PARENT), number_of_parents))
+        kwargs[cfg.PARENT] = iter(to_size_list(kwargs.get(cfg.PARENT), number_of_parents))
         return f(abstract_grouping, *args, **kwargs)
 
     return wrapper

@@ -47,16 +47,11 @@ class Hand(SubRigTemplate):
         kwargs[cfg.SKIP_REPORT] = True
         fk_chain = None
         ik_chain = None
-        print('building digit from joints ', kwargs[cfg.LAYOUT])
         if self.has_fk:
-            print('building digit fk controls')
             fk_chain, fk_controls = self.build_fk_chain(parent=[self.group_joints, self.group_controls],
                                                         shape='pyramid_pin', **kwargs)
             self.register_node(fk_chain, hierarchy_id='%s_chain_%s' % (cfg.FK, index))
-            print('controls', fk_controls)
             self.register_node(fk_controls, hierarchy_id='%s_%s_%s' % (cfg.FK, cfg.CONTROL_TYPE, index))
-            print(self.hierarchy)
-            print(getattr(self.hierarchy.control, '%s_%s_%s' % (cfg.FK, cfg.CONTROL_TYPE, index)))
         if self.has_ik:
             ik_chain, ik_controls, handle, effector = self.build_ik_chain(parent=[self.group_joints,
                                                                                   self.group_nodes,

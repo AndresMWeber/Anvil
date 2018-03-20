@@ -73,7 +73,6 @@ def generate_build_report(f):
             return nodes_built
 
         report = {}
-        print('Generating report %r' % nodes_built)
         nodes_built = [nodes_built] if issubclass(type(nodes_built), BaseCollection) else to_list(nodes_built)
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
@@ -142,7 +141,6 @@ class AbstractGrouping(log.LogMixin):
     @register_built_nodes
     @generate_build_report
     def register_node(self, node, **kwargs):
-        print('registering node manually %r' % node, kwargs)
         return node
 
     def connect_rendering_delegate(self, assignee=None):
@@ -228,36 +226,27 @@ class AbstractGrouping(log.LogMixin):
                 '.'.join([category_override, node_key]) if category_override else node_key))
 
     def _update_hierarchy(self, hierarchy_id, candidate):
-        print('updating hierarchy from %s->%s' % (hierarchy_id, candidate))
         if isinstance(candidate, tuple):
             candidate = Map([(candidate[0], candidate[1])])
         elif isinstance(candidate, dict):
             candidate = Map(candidate)
-        print('regsitering node %s in hierarchy %s' % (candidate, hierarchy_id))
 
         try:
             hierarchy_entry = self.hierarchy[hierarchy_id]
 
             if issubclass(type(hierarchy_entry), dict) and issubclass(type(candidate), dict):
-                print('dictionary updating')
                 hierarchy_entry.deep_update(candidate)
 
             elif isinstance(hierarchy_entry, list):
                 if isinstance(candidate, list):
-                    print('extending')
                     hierarchy_entry.extend(candidate)
                 else:
-                    print('appending')
                     hierarchy_entry.append(candidate)
             else:
-                print('assigning straight up new list')
                 self.hierarchy[hierarchy_id] = [hierarchy_entry, candidate]
 
         except KeyError:
-            print('no previous key, assigning as node')
             self.hierarchy[hierarchy_id] = candidate
-
-        print('hierarchy is now', self.hierarchy)
 
     def _flat_hierarchy(self):
         return gen_flatten_dict_depth_two(self.hierarchy)
