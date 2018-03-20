@@ -7,8 +7,9 @@ import anvil.runtime as rt
 import anvil.config as cfg
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
-from relationships import NodeCollection
+from cluster import BaseCollection
 from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map, gen_flatten_dict_depth_two
+
 
 def register_built_nodes(f):
     """ This function automatically digests a dictionary formatted build report of all nodes created and returned
@@ -73,9 +74,8 @@ def generate_build_report(f):
 
         report = {}
         print('Generating report %r' % nodes_built)
-        nodes_built = [nodes_built] if issubclass(type(nodes_built), NodeCollection) else to_list(nodes_built)
+        nodes_built = [nodes_built] if issubclass(type(nodes_built), BaseCollection) else to_list(nodes_built)
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
-            # TODO: add clause for detecting type of nodes in a NodeCollection...maybe a helper on the NodeCollection.
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
             if hierarchy_id:
                 # We are assuming the extra tag is unique and we can just do a plain update instead of checking.
@@ -291,4 +291,3 @@ class AbstractGrouping(log.LogMixin):
 
     def __dir__(self):
         return dir(super(AbstractGrouping, self)) + list(self.hierarchy)
-

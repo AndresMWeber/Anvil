@@ -363,7 +363,7 @@ def list_scene_nodes(object_type='transform', has_shape=False):
         if not node.getShape():
             nodes.append(node)
         else:
-            if not node.getShape().type() == 'camera':
+            if not node.getShape().child_type() == 'camera':
                 nodes.append(node)
             else:
                 if not DEFAULT_API.camera(node.getShape(), startupCamera=True, q=True):

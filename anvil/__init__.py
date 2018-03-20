@@ -84,7 +84,7 @@ def is_anvil(node):
 
 
 def is_aset(node):
-    issubclass(type(node), node_types.NodeCollection)
+    issubclass(type(node), node_types.BaseCollection)
 
 
 def is_agrouping(node):

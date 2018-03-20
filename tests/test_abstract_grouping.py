@@ -157,7 +157,7 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
         print(node, self.grouping.hierarchy)
         print('original report:')
         print(report)
-        print(report[cfg.NODE_TYPE][cfg.DEFAULT])
+        print(report[cfg.CONTROL_TYPE][cfg.DEFAULT])
         print('hierarchy...')
         print(self.grouping.hierarchy.node)
         print(self.grouping.hierarchy.node.default)

@@ -2,10 +2,10 @@ import anvil.config as cfg
 import anvil.objects as ob
 import anvil.runtime as rt
 import anvil.utils.generic as gc
-import base
+import base_grouping
 
 
-class Control(base.AbstractGrouping):
+class Control(base_grouping.AbstractGrouping):
     ANVIL_TYPE = cfg.CONTROL_TYPE
 
     CTRL_NAME_TOKENS = {cfg.TYPE: cfg.CONTROL_TYPE}

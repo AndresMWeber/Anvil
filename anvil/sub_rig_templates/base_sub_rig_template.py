@@ -4,7 +4,7 @@ import anvil.node_types as nt
 import anvil.objects.attribute as at
 import anvil.config as cfg
 from anvil.meta_data import MetaData
-from grouping.base import register_built_nodes, generate_build_report
+from grouping.base_grouping import register_built_nodes, generate_build_report
 from anvil.utils.generic import to_size_list, to_list, extend_parent_kwarg
 
 

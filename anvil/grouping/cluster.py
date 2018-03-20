@@ -9,18 +9,23 @@ import anvil.utils.scene as sc
 from anvil.meta_data import MetaData
 
 
-class NodeCollection(log.LogMixin):
+class BaseCollection(log.LogMixin):
     def __init__(self, nodes=None, name_tokens=None, **kwargs):
         self.name_tokens = MetaData(name_tokens or {}, **kwargs)
         self.nodes = nodes or []
 
     def _get_anvil_type(self):
-        try:
-            return self.nodes[0].ANVIL_TYPE
-        except (AttributeError, ValueError, IndexError):
-            return cfg.SET_TYPE
+        # TODO: This is not getting passed properly to the registration..
+        print('GETTING TYPE %s' % self.child_type())
+        return self.child_type()
 
     ANVIL_TYPE = property(_get_anvil_type)
+
+    def child_type(self):
+        try:
+            return type(self[0])
+        except (AttributeError, ValueError, IndexError):
+            return cfg.SET_TYPE
 
     @property
     def set(self):
@@ -56,7 +61,8 @@ class NodeCollection(log.LogMixin):
         return str(self.set)
 
     def __repr__(self):
-        return super(NodeCollection, self).__repr__().replace('>', '(children=%d)>' % (len(self)))
+        return super(BaseCollection, self).__repr__().replace('>', '(children=%d, type=%s)>' % (
+        len(self), self.child_type().__name__))
 
     def append(self, node):
         raise NotImplementedError
@@ -68,7 +74,7 @@ class NodeCollection(log.LogMixin):
         raise NotImplementedError
 
 
-class NodeSet(NodeCollection):
+class NodeSet(BaseCollection):
     def append(self, node):
         self.set.append(node)
 
@@ -79,7 +85,7 @@ class NodeSet(NodeCollection):
         self.set.extend(nodes)
 
 
-class NodeChain(NodeCollection):
+class NodeChain(BaseCollection):
     DEFAULT_BUFFER_TYPE = ob.Transform
 
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None, **kwargs):
@@ -234,7 +240,7 @@ class NodeChain(NodeCollection):
 
         while anvil.factory(current_node).get_parent():
             current_node = anvil.factory(current_node.get_parent())
-            if any([current_node.type() in node_filter, node_filter is None, node_filter == []]):
+            if any([current_node.child_type() in node_filter, node_filter is None, node_filter == []]):
                 chain_path.insert(0, current_node)
             if current_node == upstream_node:
                 return iter(chain_path)

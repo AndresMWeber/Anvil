@@ -17,7 +17,7 @@ for imported_class in list(set([v for k, v in iteritems(globals().copy()) if ins
 __all__ = ['AbstractGrouping',
            'SubRig',
            'Rig',
-           'NodeCollection',
+           'BaseCollection',
            'NodeChain',
            'NodeSet',
            'Control',

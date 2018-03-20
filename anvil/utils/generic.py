@@ -1,7 +1,7 @@
 from six import iteritems, itervalues
 from collections import OrderedDict
 from functools import wraps
-import config as cfg
+import anvil.config as cfg
 
 
 def to_list(query):
