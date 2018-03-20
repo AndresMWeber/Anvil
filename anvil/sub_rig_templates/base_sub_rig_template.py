@@ -1,11 +1,11 @@
+import anvil
 import anvil.runtime as rt
-from anvil.meta_data import MetaData
 import anvil.node_types as nt
 import anvil.objects.attribute as at
 import anvil.config as cfg
-import anvil
-from anvil.utils.generic import to_size_list, to_list
-from anvil.decorators import register_built_nodes, generate_build_report, extend_parent_kwarg
+from anvil.meta_data import MetaData
+from grouping.base import register_built_nodes, generate_build_report
+from anvil.utils.generic import to_size_list, to_list, extend_parent_kwarg
 
 
 class SubRigTemplate(nt.SubRig):
@@ -47,7 +47,7 @@ class SubRigTemplate(nt.SubRig):
 
         pv_line.parent(next(parent))
 
-        return control, pv_line, nt.NonLinearHierarchyNodeSet(clusters)
+        return control, pv_line, nt.NodeSet(clusters)
 
     DEFAULT_FK_SHAPE = cfg.DEFAULT_FK_SHAPE
 
@@ -86,7 +86,7 @@ class SubRigTemplate(nt.SubRig):
         :param duplicate: bool, whether or not to duplicate the layout joints chain
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        blend_chain = nt.LinearHierarchyNodeSet(layout_joints[0], duplicate=duplicate, parent=parent, **kwargs)
+        blend_chain = nt.NodeChain(layout_joints[0], duplicate=duplicate, parent=parent, **kwargs)
         blend_nodes = []
         for blend_chain_joint, source_chain_joints in zip(blend_chain, zip(*to_list(source_chains))):
             blend_nodes.append(rt.dcc.create.create_node(cfg.BLEND_NODE))
@@ -116,7 +116,7 @@ class SubRigTemplate(nt.SubRig):
         """
         kwargs[cfg.SKIP_REGISTER] = True
         kwargs[cfg.SKIP_REPORT] = True
-        ik_chain = nt.LinearHierarchyNodeSet(layout_joints, duplicate=duplicate, parent=next(parent), **kwargs)
+        ik_chain = nt.NodeChain(layout_joints, duplicate=duplicate, parent=next(parent), **kwargs)
 
         handle, effector = self.build_ik(ik_chain,
                                          chain_end=ik_chain[ik_end_index],
@@ -124,7 +124,7 @@ class SubRigTemplate(nt.SubRig):
                                          name_tokens=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.NAME_TOKENS, {})),
                                          **kwargs)
 
-        controls = nt.NonLinearHierarchyNodeSet()
+        controls = nt.NodeSet()
         # build ik control
         controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: next(parent),
                                                              cfg.REFERENCE_OBJECT: ik_chain[-1],
@@ -159,9 +159,9 @@ class SubRigTemplate(nt.SubRig):
         kwargs['skip_register'] = True
         kwargs['skip_report'] = True
         print('building fk chain', layout_joints, chain_end)
-        fk_chain = nt.LinearHierarchyNodeSet(layout_joints, end_node=chain_end, duplicate=duplicate,
-                                             parent=next(parent))
-        fk_controls = nt.NonLinearHierarchyNodeSet()
+        fk_chain = nt.NodeChain(layout_joints, end_node=chain_end, duplicate=duplicate,
+                                parent=next(parent))
+        fk_controls = nt.NodeSet()
         control_parent = next(parent)
         for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
             if node.get_children():

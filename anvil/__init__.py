@@ -1,7 +1,6 @@
 from six import itervalues
 import config
 import utils
-import decorators
 import colors
 import meta_data
 import log
@@ -85,7 +84,7 @@ def is_anvil(node):
 
 
 def is_aset(node):
-    issubclass(type(node), node_types.NodeRelationshipSet)
+    issubclass(type(node), node_types.NodeCollection)
 
 
 def is_agrouping(node):

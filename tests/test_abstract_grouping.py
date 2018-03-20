@@ -136,7 +136,7 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
         self.assertEqual(report[cfg.NODE_TYPE][cfg.DEFAULT][-1], self.grouping.hierarchy.node.default[-1])
 
     def test_register_non_linear_hierarchy_node_set_of_transforms(self):
-        node = nt.NonLinearHierarchyNodeSet([nt.Transform.build() for _ in range(10)])
+        node = nt.NodeSet([nt.Transform.build() for _ in range(10)])
         report = self.grouping.register_node(node)
 
         print(node, self.grouping.hierarchy)
@@ -152,7 +152,7 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
         self.assertEqual(node, self.grouping.hierarchy.node.default[-1])
 
     def test_register_non_linear_hierarchy_node_set_of_controls(self):
-        node = nt.NonLinearHierarchyNodeSet([nt.Control.build() for _ in range(10)])
+        node = nt.NodeSet([nt.Control.build() for _ in range(10)])
         report = self.grouping.register_node(node)
         print(node, self.grouping.hierarchy)
         print('original report:')
@@ -166,13 +166,15 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
         self.assertEqual(node, self.grouping.hierarchy.control.default[-1])
 
     def test_register_non_linear_hierarchy_node_set_of_joints(self):
-        node = nt.NonLinearHierarchyNodeSet([nt.Joint.build() for _ in range(10)])
+        node = nt.NodeSet([nt.Joint.build() for _ in range(10)])
         report = self.grouping.register_node(node)
         print(node, self.grouping.hierarchy)
         print('original report:')
         print(report)
         print(report[cfg.JOINT_TYPE][cfg.DEFAULT])
         print('hierarchy...')
+        from pprint import pprint
+        pprint(self.grouping.hierarchy)
         print(self.grouping.hierarchy.joint)
         print(self.grouping.hierarchy.joint.default)
 
@@ -180,7 +182,7 @@ class TestAbstractGroupingRegisterNode(TestBaseAbstractGrouping):
         self.assertEqual(node, self.grouping.hierarchy.joint.default[-1])
 
     def test_register_linear_hierarchy_node_set(self):
-        node = nt.LinearHierarchyNodeSet([nt.Joint.build() for _ in range(10)])
+        node = nt.NodeChain([nt.Joint.build() for _ in range(10)])
         report = self.grouping.register_node(node)
         print(node, self.grouping.hierarchy)
         print('original report:')

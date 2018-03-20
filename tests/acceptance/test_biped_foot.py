@@ -61,8 +61,8 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
 
     @staticmethod
     def build_leg_ik():
-        foot_ball_result = TestBuildBipedFoot.TEMPLATE().build_ik(nt.LinearHierarchyNodeSet('hip', 'foot',
-                                                                                            node_filter=cfg.JOINT_TYPE),
+        foot_ball_result = TestBuildBipedFoot.TEMPLATE().build_ik(nt.NodeChain('hip', 'foot',
+                                                                               node_filter=cfg.JOINT_TYPE),
                                                                   solver=cfg.IK_RP_SOLVER)
         return {'leg_ik': foot_ball_result[cfg.NODE_TYPE][cfg.DEFAULT]}
 

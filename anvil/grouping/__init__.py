@@ -8,14 +8,14 @@ from base import AbstractGrouping
 from control import Control
 from sub_rig import SubRig
 from rig import Rig
-from relationships import NodeRelationshipSet
-from relationships import LinearHierarchyNodeSet
-from relationships import NonLinearHierarchyNodeSet
+from relationships import NodeCollection
+from relationships import NodeChain
+from relationships import NodeSet
 
 __all__ = ['Control',
            'SubRig',
            'Rig',
            'AbstractGrouping',
-           'NodeRelationshipSet',
-           'LinearHierarchyNodeSet',
-           'NonLinearHierarchyNodeSet']
+           'NodeCollection',
+           'NodeChain',
+           'NodeSet']

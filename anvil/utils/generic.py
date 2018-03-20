@@ -1,5 +1,7 @@
 from six import iteritems, itervalues
 from collections import OrderedDict
+from functools import wraps
+import config as cfg
 
 
 def to_list(query):
@@ -7,6 +9,8 @@ def to_list(query):
         return query
     elif isinstance(query, str):
         return [query]
+    elif isinstance(query, dict):
+        return [dict]
     elif query is None:
         return list()
     try:
@@ -164,7 +168,7 @@ class Map(dict):
         if path is None:
             path = []
         for k, v in iteritems(d):
-            print(path)
+            print('updating raw: %s: %r', path, v)
             if isinstance(v, dict):
                 self.deep_update(v, path=path + [k])
             else:
@@ -178,7 +182,7 @@ class Map(dict):
         :param path: list, list of keys we will traverse down.
         :param v: object, any type of object we are adding to that nested/base dict.
         """
-        print('merging value %s from path %s' % (v, path))
+        print('merging value %r from path %s' % (v, path))
         current_map = self
         for p in path[:-1]:
             print('here', p, current_map)
@@ -205,3 +209,29 @@ class Map(dict):
     def __delitem__(self, key):
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
+
+
+def parametrized(dec):
+    """ Taken from https://stackoverflow.com/questions/5929107/decorators-with-parameters
+        Parametrizes a decorator.
+    """
+
+    @wraps(dec)
+    def layer(*args, **kwargs):
+        def repl(f):
+            return dec(f, *args, **kwargs)
+
+        return repl
+
+    return layer
+
+
+@parametrized
+def extend_parent_kwarg(f, number_of_parents):
+    @wraps(f)
+    def wrapper(abstract_grouping, *args, **kwargs):
+        if kwargs.get(cfg.PARENT):
+            kwargs[cfg.PARENT] = iter(to_size_list(kwargs.get(cfg.PARENT), number_of_parents))
+        return f(abstract_grouping, *args, **kwargs)
+
+    return wrapper

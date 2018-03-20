@@ -1,14 +1,92 @@
+from functools import wraps
 from six import iteritems, itervalues
 import nomenclate
 import anvil
 import anvil.log as log
 import anvil.runtime as rt
 import anvil.config as cfg
-from anvil.utils.generic import Map, gen_flatten_dict_depth_two
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
-from anvil.utils.generic import merge_dicts
-from anvil.decorators import register_built_nodes, generate_build_report
+from relationships import NodeCollection
+from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map, gen_flatten_dict_depth_two
+
+def register_built_nodes(f):
+    """ This function automatically digests a dictionary formatted build report of all nodes created and returned
+        during function 'f'.  They will be added to the existing dict object self.hierarchy which is a dot notation
+        searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
+        to bunch objects.
+
+        Depends on all build node functions being comprised of a dictionary with str keys with the structure:
+
+        {'controls': ..., 'joints': ..., 'nodes': ...}
+
+        Operations based on input/existing types:
+            (existing entry, new entry)
+            - list, list: it will extend the list with the new list
+            - list, object: adds the object to the list
+            - dict, dict: it will update the existing dict with new dict
+            - object, object: converts the entry to a list
+
+        If there is no existing entry then we will just assign it.
+
+    """
+
+    @wraps(f)
+    def wrapper(abstract_grouping, *args, **kwargs):
+        skip_register = kwargs.pop('skip_register', False)
+        results = f(abstract_grouping, *args, **kwargs)
+        if skip_register:
+            return results
+        abstract_grouping.hierarchy.deep_update(results)
+        return results
+
+    return wrapper
+
+
+def generate_build_report(f):
+    @wraps(f)
+    def wrapper(abstract_grouping, *args, **kwargs):
+        """ Creates a dictionary of created nodes that will be digested later by the node registration function.
+
+        :param args: object, node to sort into the hierarchy, SHOULD be an Anvil node.
+        :param kwargs: dict, use kwargs if you want to override the types.
+                             By default accepts any key from abstract_grouping.BUILD_REPORT_KEYS
+        :return:
+
+        A build report looks like this:
+
+        {'control': {'default': [anvil_controls_or_set_of_controls, ...]},
+         'node': {'default': [anvil_nodes_or_set_of_nodes, ...],
+                  'user custom hierarchy id': node}},
+         'set': {'default': None},
+         'joint': {'default': None},
+
+        A top level key will not be present if the report nodes from the wrapped function are not of that type.
+        The top level key possibilities are: ['control', 'joint', 'node', 'set']
+        """
+        skip_report = kwargs.pop('skip_report', False)
+        custom_hierarchy_ids = kwargs.pop(cfg.ID_TYPE, None)
+        nodes_built = f(abstract_grouping, *args, **kwargs)
+
+        if skip_report:
+            return nodes_built
+
+        report = {}
+        print('Generating report %r' % nodes_built)
+        nodes_built = [nodes_built] if issubclass(type(nodes_built), NodeCollection) else to_list(nodes_built)
+        for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
+            # TODO: add clause for detecting type of nodes in a NodeCollection...maybe a helper on the NodeCollection.
+            tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
+            if hierarchy_id:
+                # We are assuming the extra tag is unique and we can just do a plain update instead of checking.
+                report.update({tag: {hierarchy_id: node}})
+            else:
+                # Otherwise we auto tag the node and add to the default list under that tag.
+                report[tag] = report.get(tag, {cfg.DEFAULT: []})
+                report[tag][cfg.DEFAULT].append(node)
+        return report
+
+    return wrapper
 
 
 class AbstractGrouping(log.LogMixin):
@@ -64,7 +142,7 @@ class AbstractGrouping(log.LogMixin):
     @register_built_nodes
     @generate_build_report
     def register_node(self, node, **kwargs):
-        print('registering node manually %s' % node, kwargs)
+        print('registering node manually %r' % node, kwargs)
         return node
 
     def connect_rendering_delegate(self, assignee=None):
@@ -160,7 +238,6 @@ class AbstractGrouping(log.LogMixin):
         try:
             hierarchy_entry = self.hierarchy[hierarchy_id]
 
-            # TODO: This breaks the Map hierarchy.
             if issubclass(type(hierarchy_entry), dict) and issubclass(type(candidate), dict):
                 print('dictionary updating')
                 hierarchy_entry.deep_update(candidate)
@@ -214,3 +291,4 @@ class AbstractGrouping(log.LogMixin):
 
     def __dir__(self):
         return dir(super(AbstractGrouping, self)) + list(self.hierarchy)
+

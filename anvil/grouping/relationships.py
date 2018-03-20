@@ -9,7 +9,7 @@ import anvil.utils.scene as sc
 from anvil.meta_data import MetaData
 
 
-class NodeRelationshipSet(log.LogMixin):
+class NodeCollection(log.LogMixin):
     def __init__(self, nodes=None, name_tokens=None, **kwargs):
         self.name_tokens = MetaData(name_tokens or {}, **kwargs)
         self.nodes = nodes or []
@@ -56,7 +56,7 @@ class NodeRelationshipSet(log.LogMixin):
         return str(self.set)
 
     def __repr__(self):
-        return super(NodeRelationshipSet, self).__repr__().replace('>', '(children=%d)>' % (len(self)))
+        return super(NodeCollection, self).__repr__().replace('>', '(children=%d)>' % (len(self)))
 
     def append(self, node):
         raise NotImplementedError
@@ -68,7 +68,7 @@ class NodeRelationshipSet(log.LogMixin):
         raise NotImplementedError
 
 
-class NonLinearHierarchyNodeSet(NodeRelationshipSet):
+class NodeSet(NodeCollection):
     def append(self, node):
         self.set.append(node)
 
@@ -79,11 +79,11 @@ class NonLinearHierarchyNodeSet(NodeRelationshipSet):
         self.set.extend(nodes)
 
 
-class LinearHierarchyNodeSet(NodeRelationshipSet):
+class NodeChain(NodeCollection):
     DEFAULT_BUFFER_TYPE = ob.Transform
 
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None, **kwargs):
-        super(LinearHierarchyNodeSet, self).__init__(**kwargs)
+        super(NodeChain, self).__init__(**kwargs)
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         self.head, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
         self.tail = self._process_end_node(end_node)
@@ -263,7 +263,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return list(self)[key] if isinstance(key, (int, slice)) else gc.get_dict_key_matches(key, self.get_hierarchy())
 
     def __add__(self, other):
-        return NonLinearHierarchyNodeSet(list(self) + gc.to_list(other))
+        return NodeSet(list(self) + gc.to_list(other))
 
     def __repr__(self):
-        return super(LinearHierarchyNodeSet, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))
+        return super(NodeChain, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))

@@ -27,7 +27,7 @@ class Hand(SubRigTemplate):
         :param finger_joints: [nt.HierarchyChain or str]: list joint chains to build the fingers on.
         """
         super(Hand, self).__init__(**kwargs)
-        self.digits = nt.NonLinearHierarchyNodeSet()
+        self.digits = nt.NodeSet()
         self.has_thumb = has_thumb
         self.has_ik = has_ik
         self.has_fk = has_fk

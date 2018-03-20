@@ -19,7 +19,7 @@ class TestHandBase(TestBase):
 
         kwargs['layout_joints'] = []
         for finger in finger_start_joints:
-            kwargs['layout_joints'].append(list(nt.LinearHierarchyNodeSet(finger)))
+            kwargs['layout_joints'].append(list(nt.NodeChain(finger)))
 
         rig_instance = cls.TEMPLATE_CLASS(**kwargs)
         rig_instance.build(**kwargs)

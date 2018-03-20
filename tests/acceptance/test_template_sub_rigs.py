@@ -51,8 +51,8 @@ class TestBuildBipedArm(TestBaseTemplates):
     @classmethod
     def from_template_file(cls, template_file):
         cls.import_template_files(template_file)
-        l_arm = nt.LinearHierarchyNodeSet('l_armA_JNT')
-        r_arm = nt.LinearHierarchyNodeSet('r_armA_JNT')
+        l_arm = nt.NodeChain('l_armA_JNT')
+        r_arm = nt.NodeChain('r_armA_JNT')
         l_sub_rig_instance = cls.runner(template_args=l_arm, template_flags={'meta_data': {'side': 'left'}})
         r_sub_rig_instance = cls.runner(template_args=r_arm, template_flags={'meta_data': {'side': 'right'}})
         return l_sub_rig_instance, r_sub_rig_instance
