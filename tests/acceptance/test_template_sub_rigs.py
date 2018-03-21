@@ -42,7 +42,7 @@ class TestBuildSpine(TestBaseTemplates):
         with sanitize():
             parent = nt.Transform.build(name='test')
             sub_rig_instance = self.runner(template_flags={'parent': parent})
-            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+            self.assertEqual(str(sub_rig_instance.root.get_parent()), str(parent))
 
 
 class TestBuildBipedArm(TestBaseTemplates):
@@ -66,7 +66,7 @@ class TestBuildBipedArm(TestBaseTemplates):
         with sanitize():
             parent = nt.Transform.build(name='test')
             sub_rig_instance = self.runner(template_flags={'parent': parent})
-            self.assertEqual(str(sub_rig_instance.group_top.get_parent()), str(parent))
+            self.assertEqual(str(sub_rig_instance.root.get_parent()), str(parent))
 
     def test_build_with_imported_skeleton_t_pose(self):
         with sanitize():
