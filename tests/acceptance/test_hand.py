@@ -1,10 +1,10 @@
+import traceback
+import string
+import anvil.config as cfg
 import anvil.node_types as nt
 from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
 from tests.base_test import TestBase, clean_up_scene, auto_save_result
-import string
-import anvil.config as cfg
-from pprint import pprint
 
 
 class TestHandBase(TestBase):
@@ -16,6 +16,8 @@ class TestHandBase(TestBase):
     @classmethod
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
+        print('Successfully imported template file %s' % template_file)
+        print_scene_tree()
 
         kwargs['layout_joints'] = []
         for finger in finger_start_joints:
@@ -32,28 +34,24 @@ class TestBuildHand(TestHandBase):
         super(TestBuildHand, cls).setUpClass()
         try:
             cls.hand = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
-        except (IndexError, KeyError) as e:
+        except Exception:
             print_scene_tree()
-            raise e
+            traceback.print_exc()
+            raise
 
     def test_number_of_controls_from_flat_hierarchy(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]), 15)
-
-    def test_number_of_controls_from_get_children(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len(self.hand.group_controls.get_children()), 10)
-
-    def test_number_of_joint_chains_from_get_children(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len(self.hand.group_joints.get_children()), 15)
+        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]), 25)
 
     def test_number_of_joints_from_flat_hierarchy(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Joint)]), 15)
+        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Joint)]), 60)
+
+    def test_number_of_joint_top_groups_from_get_children(self):
+        self.assertEqual(len(self.hand.group_joints.get_children()), 15)
+
+    def test_number_of_control_top_groups_from_get_children(self):
+        self.assertEqual(len(self.hand.group_controls.get_children()), 10)
 
     def test_number_of_nodes_from_get_children(self):
-        pprint(self.hand.hierarchy)
         self.assertEqual(len(self.hand.group_nodes.get_children()), 5)
 
 
@@ -73,7 +71,11 @@ class TestBuildDefaultHand(TestHandBase):
     @clean_up_scene
     @auto_save_result
     def test_build_with_rp_solver(self):
-        self.assertIsNotNone(self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, solver=cfg.IK_RP_SOLVER))
+        rig = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, solver=cfg.IK_RP_SOLVER)
+        from pprint import pprint
+        pprint(rig._flat_hierarchy())
+        pprint(rig.hierarchy)
+        self.assertEqual(len([node for node in rig._flat_hierarchy() if isinstance(node, nt.Control)]), 30)
 
 
 class TestGetFingerBaseNames(TestHandBase):
