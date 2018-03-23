@@ -57,6 +57,10 @@ class TestBase(unittest2.TestCase):
     def build_dependencies(cls):
         cls.LOG.info('Building Dependencies...')
 
+    @classmethod
+    def tearDownClass(cls):
+        sanitize_scene()
+
     def tearDown(self):
         super(TestBase, self).tearDown()
 
@@ -112,7 +116,7 @@ def clean_up_scene(func):
     return wrapped
 
 
-def save_test_file(instance, save_file, func):
+def auto_save(instance, save_file, func):
     save_path = os.environ.get('A_SAVE_PATH', None)
     timestamp = datetime.utcnow().strftime('%Y-%m-%d_T%H-%M-%S')
     filename = '_'.join([instance.__class__.__name__, func.__name__, save_file, timestamp]) + '.mb'
@@ -135,7 +139,7 @@ def auto_save_result(func):
 
         finally:
             if save_file:
-                save_test_file(self, save_file, func)
+                auto_save(self, save_file, func)
 
         return func_return
 

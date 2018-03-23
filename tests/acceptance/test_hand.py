@@ -1,14 +1,14 @@
-import traceback
 import string
 import anvil.config as cfg
 import anvil.node_types as nt
 from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
-from tests.base_test import TestBase, clean_up_scene, auto_save_result
+from tests.base_test import TestBase, clean_up_scene, auto_save_result, sanitize_scene
 
 
 class TestHandBase(TestBase):
     hand = None
+
     name_tokens = {'name': 'hoof', 'purpose': 'mvp'}
     HAND_MERC_JOINTS = ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']
     TEMPLATE_CLASS = Hand
@@ -16,7 +16,7 @@ class TestHandBase(TestBase):
     @classmethod
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
-        print('Successfully imported template file %s' % template_file)
+        cls.LOG.info('Successfully imported template file %s' % template_file)
         print_scene_tree()
 
         kwargs['layout_joints'] = []
@@ -29,15 +29,9 @@ class TestHandBase(TestBase):
 
 
 class TestBuildHand(TestHandBase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestBuildHand, cls).setUpClass()
-        try:
-            cls.hand = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
-        except Exception:
-            print_scene_tree()
-            traceback.print_exc()
-            raise
+    def setUp(self):
+        if self.hand is None:
+            self.__class__.hand = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS)
 
     def test_number_of_controls_from_flat_hierarchy(self):
         self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]), 25)
@@ -81,8 +75,7 @@ class TestBuildDefaultHand(TestHandBase):
 class TestGetFingerBaseNames(TestHandBase):
     @classmethod
     def setUpClass(cls):
-        super(TestGetFingerBaseNames, cls).setUpClass()
-        cls.hand = Hand(cls.HAND_MERC_JOINTS)
+        cls.hand = cls.TEMPLATE_CLASS(cls.HAND_MERC_JOINTS)
 
     def test_default_with_thumb_from_fbx(self):
         self.hand.layout_joints = self.HAND_MERC_JOINTS

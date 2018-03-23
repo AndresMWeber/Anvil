@@ -17,7 +17,7 @@ class TestBaseRig(TestBase):
         test_rig.build()
         sub_rig.build_node(nt.Joint, hierarchy_id='eye', parent=sub_rig.group_joints)
         sub_rig.build_node(nt.Control, hierarchy_id='eye', parent=sub_rig.group_controls, shape='sphere')
-        anvil.runtime.dcc.connections.parent(sub_rig.joint.eye, sub_rig.control.eye.node.connection_group)
+        anvil.runtime.dcc.connections.parent(sub_rig.control.eye.node.connection_group, sub_rig.joint.eye)
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig
