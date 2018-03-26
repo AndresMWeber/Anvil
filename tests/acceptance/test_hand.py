@@ -1,9 +1,8 @@
 import string
 import anvil.config as cfg
 import anvil.node_types as nt
-from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
-from tests.base_test import TestBase, clean_up_scene, auto_save_result, sanitize_scene
+from tests.base_test import TestBase, clean_up_scene, auto_save_result
 
 
 class TestHandBase(TestBase):
@@ -17,7 +16,6 @@ class TestHandBase(TestBase):
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
         cls.LOG.info('Successfully imported template file %s' % template_file)
-        print_scene_tree()
 
         kwargs['layout_joints'] = []
         for finger in finger_start_joints:
@@ -43,6 +41,12 @@ class TestBuildHand(TestHandBase):
         self.assertEqual(len(self.hand.group_joints.get_children()), 15)
 
     def test_number_of_control_top_groups_from_get_children(self):
+        from pdb import set_trace
+        from pprint import pprint
+        pprint(self.hand._flat_hierarchy())
+        pprint(self.hand.hierarchy)
+        pprint(self.hand.hierarchy.to_flat_dict())
+        set_trace()
         self.assertEqual(len(self.hand.group_controls.get_children()), 10)
 
     def test_number_of_nodes_from_get_children(self):
@@ -66,9 +70,6 @@ class TestBuildDefaultHand(TestHandBase):
     @auto_save_result
     def test_build_with_rp_solver(self):
         rig = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, solver=cfg.IK_RP_SOLVER)
-        from pprint import pprint
-        pprint(rig._flat_hierarchy())
-        pprint(rig.hierarchy)
         self.assertEqual(len([node for node in rig._flat_hierarchy() if isinstance(node, nt.Control)]), 30)
 
 

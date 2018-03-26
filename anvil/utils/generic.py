@@ -1,5 +1,5 @@
 from six import iteritems, itervalues
-from collections import OrderedDict
+from collections import OrderedDict, MutableMapping
 from functools import wraps
 import anvil.config as cfg
 
@@ -35,7 +35,7 @@ def to_camel_case(input_string):
 def gen_flatten_dict_depth_two(d):
     """ Taken from:
         https://stackoverflow.com/questions/3835192/flatten-a-dictionary-of-dictionaries-2-levels-deep-of-lists-in-python
-        Given the d_inner, return an iterator that provides all the sessions, one by one, converted to tuples.
+        Given the d_inner, return an iterator that provides all the nodes from within.
     """
     for d_inner in itervalues(d):
         for nodes in itervalues(d_inner):
@@ -138,6 +138,25 @@ def dict_compare(d1, d2):
     return added, removed, modified, same
 
 
+def dict_to_flat_dict(d, full_path=True, parent_key='', sep='_'):
+    """ Got from https://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
+
+    :param d: dict, input dictionary
+    :param full_path: bool, whether to store the full path as the key or the final key for that dictionary item.
+    :param parent_key: str, keeps track of the dictionary path taken, do not set.
+    :param sep: str, arbitary separator to delineate path separation in the parent_key string.
+    :return: dict, flat dictionary with all keys as full path keys.
+    """
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key and full_path else k
+        if isinstance(v, MutableMapping):
+            items.extend(dict_to_flat_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
 merge_value_LUT = {
     dict: lambda d1, d2: merge_dicts(d2),
     list: lambda l1, l2: l1 + to_list(l2),
@@ -186,6 +205,12 @@ class Map(dict):
             current_map = current_map.setdefault(p, self.__class__())
         current_v = current_map.setdefault(path[-1], None)
         current_map[path[-1]] = merge_value_LUT.get(type(current_v), merge_value_LUT['replace'])(current_v, v)
+
+    def flatten(self):
+        return gen_flatten_dict_depth_two(self)
+
+    def to_flat_dict(self, full_path=False):
+        return dict_to_flat_dict(self, full_path=full_path)
 
     def __getattr__(self, attr):
         return self.get(attr)

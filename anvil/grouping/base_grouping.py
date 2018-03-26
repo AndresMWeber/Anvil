@@ -217,15 +217,18 @@ class AbstractGrouping(log.LogMixin):
         try:
             if category_override:
                 return self.hierarchy[category_override][node_key]
-            for sub_hierarchy in itervalues(self.hierarchy):
-                candidate = sub_hierarchy.get(node_key)
-                if candidate:
-                    return candidate
-        except:
+            return self.hierarchy.to_flat_dict()[node_key]
+        except KeyError:
             raise KeyError('Node from key %s not found in hierarchy' % (
                 '.'.join([category_override, node_key]) if category_override else node_key))
 
     def _update_hierarchy(self, hierarchy_id, candidate):
+        """
+
+        :param hierarchy_id:
+        :param candidate:
+        :return:
+        """
         if isinstance(candidate, tuple):
             candidate = Map([(candidate[0], candidate[1])])
         elif isinstance(candidate, dict):
@@ -249,20 +252,19 @@ class AbstractGrouping(log.LogMixin):
             self.hierarchy[hierarchy_id] = candidate
 
     def _flat_hierarchy(self):
-        return gen_flatten_dict_depth_two(self.hierarchy)
+        return self.hierarchy.flatten()
 
     def _cascade_across_hierarchy(self, object_function, grouping_function):
-        for sub_node in itervalues(self.hierarchy):
-            for anvil_node in itervalues(sub_node):
-                for node in anvil_node if anvil.is_aset(anvil_node) else [anvil_node]:
-                    if anvil.is_agrouping(node):
-                        grouping_function(node)
-                    elif anvil.is_aobject(node):
-                        object_function(node)
+        for anvil_node in itervalues(self.hierarchy.to_flat_dict()):
+            for node in anvil_node if anvil.is_aset(anvil_node) else to_list(anvil_node):
+                if anvil.is_agrouping(node):
+                    grouping_function(node)
+                elif anvil.is_aobject(node):
+                    object_function(node)
 
     def __getattr__(self, item):
         try:
-            return super(AbstractGrouping, self).__getattribute__('hierarchy')[item]
+            return super(AbstractGrouping, self).__getattribute__(cfg.HIERARCHY_TYPE)[item]
         except KeyError:
             return super(AbstractGrouping, self).__getattribute__(item)
 
