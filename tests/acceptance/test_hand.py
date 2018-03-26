@@ -41,12 +41,6 @@ class TestBuildHand(TestHandBase):
         self.assertEqual(len(self.hand.group_joints.get_children()), 15)
 
     def test_number_of_control_top_groups_from_get_children(self):
-        from pdb import set_trace
-        from pprint import pprint
-        pprint(self.hand._flat_hierarchy())
-        pprint(self.hand.hierarchy)
-        pprint(self.hand.hierarchy.to_flat_dict())
-        set_trace()
         self.assertEqual(len(self.hand.group_controls.get_children()), 10)
 
     def test_number_of_nodes_from_get_children(self):
