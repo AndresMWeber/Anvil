@@ -162,8 +162,10 @@ class SubRigTemplate(nt.SubRig):
                                 parent=next(parent))
         fk_controls = nt.NodeSet()
         control_parent = next(parent)
-        for node, shape in zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain))):
+        for index, node_info in enumerate(zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain)))):
+            node, shape = node_info
             if node.get_children():
+                name_tokens[cfg.VARIATION] = index
                 control = self.build_node(nt.Control,
                                           reference_object=node,
                                           shape=shape,

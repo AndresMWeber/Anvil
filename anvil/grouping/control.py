@@ -42,7 +42,7 @@ class Control(base_grouping.AbstractGrouping):
         instance.build_node(ob.Transform, hierarchy_id='offset_group', **kwargs)
         instance.build_node(ob.Transform, hierarchy_id='connection_group', **kwargs)
         instance.controller = instance.hierarchy.curve.control
-        instance.offset_group = instance.hierarchy.node.offset_group
+        instance.offset_group = instance.root = instance.hierarchy.node.offset_group
         instance.connection_group = instance.hierarchy.node.connection_group
 
         instance.controller.name_tokens.merge(instance.CTRL_NAME_TOKENS, force=True)

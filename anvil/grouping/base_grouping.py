@@ -270,8 +270,6 @@ class AbstractGrouping(log.LogMixin):
 
     def __str__(self):
         try:
-            if self.root is None:
-                raise KeyError
             return str(self.root)
         except (KeyError, AttributeError):
             return super(AbstractGrouping, self).__str__()

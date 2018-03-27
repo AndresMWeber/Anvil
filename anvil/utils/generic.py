@@ -1,6 +1,6 @@
 from six import iteritems, itervalues
-from collections import OrderedDict, MutableMapping
-from functools import wraps
+from collections import OrderedDict, MutableMapping, Iterable
+from functools import wraps, reduce
 import anvil.config as cfg
 
 
@@ -211,6 +211,11 @@ class Map(dict):
 
     def to_flat_dict(self, full_path=False):
         return dict_to_flat_dict(self, full_path=full_path)
+
+    def to_flat_list(self):
+        result = []
+        map(result.extend, [n if isinstance(n, Iterable) else to_list(n) for n in itervalues(self.to_flat_dict())])
+        return result
 
     def __getattr__(self, attr):
         return self.get(attr)
