@@ -1,4 +1,3 @@
-from anvil.sub_rig_templates import base_sub_rig_template
 from base_test import TestBase
 import anvil.utils.generic as generic
 

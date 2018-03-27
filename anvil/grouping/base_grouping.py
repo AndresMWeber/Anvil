@@ -256,11 +256,16 @@ class AbstractGrouping(log.LogMixin):
 
     def _cascade_across_hierarchy(self, object_function, grouping_function):
         for anvil_node in itervalues(self.hierarchy.to_flat_dict()):
-            for node in anvil_node if anvil.is_aset(anvil_node) else to_list(anvil_node):
-                if anvil.is_agrouping(node):
+
+            print('running on node %s' % anvil_node)
+            for node in [anvil_node] if anvil.is_aset(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(anvil_node):
+                if anvil.is_agrouping(node) or anvil.is_aset(anvil_node):
+                    print('node %s->%s' % (node, node.name_tokens))
                     grouping_function(node)
                 elif anvil.is_aobject(node):
+                    print('node %s->%s' % (node, node.name_tokens))
                     object_function(node)
+                print('now it is %s' % node)
 
     def __getattr__(self, item):
         try:

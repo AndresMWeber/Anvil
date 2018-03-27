@@ -1,6 +1,6 @@
 from six import iteritems, itervalues
 from collections import OrderedDict, MutableMapping, Iterable
-from functools import wraps, reduce
+from functools import wraps
 import anvil.config as cfg
 
 
@@ -38,8 +38,12 @@ def gen_flatten_dict_depth_two(d):
         Given the d_inner, return an iterator that provides all the nodes from within.
     """
     for d_inner in itervalues(d):
-        for nodes in itervalues(d_inner):
-            for node in to_list(nodes):
+        if isinstance(d_inner, dict):
+            for nodes in itervalues(d_inner):
+                for node in to_list(nodes):
+                    yield node
+        else:
+            for node in to_list(d_inner):
                 yield node
 
 
@@ -192,6 +196,17 @@ class Map(dict):
             else:
                 self._merge_value(path + [k], v)
 
+    def flatten(self):
+        return gen_flatten_dict_depth_two(self)
+
+    def to_flat_dict(self, full_path=False):
+        return dict_to_flat_dict(self, full_path=full_path)
+
+    def to_value_list(self):
+        result = []
+        map(result.extend, [n if isinstance(n, Iterable) else to_list(n) for n in itervalues(self.to_flat_dict())])
+        return result
+
     def _merge_value(self, path, v):
         """ This is used since we have a slightly customized way of adding entries and do not want the base Map object
             to start getting stale data.  If a path does not exist, we will add a default Map object in that place
@@ -205,17 +220,6 @@ class Map(dict):
             current_map = current_map.setdefault(p, self.__class__())
         current_v = current_map.setdefault(path[-1], None)
         current_map[path[-1]] = merge_value_LUT.get(type(current_v), merge_value_LUT['replace'])(current_v, v)
-
-    def flatten(self):
-        return gen_flatten_dict_depth_two(self)
-
-    def to_flat_dict(self, full_path=False):
-        return dict_to_flat_dict(self, full_path=full_path)
-
-    def to_flat_list(self):
-        result = []
-        map(result.extend, [n if isinstance(n, Iterable) else to_list(n) for n in itervalues(self.to_flat_dict())])
-        return result
 
     def __getattr__(self, attr):
         return self.get(attr)
@@ -233,6 +237,9 @@ class Map(dict):
     def __delitem__(self, key):
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
+
+    def __eq__(self, other):
+        return dict_compare(self.__dict__, other)
 
 
 def parametrized(dec):
