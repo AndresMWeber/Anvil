@@ -265,7 +265,7 @@ class AbstractGrouping(log.LogMixin):
                 elif anvil.is_aobject(node):
                     print('node %s->%s' % (node, node.name_tokens))
                     object_function(node)
-                print('now it is %s' % node)
+                print('now it is: ', node)
 
     def __getattr__(self, item):
         try:

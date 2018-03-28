@@ -10,8 +10,8 @@ def to_list(query):
     elif isinstance(query, str):
         return [query]
     elif isinstance(query, dict):
-        return [dict]
-    elif query is None:
+        return [query]
+    elif not query:
         return list()
     try:
         return list(query)
@@ -40,10 +40,13 @@ def gen_flatten_dict_depth_two(d):
     for d_inner in itervalues(d):
         if isinstance(d_inner, dict):
             for nodes in itervalues(d_inner):
+                print('nodes ', nodes)
                 for node in to_list(nodes):
+                    print(node)
                     yield node
         else:
             for node in to_list(d_inner):
+                print('node ', node)
                 yield node
 
 
