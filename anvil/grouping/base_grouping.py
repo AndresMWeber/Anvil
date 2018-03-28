@@ -258,13 +258,14 @@ class AbstractGrouping(log.LogMixin):
         for anvil_node in itervalues(self.hierarchy.to_flat_dict()):
 
             print('running on node %r' % anvil_node)
-            for node in [anvil_node] if anvil.is_aset(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(anvil_node):
+            for node in [anvil_node] if anvil.is_aset(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(
+                    anvil_node):
                 print('\tnode %s->%s && %s' % (node, node.name_tokens, node.meta_data))
                 if anvil.is_agrouping(node) or anvil.is_aset(anvil_node):
                     grouping_function(node)
                 elif anvil.is_aobject(node):
                     object_function(node)
-                print('\t\tnow it is: ', node)
+                print('\t\tnow it is: %s' % node)
 
     def __getattr__(self, item):
         try:
