@@ -69,7 +69,8 @@ class SubRigTemplate(nt.SubRig):
 
         handle.name_tokens.update(name_tokens)
         effector.name_tokens.update({cfg.TYPE: cfg.IK_EFFECTOR})
-
+        print(handle.name_tokens, handle.meta_data, effector.name_tokens, handle.meta_data)
+        print(kwargs)
         return handle, effector
 
     @register_built_nodes

@@ -52,17 +52,17 @@ class TestBuildHand(TestHandBase):
     def test_control_names(self):
         top_groups = ['A_fk_OGP', 'A_ik_OGP', 'A_pv_OGP']
         self.assertIn([name + ending for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
-                      self.hand.hierarchy.control.to_value_list())
+                      list(map(self.hand.hierarchy.control.to_value_list())))
 
     def test_joint_names(self):
         top_groups = ['A_fk_JNT', 'A_ik_JNT', 'A_blend_JNT']
         self.assertIn(['%s_%s' % (name, ending) for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
-                      self.hand.hierarchy.joint.to_value_list())
+                      list(map(str, self.hand.hierarchy.joint.to_value_list())))
 
     def test_node_names(self):
         top_groups = ['IKHANDLE']
         self.assertIn(['%s_%s' % (name, ending) for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
-                      self.hand.hierarchy.node.to_value_list())
+                      list(map(self.hand.hierarchy.node.to_value_list())))
 
 
 class TestBuildDefaultHand(TestHandBase):
