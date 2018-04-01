@@ -106,7 +106,7 @@ class Curve(Transform):
 
         if not cls.SHAPE_CACHE:
             try:
-                cls.SHAPE_CACHE = yaml.load(open(shape_file, "r"))
+                cls.SHAPE_CACHE = yaml.safe_load(open(shape_file, "r"))
             except IOError:
                 cls.error('Missing file %s, please reinstall or locate', shape_file)
                 cls.SHAPE_CACHE = {}
@@ -134,7 +134,7 @@ class Curve(Transform):
             shape_file = cfg.SHAPES_FILE
         try:
             shape_name = self.name()
-            shapes_data = yaml.load(open(shape_file, "r"))
+            shapes_data = yaml.safe_load(open(shape_file, "r"))
 
             target_data = shapes_data.get(shape_name, {})
             degree = self.get_shape().degree()

@@ -193,7 +193,7 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         node.attr(out_attribute).connect(self, force=True)
 
     def is_dirty(self, **kwargs):
-        return rt.dcc.connections.dirty_attr(**kwargs)
+        return rt.dcc.connections.dirty_attr(self, **kwargs)
 
     def is_multi(self, **kwargs):
         return rt.dcc.connections.info_attr(self, multi=True, **kwargs)

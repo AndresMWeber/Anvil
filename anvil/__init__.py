@@ -107,5 +107,4 @@ __all__ = ['config',
            'sub_rig_templates',
            'rig_templates',
            'utils',
-           'colors',
-           'decorators.py']
+           'colors']
