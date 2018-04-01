@@ -13,7 +13,7 @@ class SubRig(base_grouping.AbstractGrouping):
 
     def build(self, parent=None, **kwargs):
         super(SubRig, self).build(**kwargs)
-        if self.root is None:
+        if getattr(self, 'root') is None:
             root_id = '%s_%s' % (cfg.GROUP_TYPE, 'top')
             self.build_node(Transform,
                             hierarchy_id=root_id,
