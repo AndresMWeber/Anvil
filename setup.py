@@ -5,11 +5,11 @@ from setuptools import setup, find_packages
 
 __author__ = 'Andres Weber'
 __author_email__ = 'andresmweber@gmail.com'
-__name__ = 'anvil'
+name = 'anvil'
 __url__ = 'https://github.com/andresmweber/anvil'
 __version__ = '0.0.0'
 
-with codecs.open(os.path.abspath(os.path.join(__name__, 'version.py'))) as ver_file:
+with codecs.open(os.path.abspath(os.path.join(name, 'version.py'))) as ver_file:
     version_regex = r"^__version__ = ['\"]([^'\"]*)['\"]"
     mo = re.search(version_regex, ver_file.read(), re.M)
     try:
@@ -42,7 +42,7 @@ tests_requires = [
 dev_requires = ['Sphinx', 'docutils', 'docopt']
 
 setup(
-    name=__name__,
+    name=name,
     version=__version__,
     packages=find_packages(exclude=['tests', '*.tests', '*.tests.*']),
     package_data={'curve_shapes.yml': ['anvil/objects/curve_shapes.yml']},
