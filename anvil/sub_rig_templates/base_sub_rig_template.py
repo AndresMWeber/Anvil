@@ -61,17 +61,14 @@ class SubRigTemplate(nt.SubRig):
         :param parent: list or object: list of up to length 1, [handle parent]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        name_tokens = MetaData({cfg.TYPE: cfg.IK_HANDLE}, name_tokens or {})
         kwargs.update({'endEffector': str(linear_hierarchy_set.tail), 'solver': solver})
 
         handle, effector = anvil.factory_list(rt.dcc.rigging.ik_handle(str(linear_hierarchy_set.head), **kwargs))
         if parent:
             rt.dcc.scene.parent(handle, next(parent))
 
-        handle.name_tokens.update(name_tokens)
-        effector.name_tokens.update({cfg.TYPE: cfg.IK_EFFECTOR})
-        print(handle.name_tokens, handle.meta_data, effector.name_tokens, handle.meta_data)
-        print(kwargs)
+        handle.name_tokens.update(MetaData({cfg.TYPE: cfg.IK_HANDLE}, name_tokens or {}), force=True)
+        effector.name_tokens.update(MetaData({cfg.TYPE: cfg.IK_EFFECTOR}, name_tokens or {}), force=True)
         return handle, effector
 
     @register_built_nodes
