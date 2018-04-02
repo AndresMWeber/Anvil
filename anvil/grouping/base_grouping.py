@@ -49,7 +49,7 @@ def register_built_nodes(f):
 def generate_build_report(f):
     @wraps(f)
     def wrapper(abstract_grouping, *args, **kwargs):
-        """ Creates a dictionary of created nodes that will be digested later by the node registration function.
+        """Creates a dictionary of created nodes that will be digested later by the node registration function.
 
         A build report looks like this:
             {'control': {'default': [anvil_controls_or_set_of_controls, ...]},
@@ -90,7 +90,7 @@ def generate_build_report(f):
 
 
 class AbstractGrouping(log.LogMixin):
-    """ A group of nodes with all requirements implemented that are required to give a performance. """
+    """A group of nodes with all requirements implemented that are required to give a performance."""
     LOG = log.obtain_logger(__name__)
     ANVIL_TYPE = cfg.RIG_TYPE
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.GROUP_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
@@ -177,11 +177,11 @@ class AbstractGrouping(log.LogMixin):
     def rename_chain(self, nodes, use_end_naming=False, **name_tokens):
         self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
 
-        for index, object in enumerate(nodes):
+        for index, node in enumerate(nodes):
             variation_kwargs = {'var': index}
             if use_end_naming and index == len(nodes) - 1:
                 variation_kwargs = {'decorator': 'End'}
-            rt.dcc.scene.rename(object, self.chain_nomenclate.get(**variation_kwargs))
+            rt.dcc.scene.rename(node, self.chain_nomenclate.get(**variation_kwargs))
 
     def rename(self, *input_dicts, **kwargs):
         new_tokens = MetaData(*input_dicts, **kwargs)
@@ -206,7 +206,7 @@ class AbstractGrouping(log.LogMixin):
                                        lambda n: n.auto_color() if hasattr(n, 'auto_color') else None)
 
     def find_node(self, node_key, category_override=None):
-        """ Finds a node within a hierarchy.
+        """Finds a node within a hierarchy.
 
         This will only work with user specified hierarchy IDs. Otherwise it will not detect the node key from the
         default node list.
@@ -223,7 +223,7 @@ class AbstractGrouping(log.LogMixin):
                 '.'.join([category_override, node_key]) if category_override else node_key))
 
     def _update_hierarchy(self, hierarchy_id, candidate):
-        """ Merges candidate input with the entry under the given hierarchy_id.
+        """Merges candidate input with the entry under the given hierarchy_id.
 
         :param hierarchy_id:
         :param candidate:
@@ -256,7 +256,6 @@ class AbstractGrouping(log.LogMixin):
 
     def _cascade_across_hierarchy(self, object_function, grouping_function):
         for anvil_node in itervalues(self.hierarchy.to_flat_dict()):
-
             print('running on node %r' % anvil_node)
             for node in [anvil_node] if anvil.is_aset(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(
                     anvil_node):
@@ -268,23 +267,24 @@ class AbstractGrouping(log.LogMixin):
                 print('\t\tnow it is: %s' % node)
 
     def __getattr__(self, item):
+        """Returns a hierarchy object if accessing the hierarchy, otherwise default methodology."""
         try:
             return super(AbstractGrouping, self).__getattribute__(cfg.HIERARCHY_TYPE)[item]
         except KeyError:
             return super(AbstractGrouping, self).__getattribute__(item)
 
     def __str__(self):
+        """Returns the name of the root if it is set, otherwise uses super.__str__()"""
         try:
             return str(self.root)
         except (KeyError, AttributeError):
             return super(AbstractGrouping, self).__str__()
 
     def __repr__(self):
+        """Adds number of children and the root transform to default repr."""
         formatted_properties = ' root=%s children=%d>' % (self.root, len(list(self.hierarchy)))
         return super(AbstractGrouping, self).__repr__().replace('>', formatted_properties)
 
     def __dir__(self):
-        """ Adds hierarchy of nodes to the dir printout.
-
-        """
+        """Adds hierarchy of nodes to the dir printout."""
         return dir(super(AbstractGrouping, self)) + list(self.hierarchy)

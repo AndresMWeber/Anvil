@@ -50,12 +50,12 @@ loggers:
         handlers: [info_file_handler]
         propagate: no
 
-    anvil.plugins.base.api_proxy:
+    anvil.interfaces.api_proxy:
         level: INFO
         handlers: [info_file_handler]
         propagate: no
 
-    anvil.plugins.base.api_proxy.api_calls:
+    anvil.interfaces.api_proxy.api_calls:
         level: INFO
         handlers: [info_file_handler]
         propagate: no

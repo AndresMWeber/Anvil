@@ -221,9 +221,7 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         return self._api_class_instance.elementByLogicalIndex[item]
 
     def __getattr__(self, item):
-        """ Uses default Object getattribute if found, otherwise uses the dcc version.
-
-        """
+        """Uses default Object getattribute if found, otherwise uses the dcc version."""
         return super(Attribute, self).__getattr__(item)
 
 

@@ -12,7 +12,7 @@ class MetaData(log.LogMixin):
     NEW_KWARG = 'new'
 
     def __init__(self, *args, **kwargs):
-        """ By default 'type' is always a protected field.
+        """By default 'type' is always a protected field.
 
         :param protected: (list or str), a string list of fields that are protected.
                             If you want to set them after protecting you need use the keyword "force".
@@ -31,7 +31,7 @@ class MetaData(log.LogMixin):
         return self.data.copy()
 
     def merge(self, *args, **kwargs):
-        """ Merge the incoming dictionaries into the current MetaData instance.
+        """Merge the incoming dictionaries into the current MetaData instance.
 
         If the user passes a list of ignore_keys then these keys will be ignored...however the user can permanently set
         them as protected.
@@ -56,7 +56,7 @@ class MetaData(log.LogMixin):
             return self.data
 
     def set_protected(self, key_or_keys):
-        """ Update the internal protected keys list permanently and protect those keys!
+        """Update the internal protected keys list permanently and protect those keys!
 
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
@@ -65,7 +65,7 @@ class MetaData(log.LogMixin):
         self.protected = self.protected.union(set(to_list(key_or_keys)))
 
     def update(self, *args, **kwargs):
-        """ For ease of use to act like a dictionary.
+        """For ease of use to act like a dictionary.
 
         Instead of the frustrating NON return of dicts, returns self while merge returns the self.data dictionary
 
@@ -92,23 +92,25 @@ class MetaData(log.LogMixin):
         return tuple(arg.data if isinstance(arg, self.__class__) else arg for arg in args)
 
     def __serialize__(self):
+        """Not finished."""
         try:
             return str(to_str_dict(self.data))
         except:
             raise UnicodeError('Could not cast metadata to string for metadata %s' % self.data)
 
     def __radd__(self, other):
+        """Adds other to self."""
         return self.__add__(other)
 
     def __getattr__(self, item):
-        """ Delegate to the data field so we can access all metadata with dot notation.
-        """
+        """Delegate to the data field so we can access all metadata with dot notation."""
         try:
             super(MetaData, self).__getattribute__('data')[item]
         except (AttributeError, KeyError):
             super(MetaData, self).__getattribute__(item)
 
     def __add__(self, other):
+        """Merges internal dictionary with other."""
         if isinstance(other, self.__class__):
             return self.merge(other.data, new=True)
         if isinstance(other, dict):
@@ -119,24 +121,30 @@ class MetaData(log.LogMixin):
             raise ValueError('Addition for %s and %s types unsupported.' % (self.__class__, type(other)))
 
     def __getitem__(self, key):
+        """"Gets item at key."""
         return self.data[key]
 
     def __len__(self):
+        """Returns the number of keys in self.data"""
         return len(self.keys())
 
     def __setitem__(self, key, value):
+        """Sets the item in the self.data dictionary."""
         self.data[key] = value
 
     def __eq__(self, other):
+        """Compares the other dictionary/MetaData object to its own data."""
         other = other.data if isinstance(other, self.__class__) else other
         if isinstance(other, dict):
             return dict_compare(self.data, other)
         return False
 
     def __iter__(self):
+        """Returns an iterator of the internal data dict."""
         return iter(self.data)
 
     def __repr__(self):
+        """Shows the current values of the data and what fields are protected."""
         return '<{MODULE}.{CLASS}(data={DATA}, protected={PROTECTED}) at {ID}>'.format(MODULE=self.__class__.__module__,
                                                                                        CLASS=self.__class__.__name__,
                                                                                        DATA=self.data,
@@ -144,6 +152,7 @@ class MetaData(log.LogMixin):
                                                                                        ID=hex(id(self)))
 
     def __str__(self):
+        """Shows the current values of the data and what fields are protected."""
         return '{CLASS}({DATA}, protected={PROTECTED})'.format(CLASS=self.__class__.__name__,
                                                                DATA=self.data,
                                                                PROTECTED=self.protected)

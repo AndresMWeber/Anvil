@@ -14,8 +14,10 @@ class UnicodeDelegate(log.LogMixin):
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.NODE_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
 
     def __init__(self, node_pointer, meta_data=None, name_tokens=None, **kwargs):
-        """ All nodes must be initialized with a string representation that the encompassing platform
-            uses as DAG path representation for the object.
+        """The main encapsulation object for a DCC's DagNode in Anvil.
+
+        All nodes must be initialized with a string representation that the encompassing platform uses as DAG path
+        representation for the object.
 
         :param node_pointer: str, DAG path to the object we want to encapsulate
         :param kwargs: dict, creation flags specific for the platform environment node creation function

@@ -10,7 +10,6 @@ except TypeError:
     pass
 
 import pymel.core as pm
-
 import pymel.util as pmUtil
 import pymel.core.datatypes as dt
 
@@ -42,7 +41,7 @@ def exit_maya():
             ms.uninitialize()
             sys.stdout.write('.')
             sys.stdout.flush()
-    except:
+    except RuntimeError:
         pass
 
     finally:
@@ -51,3 +50,6 @@ def exit_maya():
         import os
         if os.getenv('CIRCLECI'):
             os._exit(0)
+
+
+__all__ = ['pmUtil', 'dt', 'om', 'mc', 'ms', 'DEFAULT_API', 'APIs', 'atexit']

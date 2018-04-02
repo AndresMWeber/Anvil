@@ -13,27 +13,32 @@ class Limb(SubRigTemplate):
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **kwargs)
-        fk_chain = ik_chain = blend_chain = None
+        fk_chain = ik_chain = None
         if build_fk:
             fk_chain, fk_controls = self.build_fk_chain(self.layout_joints,
                                                         skip_register=True,
                                                         skip_report=True,
                                                         **self.build_kwargs)
+            self.register_node(fk_chain, hierarchy_id='fk_chain')
+            self.register_node(fk_controls, hierarchy_id='fk_controls')
 
         if build_ik:
-            ik_chain, controls, handle, effector = self.build_ik_chain(self.layout_joints,
-                                                                       skip_register=True,
-                                                                       skip_report=True,
-                                                                       **self.build_kwargs)
+            ik_chain, ik_controls, handle, effector = self.build_ik_chain(self.layout_joints,
+                                                                          skip_register=True,
+                                                                          skip_report=True,
+                                                                          **self.build_kwargs)
+            self.register_node(ik_chain, hierarchy_id='ik_chain')
+            self.register_node(ik_controls, hierarchy_id='ik_controls')
+            self.register_node(handle, hierarchy_id='ik_handle')
+            self.register_node(effector, hierarchy_id='ik_effector')
 
         if fk_chain and ik_chain:
-            blend_chain = self.build_blend_chain(self.layout_joints, [fk_chain, ik_chain],
+            blend_chain = self.build_blend_chain(self.layout_joints,
+                                                 [fk_chain, ik_chain],
                                                  skip_register=True,
                                                  skip_report=True,
                                                  use_layout=use_layout, **self.build_kwargs)
-        self.register_node(ik_chain, hierarchy_id='ik_chain')
-        self.register_node(fk_chain, hierarchy_id='fk_chain')
-        self.register_node(blend_chain, hierarchy_id='blend_chain')
+            self.register_node(blend_chain, hierarchy_id='blend_chain')
 
         self.rename()
 

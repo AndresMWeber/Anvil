@@ -113,9 +113,7 @@ class Curve(Transform):
 
     @staticmethod
     def _ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwargs):
-        """ Taken from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
-
-        """
+        """Taken from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict."""
 
         class OrderedDumper(dumper):
             pass

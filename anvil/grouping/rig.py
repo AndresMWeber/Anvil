@@ -11,7 +11,7 @@ from anvil.meta_data import MetaData
 
 
 class Rig(base_grouping.AbstractGrouping):
-    """ Comprises a full finished character rig with all functionality.
+    """Comprises a full finished character rig with all functionality.
 
     A fully functional and self-contained rig with all requirements implemented that require it to give a performance.
     A collection of SubRig(s)
@@ -39,7 +39,7 @@ class Rig(base_grouping.AbstractGrouping):
             sub_rig_instance.rename()  # *input_dicts, **name_tokens)
 
     def register_sub_rigs_from_dict(self, sub_rig_dict):
-        """ Registers a SubRig to the Rig if it can be found in SUB_RIG_BUILD_TABLE
+        """Registers a SubRig to the Rig if it can be found in SUB_RIG_BUILD_TABLE
 
         Rig will initialize sub-rigs from the key, value and look up the proper sub-rig class from the build table.
         This is meant to rebuild a rig from a deserialized rig.
@@ -56,7 +56,7 @@ class Rig(base_grouping.AbstractGrouping):
             self.build_sub_rig(sub_rig_name, sub_rig_class, name_tokens=default_name_tokens, **sub_rig_kwargs)
 
     def build_sub_rig(self, sub_rig_key, sub_rig_candidate=SubRig, **kwargs):
-        """ Initializes the given sub rig candidate class with kwargs and stores it in property sub_rigs under the key.
+        """Initializes the given sub rig candidate class with kwargs and stores it in property sub_rigs under the key.
 
         :param sub_rig_key: str, key to store the sub rig under on the rig.
         :param sub_rig_candidate: anvil.sub_rig, a class that inherits from anvil.sub_rig.

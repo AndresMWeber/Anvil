@@ -33,7 +33,7 @@ def to_camel_case(input_string):
 
 
 def gen_flatten_dict_depth_two(d):
-    """ Taken from:
+    """Taken from:
 
     https://stackoverflow.com/questions/3835192/flatten-a-dictionary-of-dictionaries-2-levels-deep-of-lists-in-python
     Given the d_inner, return an iterator that provides all the nodes from within.
@@ -53,8 +53,7 @@ def gen_flatten_dict_depth_two(d):
 
 
 def get_dict_depth(d=None, level=0):
-    """ Returns maximum depth of the hierarchy
-    """
+    """Returns maximum depth of the hierarchy"""
     if not isinstance(d, dict) or not d:
         return level
     return max(get_dict_depth(d[k], level=level + 1) for k in d)
@@ -80,10 +79,9 @@ def dict_to_keys_list(d, keys=None):
 
 
 def dict_deep_sort(cls, obj):
-    """ Recursively sort list or dict nested lists
+    """Recursively sort list or dict nested lists
 
     Taken from: http://goo.gl/tQfDP6
-
     """
     if isinstance(obj, dict):
         _sorted = OrderedDict()
@@ -123,7 +121,7 @@ def pop_dict_keys(d, keys):
 
 
 def merge_dicts(*args, **kwargs):
-    """ Outputs a merged dictionary from inputs. Overwrites data if there are conflicts from left to right.
+    """Outputs a merged dictionary from inputs. Overwrites data if there are conflicts from left to right.
 
     :param args: (dict), tuple of input dictionaries
     :param kwargs: dict, input kwargs to merge
@@ -136,9 +134,7 @@ def merge_dicts(*args, **kwargs):
 
 
 def dict_compare(d1, d2):
-    """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
-
-    """
+    """Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python"""
     d1_keys = set(list(d1))
     d2_keys = set(list(d2))
     intersect_keys = d1_keys.intersection(d2_keys)
@@ -150,7 +146,7 @@ def dict_compare(d1, d2):
 
 
 def dict_to_flat_dict(d, full_path=True, parent_key='', sep='_'):
-    """ Got from https://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
+    """Got from https://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
 
     :param d: dict, input dictionary
     :param full_path: bool, whether to store the full path as the key or the final key for that dictionary item.
@@ -177,12 +173,11 @@ merge_value_LUT = {
 
 
 class Map(dict):
-    """ A dot notation accessible dictionary class extension.
+    """A dot notation accessible dictionary class extension.
 
     Taken from: https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
     Example:
         m = Map({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
-
     """
 
     def __init__(self, *args, **kwargs):
@@ -217,9 +212,11 @@ class Map(dict):
         return result
 
     def _merge_value(self, path, v):
-        """ This is used since we have a slightly customized way of adding entries and do not want the base Map object
-            to start getting stale data.  If a path does not exist, we will add a default Map object in that place
-            unless it is the final path, in which case we merge with the existing (or not) value.
+        """ Stably merge values without overwriting or messing up Map object.
+
+        This is used since we have a slightly customized way of adding entries and do not want the base Map object
+        to start getting stale data.  If a path does not exist, we will add a default Map object in that place
+        unless it is the final path, in which case we merge with the existing (or not) value.
 
         :param path: list, list of keys we will traverse down.
         :param v: object, any type of object we are adding to that nested/base dict.

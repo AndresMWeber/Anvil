@@ -98,7 +98,7 @@ def is_aobject(node):
 
 __all__ = ['config',
            'meta_data',
-           'plugins',
+           'interfaces',
            'log',
            'version',
            'node_types',

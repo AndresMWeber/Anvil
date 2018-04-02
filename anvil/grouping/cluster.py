@@ -34,40 +34,40 @@ class BaseCollection(log.LogMixin):
         self.nodes = value
 
     def __contains__(self, item):
-        """ Determines whether an item is within the instance's set"""
+        """Determines whether an item is within the instance's set"""
         return item in self.set
 
     def __getitem__(self, item):
-        """ Obtains an item from within the instance's set"""
+        """Obtains an item from within the instance's set"""
         return self.set[item]
 
     def __setitem__(self, key, value):
-        """ Sets an item within the instance's set"""
+        """Sets an item within the instance's set"""
         self.set[key] = value
 
     def __iter__(self):
-        """ Returns an iterator of the instance's set"""
+        """Returns an iterator of the instance's set"""
         return iter(self.set)
 
     def __len__(self):
-        """ Returns the length of the instance's set"""
+        """Returns the length of the instance's set"""
         return len(list(self.set))
 
     def __radd__(self, other):
-        """ Adds another to the instance's set"""
+        """Adds another to the instance's set"""
         return self.__add__(other)
 
     def __add__(self, other):
-        """ Adds another to the instance's set"""
+        """Adds another to the instance's set"""
         self.set = other
         return self
 
     def __str__(self):
-        """ Returns a string representation of the instance's set """
+        """Returns a string representation of the instance's set"""
         return str(self.set)
 
     def __repr__(self):
-        """ Adds the number of children and the node type of the children to the default repr. """
+        """Adds the number of children and the node type of the children to the default repr."""
         normal_repr = super(BaseCollection, self).__repr__()
         return normal_repr.replace('>', '(children=%d, type=%s)>' % (len(self), self.child_type()))
 
@@ -104,8 +104,7 @@ class NodeChain(BaseCollection):
 
     @property
     def set(self):
-        """ Only iterates on the nodes in between the top node and the end node linearly (ignores branching paths)
-        """
+        """Only iterates on the nodes in between the top node and the end node linearly (ignores branching paths)"""
         return self._traverse_up_linear_tree(self.tail, self.head)
 
     def find_child(self, child):
@@ -126,7 +125,7 @@ class NodeChain(BaseCollection):
         return hierarchy
 
     def get_level(self, desired_level, traversal=None, level_tree=None, node_filter=None):
-        """ Returns a dictionary at depth "desired_level" from the hierarchy.
+        """Returns a dictionary at depth "desired_level" from the hierarchy.
 
         :return: dict, Returns {} if nothing is found at that depth.
         """
@@ -149,7 +148,7 @@ class NodeChain(BaseCollection):
         return level_tree
 
     def insert(self, index_target, node, beneath=False, reference_node=None, reset_transform=True):
-        """ Inserts node of type buffer_node_class at the index specified.
+        """Inserts node of type buffer_node_class at the index specified.
 
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
         :param node: anvil.objects.dag_node.DagNode, an anvil node to insert in place
@@ -175,7 +174,7 @@ class NodeChain(BaseCollection):
         return node
 
     def add_buffer(self, index_target, beneath=False, buffer_node_class=None, reference_node=None, **kwargs):
-        """
+        """Adds a node of class buffer_node_class in between the target transform and either parent/child.
 
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
         :param reference_node: anvil.objects.dag_node.DagNode, an anvil transform to match positions to.
@@ -198,9 +197,7 @@ class NodeChain(BaseCollection):
             self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)
 
     def duplicate_chain(self, top_node, end_node=None):
-        """ Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain
-
-        """
+        """ Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain """
         duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
         if isinstance(top_node, self.__class__):
             nodes = list(top_node)
