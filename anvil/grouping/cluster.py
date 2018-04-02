@@ -59,13 +59,13 @@ class BaseCollection(log.LogMixin):
         return str(self.set)
 
     def __repr__(self):
-        return super(BaseCollection, self).__repr__().replace('>', '(children=%d, type=%s)>' % (
-        len(self), self.child_type()))
+        normal_repr = super(BaseCollection, self).__repr__()
+        return normal_repr.replace('>', '(children=%d, type=%s)>' % (len(self), self.child_type()))
 
     def append(self, node):
         raise NotImplementedError
 
-    def insert(self, index, node):
+    def insert(self, index, node, **kwargs):
         raise NotImplementedError
 
     def extend(self, nodes):
@@ -76,7 +76,7 @@ class NodeSet(BaseCollection):
     def append(self, node):
         self.set.append(node)
 
-    def insert(self, index, node):
+    def insert(self, index, node, **kwargs):
         self.set.insert(index, node)
 
     def extend(self, nodes):

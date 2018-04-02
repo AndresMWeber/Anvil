@@ -245,26 +245,13 @@ class Map(dict):
         return dict_compare(self.__dict__, other)
 
 
-def parametrized(dec):
-    """ Taken from https://stackoverflow.com/questions/5929107/decorators-with-parameters
-        Parametrizes a decorator.
-    """
+def extend_parent_kwarg(number_of_parents):
+    def inner(f):
+        @wraps(f)
+        def wrapper(abstract_grouping, *args, **kwargs):
+            kwargs[cfg.PARENT] = iter(to_size_list(kwargs.get(cfg.PARENT), number_of_parents))
+            return f(abstract_grouping, *args, **kwargs)
 
-    @wraps(dec)
-    def layer(*args, **kwargs):
-        def repl(f):
-            return dec(f, *args, **kwargs)
+        return wrapper
 
-        return repl
-
-    return layer
-
-
-@parametrized
-def extend_parent_kwarg(f, number_of_parents):
-    @wraps(f)
-    def wrapper(abstract_grouping, *args, **kwargs):
-        kwargs[cfg.PARENT] = iter(to_size_list(kwargs.get(cfg.PARENT), number_of_parents))
-        return f(abstract_grouping, *args, **kwargs)
-
-    return wrapper
+    return inner

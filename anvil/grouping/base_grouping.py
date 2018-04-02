@@ -8,7 +8,7 @@ import anvil.config as cfg
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
 from cluster import BaseCollection
-from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map, gen_flatten_dict_depth_two
+from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map
 
 
 def register_built_nodes(f):
