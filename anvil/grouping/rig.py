@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from six import iteritems, itervalues
 import inspect
-import base_grouping
+import base
 import anvil
 import anvil.config as cfg
 import anvil.objects as ot
@@ -10,7 +10,7 @@ from sub_rig import SubRig
 from anvil.meta_data import MetaData
 
 
-class Rig(base_grouping.AbstractGrouping):
+class Rig(base.AbstractGrouping):
     """Comprises a full finished character rig with all functionality.
 
     A fully functional and self-contained rig with all requirements implemented that require it to give a performance.
@@ -18,7 +18,7 @@ class Rig(base_grouping.AbstractGrouping):
     """
 
     LOG = anvil.log.obtain_logger(__name__)
-    BUILT_IN_NAME_TOKENS = MetaData(base_grouping.AbstractGrouping.BUILT_IN_NAME_TOKENS)
+    BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     SUB_RIG_BUILD_ORDER = []
     SUB_RIG_BUILD_TABLE = OrderedDict()
     ORDERED_SUB_RIG_KEYS = []

@@ -31,7 +31,7 @@
   <a href="https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AndresMWeber/Anvil&amp;utm_campaign=Badge_Grade">
     <img src="https://api.codacy.com/project/badge/Grade/ef864a0c79984322b7809d64e3f036c8"
       alt="Codacy Rating" />
-  </a>  
+  </a>
   <!-- Codacy Badge -->
   <a href="https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&utm_medium=referral&utm_content=AndresMWeber/Anvil&utm_campaign=Badge_Coverage">
     <img src="https://api.codacy.com/project/badge/Coverage/ef864a0c79984322b7809d64e3f036c8"

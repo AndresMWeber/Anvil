@@ -27,7 +27,7 @@ class TestHandBase(TestBase):
         return rig_instance
 
 
-class TestBuildHand(TestHandBase):
+class TestHandRename(TestHandBase):
     def setUp(self):
         if self.hand is None:
             self.__class__.hand = self.from_template_file(self.HAND_MERC,
@@ -62,7 +62,7 @@ class TestBuildHand(TestHandBase):
     def test_node_names(self):
         top_groups = ['IKHANDLE']
         self.assertIn(['%s_%s' % (name, ending) for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
-                      list(map(self.hand.hierarchy.node.to_value_list())))
+                      list(map(str, self.hand.hierarchy.node.to_value_list())))
 
 
 class TestBuildDefaultHand(TestHandBase):

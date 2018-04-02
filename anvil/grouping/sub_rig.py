@@ -1,12 +1,12 @@
-import base_grouping
+import base
 import anvil.log as lg
 import anvil.config as cfg
 from anvil.objects.transform import Transform
 from anvil.meta_data import MetaData
 
 
-class SubRig(base_grouping.AbstractGrouping):
-    BUILT_IN_NAME_TOKENS = MetaData(base_grouping.AbstractGrouping.BUILT_IN_NAME_TOKENS)
+class SubRig(base.AbstractGrouping):
+    BUILT_IN_NAME_TOKENS = MetaData(base.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     ROOT_NAME_TOKENS = {cfg.RIG_TYPE: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.GROUP_TYPE}
     LOG = lg.obtain_logger(__name__)
     SUB_GROUPS = ['surfaces', 'joints', 'controls', 'nodes', 'world']

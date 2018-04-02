@@ -7,7 +7,7 @@ import anvil.runtime as rt
 import anvil.config as cfg
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
-from cluster import BaseCollection
+from chunk import BaseCollection
 from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map
 
 
@@ -88,7 +88,6 @@ def generate_build_report(f):
 
 
 class AbstractGrouping(log.LogMixin):
-
     """A group of nodes with all requirements implemented that are required to give a performance."""
 
     LOG = log.obtain_logger(__name__)
@@ -225,9 +224,8 @@ class AbstractGrouping(log.LogMixin):
     def _update_hierarchy(self, hierarchy_id, candidate):
         """Merges candidate input with the entry under the given hierarchy_id.
 
-        :param hierarchy_id:
-        :param candidate:
-        :return:
+        :param hierarchy_id: str, key value for the hierarchy ID.
+        :param candidate: anvil.object.UnicodeDelegate, should be an Anvil type.
         """
         if isinstance(candidate, tuple):
             candidate = Map([(candidate[0], candidate[1])])
@@ -255,20 +253,26 @@ class AbstractGrouping(log.LogMixin):
         return self.hierarchy.flatten()
 
     def _cascade_across_hierarchy(self, object_function, grouping_function):
+        print('Running a function across the hierarchy:')
+        from pprint import pprint
+        pprint(self.hierarchy)
         for anvil_node in itervalues(self.hierarchy.to_flat_dict()):
             print('running on node %r' % anvil_node)
-            for node in [anvil_node] if anvil.is_aset(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(
+            for node in [anvil_node] if anvil.is_achunk(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(
                     anvil_node):
                 try:
                     print('\tnode %s->%s && %s' % (node, node.name_tokens, node.meta_data))
                 except AttributeError:
-                    print(node)
+                    print('node did not have name tokens...', node)
 
-                if anvil.is_agrouping(node) or anvil.is_aset(anvil_node):
+                if anvil.is_agrouping(node) or anvil.is_achunk(anvil_node):
                     grouping_function(node)
                 elif anvil.is_aobject(node):
                     object_function(node)
-                print('\t\tnow it is: %s' % node)
+                try:
+                    print('\t\tnow it is: %s' % node)
+                except:
+                    print('for some stupid reason could not format:', type(node))
 
     def __getattr__(self, item):
         """Returns a hierarchy object if accessing the hierarchy, otherwise default methodology."""

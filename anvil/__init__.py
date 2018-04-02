@@ -19,7 +19,7 @@ class AnvilLog(log.LogMixin):
     LOG = log.obtain_logger(__name__)
 
 
-LOG = AnvilLog
+LOG = AnvilLog()
 LOG.info('Auto-Loaded DCC %s', runtime.dcc)
 LOG.info('Loaded logger config file %s successfully, writing to: %s',
          log.LogInitializer.CFG_FILE, log.LogInitializer.LOG_DIR)
@@ -30,6 +30,7 @@ EXISTING_ENCAPSULATIONS = {}
 
 
 def check_for_encapsulation(dag_path):
+    """Helper for the factory method to check for a previously existing encapsulation."""
     for node_encapsulation in itervalues(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
             LOG.debug('Found previous encapsulation for %s: %r. Using instead.', dag_path, node_encapsulation)
@@ -38,6 +39,7 @@ def check_for_encapsulation(dag_path):
 
 
 def factory(dag_path, **kwargs):
+    """Factory method that checks for previous encapsulations to reduce memory footprint and encourages reuse."""
     if dag_path is None:
         raise IOError('Tried to factory encapsulate None.')
     if is_anvil(dag_path):
@@ -62,29 +64,21 @@ def factory(dag_path, **kwargs):
         encapsulation_class = objects.Transform
 
     encapsulation = encapsulation_class(dag_path, **kwargs)
-    LOG.debug('Encapsulating %s with node type %s as %s', dag_path, encapsulation_class, encapsulation)
     register_encapsulation(encapsulation)
     return encapsulation
 
 
 def factory_list(dag_nodes):
+    """Factory method that iterates over a list and returns a list."""
     return [factory(node) for node in dag_nodes]
 
 
 def register_encapsulation(anvil_class_instance):
+    """Helper to regsiter a given encapsulation with the encapsulation registry."""
     EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = anvil_class_instance
 
 
-def is_anvil(node):
-    try:
-        if isinstance(node, node_types.REGISTERED_NODES.get(type(node).__name__)):
-            return True
-    except TypeError:
-        pass
-    return False
-
-
-def is_aset(node):
+def is_achunk(node):
     issubclass(type(node), node_types.BaseCollection)
 
 
@@ -94,6 +88,15 @@ def is_agrouping(node):
 
 def is_aobject(node):
     return issubclass(type(node), node_types.UnicodeDelegate)
+
+
+def is_aiter(node):
+    """Determines whether a node is a set or a grouping."""
+    return is_agrouping(node) or is_achunk(node)
+
+
+def is_anvil(node):
+    return is_aiter(node) or is_achunk(node) or is_agrouping(node)
 
 
 __all__ = ['config',
