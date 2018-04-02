@@ -62,13 +62,13 @@ Features
 -  Dict output
 -  Automated Custom Docker Image Builds
 -  Test suite automation using CircleCI
--  Automated testing in Maya versions 2015, 2016, 2017
+-  Automated testing in Maya versions 2015, 2016, 2017, 2018
 
 Prerequisites
 =============
 To run Anvil locally you must have these installed:
 
-- Maya (2015-2017)
+- Maya (2015-2017=8)
 - Python2.7 (or sudo access to pip install via mayapy)
 
 
@@ -126,6 +126,11 @@ Acknowledgments
     <img src="https://images.microbadger.com/badges/version/daemonecles/anvil.svg"
       alt="LatestTag" />
   </a>
+    <!-- Maya2018 Tag -->
+  <a href="https://hub.docker.com/r/daemonecles/anvil/">
+    <img src="https://images.microbadger.com/badges/version/daemonecles/anvil:maya2018.svg"
+      alt="Maya2018Tag" />
+  </a>
   <!-- Maya2017 Tag -->
   <a href="https://hub.docker.com/r/daemonecles/anvil/">
     <img src="https://images.microbadger.com/badges/version/daemonecles/anvil:maya2017.svg"
@@ -145,7 +150,7 @@ Acknowledgments
 
 ### Supported tags
 
-- `maya2015`, `maya2016`, `maya2017`
+- `maya2015`, `maya2016`, `maya2017`, `maya2018`
 
 Each tag represents a particular version of Maya, such as maya2016. In this image, `python` is an alias to `maya/bin/mayapy` which has the following Python packages installed via `pip`.
 For more information about this image and its history, please see its the [GitHub repository][1]
@@ -163,7 +168,7 @@ $ docker run -ti --rm daemonecles/anvil
 Without a "tag", this would download the latest available image of Maya. You can explicitly specify a version with a tag.
 
 ```bash
-$ docker run -ti --rm daemonecles/anvil:2017
+$ docker run -ti --rm daemonecles/anvil:2018
 ```
 
 Images occupy around **5 gb** of virtual disk space once installed, and about **1.5 gb** of bandwidth to download.
@@ -205,7 +210,7 @@ Additional installations include.
 [2]: (https://registry.hub.docker.com/u/daemonecles/anvil/)
 
 ## Environment variables
-* `$MAYA_VERSION=####`: for getting the installed maya version quickly in the format #### - e.g. - 2017.
+* `$MAYA_VERSION=####`: for getting the installed maya version quickly in the format #### - e.g. - 2018.
 * `$PYTHON_PATH=$HOME/nvenv/lib/python2.7/site-packages`: Placeholder for your test runner virtualenv named "nvenv" so maya can access the installed packages.
 * `$TEST_PATH=$HOME/test-results`: A default directory where the user can place test resulting xml files etc.
 
