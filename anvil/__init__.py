@@ -1,3 +1,4 @@
+"""Anvil is a tool for automating the rigging process in a given DCC."""
 from six import itervalues
 import config
 import utils
@@ -5,7 +6,7 @@ import colors
 import meta_data
 import log
 import version
-import plugins
+import interfaces
 import runtime
 import objects
 import grouping

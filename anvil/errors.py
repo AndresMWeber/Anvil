@@ -5,4 +5,3 @@ class AnvilError(Exception):
 
 class APIError(AnvilError):
     pass
-

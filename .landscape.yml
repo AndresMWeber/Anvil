@@ -3,8 +3,8 @@ test-warnings: false
 ignore-paths:
   - docs
   - tests
-  - anvil/plugins/maya
-  - anvil/plugins/standalone
+  - anvil/interfaces/maya
+  - anvil/interfaces/standalone
 python-targets:
   - 2
 pep8:

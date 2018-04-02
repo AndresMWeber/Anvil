@@ -38,7 +38,7 @@ def get_current_dcc(return_module=True):
 def get_dcc(dcc_name_query, return_module=False):
     mod = None
     try:
-        mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=dcc_name_query))
+        mod = import_module("anvil.interfaces.{PLUGIN}".format(PLUGIN=dcc_name_query))
     except ImportError:
         pass
 

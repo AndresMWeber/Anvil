@@ -221,11 +221,8 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         return self._api_class_instance.elementByLogicalIndex[item]
 
     def __getattr__(self, item):
-        """
-        if item in rt.dcc.connections.list_attr(self):
-            return self.__getattribute__('__class__')('%s.%s' % (self, item))
-        else:
-            return super(Attribute, self).__getattr__(item)
+        """ Uses default Object getattribute if found, otherwise uses the dcc version.
+
         """
         return super(Attribute, self).__getattr__(item)
 

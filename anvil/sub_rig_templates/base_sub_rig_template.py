@@ -17,9 +17,10 @@ class SubRigTemplate(nt.SubRig):
     def build_pole_vector_control(self, joints, ik_handle, parent=None, up_vector=None, aim_vector=None,
                                   up_object=None, move_by=None, meta_data=None, name_tokens=None, **kwargs):
         """ Builds a pole vector control based on positions of joints and existing ik handle.
-            Runs as follows:
-                - Point constraint to the two base positions, aim constrain to the other objects
-                - Delete constraints then move the control outside of the reference transforms in the aim direction.
+
+        Runs as follows:
+            - Point constraint to the two base positions, aim constrain to the other objects
+            - Delete constraints then move the control outside of the reference transforms in the aim direction.
 
         :param parent: list or object: list of up to length 3, [control parent, clusters parent, pv line parent]
         :param joints: LinearHierarchyNodeSet(Joint), linear hierarchy set of joints.
@@ -55,7 +56,7 @@ class SubRigTemplate(nt.SubRig):
     @generate_build_report
     @extend_parent_kwarg(1)
     def build_ik(self, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
-        """
+        """ Builds an IK handle on a joint chain
 
         :param parent: list or object: list of up to length 1, [handle parent]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
@@ -77,7 +78,7 @@ class SubRigTemplate(nt.SubRig):
     @generate_build_report
     def build_blend_chain(self, layout_joints=None, source_chains=None, blend_attr=None, parent=None, duplicate=True,
                           **kwargs):
-        """
+        """ Blends an FK/IK control chain
 
         :param layout_joints: list, list of joints to use as the main joints in the set.
         :param source_chains: list, list of chains to use as the source input rotation chains
@@ -105,7 +106,7 @@ class SubRigTemplate(nt.SubRig):
     @extend_parent_kwarg(5)
     def build_ik_chain(self, layout_joints=None, ik_end_index=-1, solver=cfg.IK_RP_SOLVER, parent=None, duplicate=True,
                        **kwargs):
-        """
+        """ Builds an IK control chain
 
         :param parent: list or object: list of up to length 5:
                        [ik chain parent, handle
@@ -150,7 +151,7 @@ class SubRigTemplate(nt.SubRig):
     @extend_parent_kwarg(2)
     def build_fk_chain(self, layout_joints=None, chain_end=None, shape=None, duplicate=True, parent=None,
                        name_tokens=None, meta_data=None, **kwargs):
-        """
+        """ Builds an FK control chain
 
         :param parent: list or object: list of up to length 2, [fk chain parent, control chain parent]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))

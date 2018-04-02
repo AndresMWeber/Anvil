@@ -11,8 +11,11 @@ from anvil.meta_data import MetaData
 
 
 class Rig(base_grouping.AbstractGrouping):
-    """ A fully functional and self-contained rig with all requirements implemented that
-        require it to give a performance.  A collection of SubRig(s)
+    """ Comprises a full finished character rig with all functionality.
+
+    A fully functional and self-contained rig with all requirements implemented that require it to give a performance.
+    A collection of SubRig(s)
+
     """
     LOG = anvil.log.obtain_logger(__name__)
     BUILT_IN_NAME_TOKENS = MetaData(base_grouping.AbstractGrouping.BUILT_IN_NAME_TOKENS)
@@ -36,9 +39,10 @@ class Rig(base_grouping.AbstractGrouping):
             sub_rig_instance.rename()  # *input_dicts, **name_tokens)
 
     def register_sub_rigs_from_dict(self, sub_rig_dict):
-        """ Only accepts dictionary with keys that match the built in SUB_RIG_BUILD_TABLE for the given Rig.
-            Rig will initialize sub-rigs from the key, value and look up the proper sub-rig class from the build table.
-            This is meant to rebuild a rig from a deserialized rig.
+        """ Registers a SubRig to the Rig if it can be found in SUB_RIG_BUILD_TABLE
+
+        Rig will initialize sub-rigs from the key, value and look up the proper sub-rig class from the build table.
+        This is meant to rebuild a rig from a deserialized rig.
 
         :param sub_rig_dict: dict, key must be in SUB_RIG_BUILD_TABLE and value must be dict or list of joints.
         """

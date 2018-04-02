@@ -1,6 +1,6 @@
-from anvil.plugins.maya.dependencies import *
+from anvil.interfaces.maya.dependencies import *
 import anvil.config as cfg
-import anvil.plugins.base.api_proxy as api_proxy
+import anvil.interfaces.api_proxy as api_proxy
 
 
 @api_proxy.APIProxy.validate({"type": ["object", "null"],

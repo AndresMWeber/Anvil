@@ -27,4 +27,3 @@ class Diptera(nt.Rig):
 
     def rename(self, input_dicts, **name_tokens):
         super(Diptera, self).rename(input_dicts, **name_tokens)
-

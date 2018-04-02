@@ -22,4 +22,3 @@ class Fish(nt.Rig):
 
     def rename(self, input_dicts, **name_tokens):
         super(Fish, self).rename(input_dicts, **name_tokens)
-

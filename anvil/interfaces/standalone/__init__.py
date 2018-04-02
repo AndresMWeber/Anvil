@@ -1,3 +1,4 @@
+"""Interface to use Anvil in standalone mode."""
 import dependencies
 import create
 import scene

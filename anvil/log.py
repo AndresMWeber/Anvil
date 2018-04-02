@@ -8,11 +8,10 @@ import config as cfg
 
 
 def obtain_logger(name):
-    """Get's a logger and attaches the correct DCC compatible Handler.
-    Args:
-        name (str): Name of the logger to get / create.
-    Returns:
-        Logger: Logger.
+    """ Get's a logger and attaches the correct DCC compatible Handler.
+
+    :param name: str, Name of the logger to get / create.
+    :return: Logger
     """
     return structlog.get_logger(name)
 

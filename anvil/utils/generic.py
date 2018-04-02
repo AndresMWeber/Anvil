@@ -34,8 +34,10 @@ def to_camel_case(input_string):
 
 def gen_flatten_dict_depth_two(d):
     """ Taken from:
-        https://stackoverflow.com/questions/3835192/flatten-a-dictionary-of-dictionaries-2-levels-deep-of-lists-in-python
-        Given the d_inner, return an iterator that provides all the nodes from within.
+
+    https://stackoverflow.com/questions/3835192/flatten-a-dictionary-of-dictionaries-2-levels-deep-of-lists-in-python
+    Given the d_inner, return an iterator that provides all the nodes from within.
+
     """
     for d_inner in itervalues(d):
         if isinstance(d_inner, dict):
@@ -78,9 +80,10 @@ def dict_to_keys_list(d, keys=None):
 
 
 def dict_deep_sort(cls, obj):
-    """
-    https://stackoverflow.com/questions/18464095/how-to-achieve-assertdictequal-with-assertsequenceequal-applied-to-values
-    Recursively sort list or dict nested lists
+    """ Recursively sort list or dict nested lists
+
+    Taken from: http://goo.gl/tQfDP6
+
     """
     if isinstance(obj, dict):
         _sorted = OrderedDict()
@@ -134,6 +137,7 @@ def merge_dicts(*args, **kwargs):
 
 def dict_compare(d1, d2):
     """ Taken from: https://stackoverflow.com/questions/4527942/comparing-two-dictionaries-in-python
+
     """
     d1_keys = set(list(d1))
     d2_keys = set(list(d2))
@@ -173,10 +177,12 @@ merge_value_LUT = {
 
 
 class Map(dict):
-    """ Taken from:
-        https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
+    """ A dot notation accessible dictionary class extension.
+
+    Taken from: https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
     Example:
-    m = Map({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
+        m = Map({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
+
     """
 
     def __init__(self, *args, **kwargs):

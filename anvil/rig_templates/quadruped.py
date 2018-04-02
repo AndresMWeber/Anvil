@@ -27,4 +27,3 @@ class Quadruped(nt.Rig):
 
     def rename(self, input_dicts, **name_tokens):
         super(Quadruped, self).rename(input_dicts, **name_tokens)
-

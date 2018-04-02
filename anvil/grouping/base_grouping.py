@@ -12,23 +12,25 @@ from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map
 
 
 def register_built_nodes(f):
-    """ This function automatically digests a dictionary formatted build report of all nodes created and returned
-        during function 'f'.  They will be added to the existing dict object self.hierarchy which is a dot notation
-        searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
-        to bunch objects.
+    """ Decorator to automatically register nodes formatted for induction by generate_build_report
 
-        Depends on all build node functions being comprised of a dictionary with str keys with the structure:
+    This function automatically digests a dictionary formatted build report of all nodes created and returned
+    during function 'f'.  They will be added to the existing dict object self.hierarchy which is a dot notation
+    searchable dictionary subclass.  Any additional dictionary objects that are nested will be converted
+    to bunch objects.
 
-        {'controls': ..., 'joints': ..., 'nodes': ...}
+    Depends on all build node functions being comprised of a dictionary with str keys with the structure:
 
-        Operations based on input/existing types:
-            (existing entry, new entry)
-            - list, list: it will extend the list with the new list
-            - list, object: adds the object to the list
-            - dict, dict: it will update the existing dict with new dict
-            - object, object: converts the entry to a list
+    {'controls': ..., 'joints': ..., 'nodes': ...}
 
-        If there is no existing entry then we will just assign it.
+    Operations based on input/existing types:
+        (existing entry, new entry)
+        - list, list: it will extend the list with the new list
+        - list, object: adds the object to the list
+        - dict, dict: it will update the existing dict with new dict
+        - object, object: converts the entry to a list
+
+    If there is no existing entry then we will just assign it.
 
     """
 
@@ -49,21 +51,20 @@ def generate_build_report(f):
     def wrapper(abstract_grouping, *args, **kwargs):
         """ Creates a dictionary of created nodes that will be digested later by the node registration function.
 
+        A build report looks like this:
+            {'control': {'default': [anvil_controls_or_set_of_controls, ...]},
+             'node': {'default': [anvil_nodes_or_set_of_nodes, ...],
+                      'user custom hierarchy id': node}},
+             'set': {'default': None},
+             'joint': {'default': None},
+
+        A top level key will not be present if the report nodes from the wrapped function are not of that type.
+        The top level key possibilities are: ['control', 'joint', 'node', 'set']
+
         :param args: object, node to sort into the hierarchy, SHOULD be an Anvil node.
         :param kwargs: dict, use kwargs if you want to override the types.
                              By default accepts any key from abstract_grouping.BUILD_REPORT_KEYS
         :return:
-
-        A build report looks like this:
-
-        {'control': {'default': [anvil_controls_or_set_of_controls, ...]},
-         'node': {'default': [anvil_nodes_or_set_of_nodes, ...],
-                  'user custom hierarchy id': node}},
-         'set': {'default': None},
-         'joint': {'default': None},
-
-        A top level key will not be present if the report nodes from the wrapped function are not of that type.
-        The top level key possibilities are: ['control', 'joint', 'node', 'set']
         """
         skip_report = kwargs.pop('skip_report', False)
         custom_hierarchy_ids = kwargs.pop(cfg.ID_TYPE, None)
@@ -89,10 +90,7 @@ def generate_build_report(f):
 
 
 class AbstractGrouping(log.LogMixin):
-    """ A fully functional and self-contained rig with all requirements implemented that
-        are required to give a performance.
-
-    """
+    """ A group of nodes with all requirements implemented that are required to give a performance. """
     LOG = log.obtain_logger(__name__)
     ANVIL_TYPE = cfg.RIG_TYPE
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.GROUP_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
@@ -208,8 +206,10 @@ class AbstractGrouping(log.LogMixin):
                                        lambda n: n.auto_color() if hasattr(n, 'auto_color') else None)
 
     def find_node(self, node_key, category_override=None):
-        """ This will only work with user specified hierarchy IDs.
-            Otherwise it will not detect the node key from the default node list.
+        """ Finds a node within a hierarchy.
+
+        This will only work with user specified hierarchy IDs. Otherwise it will not detect the node key from the
+        default node list.
 
         :param node_key: str, node key we are looking for within the hierarchy initial sets
         :param category_override: str, if there are double keys we can add granularity and specify the initial key.
@@ -223,7 +223,7 @@ class AbstractGrouping(log.LogMixin):
                 '.'.join([category_override, node_key]) if category_override else node_key))
 
     def _update_hierarchy(self, hierarchy_id, candidate):
-        """
+        """ Merges candidate input with the entry under the given hierarchy_id.
 
         :param hierarchy_id:
         :param candidate:
@@ -284,4 +284,7 @@ class AbstractGrouping(log.LogMixin):
         return super(AbstractGrouping, self).__repr__().replace('>', formatted_properties)
 
     def __dir__(self):
+        """ Adds hierarchy of nodes to the dir printout.
+
+        """
         return dir(super(AbstractGrouping, self)) + list(self.hierarchy)

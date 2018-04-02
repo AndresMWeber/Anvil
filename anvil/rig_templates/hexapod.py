@@ -27,4 +27,3 @@ class Hexapod(nt.Rig):
 
     def rename(self, input_dicts, **name_tokens):
         super(Hexapod, self).rename(input_dicts, **name_tokens)
-

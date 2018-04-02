@@ -27,4 +27,3 @@ class Octopod(nt.Rig):
 
     def rename(self, input_dicts, **name_tokens):
         super(Octopod, self).rename(input_dicts, **name_tokens)
-

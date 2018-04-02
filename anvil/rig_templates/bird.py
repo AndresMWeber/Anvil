@@ -30,4 +30,3 @@ class Bird(nt.Rig):
 
     def rename(self, input_dicts, **name_tokens):
         super(Bird, self).rename(input_dicts, **name_tokens)
-

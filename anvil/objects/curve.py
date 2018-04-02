@@ -113,7 +113,8 @@ class Curve(Transform):
 
     @staticmethod
     def _ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwargs):
-        """ Stolen from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
+        """ Taken from https://stackoverflow.com/a/21912744.  Great way of dumping as OrderedDict.
+
         """
 
         class OrderedDumper(dumper):
@@ -126,9 +127,9 @@ class Curve(Transform):
         return yaml.dump(data, stream, OrderedDumper, **kwargs)
 
     def _add_curve_shape_to_shape_file(self, shape_file=None):
-        """ Adds the currently encapsulated Curve node's shape data to the shape curve_shapes file based
-            on the name of the dag node in the DCC.
+        """ Adds the currently encapsulated Curve node's shape data
 
+        Adds to the shape curve_shapes file based on the name of the dag node in the DCC.
         """
         if shape_file is None:
             shape_file = cfg.SHAPES_FILE

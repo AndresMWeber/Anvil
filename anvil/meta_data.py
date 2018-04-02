@@ -14,8 +14,8 @@ class MetaData(log.LogMixin):
     def __init__(self, *args, **kwargs):
         """ By default 'type' is always a protected field.
 
-        :param protected: (list or str), a string list of fields that are protected.  If you want to
-                                         set them after protecting you need use the keyword "force".
+        :param protected: (list or str), a string list of fields that are protected.
+                            If you want to set them after protecting you need use the keyword "force".
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
         """
@@ -31,8 +31,10 @@ class MetaData(log.LogMixin):
         return self.data.copy()
 
     def merge(self, *args, **kwargs):
-        """ Merge the incoming dictionaries into the current MetaData instance.  If the user passes a list of
-            ignore_keys then these keys will be ignored...however the user can permanently set them as protected.
+        """ Merge the incoming dictionaries into the current MetaData instance.
+
+        If the user passes a list of ignore_keys then these keys will be ignored...however the user can permanently set
+        them as protected.
 
         :param force: (bool), whether or not to use both ignore_keys and the protected keys.
         :param new: (bool), merge will return a new MetaData from the merge and leave the current one unchanged.
@@ -64,7 +66,9 @@ class MetaData(log.LogMixin):
 
     def update(self, *args, **kwargs):
         """ For ease of use to act like a dictionary.
-            Instead of the frustrating NON return of dicts, returns self while merge returns the self.data dictionary
+
+        Instead of the frustrating NON return of dicts, returns self while merge returns the self.data dictionary
+
         :param args: (dict), tuple of input dictionaries
         :param kwargs: dict, input kwargs to merge
         :return: (MetaData), updated instance

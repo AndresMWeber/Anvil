@@ -1,3 +1,4 @@
+"""The suite of implemented SubRig components for a successful Rig."""
 from biped_arm import BipedArm
 from biped_foot import BipedFoot
 from quadruped_arm import QuadrupedArm
