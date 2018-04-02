@@ -212,7 +212,7 @@ class Map(dict):
         return result
 
     def _merge_value(self, path, v):
-        """ Stably merge values without overwriting or messing up Map object.
+        """Stably merge values without overwriting or messing up Map object.
 
         This is used since we have a slightly customized way of adding entries and do not want the base Map object
         to start getting stale data.  If a path does not exist, we will add a default Map object in that place

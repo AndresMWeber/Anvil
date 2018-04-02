@@ -111,6 +111,7 @@ class APIProxy(object):
         return wrapper
 
     def __getattribute__(self, item):
+        """Attempts to get a callable method from the instance, otherwise returns the """
         result = super(APIProxy, self).__getattribute__(item)
         if callable(result):
             return APIProxy._convert_anvil_nodes_to_string(result)

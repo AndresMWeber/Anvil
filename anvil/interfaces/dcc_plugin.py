@@ -25,6 +25,7 @@ class DCCPlugin(object):
                                            influenceAssociation='closestJoint')
 
     def __str__(self):
+        """Adds the engine and engine api to the default repr."""
         return '%s(%s, API=%s)' % (self.__class__.__name__, self.ENGINE, self.ENGINE_API)
 
 

@@ -21,7 +21,6 @@ APIs = {'pymel': pm,
 DEFAULT_API = pm
 
 
-
 @atexit.register
 def exit_maya():
     import sys

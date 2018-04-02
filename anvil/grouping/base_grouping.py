@@ -12,7 +12,7 @@ from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map
 
 
 def register_built_nodes(f):
-    """Decorator to automatically register nodes formatted for induction by generate_build_report
+    """Decorator to automatically register nodes formatted for induction by generate_build_report.
 
     This function automatically digests a dictionary formatted build report of all nodes created and returned
     during function 'f'.  They will be added to the existing dict object self.hierarchy which is a dot notation
@@ -20,7 +20,6 @@ def register_built_nodes(f):
     to bunch objects.
 
     Depends on all build node functions being comprised of a dictionary with str keys with the structure:
-
     {'controls': ..., 'joints': ..., 'nodes': ...}
 
     Operations based on input/existing types:
@@ -89,6 +88,7 @@ def generate_build_report(f):
 
 
 class AbstractGrouping(log.LogMixin):
+
     """A group of nodes with all requirements implemented that are required to give a performance."""
 
     LOG = log.obtain_logger(__name__)

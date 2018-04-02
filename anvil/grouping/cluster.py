@@ -197,7 +197,7 @@ class NodeChain(BaseCollection):
             self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)
 
     def duplicate_chain(self, top_node, end_node=None):
-        """ Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain """
+        """Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain."""
         duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
         if isinstance(top_node, self.__class__):
             nodes = list(top_node)
@@ -229,7 +229,7 @@ class NodeChain(BaseCollection):
         return anvil.factory(top_node), end_node
 
     def _process_end_node(self, end_node_candidate, node_filter=None):
-        """ Returns the last item found of type """
+        """Returns the last item found of type."""
         try:
             return anvil.factory(end_node_candidate)
         except (RuntimeError, IOError):
@@ -273,10 +273,13 @@ class NodeChain(BaseCollection):
         return list(reversed(rt.dcc.scene.list_relatives(start, allDescendents=True, children=True, **kwargs)))
 
     def __getitem__(self, key):
+        """Allows for slice notation to get slices of children from the hierarchy."""
         return list(self)[key] if isinstance(key, (int, slice)) else gc.get_dict_key_matches(key, self.get_hierarchy())
 
     def __add__(self, other):
+        """Converts the other to a list just in case and creates a new NodeSet from the instance and the other."""
         return NodeSet(list(self) + gc.to_list(other))
 
     def __repr__(self):
+        """Adds the top node and last node of the hierarchy to the default repr."""
         return super(NodeChain, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))

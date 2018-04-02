@@ -108,6 +108,7 @@ class Rig(base_grouping.AbstractGrouping):
         self.auto_color()
 
     def __getattr__(self, item):
+        """Attempts to return a SubRig if it exists, otherwise default methodology."""
         try:
             return super(Rig, self).__getattribute__('sub_rigs')[item]
         except KeyError:
