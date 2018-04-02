@@ -59,7 +59,7 @@ jobs:
       - store_artifacts:
           *store-artifacts
 
-  maya2016:
+  maya2017:
     docker:
       - image: daemonecles/anvil:maya2017
     <<: *defaults
