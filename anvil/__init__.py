@@ -19,7 +19,7 @@ class AnvilLog(log.LogMixin):
     LOG = log.obtain_logger(__name__)
 
 
-LOG = AnvilLog()
+LOG = AnvilLog
 LOG.info('Auto-Loaded DCC %s', runtime.dcc)
 LOG.info('Loaded logger config file %s successfully, writing to: %s',
          log.LogInitializer.CFG_FILE, log.LogInitializer.LOG_DIR)
@@ -96,7 +96,7 @@ def is_aiter(node):
 
 
 def is_anvil(node):
-    return is_aiter(node) or is_achunk(node) or is_agrouping(node)
+    return is_aiter(node) or is_aobject(node)
 
 
 __all__ = ['config',
