@@ -40,7 +40,7 @@ default-run: &default-run
 jobs:
   build:
     docker:
-      - image: daemonecles/anvil:maya2017
+      - image: daemonecles/anvil:maya2018
     <<: *defaults
     steps:
       - checkout
@@ -61,6 +61,12 @@ jobs:
 
   maya2016:
     docker:
+      - image: daemonecles/anvil:maya2017
+    <<: *defaults
+    <<: *default-run
+
+  maya2016:
+    docker:
       - image: daemonecles/anvil:maya2016
     <<: *defaults
     <<: *default-run
@@ -77,6 +83,9 @@ workflows:
   test_maya_versions:
     jobs:
       - build
+      - maya2017:
+          requires:
+              - build
       - maya2016:
           requires:
               - build
