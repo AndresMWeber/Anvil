@@ -228,23 +228,29 @@ class Map(dict):
         current_map[path[-1]] = merge_value_LUT.get(type(current_v), merge_value_LUT['replace'])(current_v, v)
 
     def __getattr__(self, attr):
+        """Passthrough function for dictionary.get"""
         return self.get(attr)
 
     def __setattr__(self, key, value):
+        """Passthrough function for dictionary item setter"""
         self.__setitem__(key, value)
 
     def __setitem__(self, key, value):
+        """Updates both setitem and instance dictionary key value"""
         super(Map, self).__setitem__(key, value)
         self.__dict__[key] = value
 
     def __delattr__(self, item):
+        """Passthrough for dictionary delete item."""
         self.__delitem__(item)
 
     def __delitem__(self, key):
+        """Deletes both the attribute and the instance dictionary"""
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
 
     def __eq__(self, other):
+        """Determines if the dictionary is equivalent to the other dictionary."""
         return dict_compare(self.__dict__, other)
 
 

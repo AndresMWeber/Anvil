@@ -18,7 +18,7 @@ class Hand(SubRigTemplate):
     })
 
     def __init__(self, has_fk=True, has_ik=True, has_thumb=True, **kwargs):
-        """ General class for a hand.
+        """General class for a hand.
 
         :param layout_joints: anvil.node_types.Hierarchy, hierarchy chain of joints to use.
         :param has_thumb: bool or int, if this is true will use the first digit as a thumb, if int uses that index

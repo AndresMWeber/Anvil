@@ -1,5 +1,5 @@
+from anvil.interfaces.maya.dependencies import DEFAULT_API
 import anvil.interfaces.api_proxy as api_proxy
-from anvil.interfaces.maya.dependencies import *
 import anvil.config as cfg
 
 

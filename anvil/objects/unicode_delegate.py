@@ -74,6 +74,7 @@ class UnicodeDelegate(log.LogMixin):
         return rt.dcc.connections.list_history(self, **kwargs)
 
     def __getattr__(self, item):
+        """Attempts to get the attribute from the api class instance, otherwise gets the python object attribute"""
         try:
             return super(UnicodeDelegate, self).__getattribute__(item)
         except AttributeError:
@@ -84,10 +85,13 @@ class UnicodeDelegate(log.LogMixin):
                 return getattr(_api_class_instance, gc.to_camel_case(item))
 
     def __eq__(self, other):
+        """Determines if the nodes string values are equivalent."""
         return str(self) == str(other)
 
     def __repr__(self):
+        """Adds the node string representation to the repr."""
         return '<%s.%s @ 0x%x (%s)>' % (self.__class__.__module__, self.__class__.__name__, id(self), str(self))
 
     def __str__(self):
+        """Returns the DCC shorted DagPath."""
         return str(self.name())

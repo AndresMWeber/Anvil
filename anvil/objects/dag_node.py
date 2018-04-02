@@ -56,6 +56,7 @@ class DagNode(unicode_delegate.UnicodeDelegate):
         return rgb_or_index
 
     def __getattr__(self, item):
+        """Returns either the existing DCC attribute or the python attribute, in that order."""
         if item in rt.dcc.connections.list_attr(self):
             return at.Attribute('%s.%s' % (self, item))
         else:

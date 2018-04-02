@@ -1,4 +1,4 @@
-from anvil.interfaces.maya.dependencies import *
+from anvil.interfaces.maya.dependencies import DEFAULT_API
 import anvil.interfaces.api_proxy as api_proxy
 
 

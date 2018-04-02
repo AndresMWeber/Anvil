@@ -1,5 +1,6 @@
 import maya.api.OpenMaya as om
 import maya.cmds as mc
+import atexit
 
 # Initialize maya standalone if we are not in Maya
 try:
@@ -19,7 +20,6 @@ APIs = {'pymel': pm,
         'standalone': ms}
 DEFAULT_API = pm
 
-import atexit
 
 
 @atexit.register

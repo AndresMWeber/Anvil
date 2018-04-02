@@ -15,8 +15,8 @@ class Rig(base_grouping.AbstractGrouping):
 
     A fully functional and self-contained rig with all requirements implemented that require it to give a performance.
     A collection of SubRig(s)
-
     """
+
     LOG = anvil.log.obtain_logger(__name__)
     BUILT_IN_NAME_TOKENS = MetaData(base_grouping.AbstractGrouping.BUILT_IN_NAME_TOKENS)
     SUB_RIG_BUILD_ORDER = []

@@ -125,7 +125,7 @@ class Curve(Transform):
         return yaml.dump(data, stream, OrderedDumper, **kwargs)
 
     def _add_curve_shape_to_shape_file(self, shape_file=None):
-        """ Adds the currently encapsulated Curve node's shape data
+        """Adds the currently encapsulated Curve node's shape data
 
         Adds to the shape curve_shapes file based on the name of the dag node in the DCC.
         """

@@ -12,7 +12,7 @@ from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map
 
 
 def register_built_nodes(f):
-    """ Decorator to automatically register nodes formatted for induction by generate_build_report
+    """Decorator to automatically register nodes formatted for induction by generate_build_report
 
     This function automatically digests a dictionary formatted build report of all nodes created and returned
     during function 'f'.  They will be added to the existing dict object self.hierarchy which is a dot notation
@@ -31,7 +31,6 @@ def register_built_nodes(f):
         - object, object: converts the entry to a list
 
     If there is no existing entry then we will just assign it.
-
     """
 
     @wraps(f)
@@ -91,6 +90,7 @@ def generate_build_report(f):
 
 class AbstractGrouping(log.LogMixin):
     """A group of nodes with all requirements implemented that are required to give a performance."""
+
     LOG = log.obtain_logger(__name__)
     ANVIL_TYPE = cfg.RIG_TYPE
     BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.GROUP_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
@@ -259,7 +259,11 @@ class AbstractGrouping(log.LogMixin):
             print('running on node %r' % anvil_node)
             for node in [anvil_node] if anvil.is_aset(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(
                     anvil_node):
-                print('\tnode %s->%s && %s' % (node, node.name_tokens, node.meta_data))
+                try:
+                    print('\tnode %s->%s && %s' % (node, node.name_tokens, node.meta_data))
+                except AttributeError:
+                    print(node)
+
                 if anvil.is_agrouping(node) or anvil.is_aset(anvil_node):
                     grouping_function(node)
                 elif anvil.is_aobject(node):
@@ -274,7 +278,7 @@ class AbstractGrouping(log.LogMixin):
             return super(AbstractGrouping, self).__getattribute__(item)
 
     def __str__(self):
-        """Returns the name of the root if it is set, otherwise uses super.__str__()"""
+        """Returns the name of the root if it is set, otherwise uses super method"""
         try:
             return str(self.root)
         except (KeyError, AttributeError):
