@@ -20,7 +20,7 @@ class TestAbstractGroupingInit(TestBaseAbstractGrouping):
     def test_meta_data_nomenclate(self):
         test_meta_data = {'blah': 'fart'}
         rig = nt.AbstractGrouping(meta_data={'blah': 'fart'}, top_node=None, layout_joints=None, parent=None)
-        tokens = rig._nomenclate.token_dict.to_json()
+        tokens = rig.nomenclate.token_dict.to_json()
         self.assertEquals({k: tokens[k]['label'] for k in tokens if k == 'blah'}, test_meta_data)
 
     @clean_up_scene

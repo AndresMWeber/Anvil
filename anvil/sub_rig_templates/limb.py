@@ -7,9 +7,9 @@ class Limb(SubRigTemplate):
 
     def __init__(self, *args, **kwargs):
         super(Limb, self).__init__(*args, **kwargs)
-        self.blend_chain = []
-        self.fk_chain = []
-        self.ik_chain = []
+        self.blend_chain = None
+        self.fk_chain = None
+        self.ik_chain = None
 
     def build(self, parent=None, use_layout=True, build_ik=True, build_fk=True, meta_data=None, **kwargs):
         super(Limb, self).build(meta_data=meta_data, parent=parent, **kwargs)
@@ -46,10 +46,10 @@ class Limb(SubRigTemplate):
         super(Limb, self).rename(*input_dicts, **kwargs)
 
         joint_chain_meta_data = self.meta_data + {cfg.TYPE: cfg.JOINT_TYPE, cfg.PURPOSE: cfg.BLEND}
-        self.rename_chain(list(self.blend_chain), **joint_chain_meta_data)
+        self.joint.blend_chain.rename(**joint_chain_meta_data)
 
         joint_chain_meta_data[cfg.PURPOSE] = cfg.FK
-        self.rename_chain(list(self.fk_chain), **joint_chain_meta_data)
+        self.joint.fk_chain.rename(**joint_chain_meta_data)
 
         joint_chain_meta_data[cfg.PURPOSE] = cfg.IK
-        self.rename_chain(list(self.ik_chain), **joint_chain_meta_data)
+        self.joint.ik_chain.rename(**joint_chain_meta_data)

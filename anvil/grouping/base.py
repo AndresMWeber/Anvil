@@ -7,8 +7,25 @@ import anvil.runtime as rt
 import anvil.config as cfg
 import anvil.objects.attribute as at
 from anvil.meta_data import MetaData
-from chunk import BaseCollection
 from anvil.utils.generic import merge_dicts, to_size_list, to_list, Map
+
+
+class NomenclateMixin(object):
+    def __init__(self):
+        self.nomenclate = nomenclate.Nom(format_string=cfg.RIG_FORMAT)
+        self.nomenclate.var.case = cfg.UPPER
+
+        self.chain_nomenclate = nomenclate.Nom(format_string=cfg.RIG_FORMAT)
+        self.chain_nomenclate.var.case = cfg.UPPER
+
+    def rename_chain(self, nodes, use_end_naming=True, **kwargs):
+        self.chain_nomenclate.merge_dict(kwargs)
+        total_length = len(nodes)
+        for index, node in enumerate(nodes):
+            variation_kwargs = {'var': index}
+            if use_end_naming and index == total_length - 1:
+                variation_kwargs = {'decorator': 'End'}
+            node.rename(self.nomenclate.get(**variation_kwargs))
 
 
 def register_built_nodes(f):
@@ -72,7 +89,7 @@ def generate_build_report(f):
             return nodes_built
 
         report = {}
-        nodes_built = [nodes_built] if issubclass(type(nodes_built), BaseCollection) else to_list(nodes_built)
+        nodes_built = [nodes_built] if anvil.is_achunk(nodes_built) else to_list(nodes_built)
         for node, hierarchy_id in zip(nodes_built, to_size_list(custom_hierarchy_ids, len(nodes_built))):
             tag = getattr(node, cfg.ANVIL_TYPE, cfg.NODE_TYPE)
             if hierarchy_id:
@@ -87,7 +104,7 @@ def generate_build_report(f):
     return wrapper
 
 
-class AbstractGrouping(log.LogMixin):
+class AbstractGrouping(log.LogMixin, NomenclateMixin):
     """A group of nodes with all requirements implemented that are required to give a performance."""
 
     LOG = log.obtain_logger(__name__)
@@ -104,20 +121,13 @@ class AbstractGrouping(log.LogMixin):
     BUILD_REPORT_KEYS = [cfg.CONTROL_TYPE, cfg.JOINT_TYPE, cfg.NODE_TYPE]
 
     def __init__(self, layout_joints=None, parent=None, top_node=None, meta_data=None, **kwargs):
+        super(AbstractGrouping, self).__init__()
         self.hierarchy = Map()
         self.root = top_node
         self.layout_joints = layout_joints
-        self.build_joints = None
         self.build_kwargs = MetaData(kwargs)
+        self.build_joints = None
         self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
-
-        self._nomenclate = nomenclate.Nom(self.meta_data.data)
-        self.chain_nomenclate = nomenclate.Nom()
-
-        for namer in [self._nomenclate, self.chain_nomenclate]:
-            namer.format = cfg.RIG_FORMAT
-            namer.var.case = cfg.UPPER
-
         self.parent(parent)
 
     @property
@@ -170,20 +180,11 @@ class AbstractGrouping(log.LogMixin):
             self.warning('Parent(%s) -> %r does not exist.', new_parent, override_root or self.root)
             return False
 
-    def rename_chain(self, nodes, use_end_naming=False, **kwargs):
-        self.chain_nomenclate.merge_dict(self.meta_data.merge(kwargs))
-
-        for index, node in enumerate(nodes):
-            variation_kwargs = {'var': index}
-            if use_end_naming and index == len(nodes) - 1:
-                variation_kwargs = {'decorator': 'End'}
-            rt.dcc.scene.rename(node, self.chain_nomenclate.get(**variation_kwargs))
-
     def rename(self, *input_dicts, **kwargs):
         new_tokens = MetaData(*input_dicts, **kwargs)
         self.meta_data.merge(new_tokens)
-        self._nomenclate.merge_dict(**self.meta_data.data)
-        self._cascade_across_hierarchy(lambda n: n.rename(self._nomenclate.get(**n.meta_data.update(new_tokens))),
+        self.nomenclate.merge_dict(**self.meta_data.data)
+        self._cascade_across_hierarchy(lambda n: n.rename(self.nomenclate.get(**n.meta_data.update(new_tokens))),
                                        lambda n: n.rename(self.meta_data, n.meta_data))
 
     @register_built_nodes

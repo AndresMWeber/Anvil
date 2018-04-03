@@ -6,11 +6,13 @@ import anvil.runtime as rt
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
+from anvil.grouping.base import NomenclateMixin
 from anvil.meta_data import MetaData
 
 
-class BaseCollection(log.LogMixin):
+class BaseCollection(log.LogMixin, NomenclateMixin):
     def __init__(self, nodes=None, meta_data=None, **kwargs):
+        super(BaseCollection, self).__init__()
         self.meta_data = MetaData(meta_data or {}, **kwargs)
         self.nodes = nodes or []
 
@@ -24,6 +26,12 @@ class BaseCollection(log.LogMixin):
             return type(self[0]).ANVIL_TYPE
         except (AttributeError, ValueError, IndexError):
             return cfg.SET_TYPE
+
+    def rename(self, use_end_naming=False, *input_dicts, **kwargs):
+        """Renames the constituent nodes in the collection, however current implementation does not allow groupings"""
+        new_tokens = MetaData(*input_dicts, **kwargs)
+        self.meta_data.merge(new_tokens)
+        self.rename_chain(self, use_end_naming=use_end_naming, **self.meta_data.data)
 
     @property
     def set(self):
@@ -69,7 +77,8 @@ class BaseCollection(log.LogMixin):
     def __repr__(self):
         """Adds the number of children and the node type of the children to the default repr."""
         normal_repr = super(BaseCollection, self).__repr__()
-        return normal_repr.replace('>', '(children=%d, type=%s)>' % (len(self), self.child_type()))
+        return normal_repr.replace('>', '(children=%d, type=%s, meta_data=%s)>' % (
+            len(self), self.child_type(), self.meta_data))
 
     def append(self, node):
         raise NotImplementedError
