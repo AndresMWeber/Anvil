@@ -37,6 +37,19 @@ class TestSubRigNameTokens(TestBaseSubRig):
     def test_default_meta_data_exist(self):
         self.assertEqual(self.instance.meta_data, self.input_tokens)
 
-    def test_build_keeps_meta_data(self):
-        self.instance.build_node(nt.Transform)
-        #self.assertEqual()
+    def test_build_keeps_meta_data_passed_as_dict(self):
+        node = self.instance.build_node(nt.Transform, meta_data=self.input_tokens, skip_report=True, skip_register=True)
+        self.assertEqual(node.meta_data, self.input_tokens)
+
+    def test_build_keeps_meta_data_passed_as_splat(self):
+        node = self.instance.build_node(nt.Transform, skip_report=True, skip_register=True, **self.input_tokens)
+        self.assertEqual(node.meta_data, self.input_tokens)
+
+
+    def test_build_keeps_meta_data_assigned_later(self):
+        node = self.instance.build_node(nt.Transform, skip_report=True, skip_register=True, **self.input_tokens)
+        self.assertEqual(node.meta_data, self.input_tokens)
+
+    def test_build_keeps_meta_data_without_adding(self):
+        node = self.instance.build_node(nt.Transform, skip_report=True, skip_register=True)
+        self.assertEqual(node.meta_data, self.input_tokens)

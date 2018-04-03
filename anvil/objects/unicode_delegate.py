@@ -25,7 +25,6 @@ class UnicodeDelegate(log.LogMixin):
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
 
         self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
-        self.meta_data.set_protected(self.BUILT_IN_META_DATA)
         self.build_kwargs = MetaData(kwargs)
 
         try:

@@ -28,7 +28,6 @@ class Control(base.AbstractGrouping):
     @classmethod
     def build(cls, reference_object=None, parent=None, meta_data=None, **kwargs):
         kwargs[cfg.META_DATA] = cls.BUILT_IN_META_DATA.merge(meta_data, new=True)
-        kwargs[cfg.META_DATA].set_protected(cls.BUILT_IN_META_DATA.protected)
 
         instance = cls(**kwargs)
 
