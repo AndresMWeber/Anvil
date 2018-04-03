@@ -5,7 +5,7 @@ from tests.base_test import TestBase, clean_up_scene, auto_save_result
 
 
 class TestBaseTemplateRigs(TestBase):
-    name_tokens = {'name': 'eye', 'purpose': 'mvp'}
+    meta_data = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
     TEMPLATE_CLASS = None
     CLASS = Biped
@@ -35,7 +35,7 @@ class TestBaseTemplateRigs(TestBase):
                     nt.NodeChain(finger_start % (side[0], finger), finger_end % (side[0], finger)))
             sub_rig_dict[side + '_' + cfg.HAND] = {cfg.LAYOUT: fingers, 'scale': 0.3}
 
-        rig_instance = cls.CLASS(sub_rig_dict=sub_rig_dict, name_tokens={cfg.CHARACTER: 'hombre'}, **kwargs)
+        rig_instance = cls.CLASS(sub_rig_dict=sub_rig_dict, meta_data={cfg.CHARACTER: 'hombre'}, **kwargs)
         rig_instance.build(**kwargs)
         return rig_instance
 

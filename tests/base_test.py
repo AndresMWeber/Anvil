@@ -67,13 +67,13 @@ class TestBase(unittest2.TestCase):
     def setUp(self):
         super(TestBase, self).setUp()
 
-    def safe_create(self, dag_path, object_type, name_tokens=None, **flags):
-        name_tokens = name_tokens or {}
+    def safe_create(self, dag_path, object_type, meta_data=None, **flags):
+        meta_data = meta_data or {}
         if anvil.runtime.dcc.scene.exists(dag_path):
             return object_type(dag_path, **flags)
         else:
             node = object_type.build(**flags)
-            node.rename(NOMENCLATE.get(**name_tokens))
+            node.rename(NOMENCLATE.get(**meta_data))
             return node
 
     @staticmethod

@@ -6,7 +6,7 @@ import anvil.config as cfg
 
 
 class TestBaseTemplateRigs(TestBase):
-    name_tokens = {'name': 'eye', 'purpose': 'mvp'}
+    meta_data = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
     TEMPLATE = BipedFoot
 

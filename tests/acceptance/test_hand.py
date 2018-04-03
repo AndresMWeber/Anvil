@@ -9,7 +9,7 @@ from tests.base_test import TestBase, clean_up_scene, auto_save_result
 class TestHandBase(TestBase):
     hand = None
 
-    name_tokens = {'name': 'hoof', 'purpose': 'mvp'}
+    meta_data = {'name': 'hoof', 'purpose': 'mvp'}
     HAND_MERC_JOINTS = ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']
     TEMPLATE_CLASS = Hand
 

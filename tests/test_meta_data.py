@@ -73,7 +73,7 @@ class TestSplatting(TestBaseMetaData):
 
     def test_double_from_init(self):
         meta_data_object = md.MetaData(self.test_meta_data, self.test_other_meta_data)
-        self.assertEquals(meta_data_object, self.double_splat_returner(**meta_data_object))
+        self.assertEquals(meta_data_object, self.double_splat_returner(**meta_data_object.to_dict()))
 
 
 class TestMerge(TestBaseMetaData):

@@ -32,7 +32,6 @@ def convert_anvil_nodes_to_string(func):
         for k, v in iteritems(kwargs):
             if anvil.is_anvil(v):
                 kwargs[k] = str(v)
-        print('running', func, 'with', args, kwargs)
         return func(*args, **kwargs)
 
     return wrapper

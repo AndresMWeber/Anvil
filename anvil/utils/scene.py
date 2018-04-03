@@ -16,8 +16,9 @@ def is_types(node, types):
 def safe_delete(node_or_nodes):
     node_or_nodes = to_list(node_or_nodes)
     for node in node_or_nodes:
-        if rt.dcc.scene.exists(node):
-            rt.dcc.scene.delete(node)
+        for match in rt.dcc.scene.list_scene(node, long=True):
+            if rt.dcc.scene.exists(match):
+                rt.dcc.scene.delete(match)
 
 
 def objects_exist(*nodes):

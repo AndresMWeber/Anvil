@@ -5,15 +5,15 @@ from tests.base_test import TestBase, sanitize_scene, auto_save_result
 
 
 class TestBaseRig(TestBase):
-    name_tokens = {'name': 'eye', 'purpose': 'mvp', 'character': 'bert'}
+    meta_data = {'name': 'eye', 'purpose': 'mvp', 'character': 'bert'}
     test_rig = None
 
     @classmethod
     def setUpClass(cls):
         sanitize_scene()
         super(TestBaseRig, cls).setUpClass()
-        test_rig = nt.Rig(name_tokens=cls.name_tokens)
-        sub_rig = test_rig.build_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
+        test_rig = nt.Rig(meta_data=cls.meta_data)
+        sub_rig = test_rig.build_sub_rig('eyeball', meta_data={'name': 'eyeball'})
         test_rig.build()
         sub_rig.build_node(nt.Joint, hierarchy_id='eye', parent=sub_rig.group_joints)
         sub_rig.build_node(nt.Control, hierarchy_id='eye', parent=sub_rig.group_controls, shape='sphere')

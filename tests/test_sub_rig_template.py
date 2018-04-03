@@ -9,20 +9,21 @@ class TestBaseSubRig(TestBase):
 
 
 class TestSubRigTemplateBuildIk(TestBaseSubRig):
-    def build_dependencies(cls):
-        cls.sub_rig = base_sub_rig_template.SubRigTemplate()
-        cls.sub_rig.build()
-        b = nt.Joint.build()
-        c = nt.Joint.build()
-        d = nt.Joint.build()
-        c.translate_node([0, 2.5, 0])
-        d.translate_node([0, 5, 0])
-        cls.joint_chain = nt.NodeChain(b, d)
-        result = cls.sub_rig.build_ik(cls.joint_chain)
-        cls.handle, cls.effector = result[cfg.NODE_TYPE][cfg.DEFAULT]
+    def setUp(self):
+        if self.instance is None:
+            self.instance = base_sub_rig_template.SubRigTemplate()
+            self.instance.build()
+            b = nt.Joint.build()
+            c = nt.Joint.build()
+            d = nt.Joint.build()
+            c.translate_node([0, 2.5, 0])
+            d.translate_node([0, 5, 0])
+            self.joint_chain = nt.NodeChain(b, d)
+            result = self.instance.build_ik(self.joint_chain)
+            self.handle, self.effector = result[cfg.NODE_TYPE][cfg.DEFAULT]
 
     def test_build_pole_vector_control(self):
-        self.sub_rig.build_pole_vector_control(self.joint_chain, self.handle)
+        self.instance.build_pole_vector_control(self.joint_chain, self.handle)
 
 
 class TestSubRigNameTokens(TestBaseSubRig):
@@ -38,4 +39,4 @@ class TestSubRigNameTokens(TestBaseSubRig):
 
     def test_build_keeps_meta_data(self):
         self.instance.build_node(nt.Transform)
-        self.assertEqual()
+        #self.assertEqual()
