@@ -53,7 +53,7 @@ class Curve(Transform):
         return instance
 
     def auto_color(self, override_color=None):
-        self.info('Auto coloring %s based on meta_data side: %s', self, self.meta_Data.get(cfg.SIDE))
+        self.info('Auto coloring %s based on meta_data side: %s', self, self.meta_data.get(cfg.SIDE))
         color = override_color or cfg.RIG_COLORS.get(self.meta_data.get(cfg.SIDE, None) or cfg.DEFAULT)
         self.colorize(color)
         return color
