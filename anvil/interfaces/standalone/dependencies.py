@@ -1,1 +1,2 @@
-API = None
+APIs = {}
+DEFAULT_API = None

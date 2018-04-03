@@ -96,14 +96,14 @@ class MetaData(log.LogMixin):
         try:
             return str(to_str_dict(self.data))
         except:
-            raise UnicodeError('Could not cast metadata to string for metadata %s' % self.data)
+            raise UnicodeError('Could not cast meta_data to string for meta_data %s' % self.data)
 
     def __radd__(self, other):
         """Adds other to self."""
         return self.__add__(other)
 
     def __getattr__(self, item):
-        """Delegate to the data field so we can access all metadata with dot notation."""
+        """Delegate to the data field so we can access all meta_data with dot notation."""
         try:
             super(MetaData, self).__getattribute__('data')[item]
         except (AttributeError, KeyError):

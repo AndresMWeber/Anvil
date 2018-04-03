@@ -33,7 +33,6 @@ def check_for_encapsulation(dag_path):
     """Helper for the factory method to check for a previously existing encapsulation."""
     for node_encapsulation in itervalues(EXISTING_ENCAPSULATIONS):
         if dag_path == node_encapsulation._dcc_id:
-            LOG.debug('Found previous encapsulation for %s: %r. Using instead.', dag_path, node_encapsulation)
             return node_encapsulation
     return None
 
@@ -74,7 +73,7 @@ def factory_list(dag_nodes):
 
 
 def register_encapsulation(anvil_class_instance):
-    """Helper to regsiter a given encapsulation with the encapsulation registry."""
+    """Helper to register a given encapsulation with the encapsulation registry."""
     EXISTING_ENCAPSULATIONS[len(EXISTING_ENCAPSULATIONS)] = anvil_class_instance
 
 
@@ -91,7 +90,6 @@ def is_aobject(node):
 
 
 def is_aiter(node):
-    """Determines whether a node is a set or a grouping."""
     return is_agrouping(node) or is_achunk(node)
 
 

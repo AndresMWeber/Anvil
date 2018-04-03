@@ -2,8 +2,8 @@ from six import iteritems, raise_from
 from functools import wraps
 import anvil
 import anvil.config as cfg
-from jsonschema import validate
-import anvil.errors as err
+import jsonschema
+import anvil.errors as errors
 
 DEFAULT_SCHEMA = {cfg.TYPE: ["object", "null"], "properties": {}}
 BOOL_TYPE = {cfg.TYPE: cfg.BOOLEAN}
@@ -25,6 +25,19 @@ STR_OR_STR_LIST_TYPE = {"anyOf": [STR_TYPE, STR_LIST_TYPE]}
 POSITION_OR_STR_TYPE = {"anyOf": [STR_TYPE, POSITION_LIST]}
 
 
+def convert_anvil_nodes_to_string(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        args = tuple(str(arg) if anvil.is_anvil(arg) else arg for arg in args if arg not in ['None', None])
+        for k, v in iteritems(kwargs):
+            if anvil.is_anvil(v):
+                kwargs[k] = str(v)
+        print('running', func, 'with', args, kwargs)
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 class APIProxy(object):
     LOG = anvil.log.obtain_logger(__name__)
     API_LOG = anvil.log.obtain_logger(__name__ + '.api_calls')
@@ -35,10 +48,12 @@ class APIProxy(object):
         def to_validate(function):
             @wraps(function)
             def validator(*args, **kwargs):
-                validate(kwargs, schema)
+                jsonschema.validate(kwargs, schema)
                 kwargs = cls._initialize_and_filter_flags(kwargs, schema)
                 return cls._log_and_run_api_call(api, function_name, *args, **kwargs)
+
             return validator
+
         return to_validate
 
     @classmethod
@@ -59,62 +74,27 @@ class APIProxy(object):
         return new_flags
 
     @classmethod
+    @convert_anvil_nodes_to_string
     def _log_and_run_api_call(cls, api, function_name, *args, **kwargs):
-        # Pre-process all Anvil nodes to str
-        args = [str(arg) if anvil.is_anvil(arg) else arg for arg in args if arg not in ['None', None]]
-
-        if kwargs:
-            flags = kwargs.pop('flags', {})
-            kwargs.update(flags)
-            for key, node in iteritems(kwargs):
-                if anvil.is_anvil(node):
-                    kwargs[key] = str(node)
-        api_call = cls._compose_api_call(api, function_name, *args, **kwargs)
-        cls.API_LOG.info(api_call)
+        api_call_as_str = cls._compose_api_call(api, function_name, *args, **kwargs)
         try:
+            cls.API_LOG.info(api_call_as_str)
             return getattr(api, function_name)(*args, **kwargs)
-        except (RuntimeError, TypeError) as rterr:
-            raise_from(err.APIError('%s\n%s: %s' % (api_call, type(rterr).__name__, rterr)), rterr)
+        except (RuntimeError, TypeError) as err:
+            raise_from(errors.APIError('%s\n%s: %s' % (api_call_as_str, type(err).__name__, err)), err)
 
     @staticmethod
     def _compose_api_call(api, function_name, *args, **kwargs):
         formatted_args = ', '.join([repr(a) for a in args]) if args else ''
-
-        flags = kwargs.pop('flags', {})
-        kwargs.update(flags)
         if kwargs is not None and kwargs != {}:
             formatted_args += ''.join(', %s=%r' % (key, node) for key, node in iteritems(kwargs))
-
         return '%s.%s(%s)' % (api.__name__, function_name, formatted_args)
 
-    @staticmethod
-    def _convert_anvil_nodes_to_string(func):
-        def wrapper(*args, **kwargs):
-            args = tuple(str(arg) if anvil.is_anvil(arg) else arg for arg in args)
-            for k, v in iteritems(kwargs):
-                if anvil.is_anvil(v):
-                    kwargs[k] = str(v)
-
-            result = func(*args, **kwargs)
-            if not func.__name__.startswith('_'):
-                try:
-                    class_name = func.im_class.__name__
-                    report = '%s.%s(%s, %s)\t# Result: %s' % (class_name, func.__name__, args, kwargs, result)
-                    APIProxy.LOG.info(report)
-                except AttributeError:
-                    pass
-
-            return result
-
-        wrapper.__name__ = func.__name__
-
-        return wrapper
-
     def __getattribute__(self, item):
-        """Attempts to get a callable method from the instance, otherwise returns the """
+        """Wraps all callable attributes in a "decorator" that converts Anvil nodes to strings"""
         result = super(APIProxy, self).__getattribute__(item)
         if callable(result):
-            return APIProxy._convert_anvil_nodes_to_string(result)
+            return convert_anvil_nodes_to_string(result)
         else:
             return result
 

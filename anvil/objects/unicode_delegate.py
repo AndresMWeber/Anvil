@@ -46,7 +46,7 @@ class UnicodeDelegate(log.LogMixin):
         return rt.dcc.scene.get_type(self)
 
     @staticmethod
-    def create_engine_instance(**flags):
+    def create_engine_instance(**kwargs):
         raise NotImplementedError('Cannot instantiate nodes from this class')
 
     @classmethod
