@@ -92,8 +92,7 @@ class AbstractGrouping(log.LogMixin):
 
     LOG = log.obtain_logger(__name__)
     ANVIL_TYPE = cfg.RIG_TYPE
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.GROUP_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
-    BUILT_IN_META_DATA = MetaData()
+    BUILT_IN_META_DATA = MetaData({cfg.TYPE: cfg.GROUP_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
     BUILT_IN_ATTRIBUTES = MetaData({})
     RENDERING_ATTRIBUTES = MetaData({
         '%ss' % cfg.SURFACE_TYPE: at.DISPLAY_KWARGS,
@@ -104,16 +103,15 @@ class AbstractGrouping(log.LogMixin):
     })
     BUILD_REPORT_KEYS = [cfg.CONTROL_TYPE, cfg.JOINT_TYPE, cfg.NODE_TYPE]
 
-    def __init__(self, layout_joints=None, parent=None, top_node=None, name_tokens=None, meta_data=None, **kwargs):
+    def __init__(self, layout_joints=None, parent=None, top_node=None, meta_data=None, **kwargs):
         self.hierarchy = Map()
         self.root = top_node
         self.layout_joints = layout_joints
         self.build_joints = None
         self.build_kwargs = MetaData(kwargs)
-        self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
         self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
 
-        self._nomenclate = nomenclate.Nom(self.name_tokens.data)
+        self._nomenclate = nomenclate.Nom(self.meta_data.data)
         self.chain_nomenclate = nomenclate.Nom()
 
         for namer in [self._nomenclate, self.chain_nomenclate]:
@@ -126,10 +124,9 @@ class AbstractGrouping(log.LogMixin):
     def is_built(self):
         return all([self.root])
 
-    def build(self, joints=None, meta_data=None, name_tokens=None, **kwargs):
+    def build(self, joints=None, meta_data=None, **kwargs):
         self.build_kwargs.merge(kwargs)
         self.meta_data.merge(meta_data)
-        self.name_tokens.merge(name_tokens)
         self.build_joints = joints or self.layout_joints
 
     def build_layout(self):
@@ -173,8 +170,8 @@ class AbstractGrouping(log.LogMixin):
             self.warning('Parent(%s) -> %r does not exist.', new_parent, override_root or self.root)
             return False
 
-    def rename_chain(self, nodes, use_end_naming=False, **name_tokens):
-        self.chain_nomenclate.merge_dict(self.name_tokens.merge(name_tokens))
+    def rename_chain(self, nodes, use_end_naming=False, **kwargs):
+        self.chain_nomenclate.merge_dict(self.meta_data.merge(kwargs))
 
         for index, node in enumerate(nodes):
             variation_kwargs = {'var': index}
@@ -184,10 +181,10 @@ class AbstractGrouping(log.LogMixin):
 
     def rename(self, *input_dicts, **kwargs):
         new_tokens = MetaData(*input_dicts, **kwargs)
-        self.name_tokens.merge(new_tokens)
-        self._nomenclate.merge_dict(**self.name_tokens.data)
-        self._cascade_across_hierarchy(lambda n: n.rename(self._nomenclate.get(**n.name_tokens.update(new_tokens))),
-                                       lambda n: n.rename(self.name_tokens, n.name_tokens))
+        self.meta_data.merge(new_tokens)
+        self._nomenclate.merge_dict(**self.meta_data.data)
+        self._cascade_across_hierarchy(lambda n: n.rename(self._nomenclate.get(**n.meta_data.update(new_tokens))),
+                                       lambda n: n.rename(self.meta_data, n.meta_data))
 
     @register_built_nodes
     @generate_build_report
@@ -196,7 +193,6 @@ class AbstractGrouping(log.LogMixin):
             build_function = kwargs.pop('build_fn')
         except KeyError:
             build_function = 'build'
-        kwargs[cfg.NAME_TOKENS] = self.name_tokens.merge(kwargs.get(cfg.NAME_TOKENS, {}), new=True)
         kwargs[cfg.META_DATA] = self.meta_data.merge(kwargs.get(cfg.META_DATA, {}), new=True)
         return getattr(node_class, build_function)(*args, **kwargs)
 
@@ -261,7 +257,7 @@ class AbstractGrouping(log.LogMixin):
             for node in [anvil_node] if anvil.is_achunk(anvil_node) or anvil.is_agrouping(anvil_node) else to_list(
                     anvil_node):
                 try:
-                    print('\tnode %s->%s && %s' % (node, node.name_tokens, node.meta_data))
+                    print('\tnode %s->%s' % (node, node.meta_data))
                 except AttributeError:
                     print('node did not have name tokens...', node)
 

@@ -10,8 +10,8 @@ from anvil.meta_data import MetaData
 
 
 class BaseCollection(log.LogMixin):
-    def __init__(self, nodes=None, name_tokens=None, **kwargs):
-        self.name_tokens = MetaData(name_tokens or {}, **kwargs)
+    def __init__(self, nodes=None, meta_data=None, **kwargs):
+        self.meta_data = MetaData(meta_data or {}, **kwargs)
         self.nodes = nodes or []
 
     def _get_anvil_type(self):

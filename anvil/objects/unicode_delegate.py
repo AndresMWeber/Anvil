@@ -10,10 +10,9 @@ class UnicodeDelegate(log.LogMixin):
     LOG = log.obtain_logger(__name__)
     DCC_TYPE = None
     ANVIL_TYPE = cfg.NODE_TYPE
-    BUILT_IN_METADATA = MetaData({})
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: cfg.NODE_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
+    BUILT_IN_META_DATA = MetaData({cfg.TYPE: cfg.NODE_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
 
-    def __init__(self, node_pointer, meta_data=None, name_tokens=None, **kwargs):
+    def __init__(self, node_pointer, meta_data=None, **kwargs):
         """The main encapsulation object for a DCC's DagNode in Anvil.
 
         All nodes must be initialized with a string representation that the encompassing platform uses as DAG path
@@ -25,12 +24,8 @@ class UnicodeDelegate(log.LogMixin):
         """
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
 
-        self.meta_data = self.BUILT_IN_METADATA.merge(meta_data, new=True)
-        self.meta_data.set_protected(self.BUILT_IN_METADATA)
-
-        self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
-        self.name_tokens.set_protected(self.BUILT_IN_NAME_TOKENS.protected)
-
+        self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
+        self.meta_data.set_protected(self.BUILT_IN_META_DATA)
         self.build_kwargs = MetaData(kwargs)
 
         try:

@@ -27,7 +27,7 @@ def objects_exist(*nodes):
 
 def list_scene_nodes(object_type=cfg.TRANSFORM_TYPE):
     nodes = []
-    for node in rt.dcc.scene.list_scene(type=object_type):
+    for node in rt.dcc.scene.list_scene(type=object_type) or []:
         if not node.getShape():
             nodes.append(node)
         else:

@@ -12,7 +12,7 @@ from six import iteritems
 class Curve(Transform):
     DCC_TYPE = 'nurbsCurve'
     ANVIL_TYPE = cfg.CURVE_TYPE
-    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: cfg.CURVE_TYPE}, force=True, new=True)
+    BUILT_IN_META_DATA = Transform.BUILT_IN_META_DATA.merge({cfg.TYPE: cfg.CURVE_TYPE}, force=True, new=True)
     SHAPE_CACHE = None
     DEFAULT_SHAPE = [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]]
 
@@ -36,8 +36,8 @@ class Curve(Transform):
     @classmethod
     def build_line_indicator(cls, object1, object2, **kwargs):
         kwargs[cfg.DEGREE] = 1
-        kwargs[cfg.NAME_TOKENS] = MetaData(kwargs.get(cfg.NAME_TOKENS, {}))
-        kwargs[cfg.NAME_TOKENS].update({cfg.NAME: '%s_to_%s' % (object1, object2), cfg.TYPE: cfg.CURVE_TYPE})
+        kwargs[cfg.META_DATA] = MetaData(kwargs.get(cfg.META_DATA, {}))
+        kwargs[cfg.META_DATA].update({cfg.NAME: '%s_to_%s' % (object1, object2), cfg.TYPE: cfg.CURVE_TYPE})
         curve = cls.build_from_nodes([object1, object2], **kwargs)
         object1_cluster, object2_cluster = curve.generate_clusters()
         object1_cluster.parent(object1)
@@ -53,8 +53,8 @@ class Curve(Transform):
         return instance
 
     def auto_color(self, override_color=None):
-        self.info('Auto coloring %s based on name_tokens side: %s', self, self.name_tokens.get(cfg.SIDE))
-        color = override_color or cfg.RIG_COLORS.get(self.name_tokens.get(cfg.SIDE, None) or cfg.DEFAULT)
+        self.info('Auto coloring %s based on meta_data side: %s', self, self.meta_Data.get(cfg.SIDE))
+        color = override_color or cfg.RIG_COLORS.get(self.meta_data.get(cfg.SIDE, None) or cfg.DEFAULT)
         self.colorize(color)
         return color
 

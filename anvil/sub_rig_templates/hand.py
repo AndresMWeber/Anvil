@@ -6,7 +6,7 @@ import anvil.node_types as nt
 
 
 class Hand(SubRigTemplate):
-    BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({"name": "hand"}, new=True)
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({"name": "hand"}, new=True)
     DEFAULT_NAMES = ["thumb", "index", "middle", "ring", "pinky"]
     BUILT_IN_ATTRIBUTES = SubRigTemplate.BUILT_IN_ATTRIBUTES.merge({
         "curl_bias": at.PM_1_KWARGS,
@@ -39,7 +39,7 @@ class Hand(SubRigTemplate):
             layout_joints, label = digit_info
             kwargs = self.build_kwargs.copy()
             kwargs.update({cfg.LAYOUT: layout_joints})
-            self.build_digit(index, name_tokens={cfg.NAME: label}, **kwargs)
+            self.build_digit(index, meta_data={cfg.NAME: label}, **kwargs)
         self.rename()
 
     def build_digit(self, index, **kwargs):
@@ -78,8 +78,8 @@ class Hand(SubRigTemplate):
         else:
             return [cfg.FINGER + c for c in string.uppercase[:num_fingers]]
 
-    def rename(self, *input_dicts, **name_tokens):
-        super(Hand, self).rename(*input_dicts, **name_tokens)
+    def rename(self, *input_dicts, **kwargs):
+        super(Hand, self).rename(*input_dicts, **kwargs)
 
     def set_up_fist_pose(self):
         # for now just hook it up to the controls

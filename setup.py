@@ -15,7 +15,7 @@ with codecs.open(os.path.abspath(os.path.join(name, 'version.py'))) as ver_file:
     try:
         __version__ = mo.group(1)
     except AttributeError:
-        pass
+        raise IOError('Could not find version in %s' % os.path.join(name, 'version.py'))
 
 with codecs.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as readme:
     long_description = readme.read()

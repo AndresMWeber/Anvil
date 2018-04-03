@@ -15,7 +15,7 @@ class SubRigTemplate(nt.SubRig):
     @generate_build_report
     @extend_parent_kwarg(3)
     def build_pole_vector_control(self, joints, ik_handle, parent=None, up_vector=None, aim_vector=None,
-                                  up_object=None, move_by=None, meta_data=None, name_tokens=None, **kwargs):
+                                  up_object=None, move_by=None, meta_data=None, **kwargs):
         """Builds a pole vector control based on positions of joints and existing ik handle.
 
         Runs as follows:
@@ -28,10 +28,8 @@ class SubRigTemplate(nt.SubRig):
         :param kwargs: dict, build kwargs for the control build call
         :return: (Control, DagNode, NonLinearHierarchyNodeSet(DagNode))
         """
-        name_tokens = MetaData(self.name_tokens, name_tokens) if hasattr(self, cfg.NAME_TOKENS) else name_tokens
         meta_data = MetaData(self.meta_data, meta_data) if hasattr(self, cfg.META_DATA) else meta_data
-        kwargs.update({cfg.NAME_TOKENS: name_tokens,
-                       cfg.META_DATA: meta_data,
+        kwargs.update({cfg.META_DATA: meta_data,
                        'move_by': move_by,
                        'parent': next(parent),
                        'up_vector': up_vector,
@@ -55,7 +53,7 @@ class SubRigTemplate(nt.SubRig):
     @register_built_nodes
     @generate_build_report
     @extend_parent_kwarg(1)
-    def build_ik(self, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, name_tokens=None, **kwargs):
+    def build_ik(self, linear_hierarchy_set, solver=cfg.IK_RP_SOLVER, parent=None, meta_data=None, **kwargs):
         """Builds an IK handle on a joint chain
 
         :param parent: list or object: list of up to length 1, [handle parent]
@@ -67,8 +65,8 @@ class SubRigTemplate(nt.SubRig):
         if parent:
             rt.dcc.scene.parent(handle, next(parent))
 
-        handle.name_tokens.update(MetaData({cfg.TYPE: cfg.IK_HANDLE}, name_tokens or {}), force=True)
-        effector.name_tokens.update(MetaData({cfg.TYPE: cfg.IK_EFFECTOR}, name_tokens or {}), force=True)
+        handle.meta_data.update(MetaData({cfg.TYPE: cfg.IK_HANDLE}, meta_data or {}), force=True)
+        effector.meta_data.update(MetaData({cfg.TYPE: cfg.IK_EFFECTOR}, meta_data or {}), force=True)
         return handle, effector
 
     @register_built_nodes
@@ -120,7 +118,7 @@ class SubRigTemplate(nt.SubRig):
         handle, effector = self.build_ik(ik_chain,
                                          chain_end=ik_chain[ik_end_index],
                                          parent=next(parent),
-                                         name_tokens=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.NAME_TOKENS, {})),
+                                         meta_data=MetaData({cfg.NAME: cfg.IK}, kwargs.pop(cfg.META_DATA, {})),
                                          **kwargs)
 
         controls = nt.NodeSet()
@@ -128,14 +126,14 @@ class SubRigTemplate(nt.SubRig):
         controls.append(nt.Control.build(**MetaData(kwargs, {cfg.PARENT: next(parent),
                                                              cfg.REFERENCE_OBJECT: ik_chain[-1],
                                                              cfg.SHAPE: cfg.DEFAULT_IK_SHAPE,
-                                                             cfg.NAME_TOKENS: {cfg.PURPOSE: cfg.IK}}).to_dict()))
+                                                             cfg.META_DATA: {cfg.PURPOSE: cfg.IK}}).to_dict()))
 
         # build pole vector control if using RP solver.
         if solver == cfg.IK_RP_SOLVER:
             pv_control = self.build_pole_vector_control(ik_chain, handle,
                                                         parent=[next(parent), next(parent)],
                                                         **MetaData(kwargs, {cfg.SHAPE: cfg.DEFAULT_PV_SHAPE,
-                                                                            cfg.NAME_TOKENS: {
+                                                                            cfg.META_DATA: {
                                                                                 cfg.PURPOSE: cfg.POLE_VECTOR}}))
             controls.append(pv_control)
 
@@ -147,13 +145,12 @@ class SubRigTemplate(nt.SubRig):
     @generate_build_report
     @extend_parent_kwarg(2)
     def build_fk_chain(self, layout_joints=None, chain_end=None, shape=None, duplicate=True, parent=None,
-                       name_tokens=None, meta_data=None, **kwargs):
+                       meta_data=None, **kwargs):
         """Builds an FK control chain
 
         :param parent: list or object: list of up to length 2, [fk chain parent, control chain parent]
         :return: (NonLinearHierarchyNodeSet(Control), LinearHierarchyNodeSet(Joint))
         """
-        name_tokens = MetaData(self.name_tokens, name_tokens) if hasattr(self, cfg.NAME_TOKENS) else name_tokens
         meta_data = MetaData(self.meta_data, meta_data) if hasattr(self, cfg.META_DATA) else meta_data
         kwargs['skip_register'] = True
         kwargs['skip_report'] = True
@@ -164,12 +161,11 @@ class SubRigTemplate(nt.SubRig):
         for index, node_info in enumerate(zip(fk_chain, to_size_list(shape or self.DEFAULT_FK_SHAPE, len(fk_chain)))):
             node, shape = node_info
             if node.get_children():
-                name_tokens[cfg.VARIATION] = index
+                meta_data[cfg.VARIATION] = index
                 control = self.build_node(nt.Control,
                                           reference_object=node,
                                           shape=shape,
                                           parent=control_parent,
-                                          name_tokens=name_tokens,
                                           meta_data=meta_data,
                                           **kwargs)
                 control.parent(control_parent)
