@@ -24,7 +24,7 @@
   </a>
   <!-- Codacy Coverage -->
   <a href="https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AndresMWeber/Anvil&amp;utm_campaign=Badge_Coverage">
-    <img src="ttps://api.codacy.com/project/badge/Coverage/ef864a0c79984322b7809d64e3f036c8"
+    <img src="https://api.codacy.com/project/badge/Coverage/ef864a0c79984322b7809d64e3f036c8"
       alt="Codacy Coverage" />
   </a>
   <!-- Waffle.io -->
