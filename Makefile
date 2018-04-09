@@ -11,7 +11,7 @@ make-venv:
 
 install-deps: make-venv
 	~/nvenv/bin/pip install -Ur requirements.txt
-	~/nvenv/bin/pip install coveralls nose
+	~/nvenv/bin/pip install coverage nose codacy-coverage
 
 test-unit:
 	. ~/nvenv/bin/activate
@@ -19,7 +19,9 @@ test-unit:
 
 upload-coverage:
 	. ~/nvenv/bin/activate
-	~/nvenv/bin/coveralls
+	~/nvenv/bin/coverage xml
+	~/nvenv/bin/python-codacy-coverage -r coverage.xml
+
 
 verify-git-tag: make-venv
 	. ~/nvenv/bin/activate

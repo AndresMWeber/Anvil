@@ -9,21 +9,11 @@ import config as cfg
 
 def obtain_logger(name):
     """Get's a logger and attaches the correct DCC compatible Handler.
-    Args:
-        name (str): Name of the logger to get / create.
-    Returns:
-        Logger: Logger.
+
+    :param name: str, Name of the logger to get / create.
+    :return: Logger
     """
-    logger = structlog.get_logger(name)
-    """
-    if json_output:
-        format_str = '%(message)%(levelname)%(name)%(asctime)'
-        formatter = jslog.JsonFormatter(format_str)
-        for handler in logger.handlers:
-           handler.setFormatter(formatter)
-        pass
-    """
-    return logger
+    return structlog.get_logger(name)
 
 
 class LogMixin(object):

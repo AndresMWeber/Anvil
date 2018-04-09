@@ -1,6 +1,5 @@
 import anvil.node_types as nt
-
-from base_test import TestBase
+from base_test import TestBase, clean_up_scene
 
 
 class TestBaseUnicodeDelegate(TestBase):
@@ -8,14 +7,14 @@ class TestBaseUnicodeDelegate(TestBase):
 
 
 class TestUnicodeDelegateBuild(TestBaseUnicodeDelegate):
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_empty_input(self):
         self.assertRaises(NotImplementedError, nt.DagNode.build)
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_full_input(self):
         self.assertRaises(NotImplementedError, nt.DagNode.build)
 
-    @TestBase.delete_created_nodes
+    @clean_up_scene
     def test_partial_input(self):
         self.assertRaises(NotImplementedError, nt.DagNode.build)

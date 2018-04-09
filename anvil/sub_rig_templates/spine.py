@@ -1,4 +1,4 @@
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 import anvil.node_types as nt
 
 
@@ -8,14 +8,14 @@ class Spine(SubRigTemplate):
     def build(self, parent=None, meta_data=None, **kwargs):
         if len(self.layout_joints) < 4:
             raise ValueError('Need to input more than 4 joints in order to create a %s' % self.__class__.__name__)
-        super(Spine, self).build(name_tokens=meta_data, parent=parent)
+        super(Spine, self).build(meta_data=meta_data, parent=parent)
 
         # Build Spine Curve
         spine_curve = nt.Curve.build_from_nodes(self.layout_joints,
                                                 parent=self.group_nodes,
                                                 meta_data=self.meta_data + {'name': 'spine', 'type': 'curve'},
                                                 degree=3)
-        self.register_node('curve_spine', spine_curve)
+        self.register_node('curve_spine', hierarchy_id=spine_curve)
 
         self.rename()
         self.LOG.info('Built sub rig %s' % self.__class__.__name__)

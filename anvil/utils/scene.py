@@ -14,36 +14,35 @@ def is_types(node, types):
 
 
 def safe_delete(node_or_nodes):
-    if isinstance(node_or_nodes, list):
-        for node in node_or_nodes:
-            try:
-                rt.dcc.scene.delete(node)
-            except ValueError:
-                pass
-    else:
-        try:
-            rt.dcc.scene.delete(node_or_nodes)
-        except ValueError:
-            pass
+    node_or_nodes = to_list(node_or_nodes)
+    for node in node_or_nodes:
+        for match in rt.dcc.scene.list_scene(node, long=True):
+            if rt.dcc.scene.exists(match):
+                rt.dcc.scene.delete(match)
 
 
-def objects_exist(nodes):
-    return all([rt.dcc.scene.exists(node) if node else False for node in nodes])
+def objects_exist(*nodes):
+    return all(
+        [node.exists() if anvil.is_anvil(node) else rt.dcc.scene.exists(node) if node else False for node in nodes])
 
 
-def list_scene_nodes(object_type=cfg.TRANSFORM_TYPE, has_shape=False):
+def list_scene_nodes(object_type=cfg.TRANSFORM_TYPE):
     nodes = []
-    for node in rt.dcc.scene.list_scene(type=object_type):
+    for node in rt.dcc.scene.list_scene(type=object_type) or []:
         if not node.getShape():
             nodes.append(node)
         else:
             if not node.getShape().type() == 'camera':
                 nodes.append(node)
             else:
-                if not rt.dcc.scene.API.camera(node.getShape(), startupCamera=True, q=True):
+                if not rt.dcc.ENGINE_API.camera(node.getShape(), startupCamera=True, q=True):
                     nodes.append(node)
 
     return nodes
+
+
+def sanitize_scene():
+    safe_delete(list_scene_nodes())
 
 
 def get_scene_tree():

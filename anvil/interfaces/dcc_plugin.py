@@ -7,9 +7,10 @@ class DCCPlugin(object):
 
     def __init__(self, dcc_module):
         self.ENGINE = dcc_module.__name__
-        self.APIs = dcc_module.dependencies.APIs or {}
         self.ENGINE_API = dcc_module.dependencies.DEFAULT_API
+        self.APIs = dcc_module.dependencies.APIs or {}
 
+        self.dependencies = dcc_module.dependencies
         self.scene = dcc_module.scene
         self.create = dcc_module.create
         self.connections = dcc_module.connections
@@ -25,6 +26,7 @@ class DCCPlugin(object):
                                            influenceAssociation='closestJoint')
 
     def __str__(self):
+        """Adds the engine and engine api to the default repr."""
         return '%s(%s, API=%s)' % (self.__class__.__name__, self.ENGINE, self.ENGINE_API)
 
 
@@ -38,7 +40,7 @@ def get_current_dcc(return_module=True):
 def get_dcc(dcc_name_query, return_module=False):
     mod = None
     try:
-        mod = import_module("anvil.plugins.{PLUGIN}".format(PLUGIN=dcc_name_query))
+        mod = import_module("anvil.interfaces.{PLUGIN}".format(PLUGIN=dcc_name_query))
     except ImportError:
         pass
 

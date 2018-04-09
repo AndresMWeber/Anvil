@@ -1,10 +1,11 @@
-from base import SubRigTemplate
+from base_sub_rig_template import SubRigTemplate
 import anvil.node_types as nt
 import anvil.config as cfg
+from anvil.utils.generic import to_size_list
 
 
 class BipedFoot(SubRigTemplate):
-    BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({cfg.NAME: cfg.FOOT}, new=True)
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({cfg.NAME: cfg.FOOT}, new=True)
     TOE_TOKEN = 'toe'
     BALL_TOKEN = 'ball'
     ANKLE_TOKEN = 'ankle'
@@ -14,7 +15,7 @@ class BipedFoot(SubRigTemplate):
 
     def __init__(self, heel=None, outsole=None, insole=None, *args, **kwargs):
         super(BipedFoot, self).__init__(*args, **kwargs)
-        self.ankle, self.ball, self.toe, self.toe_end = self.layout_joints
+        self.ankle, self.ball, self.toe = to_size_list(self.layout_joints, 3)
         self.heel = heel
         self.outsole = outsole
         self.insole = insole
@@ -28,20 +29,21 @@ class BipedFoot(SubRigTemplate):
             shape = '%s_%s' % (cfg.CIRCLE, cfg.X)
             if label == self.ANKLE_TOKEN:
                 shape = '_'.join([s for s in [self.meta_data.get(cfg.SIDE), cfg.FOOT] if s])
+            self.build_node(nt.Control,
+                            hierarchy_id=label,
+                            shape=shape,
+                            reference_object=reference_object,
+                            parent=last,
+                            rotate=False,
+                            meta_data={cfg.NAME: label})
 
-            control = self.build_node(nt.Control, '%s_%s' % (cfg.CONTROL_TYPE, label),
-                                      shape=shape,
-                                      reference_object=reference_object,
-                                      parent=last,
-                                      rotate=False,
-                                      name_tokens={cfg.NAME: label})
-            last = control.connection_group
+            last = self.control.get(label).node.connection_group
 
-        self.control_ankle.control.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
+        self.control.ankle.controller.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
 
-        toe_ball_chain = nt.LinearHierarchyNodeSet(self.toe, node_filter=cfg.JOINT_TYPE)
+        toe_ball_chain = nt.NodeChain(self.toe, node_filter=cfg.JOINT_TYPE)
 
         self.build_ik(toe_ball_chain, solver=cfg.IK_SC_SOLVER, parent=self.group_nodes,
-                      name_tokens={cfg.NAME: self.BALL_TOKEN})
+                      meta_data={cfg.NAME: self.BALL_TOKEN})
 
         self.rename()

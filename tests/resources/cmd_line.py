@@ -1,3 +1,4 @@
+import click
 import sys
 import os
 import cProfile, pstats, StringIO
@@ -16,16 +17,14 @@ sys.path.append(anvil_tests_path)
 import anvil
 anvil.log.set_all_log_levels(anvil.log.logging.CRITICAL)
 
-import click
 
 
 @click.command()
-@click.option('--test_runner', default='biped', help='Which suite to run (control, biped, mvp')
-def main(test_runner):
+@click.option('--test_runner', default='biped', help='Which suite to run (control, biped, mvp)')
+def main(test_runner='test_full_input'):
     pr = cProfile.Profile()
     pr.enable()
-
-    eval('{}_{}()'.format('run', test_runner))
+    locals()['run_%s' % test_runner]()
 
     pr.disable()
     s = StringIO.StringIO()

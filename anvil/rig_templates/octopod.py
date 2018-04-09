@@ -25,6 +25,5 @@ class Octopod(nt.Rig):
     def setup_sub_rig_connections(self):
         pass
 
-    def rename(self, input_dicts, **name_tokens):
-        super(Octopod, self).rename(input_dicts, **name_tokens)
-
+    def rename(self, input_dicts, **kwargs):
+        super(Octopod, self).rename(input_dicts, **kwargs)

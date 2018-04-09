@@ -1,3 +1,4 @@
+"""Preset templates used to generate a Rig."""
 from biped import Biped
 from quadruped import Quadruped
 from hexapod import Hexapod

@@ -25,6 +25,5 @@ class Diptera(nt.Rig):
     def setup_sub_rig_connections(self):
         pass
 
-    def rename(self, input_dicts, **name_tokens):
-        super(Diptera, self).rename(input_dicts, **name_tokens)
-
+    def rename(self, input_dicts, **kwargs):
+        super(Diptera, self).rename(input_dicts, **kwargs)

@@ -1,7 +1,9 @@
-""" FROM https://www.webucator.com/blog/2015/03/python-color-constants-module/
+"""FROM https://www.webucator.com/blog/2015/03/python-color-constants-module/
+
 Credit:
 Provide RGB color constants and a colors dictionary with
-elements formatted: colors[colorname] = CONSTANT"""
+elements formatted: colors[colorname] = CONSTANT
+"""
 
 import colorsys
 from collections import namedtuple, OrderedDict
@@ -27,7 +29,7 @@ class RGB(Color):
         return tuple(self.as_list())
 
     def as_rgb_normalized(self):
-        return tuple(component/255.0 for component in self.as_list())
+        return tuple(component / 255.0 for component in self.as_list())
 
     def as_hsv(self):
         return colorsys.rgb_to_hsv(*self.as_rgb_normalized())
@@ -63,20 +65,23 @@ class RGB(Color):
         return cls(*colorsys.yiq_to_rgb(*yiq))
 
     def __len__(self):
+        """Returns the length of self.components to easily identify type of values used."""
         return len(self.components)
 
     def __repr__(self):
+        """Prints all values for colorspace conversions."""
         values = tuple(getattr(self, 'as_%s' % f)() for f in ['rgb', 'hsv', 'yiq', 'hls', 'hex'])
         return str(self.__class__).replace('>', '(RGB: %s, HSV: %s, YIQ: %s, HLS: %s, HEX: %s)>' % values)
 
     def __radd__(self, other):
+        """Addition."""
         return self.__add__(other)
 
     def __add__(self, other):
+        """Adds all components together"""
         for x, y, component in zip(list(self), list(other), self.components):
             setattr(self, component, x + y)
         return self
-
 
 
 # Color Constants

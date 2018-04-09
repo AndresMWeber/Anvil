@@ -9,13 +9,14 @@ import anvil.utils.generic as gc
 class UnicodeDelegate(log.LogMixin):
     LOG = log.obtain_logger(__name__)
     DCC_TYPE = None
-    ANVIL_TYPE = 'unicode'
-    BUILT_IN_METADATA = MetaData({})
-    BUILT_IN_NAME_TOKENS = MetaData({cfg.TYPE: ANVIL_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
+    ANVIL_TYPE = cfg.NODE_TYPE
+    BUILT_IN_META_DATA = MetaData({cfg.TYPE: cfg.NODE_TYPE, cfg.NAME: 'untitled'}, protected=cfg.TYPE)
 
-    def __init__(self, node_pointer, meta_data=None, name_tokens=None, **kwargs):
-        """ All nodes must be initialized with a string representation that the encompassing platform
-            uses as DAG path representation for the object.
+    def __init__(self, node_pointer, meta_data=None, **kwargs):
+        """The main encapsulation object for a DCC's DagNode in Anvil.
+
+        All nodes must be initialized with a string representation that the encompassing platform uses as DAG path
+        representation for the object.
 
         :param node_pointer: str, DAG path to the object we want to encapsulate
         :param kwargs: dict, creation flags specific for the platform environment node creation function
@@ -23,12 +24,7 @@ class UnicodeDelegate(log.LogMixin):
         """
         self._dcc_id = rt.dcc.scene.get_persistent_id(str(node_pointer))
 
-        self.meta_data = self.BUILT_IN_METADATA.merge(meta_data, new=True)
-        self.meta_data.set_protected(self.BUILT_IN_METADATA)
-
-        self.name_tokens = self.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
-        self.name_tokens.set_protected(self.BUILT_IN_NAME_TOKENS.protected)
-
+        self.meta_data = self.BUILT_IN_META_DATA.merge(meta_data, new=True)
         self.build_kwargs = MetaData(kwargs)
 
         try:
@@ -49,7 +45,7 @@ class UnicodeDelegate(log.LogMixin):
         return rt.dcc.scene.get_type(self)
 
     @staticmethod
-    def create_engine_instance(**flags):
+    def create_engine_instance(**kwargs):
         raise NotImplementedError('Cannot instantiate nodes from this class')
 
     @classmethod
@@ -72,6 +68,7 @@ class UnicodeDelegate(log.LogMixin):
         return rt.dcc.connections.list_history(self, **kwargs)
 
     def __getattr__(self, item):
+        """Attempts to get the attribute from the api class instance, otherwise gets the python object attribute"""
         try:
             return super(UnicodeDelegate, self).__getattribute__(item)
         except AttributeError:
@@ -82,10 +79,13 @@ class UnicodeDelegate(log.LogMixin):
                 return getattr(_api_class_instance, gc.to_camel_case(item))
 
     def __eq__(self, other):
+        """Determines if the nodes string values are equivalent."""
         return str(self) == str(other)
 
     def __repr__(self):
+        """Adds the node string representation to the repr."""
         return '<%s.%s @ 0x%x (%s)>' % (self.__class__.__module__, self.__class__.__name__, id(self), str(self))
 
     def __str__(self):
+        """Returns the DCC shorted DagPath."""
         return str(self.name())

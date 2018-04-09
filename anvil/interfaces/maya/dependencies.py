@@ -1,5 +1,6 @@
 import maya.api.OpenMaya as om
 import maya.cmds as mc
+import atexit
 
 # Initialize maya standalone if we are not in Maya
 try:
@@ -10,7 +11,6 @@ except TypeError:
     pass
 
 import pymel.core as pm
-
 import pymel.util as pmUtil
 import pymel.core.datatypes as dt
 
@@ -20,13 +20,12 @@ APIs = {'pymel': pm,
         'standalone': ms}
 DEFAULT_API = pm
 
-import atexit
-
 
 @atexit.register
 def exit_maya():
     import sys
-    # If we are in standalone we need to make a new file and uninitialize then os._exit to properly exit Maya.
+    # If we are in standalone we need to make a new file and uninitialize then the virtual machines crash
+    # if we do not use os._exit to properly exit Maya in CIRCLECI.
     # https://groups.google.com/forum/#!topic/python_inside_maya/chpuSyLbryI
     try:
         import maya.standalone as ms
@@ -41,11 +40,15 @@ def exit_maya():
             ms.uninitialize()
             sys.stdout.write('.')
             sys.stdout.flush()
-    except:
+    except RuntimeError:
         pass
 
     finally:
         sys.stdout.write('Success...exiting.\n')
         sys.stdout.flush()
         import os
-        os._exit(0)
+        if os.getenv('CIRCLECI'):
+            os._exit(0)
+
+
+__all__ = ['pmUtil', 'dt', 'om', 'mc', 'ms', 'DEFAULT_API', 'APIs', 'atexit']

@@ -10,6 +10,4 @@ omit =
     anvil/log.py
     anvil/runtime.py
     anvil/exception.py
-    anvil/plugins/current_dcc.py
-    anvil/plugins/dcc_plugin.py
-    anvil/plugins/base/*
+    anvil/interfaces/*
