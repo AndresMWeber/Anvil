@@ -17,24 +17,14 @@
     <img src="https://circleci.com/gh/AndresMWeber/Anvil.svg?style=shield&circle-token=:circle-token"
       alt="Build Status" />
   </a>
-  <!-- Coverage Stats -->
-  <a href="https://coveralls.io/github/AndresMWeber/Anvil?branch=master/">
-    <img src="https://coveralls.io/repos/github/AndresMWeber/Anvil/badge.svg?branch=master"
-      alt="Coveralls Stats" />
-  </a>
-  <!-- LandscapeIO  -->
-  <a href="https://landscape.io/github/AndresMWeber/Anvil/master">
-    <img src="https://landscape.io/github/AndresMWeber/Anvil/master/landscape.svg?style=flat"
-      alt="LandscapeIO" />
-  </a>
   <!-- Codacy Rating -->
   <a href="https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AndresMWeber/Anvil&amp;utm_campaign=Badge_Grade">
     <img src="https://api.codacy.com/project/badge/Grade/ef864a0c79984322b7809d64e3f036c8"
       alt="Codacy Rating" />
   </a>
-  <!-- Codacy Badge -->
-  <a href="https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&utm_medium=referral&utm_content=AndresMWeber/Anvil&utm_campaign=Badge_Coverage">
-    <img src="https://api.codacy.com/project/badge/Coverage/ef864a0c79984322b7809d64e3f036c8"
+  <!-- Codacy Coverage -->
+  <a href="https://www.codacy.com/app/AndresMWeber/Anvil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AndresMWeber/Anvil&amp;utm_campaign=Badge_Coverage">
+    <img src="ttps://api.codacy.com/project/badge/Coverage/ef864a0c79984322b7809d64e3f036c8"
       alt="Codacy Coverage" />
   </a>
   <!-- Waffle.io -->
