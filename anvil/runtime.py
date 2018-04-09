@@ -1,4 +1,4 @@
-import plugins.dcc_plugin as dcc_plugin
+import interfaces.dcc_plugin as dcc_plugin
 
 dcc = dcc_plugin.DCCPlugin(dcc_plugin.get_current_dcc(return_module=True))
 

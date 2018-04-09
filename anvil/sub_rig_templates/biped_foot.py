@@ -5,7 +5,7 @@ from anvil.utils.generic import to_size_list
 
 
 class BipedFoot(SubRigTemplate):
-    BUILT_IN_NAME_TOKENS = SubRigTemplate.BUILT_IN_NAME_TOKENS.merge({cfg.NAME: cfg.FOOT}, new=True)
+    BUILT_IN_META_DATA = SubRigTemplate.BUILT_IN_META_DATA.merge({cfg.NAME: cfg.FOOT}, new=True)
     TOE_TOKEN = 'toe'
     BALL_TOKEN = 'ball'
     ANKLE_TOKEN = 'ankle'
@@ -35,15 +35,15 @@ class BipedFoot(SubRigTemplate):
                             reference_object=reference_object,
                             parent=last,
                             rotate=False,
-                            name_tokens={cfg.NAME: label})
+                            meta_data={cfg.NAME: label})
 
             last = self.control.get(label).node.connection_group
 
         self.control.ankle.controller.transform_shape(0, mode=cfg.TRANSLATE, relative=False)
 
-        toe_ball_chain = nt.LinearHierarchyNodeSet(self.toe, node_filter=cfg.JOINT_TYPE)
+        toe_ball_chain = nt.NodeChain(self.toe, node_filter=cfg.JOINT_TYPE)
 
         self.build_ik(toe_ball_chain, solver=cfg.IK_SC_SOLVER, parent=self.group_nodes,
-                      name_tokens={cfg.NAME: self.BALL_TOKEN})
+                      meta_data={cfg.NAME: self.BALL_TOKEN})
 
         self.rename()

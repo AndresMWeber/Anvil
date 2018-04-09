@@ -8,7 +8,7 @@ class Spine(SubRigTemplate):
     def build(self, parent=None, meta_data=None, **kwargs):
         if len(self.layout_joints) < 4:
             raise ValueError('Need to input more than 4 joints in order to create a %s' % self.__class__.__name__)
-        super(Spine, self).build(name_tokens=meta_data, parent=parent)
+        super(Spine, self).build(meta_data=meta_data, parent=parent)
 
         # Build Spine Curve
         spine_curve = nt.Curve.build_from_nodes(self.layout_joints,

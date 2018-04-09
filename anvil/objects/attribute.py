@@ -193,7 +193,7 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         node.attr(out_attribute).connect(self, force=True)
 
     def is_dirty(self, **kwargs):
-        return rt.dcc.connections.dirty_attr(**kwargs)
+        return rt.dcc.connections.dirty_attr(self, **kwargs)
 
     def is_multi(self, **kwargs):
         return rt.dcc.connections.info_attr(self, multi=True, **kwargs)
@@ -205,12 +205,15 @@ class Attribute(unicode_delegate.UnicodeDelegate):
         return rt.dcc.connections.set_attr(self, value, channelBox=True, **kwargs)
 
     def __rshift__(self, other_attribute):
+        """Connects an attribute to another attribute"""
         self.connect(other_attribute)
 
     def __lshift__(self, other_attribute):
+        """Connects an attribute to another attribute"""
         other_attribute.connect(self)
 
     def __iter__(self):
+        """Returns an iterator if the instance DCC attribute is a compound attribute."""
         if self.isMulti():
             for i in self.get_num_children():
                 yield self[i]
@@ -218,15 +221,11 @@ class Attribute(unicode_delegate.UnicodeDelegate):
             raise TypeError("%s is not a multi-attribute" % self)
 
     def __getitem(self, item):
+        """Gets the DCC item from the instance._api_class_instance"""
         return self._api_class_instance.elementByLogicalIndex[item]
 
     def __getattr__(self, item):
-        """
-        if item in rt.dcc.connections.list_attr(self):
-            return self.__getattribute__('__class__')('%s.%s' % (self, item))
-        else:
-            return super(Attribute, self).__getattr__(item)
-        """
+        """Uses default Object getattribute if found, otherwise uses the dcc version."""
         return super(Attribute, self).__getattr__(item)
 
 

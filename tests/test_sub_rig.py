@@ -45,77 +45,69 @@ class TestSubRigBuild(TestBaseSubRig):
 
 class TestSubRigNameTokensIntact(TestBase):
     @clean_up_scene
-    def test_register_previously_created_with_name_tokens(self):
+    def test_register_previously_created_with_meta_data(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
-        b = nt.Joint.build(name_tokens={'name': 'bob'})
+        b = nt.Joint.build(meta_data={'name': 'bob'})
         self.sub_rig.register_node('test', hierarchy_id=b)
         # This test will override the previous name because it now should inherit the new sub rig tokens.
-        self.assertDictEqual(b.name_tokens,
+        self.assertDictEqual(b.meta_data,
                              {cfg.NAME: 'bob', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
-        self.assertDictEqual(b.meta_data, {})
 
     @clean_up_scene
-    def test_register_previously_created_with_name_tokens_overwrite(self):
+    def test_register_previously_created_with_meta_data_overwrite(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
-        b = nt.Joint.build(name_tokens={'name': 'silvia', cfg.SUB_RIG_TOKEN: 'muggle'})
+        b = nt.Joint.build(meta_data={'name': 'silvia', cfg.SUB_RIG_TOKEN: 'muggle'})
         self.sub_rig.register_node(b, hierarchy_id='test')
-        self.assertDictEqual(b.name_tokens,
-                             {'name': 'silvia',
-                              cfg.SUB_RIG_TOKEN: 'muggle',
-                              cfg.TYPE: cfg.JOINT_TYPE})
-        self.assertDictEqual(b.meta_data, {})
+        self.assertDictEqual(b.meta_data,
+                             {'name': 'silvia', cfg.SUB_RIG_TOKEN: 'muggle', cfg.TYPE: cfg.JOINT_TYPE})
 
     @clean_up_scene
-    def test_register_previously_created_add_name_tokens(self):
+    def test_register_previously_created_add_meta_data(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
-        b = nt.Joint.build(name_tokens={'name': 'silvia'})
+        b = nt.Joint.build(meta_data={'name': 'silvia'})
         self.sub_rig.register_node(b, hierarchy_id='test')
-        self.assertDictEqual(b.name_tokens,
-                             {'name': 'silvia',
-                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
-                              cfg.TYPE: cfg.JOINT_TYPE})
+        self.assertDictEqual(b.meta_data,
+                             {'name': 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
 
     @clean_up_scene
-    def test_build_with_sub_rig_init_name_tokens_and_build_name_tokens(self):
-        self.sub_rig = nt.SubRig(name_tokens={'name': 'silvia'})
+    def test_build_with_sub_rig_init_meta_data_and_build_meta_data(self):
+        self.sub_rig = nt.SubRig(meta_data={'name': 'silvia'})
         self.sub_rig.build()
-        self.sub_rig.build_node(nt.Joint, hierarchy_id='test', name_tokens={'blah': 'meta'})
-        self.assertDictEqual(self.sub_rig.joint.test.name_tokens,
+        self.sub_rig.build_node(nt.Joint, hierarchy_id='test', meta_data={'blah': 'meta'})
+        self.assertDictEqual(self.sub_rig.joint.test.meta_data,
                              {'name': 'silvia',
                               'blah': 'meta',
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
     @clean_up_scene
-    def test_build_with_sub_rig_previous_name_tokens(self):
+    def test_build_with_sub_rig_previous_meta_data(self):
         self.sub_rig = nt.SubRig()
-        self.sub_rig.build(name_tokens={'name': 'silvia'})
+        self.sub_rig.build(meta_data={'name': 'silvia'})
         self.sub_rig.build_node(nt.Joint, hierarchy_id='test')
-        self.assertDictEqual(self.sub_rig.joint.test.name_tokens,
-                             {'name': 'silvia',
-                              cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
-                              cfg.TYPE: cfg.JOINT_TYPE})
+        self.assertDictEqual(self.sub_rig.joint.test.meta_data,
+                             {'name': 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
 
     @clean_up_scene
-    def test_build_with_sub_rig_previous_name_tokens_and_build_name_tokens(self):
+    def test_build_with_sub_rig_previous_meta_data_and_build_meta_data(self):
         self.sub_rig = nt.SubRig()
-        self.sub_rig.build(name_tokens={'name': 'silvia'})
-        self.sub_rig.build_node(nt.Joint, hierarchy_id='test', name_tokens={'blah': 'meta'})
-        self.assertDictEqual(self.sub_rig.joint.test.name_tokens,
+        self.sub_rig.build(meta_data={'name': 'silvia'})
+        self.sub_rig.build_node(nt.Joint, hierarchy_id='test', meta_data={'blah': 'meta'})
+        self.assertDictEqual(self.sub_rig.joint.test.meta_data,
                              {'name': 'silvia',
                               'blah': 'meta',
                               cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN,
                               cfg.TYPE: cfg.JOINT_TYPE})
 
     @clean_up_scene
-    def test_build_add_name_tokens(self):
+    def test_build_add_meta_data(self):
         self.sub_rig = nt.SubRig()
         self.sub_rig.build()
-        self.sub_rig.build_node(nt.Joint, hierarchy_id='test', name_tokens={'name': 'silvia'}, meta_data=None)
-        self.assertDictEqual(self.sub_rig.joint.test.name_tokens,
+        self.sub_rig.build_node(nt.Joint, hierarchy_id='test', meta_data={'name': 'silvia'})
+        self.assertDictEqual(self.sub_rig.joint.test.meta_data,
                              {cfg.NAME: 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})
 
 
@@ -126,8 +118,7 @@ class TestSubRigMetaDataIntact(TestBase):
         self.sub_rig.build()
         b = nt.Joint.build(meta_data={'name': 'bob'})
         self.sub_rig.register_node('test', hierarchy_id=b)
-        self.assertDictEqual(b.meta_data, {'name': 'bob', 'type': 'joint'})
-        self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})
+        self.assertDictEqual(b.meta_data, {'name': 'bob', 'type': cfg.JOINT_TYPE})
 
     @clean_up_scene
     def test_register_previously_created_with_meta_data_overwrite(self):
@@ -135,5 +126,5 @@ class TestSubRigMetaDataIntact(TestBase):
         self.sub_rig.build()
         b = nt.Joint.build(meta_data={'name': 'silvia'})
         self.sub_rig.register_node('test', hierarchy_id=b)
-        self.assertDictEqual(b.meta_data, {'name': 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN})
-        self.assertDictEqual(b.name_tokens, {cfg.NAME: 'untitled', cfg.TYPE: cfg.JOINT_TYPE})
+        self.assertDictEqual(b.meta_data,
+                             {'name': 'silvia', cfg.SUB_RIG_TOKEN: cfg.SUB_RIG_TOKEN, cfg.TYPE: cfg.JOINT_TYPE})

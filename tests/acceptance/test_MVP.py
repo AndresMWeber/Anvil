@@ -5,34 +5,29 @@ from tests.base_test import TestBase, sanitize_scene, auto_save_result
 
 
 class TestBaseRig(TestBase):
-    name_tokens = {'name': 'eye', 'purpose': 'mvp', 'character': 'bert'}
+    meta_data = {'name': 'eye', 'purpose': 'mvp', 'character': 'bert'}
     test_rig = None
 
     @classmethod
     def setUpClass(cls):
         sanitize_scene()
         super(TestBaseRig, cls).setUpClass()
-        cls.build_dependencies()
-
-    @classmethod
-    def tearDownClass(cls):
-        super(TestBaseRig, cls).tearDownClass()
-        sanitize_scene()
-
-    @classmethod
-    def build_dependencies(cls):
-        super(TestBaseRig, cls).build_dependencies()
-        test_rig = nt.Rig(name_tokens=cls.name_tokens)
-        sub_rig = test_rig.build_sub_rig('eyeball', name_tokens={'name': 'eyeball'})
+        test_rig = nt.Rig(meta_data=cls.meta_data)
+        sub_rig = test_rig.build_sub_rig('eyeball', meta_data={'name': 'eyeball'})
         test_rig.build()
         sub_rig.build_node(nt.Joint, hierarchy_id='eye', parent=sub_rig.group_joints)
         sub_rig.build_node(nt.Control, hierarchy_id='eye', parent=sub_rig.group_controls, shape='sphere')
-        anvil.runtime.dcc.connections.parent(sub_rig.joint.eye, sub_rig.control.eye.node.connection_group)
+        anvil.runtime.dcc.connections.parent(sub_rig.control.eye.node.connection_group, sub_rig.joint.eye)
         test_rig.rename()
         cls.test_sub_rig = sub_rig
         cls.test_rig = test_rig
         cls.LOG.info('Built rig for testing %s' % test_rig)
         return test_rig
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestBaseRig, cls).tearDownClass()
+        sanitize_scene()
 
 
 class TestRigEyeBuild(TestBaseRig):

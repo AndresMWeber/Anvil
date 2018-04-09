@@ -6,7 +6,7 @@ from transform import Transform
 class Joint(Transform):
     DCC_TYPE = cfg.JOINT_TYPE
     ANVIL_TYPE = cfg.JOINT_TYPE
-    BUILT_IN_NAME_TOKENS = Transform.BUILT_IN_NAME_TOKENS.merge({cfg.TYPE: cfg.JOINT_TYPE}, force=True, new=True)
+    BUILT_IN_META_DATA = Transform.BUILT_IN_META_DATA.merge({cfg.TYPE: cfg.JOINT_TYPE}, force=True, new=True)
 
     @staticmethod
     def create_engine_instance(**kwargs):

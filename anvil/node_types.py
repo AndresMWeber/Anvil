@@ -1,7 +1,7 @@
 from six import iteritems
 import inspect
-from objects import *  # noqa
-from grouping import *  # noqa
+from objects import UnicodeDelegate, DagNode, Transform, Curve, Joint
+from grouping import AbstractGrouping, SubRig, Rig, BaseCollection, NodeChain, NodeSet, Control
 
 REGISTERED_NODES = {}
 
@@ -17,9 +17,9 @@ for imported_class in list(set([v for k, v in iteritems(globals().copy()) if ins
 __all__ = ['AbstractGrouping',
            'SubRig',
            'Rig',
-           'NodeRelationshipSet',
-           'LinearHierarchyNodeSet',
-           'NonLinearHierarchyNodeSet',
+           'BaseCollection',
+           'NodeChain',
+           'NodeSet',
            'Control',
            'UnicodeDelegate',
            'DagNode',

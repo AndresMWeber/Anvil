@@ -6,21 +6,32 @@ import anvil.runtime as rt
 import anvil.objects as ob
 import anvil.utils.generic as gc
 import anvil.utils.scene as sc
+from anvil.grouping.base import NomenclateMixin
 from anvil.meta_data import MetaData
 
 
-class NodeRelationshipSet(log.LogMixin):
-    def __init__(self, nodes=None, name_tokens=None, **kwargs):
-        self.name_tokens = MetaData(name_tokens or {}, **kwargs)
+class BaseCollection(log.LogMixin, NomenclateMixin):
+    def __init__(self, nodes=None, meta_data=None, **kwargs):
+        super(BaseCollection, self).__init__()
+        self.meta_data = MetaData(meta_data or {}, **kwargs)
         self.nodes = nodes or []
 
     def _get_anvil_type(self):
+        return self.child_type()
+
+    ANVIL_TYPE = property(_get_anvil_type)
+
+    def child_type(self):
         try:
-            return self.nodes[0].ANVIL_TYPE
+            return type(self[0]).ANVIL_TYPE
         except (AttributeError, ValueError, IndexError):
             return cfg.SET_TYPE
 
-    ANVIL_TYPE = property(_get_anvil_type)
+    def rename(self, use_end_naming=False, *input_dicts, **kwargs):
+        """Renames the constituent nodes in the collection, however current implementation does not allow groupings"""
+        new_tokens = MetaData(*input_dicts, **kwargs)
+        self.meta_data.merge(new_tokens)
+        self.rename_chain(self, use_end_naming=use_end_naming, **self.meta_data.data)
 
     @property
     def set(self):
@@ -31,59 +42,70 @@ class NodeRelationshipSet(log.LogMixin):
         self.nodes = value
 
     def __contains__(self, item):
+        """Determines whether an item is within the instance's set"""
         return item in self.set
 
     def __getitem__(self, item):
+        """Obtains an item from within the instance's set"""
         return self.set[item]
 
     def __setitem__(self, key, value):
+        """Sets an item within the instance's set"""
         self.set[key] = value
 
     def __iter__(self):
+        """Returns an iterator of the instance's set"""
         return iter(self.set)
 
     def __len__(self):
+        """Returns the length of the instance's set"""
         return len(list(self.set))
 
     def __radd__(self, other):
+        """Adds another to the instance's set"""
         return self.__add__(other)
 
     def __add__(self, other):
+        """Adds another to the instance's set"""
         self.set = other
         return self
 
     def __str__(self):
+        """Returns a string representation of the instance's set"""
         return str(self.set)
 
     def __repr__(self):
-        return super(NodeRelationshipSet, self).__repr__().replace('>', '(children=%d)>' % (len(self)))
+        """Adds the number of children and the node type of the children to the default repr."""
+        normal_repr = super(BaseCollection, self).__repr__()
+        return normal_repr.replace('>', '(children=%d, type=%s, meta_data=%s)>' % (
+            len(self), self.child_type(), self.meta_data))
 
     def append(self, node):
         raise NotImplementedError
 
-    def insert(self, index, node):
+    def insert(self, index, node, **kwargs):
         raise NotImplementedError
 
     def extend(self, nodes):
         raise NotImplementedError
 
 
-class NonLinearHierarchyNodeSet(NodeRelationshipSet):
+class NodeSet(BaseCollection):
     def append(self, node):
         self.set.append(node)
 
-    def insert(self, index, node):
+    def insert(self, index, node, **kwargs):
         self.set.insert(index, node)
 
     def extend(self, nodes):
         self.set.extend(nodes)
 
 
-class LinearHierarchyNodeSet(NodeRelationshipSet):
+class NodeChain(BaseCollection):
     DEFAULT_BUFFER_TYPE = ob.Transform
 
     def __init__(self, top_node, end_node=None, duplicate=False, node_filter=None, parent=None, **kwargs):
-        super(LinearHierarchyNodeSet, self).__init__(**kwargs)
+        super(NodeChain, self).__init__(**kwargs)
         self.node_filter = self._get_default_filter_type(node_filter=node_filter)
         self.head, end_node = self._process_top_node(top_node, end_node, duplicate=duplicate)
         self.tail = self._process_end_node(end_node)
@@ -91,8 +113,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
 
     @property
     def set(self):
-        """ Only iterates on the nodes in between the top node and the end node linearly (ignores branching paths)
-        """
+        """Only iterates on the nodes in between the top node and the end node linearly (ignores branching paths)"""
         return self._traverse_up_linear_tree(self.tail, self.head)
 
     def find_child(self, child):
@@ -113,8 +134,9 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return hierarchy
 
     def get_level(self, desired_level, traversal=None, level_tree=None, node_filter=None):
-        """ Returns a dictionary at depth "desired_level" from the hierarchy.
-            Returns {} if nothing is found at that depth.
+        """Returns a dictionary at depth "desired_level" from the hierarchy.
+
+        :return: dict, Returns {} if nothing is found at that depth.
         """
         node_filter = node_filter or self.node_filter
         if level_tree is None:
@@ -135,7 +157,8 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return level_tree
 
     def insert(self, index_target, node, beneath=False, reference_node=None, reset_transform=True):
-        """ Inserts node of type buffer_node_class at the index specified.
+        """Inserts node of type buffer_node_class at the index specified.
+
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
         :param node: anvil.objects.dag_node.DagNode, an anvil node to insert in place
         :param pre_hooks: list, list of functions to run before
@@ -160,7 +183,8 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return node
 
     def add_buffer(self, index_target, beneath=False, buffer_node_class=None, reference_node=None, **kwargs):
-        """
+        """Adds a node of class buffer_node_class in between the target transform and either parent/child.
+
         :param index_target: int or str or ob.UnicodeProxy, child index, child dag string or anvil object.
         :param reference_node: anvil.objects.dag_node.DagNode, an anvil transform to match positions to.
         :param beneath: bool, place the new buffer under the index target or replace it in position
@@ -176,14 +200,13 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return gc.get_dict_depth(d=self.get_hierarchy(node_filter=node_filter or self.node_filter)) - 1
 
     def parent(self, new_parent):
-        if sc.objects_exist([self.head, new_parent]):
+        if sc.objects_exist(self.head, new_parent):
             rt.dcc.scene.parent(self.head, new_parent)
         else:
             self.warning('Tried to parent %s to non existent object %s', self.head, new_parent)
 
     def duplicate_chain(self, top_node, end_node=None):
-        """ Duplicates a chain and respects the end node by duplicating and reparenting the entire chain
-        """
+        """Duplicates a chain and respects the end node by duplicating and re-parenting the entire chain."""
         duplicate_kwargs = {'renameChildren': True, 'upstreamNodes': False, 'parentOnly': True}
         if isinstance(top_node, self.__class__):
             nodes = list(top_node)
@@ -215,8 +238,7 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return anvil.factory(top_node), end_node
 
     def _process_end_node(self, end_node_candidate, node_filter=None):
-        """ Returns the last item found of type
-        """
+        """Returns the last item found of type."""
         try:
             return anvil.factory(end_node_candidate)
         except (RuntimeError, IOError):
@@ -260,10 +282,13 @@ class LinearHierarchyNodeSet(NodeRelationshipSet):
         return list(reversed(rt.dcc.scene.list_relatives(start, allDescendents=True, children=True, **kwargs)))
 
     def __getitem__(self, key):
+        """Allows for slice notation to get slices of children from the hierarchy."""
         return list(self)[key] if isinstance(key, (int, slice)) else gc.get_dict_key_matches(key, self.get_hierarchy())
 
     def __add__(self, other):
-        return NonLinearHierarchyNodeSet(list(self) + gc.to_list(other))
+        """Converts the other to a list just in case and creates a new NodeSet from the instance and the other."""
+        return NodeSet(list(self) + gc.to_list(other))
 
     def __repr__(self):
-        return super(LinearHierarchyNodeSet, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))
+        """Adds the top node and last node of the hierarchy to the default repr."""
+        return super(NodeChain, self).__repr__().replace('>', '(%s -> %s)>' % (self.head, self.tail))

@@ -8,9 +8,9 @@ import base
 class Control(base.AbstractGrouping):
     ANVIL_TYPE = cfg.CONTROL_TYPE
 
-    CTRL_NAME_TOKENS = {cfg.TYPE: cfg.CONTROL_TYPE}
-    OFFSET_NAME_TOKENS = {cfg.TYPE: cfg.OFFSET_GROUP}
-    CONN_NAME_TOKENS = {cfg.TYPE: cfg.CONNECTION_GROUP}
+    CTRL_META_DATA = {cfg.TYPE: cfg.CONTROL_TYPE}
+    OFFSET_META_DATA = {cfg.TYPE: cfg.OFFSET_GROUP}
+    CONN_META_DATA = {cfg.TYPE: cfg.CONNECTION_GROUP}
 
     PV_MOVE_DEFAULT = [0, 0, 3]
     PV_AIM_DEFAULT = [0, 0, 1]
@@ -26,11 +26,8 @@ class Control(base.AbstractGrouping):
         super(Control, self).__init__(**kwargs)
 
     @classmethod
-    def build(cls, reference_object=None, parent=None, meta_data=None, name_tokens=None, **kwargs):
+    def build(cls, reference_object=None, parent=None, meta_data=None, **kwargs):
         kwargs[cfg.META_DATA] = cls.BUILT_IN_META_DATA.merge(meta_data, new=True)
-        kwargs[cfg.META_DATA].set_protected(cls.BUILT_IN_META_DATA.protected)
-        kwargs[cfg.NAME_TOKENS] = cls.BUILT_IN_NAME_TOKENS.merge(name_tokens, new=True)
-        kwargs[cfg.NAME_TOKENS].set_protected(cls.BUILT_IN_NAME_TOKENS.protected)
 
         instance = cls(**kwargs)
 
@@ -42,12 +39,12 @@ class Control(base.AbstractGrouping):
         instance.build_node(ob.Transform, hierarchy_id='offset_group', **kwargs)
         instance.build_node(ob.Transform, hierarchy_id='connection_group', **kwargs)
         instance.controller = instance.hierarchy.curve.control
-        instance.offset_group = instance.hierarchy.node.offset_group
+        instance.offset_group = instance.root = instance.hierarchy.node.offset_group
         instance.connection_group = instance.hierarchy.node.connection_group
 
-        instance.controller.name_tokens.merge(instance.CTRL_NAME_TOKENS, force=True)
-        instance.offset_group.name_tokens.merge(instance.OFFSET_NAME_TOKENS, force=True)
-        instance.connection_group.name_tokens.merge(instance.CONN_NAME_TOKENS, force=True)
+        instance.controller.meta_data.merge(instance.CTRL_META_DATA, force=True)
+        instance.offset_group.meta_data.merge(instance.OFFSET_META_DATA, force=True)
+        instance.connection_group.meta_data.merge(instance.CONN_META_DATA, force=True)
 
         rt.dcc.scene.parent(instance.controller, instance.offset_group)
         rt.dcc.scene.parent(instance.connection_group, instance.controller)

@@ -33,57 +33,57 @@ class TestControlBuild(TestBaseControl):
         nt.Control.build(shape='cube')
 
     @clean_up_scene
-    def test_hierarchy_name_tokens_control(self):
+    def test_hierarchy_meta_data_control(self):
         control = nt.Control.build()
-        self.assertEqual(control.controller.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-        self.assertEqual(control.controller.name_tokens.get(cfg.NAME), 'untitled')
+        self.assertEqual(control.controller.meta_data.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.controller.meta_data.get(cfg.NAME), 'untitled')
 
     @clean_up_scene
-    def test_hierarchy_name_tokens_offset(self):
+    def test_hierarchy_meta_data_offset(self):
         control = nt.Control.build()
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'untitled')
+        self.assertEqual(control.offset_group.meta_data.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.offset_group.meta_data.get(cfg.NAME), 'untitled')
 
     @clean_up_scene
-    def test_hierarchy_name_tokens_connection(self):
+    def test_hierarchy_meta_data_connection(self):
         control = nt.Control.build()
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'untitled')
+        self.assertEqual(control.connection_group.meta_data.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        self.assertEqual(control.connection_group.meta_data.get(cfg.NAME), 'untitled')
 
     @clean_up_scene
-    def test_hierarchy_name_tokens_control_preexisting_name_tokens(self):
-        control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
-        self.assertEqual(control.controller.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-        self.assertEqual(control.controller.name_tokens.get(cfg.NAME), 'bob')
-        self.assertEqual(control.controller.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
+    def test_hierarchy_meta_data_control_preexisting_meta_data(self):
+        control = nt.Control.build(meta_data={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
+        self.assertEqual(control.controller.meta_data.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.controller.meta_data.get(cfg.NAME), 'bob')
+        self.assertEqual(control.controller.meta_data.get(cfg.CHILD_TYPE), 'lisa')
 
     @clean_up_scene
-    def test_hierarchy_name_tokens_offset_preexisting_name_tokens(self):
-        control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.NAME), 'bob')
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
+    def test_hierarchy_meta_data_offset_preexisting_meta_data(self):
+        control = nt.Control.build(meta_data={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
+        self.assertEqual(control.offset_group.meta_data.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.offset_group.meta_data.get(cfg.NAME), 'bob')
+        self.assertEqual(control.offset_group.meta_data.get(cfg.CHILD_TYPE), 'lisa')
 
     @clean_up_scene
-    def test_hierarchy_name_tokens_connection_preexisting_name_tokens(self):
-        control = nt.Control.build(name_tokens={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.NAME), 'bob')
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.CHILD_TYPE), 'lisa')
+    def test_hierarchy_meta_data_connection_preexisting_meta_data(self):
+        control = nt.Control.build(meta_data={cfg.NAME: 'bob', cfg.CHILD_TYPE: 'lisa'})
+        self.assertEqual(control.connection_group.meta_data.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        self.assertEqual(control.connection_group.meta_data.get(cfg.NAME), 'bob')
+        self.assertEqual(control.connection_group.meta_data.get(cfg.CHILD_TYPE), 'lisa')
 
     @clean_up_scene
     def test_hierarchy_name_token_type_default(self):
         control = nt.Control.build()
-        self.assertEqual(control.controller.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        self.assertEqual(control.controller.meta_data.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.offset_group.meta_data.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.connection_group.meta_data.get(cfg.TYPE), cfg.CONNECTION_GROUP)
 
     @clean_up_scene
     def test_hierarchy_name_token_type_preexisting(self):
-        control = nt.Control.build(name_tokens={'name': 'bob', 'childtype': 'lisa'})
-        self.assertEqual(control.controller.name_tokens.get(cfg.TYPE), cfg.CONTROL_TYPE)
-        self.assertEqual(control.offset_group.name_tokens.get(cfg.TYPE), cfg.OFFSET_GROUP)
-        self.assertEqual(control.connection_group.name_tokens.get(cfg.TYPE), cfg.CONNECTION_GROUP)
+        control = nt.Control.build(meta_data={'name': 'bob', 'childtype': 'lisa'})
+        self.assertEqual(control.controller.meta_data.get(cfg.TYPE), cfg.CONTROL_TYPE)
+        self.assertEqual(control.offset_group.meta_data.get(cfg.TYPE), cfg.OFFSET_GROUP)
+        self.assertEqual(control.connection_group.meta_data.get(cfg.TYPE), cfg.CONNECTION_GROUP)
 
 
 class TestControlRename(TestBaseControl):

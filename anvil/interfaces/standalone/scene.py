@@ -7,7 +7,7 @@ def get_type(node, *args, **kwargs):
 
 
 def is_exact_type(node, typename, *args, **kwargs):
-    return type(node) == typename
+    return isinstance(node, typename)
 
 
 def is_type(node, typename, *args, **kwargs):

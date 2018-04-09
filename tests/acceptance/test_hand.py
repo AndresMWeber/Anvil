@@ -1,63 +1,68 @@
+from six import iteritems, itervalues
+import string
+import anvil.config as cfg
 import anvil.node_types as nt
-from anvil.utils.scene import print_scene_tree
 from anvil.sub_rig_templates import Hand
 from tests.base_test import TestBase, clean_up_scene, auto_save_result
-import string
-from pprint import pprint
 
 
 class TestHandBase(TestBase):
     hand = None
-    name_tokens = {'name': 'hoof', 'purpose': 'mvp'}
+
+    meta_data = {'name': 'hoof', 'purpose': 'mvp'}
     HAND_MERC_JOINTS = ['j_pa_r', 'j_ra_r', 'j_ia_r', 'j_ma_r', 'j_ta_r']
     TEMPLATE_CLASS = Hand
 
     @classmethod
     def from_template_file(cls, template_file, finger_start_joints=None, **kwargs):
         cls.import_template_files(template_file)
+        cls.LOG.info('Successfully imported template file %s' % template_file)
 
-        finger_joints = []
+        kwargs['layout_joints'] = []
         for finger in finger_start_joints:
-            finger_joints.append(list(nt.LinearHierarchyNodeSet(finger)))
+            kwargs['layout_joints'].append(list(nt.NodeChain(finger)))
 
-        rig_instance = cls.TEMPLATE_CLASS(layout_joints=finger_joints, **kwargs)
+        rig_instance = cls.TEMPLATE_CLASS(**kwargs)
         rig_instance.build(**kwargs)
         return rig_instance
 
 
-class TestBuildHand(TestHandBase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestBuildHand, cls).setUpClass()
-        try:
-            cls.hand = cls.from_template_file(cls.HAND_MERC, cls.HAND_MERC_JOINTS)
-        except (IndexError, KeyError) as e:
-            print_scene_tree()
-            raise e
-
-    @auto_save_result
-    def test_build_no_kwargs_no_errors(self):
-        self.assertIsNotNone(self.hand)
+class TestHandHierarchy(TestHandBase):
+    def setUp(self):
+        if self.hand is None:
+            self.__class__.hand = self.from_template_file(self.HAND_MERC,
+                                                          self.HAND_MERC_JOINTS,
+                                                          solver=cfg.IK_RP_SOLVER)
 
     def test_number_of_controls_from_flat_hierarchy(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Control)]), 15)
-
-    def test_number_of_controls_from_get_children(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len(self.hand.group_controls.get_children()), 10)
-
-    def test_number_of_joint_chains_from_get_children(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len(self.hand.group_joints.get_children()), 15)
+        self.assertEqual(len(self.hand.hierarchy.control.to_value_list()), 25)
 
     def test_number_of_joints_from_flat_hierarchy(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len([node for node in self.hand._flat_hierarchy() if isinstance(node, nt.Joint)]), 15)
+        self.assertEqual(len(self.hand.hierarchy.joint.to_value_list()), 60)
+
+    def test_number_of_joint_top_groups_from_get_children(self):
+        self.assertEqual(len(self.hand.group_joints.get_children()), 15)
+
+    def test_number_of_control_top_groups_from_get_children(self):
+        self.assertEqual(len(self.hand.group_controls.get_children()), 15)
 
     def test_number_of_nodes_from_get_children(self):
-        pprint(self.hand.hierarchy)
-        self.assertEqual(len(self.hand.group_nodes.get_children()), 5)
+        self.assertEqual(len(self.hand.group_nodes.get_children()), 15)
+
+    def test_control_names(self):
+        top_groups = ['A_fk_OGP', 'A_ik_OGP', 'A_pv_OGP']
+        self.assertIn([name + ending for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
+                      list(map(str, self.hand.hierarchy.control.to_value_list())))
+
+    def test_joint_names(self):
+        top_groups = ['A_fk_JNT', 'A_ik_JNT', 'A_blend_JNT']
+        self.assertIn(['%s_%s' % (name, ending) for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
+                      list(map(str, self.hand.hierarchy.joint.to_value_list())))
+
+    def test_node_names(self):
+        top_groups = ['IKHANDLE']
+        self.assertIn(['%s_%s' % (name, ending) for ending in top_groups for name in self.TEMPLATE_CLASS.DEFAULT_NAMES],
+                      list(map(str, self.hand.hierarchy.node.to_value_list())))
 
 
 class TestBuildDefaultHand(TestHandBase):
@@ -68,12 +73,21 @@ class TestBuildDefaultHand(TestHandBase):
         rig_instance = self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, parent=parent)
         self.assertEqual(str(rig_instance.root.get_parent()), str(parent))
 
+    @clean_up_scene
+    @auto_save_result
+    def test_build_no_kwargs_no_errors(self):
+        self.assertIsNotNone(self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS))
+
+    @clean_up_scene
+    @auto_save_result
+    def test_build_with_rp_solver(self):
+        self.assertIsNotNone(self.from_template_file(self.HAND_MERC, self.HAND_MERC_JOINTS, solver=cfg.IK_RP_SOLVER))
+
 
 class TestGetFingerBaseNames(TestHandBase):
     @classmethod
     def setUpClass(cls):
-        super(TestGetFingerBaseNames, cls).setUpClass()
-        cls.hand = Hand(cls.HAND_MERC_JOINTS)
+        cls.hand = cls.TEMPLATE_CLASS(cls.HAND_MERC_JOINTS)
 
     def test_default_with_thumb_from_fbx(self):
         self.hand.layout_joints = self.HAND_MERC_JOINTS

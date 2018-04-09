@@ -1,6 +1,6 @@
-from anvil.plugins.maya.dependencies import *
 import anvil.config as cfg
-import anvil.plugins.base.api_proxy as api_proxy
+import anvil.interfaces.api_proxy as api_proxy
+from anvil.interfaces.maya.dependencies import DEFAULT_API, om, APIs
 
 
 @api_proxy.APIProxy.validate({"type": ["object", "null"],
@@ -363,7 +363,7 @@ def list_scene_nodes(object_type='transform', has_shape=False):
         if not node.getShape():
             nodes.append(node)
         else:
-            if not node.getShape().type() == 'camera':
+            if not node.getShape().child_type() == 'camera':
                 nodes.append(node)
             else:
                 if not DEFAULT_API.camera(node.getShape(), startupCamera=True, q=True):

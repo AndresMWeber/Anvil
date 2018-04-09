@@ -18,7 +18,7 @@ SET_TYPE = 'set'
 ANVIL_TYPE = 'ANVIL_TYPE'
 ID_TYPE = 'hierarchy_id'
 
-# NAME METADATA
+# NAME META_DATA
 LEFT = 'left'
 RIGHT = 'right'
 CENTER = 'center'
@@ -42,7 +42,6 @@ HIERARCHY_TYPE = 'hierarchy'
 
 # RIG CONCEPTS
 SUB_RIG_TOKEN = 'sub'
-NAME_TOKENS = 'name_tokens'
 META_DATA = 'meta_data'
 UNIVERSAL = 'universal'
 TOP_GROUP = 'group_top'

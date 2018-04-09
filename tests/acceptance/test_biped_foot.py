@@ -6,7 +6,7 @@ import anvil.config as cfg
 
 
 class TestBaseTemplateRigs(TestBase):
-    name_tokens = {'name': 'eye', 'purpose': 'mvp'}
+    meta_data = {'name': 'eye', 'purpose': 'mvp'}
     test_rig = None
     TEMPLATE = BipedFoot
 
@@ -61,8 +61,8 @@ class TestBuildBipedFoot(TestBaseTemplateRigs):
 
     @staticmethod
     def build_leg_ik():
-        foot_ball_result = TestBuildBipedFoot.TEMPLATE().build_ik(nt.LinearHierarchyNodeSet('hip', 'foot',
-                                                                                            node_filter=cfg.JOINT_TYPE),
+        foot_ball_result = TestBuildBipedFoot.TEMPLATE().build_ik(nt.NodeChain('hip', 'foot',
+                                                                               node_filter=cfg.JOINT_TYPE),
                                                                   solver=cfg.IK_RP_SOLVER)
         return {'leg_ik': foot_ball_result[cfg.NODE_TYPE][cfg.DEFAULT]}
 
