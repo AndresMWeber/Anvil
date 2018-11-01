@@ -6,6 +6,7 @@ nvenv: make-venv
 make-venv:
 	wget https://bootstrap.pypa.io/get-pip.py
 	python2.7 get-pip.py
+	pip2.7 install --upgrade pip
 	pip2.7 install virtualenv
 	python2.7 -m virtualenv ~/nvenv --python=python2.7 --no-site-packages
 
